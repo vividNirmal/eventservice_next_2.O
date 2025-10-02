@@ -12,6 +12,7 @@ import {
   Users,
   CalendarDays,
   Ticket,
+  FolderMinusIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -115,7 +116,8 @@ export function AppSidebar({ ...props }) {
         icon: FileText,
         items: [
           { title: "Forms", url: "/dashboard/form-management" },
-          { title: "Ticket Management", url: "/dashboard/ticket-management" }
+          { title: "Ticket Management", url: "/dashboard/ticket-management" },
+          { title: "Default Fields", url: "/dashboard/default-fields" },
         ],
         show: true,
       },

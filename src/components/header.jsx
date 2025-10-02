@@ -40,20 +40,20 @@ export default function Header() {
   const dropdownRef = useRef(null);
   const dispatch = useDispatch();
   useEffect(() => {
-    getuserBytoken();
+    // getuserBytoken();
     const user = localStorage.getItem("loginuser");
     if (user) {
       setLoginUser(JSON.parse(user));
     }
   }, []);
 
-  async function getuserBytoken() {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const responce = await getRequest(`get-user-by-token/${token}`);
-      dispatch(handleAdminuser(responce?.data));
-    }
-  }
+  // async function getuserBytoken() {
+  //   const token = localStorage.getItem("token");
+  //   if (token) {
+  //     const responce = await getRequest(`get-user-by-token/${token}`);
+  //     dispatch(handleAdminuser(responce?.data));
+  //   }
+  // }
 
   const handleLogout = () => {
     localStorage.removeItem("token");

@@ -56,6 +56,7 @@ export function CustomCombobox({
   maxDisplay = 7,
   multiSelect = false,
   renderTriggerContent,
+  search = true,
   ...props
 }) {
   const [open, setOpen] = useState(false);
@@ -235,13 +236,17 @@ export function CustomCombobox({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0" style={{ width: triggerWidth }} align="start">
-        <Command>
-          <CommandInput
-            placeholder={searchPlaceholder}
-            className="h-9"
-            value={searchTerm}
-            onValueChange={setSearchTerm}
-          />
+        <Command>{
+          search && (
+            <CommandInput
+              placeholder={searchPlaceholder}
+              className="h-9"
+              value={searchTerm}
+              onValueChange={setSearchTerm}
+            />
+
+          )
+          }
           {filteredOptions.length === 0 ? (
             <CommandEmpty>{emptyMessage}</CommandEmpty>
           ) : (

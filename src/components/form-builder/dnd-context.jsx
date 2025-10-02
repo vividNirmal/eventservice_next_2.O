@@ -20,13 +20,14 @@ import { createDefaultElement, generateId } from '@/lib/form-utils';
 
 /**
  * DndFormBuilder Component
- * Provides drag and drop context for the form builder
+ * Provides drag and drop context for the form builder with multi-page support
  */
 export function DndFormBuilder({ 
   children, 
   elements, 
   onElementsChange, 
-  onAddElement 
+  onAddElement,
+  currentPageIndex // Add current page index prop
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -53,18 +54,34 @@ export function DndFormBuilder({
 
     if (!over) return;
 
+    // Extract page index from the canvas ID (form-canvas-{pageIndex})
+    const getPageIndexFromCanvasId = (canvasId) => {
+      if (typeof canvasId === 'string' && canvasId.startsWith('form-canvas-')) {
+        return parseInt(canvasId.replace('form-canvas-', ''), 10);
+      }
+      return null;
+    };
+
     // Check if dragging from sidebar to canvas
     if (active.id.startsWith('sidebar-')) {
       const elementType = active.id.replace('sidebar-', '');
-      console.log('Adding new element:', elementType);
+      console.log('Adding new element:', active, over);
+      
+      // Determine which page to add to
+      let targetPageIndex = currentPageIndex;
+      
+      // Check if dropping directly on a canvas
+      if (over.id && typeof over.id === 'string' && over.id.startsWith('form-canvas-')) {
+        targetPageIndex = getPageIndexFromCanvasId(over.id);
+      }
       
       // Check if dropping on canvas or on an existing element
-      if (over.id === 'form-canvas' || !over.id.startsWith('sidebar-')) {
+      if (over.id.startsWith('form-canvas-') || !over.id.startsWith('sidebar-')) {
         // Create new element
         const newElement = createDefaultElement(elementType);
         
         // If dropping on an existing element, insert after it
-        if (over.id !== 'form-canvas' && !over.id.startsWith('sidebar-')) {
+        if (!over.id.startsWith('form-canvas-') && !over.id.startsWith('sidebar-')) {
           const targetIndex = elements.findIndex(el => el.id === over.id);
           if (targetIndex !== -1) {
             newElement.position = targetIndex + 1;
@@ -76,12 +93,13 @@ export function DndFormBuilder({
               }
             });
             updatedElements.splice(targetIndex + 1, 0, newElement);
-            onElementsChange(updatedElements.map((el, index) => ({...el, position: index})));
+            onElementsChange(updatedElements.map((el, index) => ({...el, position: index})), targetPageIndex);
             return;
           }
         }
         
-        onAddElement(newElement);
+        // Add element to the specific page
+        onAddElement(newElement, targetPageIndex);
       }
       return;
     }
@@ -101,7 +119,7 @@ export function DndFormBuilder({
           position: index
         }));
         
-        onElementsChange(updatedElements);
+        onElementsChange(updatedElements, currentPageIndex);
       }
     }
   };
