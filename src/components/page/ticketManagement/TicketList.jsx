@@ -484,7 +484,7 @@ const TicketList = ({ eventId }) => {
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className={'px-0'}>
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between items-start">
               <div>
@@ -503,7 +503,6 @@ const TicketList = ({ eventId }) => {
                   )}
                 </CardDescription>
               </div>
-              
               <div className="flex items-center space-x-2">
                 {selectedTickets.size > 0 && (
                   <Button 
@@ -518,10 +517,7 @@ const TicketList = ({ eventId }) => {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button 
-                        onClick={openAddDialog} 
-                        disabled={formsLoading || !hasAvailableForms}
-                      >
+                      <Button onClick={openAddDialog} disabled={formsLoading || !hasAvailableForms}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Ticket
                       </Button>
@@ -535,7 +531,6 @@ const TicketList = ({ eventId }) => {
                 </TooltipProvider>
               </div>
             </div>
-
             <div className="flex flex-wrap items-center gap-4">
               {/* Limit Selector */}
               <div className="flex items-center space-x-2">

@@ -67,13 +67,13 @@ export function FormBuilder({ form, onFormChange }) {
   }, []);
 
   return (
-    <div className="h-screen flex bg-gray-100">
+    <div className="flex flex-col bg-gray-100 h-16 grow">
       <DndFormBuilder
         elements={form.elements}
         onElementsChange={handleElementsChange}
         onAddElement={handleAddElement}
       >
-        <div className="flex flex-1">
+        <div className="flex grow overflow-auto">
           <ElementSidebar />
           
           <FormCanvas

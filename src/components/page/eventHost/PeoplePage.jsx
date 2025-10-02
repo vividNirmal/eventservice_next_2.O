@@ -142,7 +142,7 @@ const PeoplePage = ({eventId }) => {
 
   return (
     <section>
-      <Card className={"gap-0 py-3"}>
+      <Card className={"gap-0 2xl:p-4"}>
         <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
           <div className="flex flex-col gap-1">
             <CardTitle>People</CardTitle>
@@ -189,7 +189,7 @@ const PeoplePage = ({eventId }) => {
             <Loader2 className="h-8 w-8 animate-spin" />
           </div>
         ) : (
-          <div className="rounded-md border mt-4">
+          <div className="rounded-md border mt-4 bg-white">
             <Table>
               <TableHeader>
                 <TableRow>

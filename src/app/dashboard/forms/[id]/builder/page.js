@@ -242,22 +242,17 @@ export default function FormBuilderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 px-4 2xl:px-6 py-2.5 2xl:py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={handleGoBack}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Forms
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" onClick={handleGoBack} className={'!p-2 size-9 bg-gray-50 border border-solid border-gray-200 group hover:border-blue-500 hover:bg-blue-500 transition-all duration-200 ease-in'}>
+              <ArrowLeft className="size-full text-gray-600 group-hover:text-white transition-all duration-200 ease-in" />
+              {/* Back to Forms */}
             </Button>
-            
-            <div className="h-6 w-px bg-gray-300" />
-            
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Form Builder
-              </h1>
+            <div className='pl-3 border-l border-solid border-gray-300'>
+              <h1 className="text-base 2xl:text-lg font-semibold text-gray-900">Form Builder</h1>
               <p className="text-sm text-gray-600 flex items-center">
                 {form.formName || originalForm?.formName || 'New Form'}
                 {autoSaving && (
@@ -289,37 +284,26 @@ export default function FormBuilderPage() {
       </div>
 
       {/* Form Settings */}
-      <div className="px-6 py-4 bg-white border-b border-gray-200">
-        <Card>
-          <CardHeader>
+      {/* <div className="px-4 py-4 bg-white border-b border-gray-200">
+        <Card className="gap-0 xl:gap-3 2xl:p-5">
+          <CardHeader className={'px-0'}>
             <CardTitle>Form Settings</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className='md:col-span-3'>
                 <Label htmlFor="formName">Form Name</Label>
-                <Input
-                  id="formName"
-                  value={form.formName}
-                  onChange={(e) => handleFormSettingsChange('formName', e.target.value)}
-                  placeholder="Enter form name"
-                />
+                <Input id="formName" className="h-10 2xl:h-11" value={form.formName} onChange={(e) => handleFormSettingsChange('formName', e.target.value)} placeholder="Enter form name" />
               </div>
-              
               <div>
                 <Label htmlFor="userType">User Type</Label>
-                <Select 
-                  value={form.userType} 
-                  onValueChange={(value) => handleFormSettingsChange('userType', value)}
-                >
-                  <SelectTrigger>
+                <Select value={form.userType} onValueChange={(value) => handleFormSettingsChange('userType', value)}>
+                  <SelectTrigger className="w-full h-10 2xl:h-11">
                     <SelectValue placeholder="Select user type" />
                   </SelectTrigger>
                   <SelectContent>
                     {userTypeOptions.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -327,14 +311,11 @@ export default function FormBuilderPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Form Builder */}
-      <div className="flex-1">
-        <FormBuilder 
-          form={form} 
-          onFormChange={handleFormChange}
-        />
+      <div className="flex-1 h-20 grow flex flex-col">
+        <FormBuilder form={form} onFormChange={handleFormChange} />
       </div>
     </div>
   );

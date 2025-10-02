@@ -44,8 +44,8 @@ export function ElementProperties({ element, onSave, onClose }) {
 
   if (!element) {
     return (
-      <div className="w-80 bg-gray-50 border-l border-gray-200 p-4">
-        <div className="text-center text-gray-500 mt-8">
+      <div className="w-80 bg-gray-50 border-l border-gray-200 p-4 content-center sticky top-0">
+        <div className="text-center text-gray-500">
           <p className="text-sm">Select an element to edit its properties</p>
         </div>
       </div>
@@ -118,9 +118,9 @@ export function ElementProperties({ element, onSave, onClose }) {
   const isDivider = element.type === 'divider';
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-      <Card className="border-0 rounded-none">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+    <div className="w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
+      <Card className="border-0 rounded-none grow">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
           <CardTitle className="text-lg">Element Properties</CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />

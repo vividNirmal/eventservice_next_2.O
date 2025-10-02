@@ -47,6 +47,7 @@ import {
   Settings,
   Car
 } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 // Comprehensive form element groups for event management
 const ELEMENT_GROUPS = {
@@ -480,6 +481,10 @@ function DraggableElement({ element }) {
     transform,
   } = useDraggable({
     id: `sidebar-${element.type}`,
+    data: {
+      supports: ['type1', 'type2'],
+    }
+
   });
 
   const style = transform ? {
@@ -494,19 +499,17 @@ function DraggableElement({ element }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group p-3 bg-white border border-gray-200 rounded-lg cursor-grab active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+      className="group p-2 2xl:p-3 bg-white border border-gray-200 rounded-md 2xl:rounded-lg cursor-grab shadow active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200"
     >
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-2">
         <div className="flex-shrink-0">
-          <Icon className="h-5 w-5 text-gray-600 group-hover:text-blue-600" />
+          <Icon className="size-4 2xl:size-5 text-gray-600 group-hover:text-blue-600" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
-            {element.label}
-          </p>
-          <p className="text-xs text-gray-500 truncate">
+        <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-2">
+          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">{element.label}</p>
+          {/* <p className="text-xs text-gray-500 truncate">
             {element.description}
-          </p>
+          </p> */}
         </div>
       </div>
     </div>
@@ -532,15 +535,11 @@ function ElementGroup({ title, elements, searchTerm }) {
   if (filteredElements.length === 0) return null;
 
   return (
-    <div className="mb-6">
-      <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
-        {title}
-      </h3>
-      <div className="space-y-2">
-        {filteredElements.map((element) => (
-          <DraggableElement key={element.type} element={element} />
-        ))}
-      </div>
+    <div className="flex flex-col gap-1.5 mb-5">
+      <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+      {filteredElements.map((element) => (
+        <DraggableElement key={element.type} element={element} />
+      ))}
     </div>
   );
 }
@@ -573,10 +572,10 @@ export function ElementSidebar() {
   }, [searchTerm, allElements]);
 
   return (
-    <div className="w-80 bg-gray-50 border-r border-gray-200 overflow-y-auto">
-      <Card className="h-full border-0 rounded-none">
-        <CardHeader >
-          <CardTitle className="text-lg font-semibold">Form Elements</CardTitle>
+    <div className="w-80 bg-gray-50 border-r border-gray-200 relative z-10 flex flex-col">
+      <Card className="border-0 rounded-none 2xl:p-4 grow">
+        <CardHeader className="px-0">
+          <CardTitle className="text-sm font-semibold text-gray-700">Form Elements</CardTitle>
           
           {/* Search Input */}
           <div className="relative">
@@ -585,27 +584,23 @@ export function ElementSidebar() {
               placeholder="Search elements..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-9 2xl:h-11 2xl:text-base"
             />
           </div>
         </CardHeader>
         
-        <CardContent className="p-4">
+        <CardContent className="p-0">
           {searchResults ? (
             // Show search results
             <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 px-1">
-                Search Results ({searchResults.length})
-              </h3>
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Search Results ({searchResults.length})</h3>
               <div className="space-y-2">
                 {searchResults.map((element) => (
                   <DraggableElement key={element.type} element={element} />
                 ))}
               </div>
               {searchResults.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-8">
-                  No elements found matching "{searchTerm}"
-                </p>
+                <p className="text-sm text-gray-500 text-center py-8">No elements found matching "{searchTerm}"</p>
               )}
             </div>
           ) : (

@@ -276,7 +276,7 @@ const FormManagement = ({ eventId }) => {
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Forms List</CardTitle>
@@ -376,31 +376,16 @@ const FormManagement = ({ eventId }) => {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Edit Form</DialogTitle>
-                    <DialogDescription>
-                      Update the form name and user type.
-                    </DialogDescription>
+                    <DialogDescription>Update the form name and user type.</DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="editFormName" className="text-right">
-                        Form Name *
-                      </Label>
-                      <Input
-                        id="editFormName"
-                        value={editForm.formName}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, formName: e.target.value }))}
-                        className="col-span-3"
-                        placeholder="Enter form name"
-                      />
+                      <Label htmlFor="editFormName" className="text-right">Form Name *</Label>
+                      <Input id="editFormName" value={editForm.formName} onChange={(e) => setEditForm(prev => ({ ...prev, formName: e.target.value }))} className="col-span-3" placeholder="Enter form name" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="editUserType" className="text-right">
-                        User Type *
-                      </Label>
-                      <Select 
-                        value={editForm.userType} 
-                        onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}
-                      >
+                      <Label htmlFor="editUserType" className="text-right">User Type *</Label>
+                      <Select value={editForm.userType} onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}>
                         <SelectTrigger className="col-span-3">
                           <SelectValue placeholder="Select user type" />
                         </SelectTrigger>
@@ -415,12 +400,8 @@ const FormManagement = ({ eventId }) => {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isUpdatingForm}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleEditForm} disabled={isUpdatingForm}>
-                      {isUpdatingForm ? 'Updating...' : 'Update Form'}
-                    </Button>
+                    <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isUpdatingForm}>Cancel</Button>
+                    <Button onClick={handleEditForm} disabled={isUpdatingForm}>{isUpdatingForm ? 'Updating...' : 'Update Form'}</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

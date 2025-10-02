@@ -33,11 +33,9 @@ const TicketManagement = ({ eventId }) => {
   return (
     <>
       <Card>
-        <CardHeader>
+        <CardHeader className={'px-0'}>
           <CardTitle>Ticket Management</CardTitle>
-          <CardDescription>
-            Manage forms and tickets for your events
-          </CardDescription>
+          <CardDescription>Manage forms and tickets for your events</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

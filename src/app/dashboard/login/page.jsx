@@ -144,11 +144,11 @@ export default function AdminLogin() {
             </div>
           </div>
 
-          <div className="rounded-xl shadow-[0_0_6px_rgba(0,0,0,0.12)] my-4 p-4 lg:pr-10 w-full lg:w-1/4 flex flex-col justify-center">
+          <div className="rounded-xl shadow-[0_0_6px_rgba(0,0,0,0.12)] my-4 p-4 lg:pr-10 w-full lg:w-1/3 xl:w-1/4 flex flex-col justify-center">
             <h1 className="text-center text-3xl xl:text-4xl font-semibold text-black mb-4">
               Welcome{domainConfig.brandName ? ` to ${domainConfig.brandName}` : ''}
             </h1>
-            <span className="flex items-center gap-3 relative text-black font-normal text-sm mb-10 before:w-1/3 before:grow before:h-0.5 before:bg-zinc-400 after:w-1/3 after:grow after:h-0.5 after:bg-zinc-400">Login Here</span>
+            <span className="flex items-center gap-3 relative text-black font-normal whitespace-nowrap text-sm mb-10 before:w-1/3 before:grow before:h-0.5 before:bg-zinc-400 after:w-1/3 after:grow after:h-0.5 after:bg-zinc-400">Login Here</span>
             <form onSubmit={handleSubmit}>
               <div className="relative mb-3">
                 <Label htmlFor="email" className="pl-1 block mb-1 text-sm md:text-base capitalize text-zinc-900">Email</Label>

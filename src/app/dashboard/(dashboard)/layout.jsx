@@ -50,7 +50,7 @@ export default function RootLayout({ children }) {
 
   // Simple HeaderBar component for admin users (without sidebar functionality)
   const SimpleHeaderBar = () => (
-    <header className="flex shrink-0 items-center gap-2 rounded-2xl bg-white border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] transition-[width,height] ease-linear themed-header">
+    <header className="flex shrink-0 items-center gap-2 rounded-0 bg-white border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] transition-[width,height] ease-linear themed-header">
       <div className="flex items-center gap-2 px-4 w-full">
         <Header />
       </div>
@@ -67,9 +67,7 @@ export default function RootLayout({ children }) {
               <AppSidebar />
               <SidebarInset className={'bg-transparent gap-5'}>
                 <HeaderBar />
-                <div className="flex flex-col flex-1 space-y-4 p-4 xl:p-6 bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] min-h-0 overflow-auto themed-content">
-                  {children}
-                </div>
+                <div className="flex flex-col flex-1 space-y-4 p-4 xl:p-6 bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] min-h-0 overflow-auto themed-content">{children}</div>
               </SidebarInset>
             </SidebarProvider>
           ) : (
@@ -80,9 +78,7 @@ export default function RootLayout({ children }) {
                 <div className="flex flex-col h-screen bg-gray-50">
                   <SimpleHeaderBar />
                   <div className="flex-1 overflow-auto p-4 xl:p-6">
-                    <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 min-h-0 themed-content">
-                      {children}
-                    </div>
+                    <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 min-h-0 themed-content">{children}</div>
                   </div>
                 </div>
               ) : isEventDetailPage ? (
@@ -91,9 +87,7 @@ export default function RootLayout({ children }) {
                   <StaticNavigation eventId={eventId} />
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <SimpleHeaderBar />
-                    <div className="flex-1 overflow-auto p-4 xl:p-6">
-                      {children}
-                    </div>
+                    <div className="flex-1 overflow-auto p-4 xl:p-6">{children}</div>
                   </div>
                 </div>
               ) : (
@@ -103,9 +97,7 @@ export default function RootLayout({ children }) {
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <SimpleHeaderBar />
                     <div className="flex-1 overflow-auto p-4 xl:p-6">
-                      <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 min-h-0 themed-content">
-                        {children}
-                      </div>
+                      <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 min-h-0 themed-content">{children}</div>
                     </div>
                   </div>
                 </div>

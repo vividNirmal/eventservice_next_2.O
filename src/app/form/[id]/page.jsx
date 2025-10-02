@@ -146,11 +146,7 @@ export default function PublicFormPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <Button 
-            onClick={() => router.back()}
-            variant="outline"
-            className="flex items-center gap-2 mb-4"
-          >
+          <Button  onClick={() => router.back()} variant="outline" className="flex items-center gap-2 mb-4">
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
@@ -163,11 +159,7 @@ export default function PublicFormPage() {
         </div>
 
         {/* Form */}
-        <FormRenderer 
-          form={form} 
-          onSubmit={handleFormSubmit}
-          loading={submitting}
-        />
+        <FormRenderer form={form} onSubmit={handleFormSubmit} loading={submitting} />
       </div>
     </div>
   );

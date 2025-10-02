@@ -409,7 +409,7 @@ function DeviceDetailsTab() {
                         <Loader2 className="h-8 w-8 animate-spin" />
                     </div>
                 ) : (
-                    <div className="rounded-md border mt-4">
+                    <div className="rounded-md border mt-4 bg-white">
                         <Table>
                             <TableHeader>
                                 <TableRow>

@@ -11,6 +11,7 @@ import {
   FileText,
   Monitor
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const StaticNavigation = ({ eventId = null }) => {
   const router = useRouter();
@@ -170,18 +171,11 @@ const StaticNavigation = ({ eventId = null }) => {
   return (
     <>
       {/* Navigation Sidebar */}
-      <div className={`
-        bg-white shadow-lg border-r border-gray-200
-        transition-all duration-300 ease-in-out
-        ${isOpen ? 'w-64' : 'w-16'}
-        flex flex-col h-full
-      `}>
+      <div className={cn("bg-white shadow-lg border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col h-full", isOpen ? 'w-64' : 'w-16')}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           {isOpen && (
-            <h2 className="text-lg font-semibold text-gray-800 truncate">
-              Event Management
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-800 truncate">Event Management</h2>
           )}
           <button
             onClick={toggleNavigation}
@@ -211,23 +205,12 @@ const StaticNavigation = ({ eventId = null }) => {
                   {item.isExpandable ? (
                     // Expandable section
                     <div>
-                      <button
-                        onClick={() => toggleSection(item.id)}
-                        className={`
-                          w-full flex items-center gap-3 px-3 py-1 rounded-lg
-                          transition-all duration-200 text-left hover:scale-105
-                          text-gray-700 hover:bg-gray-50 hover:text-gray-900
-                          ${!isOpen ? 'justify-center' : ''}
-                        `}
-                        title={!isOpen ? item.label : ''}
-                      >
+                      <button onClick={() => toggleSection(item.id)} className={cn("w-full flex items-center gap-3 px-3 py-1 rounded-lg transition-all duration-200 text-left hover:scale-105 text-gray-700 hover:bg-gray-50 hover:text-gray-900", !isOpen ? 'justify-center' : '')} title={!isOpen ? item.label : ''}>
                         <IconComponent className="h-4 w-4 flex-shrink-0 text-gray-500" />
                         {isOpen && (
                           <>
                             <div className="flex-1 min-w-0">
-                              <div className="font-small text-sm truncate">
-                                {item.label}
-                              </div>
+                              <div className="font-small text-sm truncate">{item.label}</div>
                             </div>
                             {item.isExpanded ? (
                               <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -247,27 +230,10 @@ const StaticNavigation = ({ eventId = null }) => {
 
                             return (
                               <li key={subItem.id}>
-                                <button
-                                  onClick={() => handleSubItemClick(subItem, item.id)}
-                                  className={`
-                                    w-full flex items-center gap-3 px-3 py-1 rounded-lg
-                                    transition-all duration-200 text-left hover:scale-105
-                                    ${isSubActive 
-                                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' 
-                                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                                    }
-                                  `}
-                                  title={subItem.label}
-                                >
-                                  <SubIconComponent 
-                                    className={`h-3 w-3 flex-shrink-0 ${
-                                      isSubActive ? 'text-blue-700' : 'text-gray-400'
-                                    }`} 
-                                  />
+                                <button onClick={() => handleSubItemClick(subItem, item.id)} className={cn("w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-200 text-left border-r-2 border-solid hover:scale-105", isSubActive ? 'bg-blue-50 text-blue-700 border-blue-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900')} title={subItem.label}>
+                                  <SubIconComponent className={cn("h-3 w-3 flex-shrink-0", isSubActive ? 'text-blue-700' : 'text-gray-400')} />
                                   <div className="flex-1 min-w-0">
-                                    <div className="font-small text-sm truncate">
-                                      {subItem.label}
-                                    </div>
+                                    <div className="font-small text-sm truncate">{subItem.label}</div>
                                   </div>
                                 </button>
                               </li>
@@ -278,29 +244,11 @@ const StaticNavigation = ({ eventId = null }) => {
                     </div>
                   ) : (
                     // Regular navigation item
-                    <button
-                      onClick={() => handleItemClick(item)}
-                      className={`
-                        w-full flex items-center gap-3 px-3 py-1 rounded-lg
-                        transition-all duration-200 text-left hover:scale-105
-                        ${isActive 
-                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' 
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                        }
-                        ${!isOpen ? 'justify-center' : ''}
-                      `}
-                      title={!isOpen ? item.label : ''}
-                    >
-                      <IconComponent 
-                        className={`h-4 w-4 flex-shrink-0 ${
-                          isActive ? 'text-blue-700' : 'text-gray-500'
-                        }`} 
-                      />
+                    <button onClick={() => handleItemClick(item)} className={cn("w-full flex items-center gap-3 px-3 py-1 rounded-lg transition-all duration-200 text-left hover:scale-105", isActive ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900', !isOpen ? 'justify-center' : '')} title={!isOpen ? item.label : ''}>
+                      <IconComponent className={cn("h-4 w-4 flex-shrink-0", isActive ? 'text-blue-700' : 'text-gray-500')} />
                       {isOpen && (
                         <div className="flex-1 min-w-0">
-                          <div className="font-small text-sm truncate">
-                            {item.label}
-                          </div>
+                          <div className="font-small text-sm truncate">{item.label}</div>
                         </div>
                       )}
                     </button>
@@ -314,9 +262,7 @@ const StaticNavigation = ({ eventId = null }) => {
         {/* Footer */}
         {isOpen && (
           <div className="p-4 border-t border-gray-200">
-            <div className="text-xs text-gray-500 text-center">
-              Current Section: {navigationItems.find(item => item.id === activeSection)?.label}
-            </div>
+            <div className="text-xs text-gray-500 text-center">Current Section: {navigationItems.find(item => item.id === activeSection)?.label}</div>
           </div>
         )}
       </div>

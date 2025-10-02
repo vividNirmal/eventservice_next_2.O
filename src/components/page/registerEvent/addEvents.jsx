@@ -361,12 +361,7 @@ export default function AddEvents({ id }) {
         {/* Company Name, Show Title, Event Slug */}
         <div className="flex flex-col md:flex-row gap-4 mb-4">
           <div className="flex-1 flex flex-col">
-            <label
-              htmlFor="company_name"
-              className="mb-1 text-sm font-medium text-gray-700"
-            >
-              Company Name
-            </label>
+            <label htmlFor="company_name" className="mb-1 2xl:text-sm font-medium text-gray-700">Company Name</label>
             <div className="w-full relative">
               <Input
                 id="company_name"
@@ -393,7 +388,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="event_title"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Show Title
             </label>
@@ -423,7 +418,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="event_slug"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Event Slug
             </label>
@@ -456,7 +451,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="event_description"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Event Description
             </label>
@@ -494,7 +489,7 @@ export default function AddEvents({ id }) {
               <div className="w-full md:w-1/2 flex flex-col">
                 <label
                   htmlFor={`start_date.${index}`}
-                  className="mb-1 text-sm font-medium text-gray-700"
+                  className="mb-1 2xl:text-sm font-medium text-gray-700"
                 >
                   Start Date & Time
                 </label>
@@ -526,7 +521,7 @@ export default function AddEvents({ id }) {
               <div className="w-full md:w-1/2 flex flex-col">
                 <label
                   htmlFor={`end_date.${index}`}
-                  className="mb-1 text-sm font-medium text-gray-700"
+                  className="mb-1 2xl:text-sm font-medium text-gray-700"
                 >
                   End Date & Time
                 </label>
@@ -604,7 +599,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="google_map_url"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Location Google Map URL
             </label>
@@ -632,7 +627,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="address"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Address
             </label>
@@ -660,7 +655,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="event_type"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Event Type
             </label>
@@ -958,7 +953,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="organizer_name"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Organizer Name
             </label>
@@ -986,7 +981,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="organizer_email"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Organizer Email
             </label>
@@ -1015,7 +1010,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="organizer_phone"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               Organizer Phone
             </label>
@@ -1047,7 +1042,7 @@ export default function AddEvents({ id }) {
           <div className="flex-1 flex flex-col">
             <label
               htmlFor="with_face_scanner"
-              className="mb-1 text-sm font-medium text-gray-700"
+              className="mb-1 2xl:text-sm font-medium text-gray-700"
             >
               With Face Scanner
             </label>

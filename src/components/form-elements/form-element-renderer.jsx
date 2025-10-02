@@ -633,7 +633,7 @@ export function FormElementRenderer({ element, preview = false, value, onChange,
   }
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-2 bg-gray-50 group-hover:bg-white p-2.5 rounded-lg transition-colors duration-300 ease-in">
       {renderLabel()}
       {renderElement()}
       {renderDescription()}
