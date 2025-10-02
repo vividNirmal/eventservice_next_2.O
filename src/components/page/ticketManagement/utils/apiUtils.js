@@ -46,12 +46,26 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
           amount: Number(slot.amount)
         }));
         formDataToSend.append(key, JSON.stringify(slots));
-      } else if (key === 'crossRegisterCategories') {
+      } else if (key === 'ctaSettings') {
         // Handle array fields
         formData[key].forEach((item, index) => {
-          formDataToSend.append(`crossRegisterCategories[${index}]`, item);
+          formDataToSend.append(`ctaSettings[${index}]`, item);
         });
-      } else if (key === 'bannerImage' || key === 'desktopBannerImage' || key === 'mobileBannerImage') {
+      } else if (key === 'advancedSettings') {
+        // Send advancedSettings as JSON string
+        formDataToSend.append('advancedSettings', JSON.stringify(formData.advancedSettings));
+      } else if (key === 'notifications') {
+        // Send notifications as JSON string
+        formDataToSend.append('notifications', JSON.stringify(formData.notifications));
+      }
+      
+      // else if (key === 'crossRegisterCategories') {
+      //   // Handle array fields
+      //   formData[key].forEach((item, index) => {
+      //     formDataToSend.append(`crossRegisterCategories[${index}]`, item);
+      //   });
+      // } 
+      else if (key === 'bannerImage' || key === 'desktopBannerImage' || key === 'mobileBannerImage') {
         // Handle file uploads
         if (formData[key]) {
           formDataToSend.append(key, formData[key]);
@@ -70,10 +84,10 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       }
     });
 
-    if (companyId) {
+    if (companyId && !isEditMode) {
       formDataToSend.append('companyId', companyId);
     }
-    if (eventId) {
+    if (eventId && !isEditMode) {
       formDataToSend.append('eventId', eventId);
     }
 
@@ -91,9 +105,17 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       })),
       startCount: Number(formData.startCount),
       ticketPerUser: Number(formData.ticketPerUser),
-      ticketBuyLimitMin: Number(formData.ticketBuyLimitMin),
-      ticketBuyLimitMax: Number(formData.ticketBuyLimitMax),
-      registrationFilterDate: formData.registrationFilterDate ? new Date(formData.registrationFilterDate) : null,
+      advancedSettings: {
+        ...formData.advancedSettings,
+        ticketBuyLimitMin: Number(formData.advancedSettings.ticketBuyLimitMin),
+        ticketBuyLimitMax: Number(formData.advancedSettings.ticketBuyLimitMax),
+        registrationFilterDate: formData.advancedSettings.registrationFilterDate
+          ? new Date(formData.advancedSettings.registrationFilterDate)
+          : null
+      },
+      notifications: {
+        ...formData.notifications
+      }
 
     };
 
@@ -116,10 +138,10 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       delete submitData._id;
     }
 
-    if (companyId) {
+    if (companyId && !isEditMode) {
       submitData.companyId = companyId;
     }
-    if (eventId) {
+    if (eventId && !isEditMode) {
       submitData.eventId = eventId;
     }
 

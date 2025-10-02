@@ -91,13 +91,46 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
     }
   }, [formData.userType, fetchForms]);
 
+
+  // const handleCrossRegisterCategoryToggle = useCallback((category) => {
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     crossRegisterCategories: prev.crossRegisterCategories.includes(category)
+  //       ? prev.crossRegisterCategories.filter(cat => cat !== category)
+  //       : [...prev.crossRegisterCategories, category]
+  //   }));
+  // }, [setFormData]);
+
   // Cross register category toggle
   const handleCrossRegisterCategoryToggle = useCallback((category) => {
     setFormData(prev => ({
       ...prev,
-      crossRegisterCategories: prev.crossRegisterCategories.includes(category)
-        ? prev.crossRegisterCategories.filter(cat => cat !== category)
-        : [...prev.crossRegisterCategories, category]
+      advancedSettings: {
+        ...prev.advancedSettings,
+        crossRegisterCategories: [
+          ...(prev.advancedSettings.crossRegisterCategories || [])
+        ].includes(category)
+          ? prev.advancedSettings.crossRegisterCategories.filter(cat => cat !== category)
+          : [...(prev.advancedSettings.crossRegisterCategories || []), category]
+      }
+    }));
+  }, [setFormData]);
+
+  // CTA toggle handler
+  const handleCtaToggle = useCallback((cta) => {
+    setFormData(prev => ({
+      ...prev,
+      ctaSettings: prev.ctaSettings?.includes(cta)
+        ? prev.ctaSettings.filter(item => item !== cta)
+        : [...(prev.ctaSettings || []), cta]
+    }));
+  }, [setFormData]);
+
+  // CTA remove handler
+  const handleCtaRemove = useCallback((cta) => {
+    setFormData(prev => ({
+      ...prev,
+      ctaSettings: prev.ctaSettings?.filter(item => item !== cta)
     }));
   }, [setFormData]);
 
@@ -171,6 +204,8 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
             handleInputChange={handleInputChange}
             errors={errors}
             imageHandlers={imageHandlers}
+            handleCtaToggle={handleCtaToggle}
+            handleCtaRemove={handleCtaRemove}
           />
         );
       case 4:

@@ -3,16 +3,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { TICKET_ACCESS_OPTIONS } from '../constants/ticketConstants';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
+import { TICKET_ACCESS_OPTIONS, TICKET_CTA_SETTINGS } from '../constants/ticketConstants';
 import ImageUpload from '../components/ImageUpload';
 
 const TicketSettingsStep = ({ 
   formData, 
   handleInputChange, 
   errors, 
-  imageHandlers 
+  imageHandlers,
+  handleCtaToggle,
+  handleCtaRemove
 }) => {
   const { handleImageUpload, removeImage } = imageHandlers;
+  const [open, setOpen] = React.useState(false);
+
+  // Ensure ctaSettings is an array
+  const selectedCtas = Array.isArray(formData.ctaSettings) ? formData.ctaSettings : [];
 
   return (
     <div className="space-y-6">
@@ -48,11 +58,65 @@ const TicketSettingsStep = ({
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className="">Mobile App Profile CTA Settings</Label>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between font-normal"
+              >
+                {selectedCtas.length > 0 ? `${selectedCtas.length} selected` : "Select CTA settings"}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full p-0" align="start">
+              <div className="max-h-64 overflow-auto p-1">
+                {TICKET_CTA_SETTINGS.map((option) => (
+                  <div
+                    key={option}
+                    className="flex items-center space-x-2 rounded-sm px-2 py-1.5 hover:bg-accent cursor-pointer"
+                    onClick={() => handleCtaToggle(option)}
+                  >
+                    <Checkbox
+                      checked={selectedCtas.includes(option)}
+                      // onCheckedChange={() => handleCtaToggle(option)}
+                    />
+                    <span className="text-sm">{option}</span>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {selectedCtas.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedCtas.map((cta) => (
+                <div
+                  key={cta}
+                  className="inline-flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded text-sm"
+                >
+                  <span>{cta}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCtaRemove(cta)}
+                    className="hover:bg-primary/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <Separator />
 
       <div className="space-y-4">
-        <Label className="text-base font-medium">Mobile App Profile CTA Settings</Label>
-
         <div className="grid grid-cols-2 gap-6">
           <ImageUpload
             label="Link Banner (Desktop)"

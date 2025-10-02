@@ -8,24 +8,24 @@ const NotificationsStep = ({ formData, handleInputChange }) => {
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <Switch
-            checked={formData.emailNotification}
-            onCheckedChange={(checked) => handleInputChange('emailNotification', checked)}
+            checked={formData.notifications.emailNotification}
+            onCheckedChange={(checked) => handleInputChange('notifications.emailNotification', checked)}
           />
           <Label>Email Notification</Label>
         </div>
 
         <div className="flex items-center space-x-2">
           <Switch
-            checked={formData.smsNotification}
-            onCheckedChange={(checked) => handleInputChange('smsNotification', checked)}
+            checked={formData.notifications.smsNotification}
+            onCheckedChange={(checked) => handleInputChange('notifications.smsNotification', checked)}
           />
           <Label>SMS Notification</Label>
         </div>
 
         <div className="flex items-center space-x-2">
           <Switch
-            checked={formData.whatsappNotification}
-            onCheckedChange={(checked) => handleInputChange('whatsappNotification', checked)}
+            checked={formData.notifications.whatsappNotification}
+            onCheckedChange={(checked) => handleInputChange('notifications.whatsappNotification', checked)}
           />
           <Label>WhatsApp Notification</Label>
         </div>

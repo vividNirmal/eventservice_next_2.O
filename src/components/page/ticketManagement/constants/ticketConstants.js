@@ -37,6 +37,11 @@ export const TICKET_ACCESS_OPTIONS = [
   'Pre-Approved'
 ];
 
+export const TICKET_CTA_SETTINGS = [
+  'Chat',
+  'Schedule'
+];
+
 export const CROSS_REGISTER_CATEGORY_OPTIONS = [
   'Machinery',
   'Value Visitor Member',
@@ -95,23 +100,28 @@ export const INITIAL_FORM_DATA = {
   desktopBannerImagePreview: null,
   mobileBannerImage: null,
   mobileBannerImagePreview: null,
+  ctaSettings: [],
 
   // Step 4 - Advanced Settings
-  ticketBuyLimitMin: 1,
-  ticketBuyLimitMax: 10,
-  hasQuantityLimit: false,
-  badgeCategory: 'visitor',
-  registrationFilterDate: null,
-  allowCrossRegister: false,
-  crossRegisterCategories: [],
-  autoApprovedUser: false,
-  authenticateByOTP: false,
-  autoPassword: false,
-  addAllDiscount: false,
-  individualDiscount: false,
+  advancedSettings: {
+    ticketBuyLimitMin: 1,
+    ticketBuyLimitMax: 10,
+    hasQuantityLimit: false,
+    badgeCategory: 'visitor',
+    registrationFilterDate: null,
+    allowCrossRegister: false,
+    crossRegisterCategories: [],
+    autoApprovedUser: false,
+    authenticateByOTP: false,
+    autoPassword: false,
+    addAllDiscount: false,
+    individualDiscount: false
+  },
 
   // Step 5 - Notifications
-  emailNotification: false,
-  smsNotification: false,
-  whatsappNotification: false
+  notifications: {
+    emailNotification: false,
+    smsNotification: false,
+    whatsappNotification: false
+  }
 };

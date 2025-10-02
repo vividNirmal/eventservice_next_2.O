@@ -8,7 +8,7 @@ export const useTicketForm = (editData = null) => {
     const companyId = typeof window !== 'undefined' ? localStorage.getItem('companyId') : null;
     return {
       ...INITIAL_FORM_DATA,
-      companyId: companyId || null
+      // companyId: companyId || null
     };
   }, []);
 
@@ -17,10 +17,25 @@ export const useTicketForm = (editData = null) => {
   const [errors, setErrors] = useState({});
 
   const handleInputChange = useCallback((field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => {
+      if (field.includes('.')) {
+        // Handle nested updates
+        const [parent, child] = field.split('.');
+        return {
+          ...prev,
+          [parent]: {
+            ...prev[parent],
+            [child]: value
+          }
+        };
+      } else {
+        // Flat update
+        return {
+          ...prev,
+          [field]: value
+        };
+      }
+    });
 
     // Clear error for this field when user starts typing
     if (errors[field]) {
@@ -35,7 +50,7 @@ export const useTicketForm = (editData = null) => {
     const companyId = typeof window !== 'undefined' ? localStorage.getItem('companyId') : null;
     setFormData({
       ...INITIAL_FORM_DATA,
-      companyId: companyId || null
+      // companyId: companyId || null
     });
     setIsEditMode(false);
     setErrors({});
@@ -72,10 +87,27 @@ export const useTicketForm = (editData = null) => {
         desktopBannerImagePreview: editData.desktopBannerImageUrl || editData.desktopBannerImage || null,
         mobileBannerImage: editData.mobileBannerImage || null,
         mobileBannerImagePreview: editData.mobileBannerImageUrl || editData.mobileBannerImage || null,
-        badgeCategory: editData.badgeCategory || null,
-        registrationFilterDate: editData.registrationFilterDate
-          ? new Date(editData.registrationFilterDate).toISOString().slice(0, 10)
-          : null,
+        advancedSettings: {
+          ticketBuyLimitMin: editData.advancedSettings?.ticketBuyLimitMin || 1,
+          ticketBuyLimitMax: editData.advancedSettings?.ticketBuyLimitMax || 10,
+          hasQuantityLimit: editData.advancedSettings?.hasQuantityLimit || false,
+          badgeCategory: editData.advancedSettings?.badgeCategory || 'visitor',
+          registrationFilterDate: editData.advancedSettings?.registrationFilterDate
+            ? new Date(editData.advancedSettings.registrationFilterDate).toISOString().slice(0, 10)
+            : null,
+          allowCrossRegister: editData.advancedSettings?.allowCrossRegister || false,
+          crossRegisterCategories: editData.advancedSettings?.crossRegisterCategories || [],
+          autoApprovedUser: editData.advancedSettings?.autoApprovedUser || false,
+          authenticateByOTP: editData.advancedSettings?.authenticateByOTP || false,
+          autoPassword: editData.advancedSettings?.autoPassword || false,
+          addAllDiscount: editData.advancedSettings?.addAllDiscount || false,
+          individualDiscount: editData.advancedSettings?.individualDiscount || false
+        },
+        notifications: {
+          emailNotification: editData.notifications?.emailNotification || false,
+          smsNotification: editData.notifications?.smsNotification || false,
+          whatsappNotification: editData.notifications?.whatsappNotification || false
+        },
         // Ensure slotAmounts has proper structure
         slotAmounts: editData.slotAmounts && editData.slotAmounts.length > 0
           ? editData.slotAmounts.map(slot => ({
@@ -89,7 +121,7 @@ export const useTicketForm = (editData = null) => {
             amount: 0
           }],
         // Ensure arrays are properly initialized
-        crossRegisterCategories: editData.crossRegisterCategories || [],
+        ctaSettings: editData.ctaSettings || [],
       });
     } else {
       setIsEditMode(false);

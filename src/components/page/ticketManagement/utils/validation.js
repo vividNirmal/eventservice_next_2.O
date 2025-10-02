@@ -79,11 +79,11 @@ export const validateTicketSettings = (formData) => {
 export const validateAdvancedSettings = (formData) => {
   const errors = {};
   
-  if (!formData.ticketBuyLimitMin || formData.ticketBuyLimitMin <= 0) {
+  if (!formData.advancedSettings.ticketBuyLimitMin || formData.advancedSettings.ticketBuyLimitMin <= 0) {
     errors.ticketBuyLimitMin = 'Minimum buy limit is required';
   }
   
-  if (!formData.ticketBuyLimitMax || formData.ticketBuyLimitMax < formData.ticketBuyLimitMin) {
+  if (!formData.advancedSettings.ticketBuyLimitMax || formData.advancedSettings.ticketBuyLimitMax < formData.advancedSettings.ticketBuyLimitMin) {
     errors.ticketBuyLimitMax = 'Maximum buy limit must be greater than minimum';
   }
   

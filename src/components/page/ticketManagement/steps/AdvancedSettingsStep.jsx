@@ -22,8 +22,8 @@ const AdvancedSettingsStep = ({
             <Input
               type="number"
               min="1"
-              value={formData.ticketBuyLimitMin}
-              onChange={(e) => handleInputChange('ticketBuyLimitMin', parseInt(e.target.value) || 1)}
+              value={formData.advancedSettings.ticketBuyLimitMin}
+              onChange={(e) => handleInputChange('advancedSettings.ticketBuyLimitMin', parseInt(e.target.value) || 1)}
             />
           </div>
           <div className="space-y-2">
@@ -31,8 +31,8 @@ const AdvancedSettingsStep = ({
             <Input
               type="number"
               min="1"
-              value={formData.ticketBuyLimitMax}
-              onChange={(e) => handleInputChange('ticketBuyLimitMax', parseInt(e.target.value) || 10)}
+              value={formData.advancedSettings.ticketBuyLimitMax}
+              onChange={(e) => handleInputChange('advancedSettings.ticketBuyLimitMax', parseInt(e.target.value) || 10)}
             />
           </div>
         </div>
@@ -41,8 +41,8 @@ const AdvancedSettingsStep = ({
       <div className="flex items-center space-x-2">
         <Label>Set Ticket Quantity Limit</Label>
         <Switch
-          checked={formData.hasQuantityLimit}
-          onCheckedChange={(checked) => handleInputChange('hasQuantityLimit', checked)}
+          checked={formData.advancedSettings.hasQuantityLimit}
+          onCheckedChange={(checked) => handleInputChange('advancedSettings.hasQuantityLimit', checked)}
         />
       </div>
 
@@ -50,8 +50,8 @@ const AdvancedSettingsStep = ({
         <div className="space-y-2">
           <Label>Badge Category</Label>
           <Select
-            value={formData.badgeCategory}
-            onValueChange={(value) => handleInputChange('badgeCategory', value)}
+            value={formData.advancedSettings.badgeCategory}
+            onValueChange={(value) => handleInputChange('advancedSettings.badgeCategory', value)}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select badge category" />
@@ -70,8 +70,8 @@ const AdvancedSettingsStep = ({
           <Label>Date of registration (Only for filter option in Cart/Details)</Label>
           <Input
             type="date"
-            value={formData.registrationFilterDate}
-            onChange={(e) => handleInputChange('registrationFilterDate', e.target.value)}
+            value={formData.advancedSettings.registrationFilterDate}
+            onChange={(e) => handleInputChange('advancedSettings.registrationFilterDate', e.target.value)}
           />
         </div>
       </div>
@@ -80,19 +80,19 @@ const AdvancedSettingsStep = ({
         <div className="flex items-center space-x-2">
           <Label>Allow User to Cross-Register in This Ticket</Label>
           <Switch
-            checked={formData.allowCrossRegister}
-            onCheckedChange={(checked) => handleInputChange('allowCrossRegister', checked)}
+            checked={formData.advancedSettings.allowCrossRegister}
+            onCheckedChange={(checked) => handleInputChange('advancedSettings.allowCrossRegister', checked)}
           />
         </div>
 
-        {formData.allowCrossRegister && (
+        {formData.advancedSettings.allowCrossRegister && (
           <div className="space-y-2 ml-6">
             <Label>Cross Register Categories</Label>
             <div className="flex flex-wrap gap-2">
               {CROSS_REGISTER_CATEGORY_OPTIONS.map(category => (
                 <Badge
                   key={category}
-                  variant={formData.crossRegisterCategories.includes(category) ? "default" : "outline"}
+                  variant={formData.advancedSettings.crossRegisterCategories.includes(category) ? "default" : "outline"}
                   className="cursor-pointer"
                   onClick={() => handleCrossRegisterCategoryToggle(category)}
                 >
@@ -108,40 +108,40 @@ const AdvancedSettingsStep = ({
         <div className="flex items-center space-x-2">
           <Label>Auto Approved User</Label>
           <Switch
-            checked={formData.autoApprovedUser}
-            onCheckedChange={(checked) => handleInputChange('autoApprovedUser', checked)}
+            checked={formData.advancedSettings.autoApprovedUser}
+            onCheckedChange={(checked) => handleInputChange('advancedSettings.autoApprovedUser', checked)}
           />
         </div>
 
         <div className="flex items-center space-x-2">
           <Label>Authenticate user by OTP</Label>
           <Switch
-            checked={formData.authenticateByOTP}
-            onCheckedChange={(checked) => handleInputChange('authenticateByOTP', checked)}
+            checked={formData.advancedSettings.authenticateByOTP}
+            onCheckedChange={(checked) => handleInputChange('advancedSettings.authenticateByOTP', checked)}
           />
         </div>
 
         <div className="flex items-center space-x-2">
           <Label>Auto Password</Label>
           <Switch
-            checked={formData.autoPassword}
-            onCheckedChange={(checked) => handleInputChange('autoPassword', checked)}
+            checked={formData.advancedSettings.autoPassword}
+            onCheckedChange={(checked) => handleInputChange('advancedSettings.autoPassword', checked)}
           />
         </div>
 
         <div className="flex items-center space-x-2">
           <Label>Add All Discount</Label>
           <Switch
-            checked={formData.addAllDiscount}
-            onCheckedChange={(checked) => handleInputChange('addAllDiscount', checked)}
+            checked={formData.advancedSettings.addAllDiscount}
+            onCheckedChange={(checked) => handleInputChange('advancedSettings.addAllDiscount', checked)}
           />
         </div>
 
         <div className="flex items-center space-x-2">
           <Label>Individual Discount</Label>
           <Switch
-            checked={formData.individualDiscount}
-            onCheckedChange={(checked) => handleInputChange('individualDiscount', checked)}
+            checked={formData.advancedSettings.individualDiscount}
+            onCheckedChange={(checked) => handleInputChange('advancedSettings.individualDiscount', checked)}
           />
         </div>
       </div>
