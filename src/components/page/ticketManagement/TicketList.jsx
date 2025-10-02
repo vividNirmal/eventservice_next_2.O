@@ -765,7 +765,7 @@ const TicketList = ({ eventId }) => {
                     <Checkbox
                       checked={tickets.length > 0 && selectedTickets.size === tickets.length}
                       onCheckedChange={handleSelectAllTickets}
-                      indeterminate={selectedTickets.size > 0 && selectedTickets.size < tickets.length}
+                      // indeterminate={selectedTickets.size > 0 && selectedTickets.size < tickets.length}
                     />
                   </TableHead>
                   <TableHead>Ticket Name</TableHead>
