@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { DndFormBuilder } from "./dnd-context";
-import { ElementSidebar } from "./element-sidebar";
-import { FormCanvas } from "./form-canvas";
-import { ElementProperties } from "./element-properties";
-import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
-import { apiPut } from "@/lib/api";
-import { createRandom5CharAlphanum, generateId } from "@/lib/form-utils";
+import { useState, useCallback } from 'react';
+import { DndFormBuilder } from './dnd-context';
+import { ElementSidebar } from './element-sidebar';
+import { FormCanvas } from './form-canvas';
+import { ElementProperties } from './element-properties';
+import { Button } from '../ui/button';
+import { PackagePlusIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 /**
  * Main Form Builder Component
@@ -163,30 +162,36 @@ export function FormBuilder({ form, onFormChange }) {
         currentPageIndex={currentPageIndex}
       >
         <div className="flex grow overflow-auto">
-          <ElementSidebar form={form} onCreateelemet={createElement} />
-          <div className="w-1/3 grow flex flex-col gap-4 p-4 sticky top-0">
-            <div className="overflow-auto gap-4 flex flex-col h-20 grow pr-4">
-              {form.pages.map((page, pageIndex) => (
-                <FormCanvas
-                  key={`page-${pageIndex}`}
-                  pageuniqid={pageIndex}
-                  title={page.name}
-                  description={page.description}
-                  elements={page.elements || []}
-                  onElementEdit={handleElementEdit}
-                  onElementDelete={handleElementDelete}
-                  selectedElementId={selectedElementId}
-                  onElementSelect={handleElementSelect}
-                />
-              ))}
-            </div>
-            <div className="flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg">
-              <Button onClick={handleSubmitField}>Save</Button>
-              <Button onClick={handleAddElement} variant={"secondary"}>
-                Discard
+          <ElementSidebar form={form}/>
+          <div className='w-1/3 grow flex flex-col gap-4 p-4 sticky top-0'>
+            <div className='flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg'>
+              <Button onClick={() => setOpenPageModal(true)}>
+                <PackagePlusIcon className="h-4 w-4 mr-2" />
+                Page
               </Button>
-              <Button variant={"secondary"}>Reset field</Button>
             </div>
+            <div className='overflow-auto gap-4 flex flex-col h-20 grow pr-4'>
+              {
+                form.pages.map((page, pageIndex) => ( 
+                  <FormCanvas 
+                    key={`page-${pageIndex}`}
+                    pageuniqid={pageIndex}
+                    title={page.name}
+                    description={page.description}
+                    elements={page.elements || []}
+                    onElementEdit={handleElementEdit}
+                    onElementDelete={handleElementDelete}
+                    selectedElementId={selectedElementId}
+                    onElementSelect={handleElementSelect}
+                  />
+                ))
+              }
+            </div>
+            {/* <div className='flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg'>
+              <Button>Save</Button>
+              <Button variant={"secondary"}>Discard</Button>
+              <Button variant={"secondary"}>Reset field</Button>
+            </div> */}
           </div>
 
           <ElementProperties

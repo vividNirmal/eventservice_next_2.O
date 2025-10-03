@@ -32,21 +32,24 @@ import {
   Users,
   Briefcase,
   Award,
-  Eye,
   EyeOff,
   Palette,
   ToggleLeft,
   BookOpen,
   MessageSquare,
-  Home,
-  CreditCard,
   PenTool,
-  FileImage,
   Video,
   Mic,
   Settings,
   Car,
-  Lock
+  Lock,
+  ListCollapse,
+  SquareCheck,
+  Disc2,
+  Code,
+  ReceiptText,
+  File,
+  PencilRuler
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { getApiWithParam } from '@/service/viewService';
@@ -148,7 +151,7 @@ export function ElementSidebar({form,onCreateelemet}) {
   // fetch defualt field by user Type
   const elementFtch =async () =>{
     try{
-      const element = await getApiWithParam('/get-default-userType',`${form?.userType}`)            
+      const element = await getApiWithParam('get-default-userType',`${form?.userType}`)            
       if(element.status == 1){
         setDefaultElement(element.data.field)
       }
@@ -177,7 +180,7 @@ export function ElementSidebar({form,onCreateelemet}) {
 
   return (
     <div className="w-60 xl:w-80 bg-gray-50 border-r border-gray-200 relative z-10 flex flex-col">
-      <Card className="border-0 rounded-none 2xl:p-4 grow !pb-16">
+      <Card className="border-0 rounded-none 2xl:p-4 grow">
         <CardHeader className="px-0">
           <CardTitle className="text-sm font-semibold text-gray-700">Form Elements</CardTitle>
           
@@ -202,17 +205,50 @@ export function ElementSidebar({form,onCreateelemet}) {
             </div>
           ) : (
             // Show all groups
-           
+           <>
           <ElementGroup                        
             elements={defaultElement}
             searchTerm={searchTerm}
           />
+          <div className='grid grid-cols-3 gap-2'>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <Type className='size-5' />
+              <h3 className='text-xs font-medium text-center'>Single Input</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <ListCollapse className='size-5' />
+              <h3 className='text-xs font-medium text-center'>Dropdown</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <SquareCheck className='size-5' />
+              <h3 className='text-xs font-medium text-center'>Checkbox</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <Disc2 className='size-5' />
+              <h3 className='text-xs font-medium text-center'>Radio Group</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <PencilRuler className='size-5' />
+              <h3 className='text-xs font-medium text-center'>Text Editor</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <File className='size-5' />
+              <h3 className='text-xs font-medium text-center'>File</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <ReceiptText className='size-5' />
+              <h3 className='text-xs font-medium text-center'>T & C</h3>
+            </div>
+            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+              <Code className='size-5' />
+              <h3 className='text-xs font-medium text-center'>HTML</h3>
+            </div>
+          </div>
+          </>
           )}
+          
         </CardContent>
       </Card>
-      <div className='shrink-0 w-60 xl:w-80 p-4 py-3 bg-white shadow-[0_-4px_4px_0_rgba(0,0,0,0.12)] fixed bottom-0 left-0'>
-        <Button className={'w-full'} onClick={handelecreateElement}>Create field</Button>
-      </div>
     </div>
   );
 }

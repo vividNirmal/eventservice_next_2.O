@@ -249,48 +249,34 @@ const EmailTemplateList = () => {
 
   return (
     <>
-      <Card className={"gap-0 py-3 shadow-none"}>
-        <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
+      <Card className={"gap-0 !border-0 !p-0 shadow-none h-20 grow flex flex-col"}>
+        <CardHeader className={"flex flex-wrap items-center gap-3 rounded-xl border border-solid border-zinc-200 p-4 2xl:p-5 shadow-none"}>
           <CardTitle>Email Templates</CardTitle>
           <CardDescription className={"display-none"}></CardDescription>
           <div className="flex items-center space-x-3 ml-auto">
             {/* Add Button */}
-            <Button onClick={openCreateModal}>
+            <Button onClick={openCreateModal} className={'2xl:text-sm 2xl:h-10'}>
               <Plus className="h-4 w-4 mr-2" />
               Add Template
             </Button>
           </div>
-
-          <div className="flex items-center space-x-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search templates"
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10"
-              />
-            </div>
-
-            <Select
-              value={selectedLimit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {dataLimits.map((limit) => (
-                  <SelectItem key={limit} value={limit.toString()}>
-                    {limit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="relative w-60">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input placeholder="Search templates" value={searchTerm} onChange={handleSearch} className="pl-10" />
           </div>
+          <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {dataLimits.map((limit) => (
+                <SelectItem key={limit} value={limit.toString()}>{limit}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className={'h-20 grow flex flex-col'}>
           {loading ? (
             <div className="flex items-center justify-center h-32">
               <Loader2 className="h-8 w-8 animate-spin" />

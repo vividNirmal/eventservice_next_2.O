@@ -278,7 +278,7 @@ const FormManagement = ({ eventId }) => {
       <Card>
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
-            <div>
+            <div className='flex flex-col gap-1'>
               <CardTitle>Forms List</CardTitle>
               <CardDescription>
                 Total {totalCount} forms found

@@ -196,21 +196,17 @@ export default function FieldLists() {
 
   return (
     <>
-      <Card className={"gap-0 py-3 shadow-none"}>
-        <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
+      <Card className={"gap-0 2xl:py-3 2xl:p-5 shadow-none"}>
+        <CardHeader className={"flex flex-wrap items-center px-0 gap-3"}>
           <CardTitle>Field List</CardTitle>
           <div className="flex items-center space-x-3 ml-auto">
             {selectedUsers.size > 0 && (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleBulkDelete}
-              >
+              <Button variant="destructive" size="sm" onClick={handleBulkDelete} className={'2xl:text-sm 2xl:h-10'}>
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete Selected ({selectedUsers.size})
               </Button>
             )}
-            <Button onClick={handleAddUser}>
+            <Button onClick={handleAddUser} className={'2xl:text-sm 2xl:h-10'}>
               <Plus className="h-4 w-4 mr-2" />
               Add Default Field
             </Button>
@@ -218,12 +214,7 @@ export default function FieldLists() {
           <div className="flex items-center space-x-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search "
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
-              />
+              <Input placeholder="Search" value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} className="pl-10" />
             </div>
             <Select
               value={selectedLimit.toString()}

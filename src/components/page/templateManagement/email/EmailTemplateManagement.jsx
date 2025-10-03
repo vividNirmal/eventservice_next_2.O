@@ -32,26 +32,20 @@ const EmailTemplateManagement = () => {
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <Card className={'grow flex flex-col !border-0 !p-0 !shadow-none'}>
+        <CardHeader className={'px-0'}>
           <CardTitle>Email Template Management</CardTitle>
-          <CardDescription>
-            Manage types and templates for your emails
-          </CardDescription>
+          <CardDescription>Manage types and templates for your emails</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <CardContent className={'grow flex flex-col'}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full grow flex flex-col">
             <TabsList className="mb-6">
-              <TabsTrigger value="types" className="px-6">
-                Types
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="px-6">
-                Templates
-              </TabsTrigger>
+              <TabsTrigger value="types" className="px-6">Types</TabsTrigger>
+              <TabsTrigger value="templates" className="px-6">Templates</TabsTrigger>
             </TabsList>
             
             {/* Only render the active tab content */}
-            <div className="space-y-4">
+            <div className="space-y-4 h-20 grow flex flex-col">
               {activeTabContent}
             </div>
           </Tabs>

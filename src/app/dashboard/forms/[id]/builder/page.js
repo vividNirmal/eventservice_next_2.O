@@ -298,10 +298,10 @@ export default function FormBuilderPage() {
                 </Button>
               }
             />
-            <Button onClick={() => setOpenPageModal(true)}>
+            {/* <Button onClick={() => setOpenPageModal(true)}>
               <PackagePlusIcon className="h-4 w-4 mr-2" />
               Page
-            </Button>
+            </Button> */}
             <Button onClick={handleSave} disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
               {saving ? "Saving..." : "Save Form"}
