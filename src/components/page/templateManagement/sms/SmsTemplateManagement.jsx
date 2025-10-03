@@ -5,17 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import dynamic from 'next/dynamic';
 
 // Lazy load components to prevent unnecessary renders
-const TypeList = dynamic(() => import('./EmailTypeList'), {
+const TypeList = dynamic(() => import('./SmsTypeList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading types...</div>
 });
 
-const TemplateList = dynamic(() => import('./EmailTemplateList'), {
+const TemplateList = dynamic(() => import('./SmsTemplateList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading templates...</div>
 });
 
-const EmailTemplateManagement = () => {
+const SmsTemplateManagement = () => {
   const [activeTab, setActiveTab] = useState('types');
 
   // Memoize the active tab content to prevent unnecessary re-renders
@@ -34,9 +34,9 @@ const EmailTemplateManagement = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Email Template Management</CardTitle>
+          <CardTitle>SMS Template Management</CardTitle>
           <CardDescription>
-            Manage types and templates for your emails
+            Manage types and templates for your SMS
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -61,4 +61,4 @@ const EmailTemplateManagement = () => {
   );
 };
 
-export default React.memo(EmailTemplateManagement);
+export default React.memo(SmsTemplateManagement);

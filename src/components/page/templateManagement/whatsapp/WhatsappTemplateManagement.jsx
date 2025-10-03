@@ -5,17 +5,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import dynamic from 'next/dynamic';
 
 // Lazy load components to prevent unnecessary renders
-const TypeList = dynamic(() => import('./EmailTypeList'), {
+const TypeList = dynamic(() => import('./WhtasappTypeList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading types...</div>
 });
 
-const TemplateList = dynamic(() => import('./EmailTemplateList'), {
+const TemplateList = dynamic(() => import('./WhatsappTemplateList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading templates...</div>
 });
 
-const EmailTemplateManagement = () => {
+const WhatsappTemplateManagement = () => {
   const [activeTab, setActiveTab] = useState('types');
 
   // Memoize the active tab content to prevent unnecessary re-renders
@@ -34,7 +34,7 @@ const EmailTemplateManagement = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Email Template Management</CardTitle>
+          <CardTitle>Whatsapp Template Management</CardTitle>
           <CardDescription>
             Manage types and templates for your emails
           </CardDescription>
@@ -61,4 +61,4 @@ const EmailTemplateManagement = () => {
   );
 };
 
-export default React.memo(EmailTemplateManagement);
+export default React.memo(WhatsappTemplateManagement);

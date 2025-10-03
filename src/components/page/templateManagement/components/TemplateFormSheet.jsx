@@ -199,14 +199,14 @@ export const TemplateFormSheet = ({
             {/* SMS and WhatsApp Specific Fields */}
             {(type === "sms" || type === "whatsapp") && (
               <div className="space-y-2">
-                <Label htmlFor="text">Message Content *</Label>
+                <Label htmlFor="text">Message Text *</Label>
                 <textarea
                   id="text"
                   name="text"
                   value={formik.values.text}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
-                  placeholder={`Enter your ${type} message content`}
+                  placeholder={`Enter your ${type} message text`}
                   rows={6}
                   className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     formik.touched.text && formik.errors.text
@@ -217,12 +217,12 @@ export const TemplateFormSheet = ({
                 {formik.touched.text && formik.errors.text && (
                   <p className="text-red-500 text-xs">{formik.errors.text}</p>
                 )}
-                <p className="text-xs text-gray-500">
+                {/* <p className="text-xs text-gray-500">
                   {type === "sms"
                     ? "SMS messages have a 160 character limit per segment."
                     : "WhatsApp supports longer messages with formatting."}
                   Current length: {formik.values.text.length} characters
-                </p>
+                </p> */}
               </div>
             )}
           </div>

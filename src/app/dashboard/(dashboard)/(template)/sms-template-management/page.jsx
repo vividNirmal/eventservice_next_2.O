@@ -1,7 +1,7 @@
-import EmailTemplateManagement from '@/components/page/templateManagement/email/EmailTemplateManagement';
+import SmsTemplateManagement from '@/components/page/templateManagement/sms/SmsTemplateManagement';
 
 export default function SmsTemplateManagementPage() {
-  return <EmailTemplateManagement />;
+  return <SmsTemplateManagement />;
 }
 
 export const metadata = {

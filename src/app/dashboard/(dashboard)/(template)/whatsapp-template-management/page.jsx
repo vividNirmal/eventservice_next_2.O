@@ -1,7 +1,7 @@
-import EmailTemplateManagement from '@/components/page/templateManagement/email/EmailTemplateManagement';
+import WhatsappTemplateManagement from '@/components/page/templateManagement/whatsapp/WhatsappTemplateManagement';
 
 export default function WhatsappTemplateManagementPage() {
-  return <EmailTemplateManagement />;
+  return <WhatsappTemplateManagement />;
 }
 
 export const metadata = {
