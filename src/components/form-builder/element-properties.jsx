@@ -95,7 +95,7 @@ export function ElementProperties({ element, onSave, onClose }) {
 
   const formik = useFormik({
     initialValues: {
-     fieldName: "",
+      fieldName: "",
       fieldType: "",
       isRequired: false,
       placeHolder: "",
@@ -105,7 +105,7 @@ export function ElementProperties({ element, onSave, onClose }) {
       fieldDescription: "",
       fieldminLimit: "",
       fieldmaxLimit: "",
-      fieldTitle:"",
+      fieldTitle: "",
       specialCharactor: false,
     },
     validationSchema,
@@ -114,7 +114,7 @@ export function ElementProperties({ element, onSave, onClose }) {
         ...element,
         fieldTitle: values.fieldTitle,
         fieldName: values.fieldName,
-        fieldType : values.fieldType,
+        fieldType: values.fieldType,
         placeHolder: values.placeHolder,
         fieldDescription: values.fieldDescription,
         required: values.required,
@@ -142,7 +142,7 @@ export function ElementProperties({ element, onSave, onClose }) {
         fieldDescription: element.fieldDescription || "",
         required: element.required || false,
         defaultValue: element.defaultValue || "",
-        fieldType : element.fieldType||"text",
+        fieldType: element.fieldType || "text",
         options: element.options || [],
         content: element.content || "",
         headingLevel: element.headingLevel || "h2",
@@ -222,11 +222,29 @@ export function ElementProperties({ element, onSave, onClose }) {
         <CardContent className="space-y-6">
           <form onSubmit={formik.handleSubmit} className="space-y-6">
             <div className="space-y-2">
+              <Label htmlFor="fieldTitle">Field Title</Label>
+              <Input
+                id="fieldTitle"
+                name="fieldTitle"
+                placeholder="Enter field title"
+                value={formik.values.fieldTitle}
+                onChange={handleFieldTitleChange}
+                onBlur={formik.handleBlur}
+                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+              />
+              {formik.touched.fieldTitle && formik.errors.fieldTitle && (
+                <p className="text-sm text-red-500">
+                  {formik.errors.fieldTitle}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="fieldName">Field Name</Label>
               <Input
                 id="fieldName"
                 name="fieldName"
-                placeholder="Enter fieldName"
+                placeholder="Enter field name"
                 value={formik.values.fieldName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -235,23 +253,6 @@ export function ElementProperties({ element, onSave, onClose }) {
               {formik.touched.fieldName && formik.errors.fieldName && (
                 <p className="text-sm text-red-500">
                   {formik.errors.fieldName}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fieldName">Field Title</Label>
-              <Input
-                id="fieldTitle"
-                name="fieldTitle"
-                placeholder="Enter fieldTitle"
-                value={formik.values.fieldTitle}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-              {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-                <p className="text-sm text-red-500">
-                  {formik.errors.fieldTitle}
                 </p>
               )}
             </div>
@@ -289,7 +290,7 @@ export function ElementProperties({ element, onSave, onClose }) {
                 placeholder="Select Field Required"
                 id="isRequired"
               />
-            </div>            
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="placeHolder">Place Holder</Label>

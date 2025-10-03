@@ -15,7 +15,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { DraggableElement } from "../form-builder/element-sidebar";
+import { DraggableElement, fieldTypeIcons } from "../form-builder/element-sidebar";
+import { Type } from "lucide-react";
 
 /**
  * Form Element Renderer Component
@@ -627,8 +628,21 @@ export function FormElementRenderer({
         );
 
       default:
+        const Icon = fieldTypeIcons[element.fieldType] || Type;
         return (
-          <DraggableElement  element={element} index={element._id}/>
+          <div className="group p-2 2xl:p-3 bg-white border border-solid border-gray-200 rounded-md 2xl:rounded-lg cursor-grab shadow active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200 ease-in">
+            <div className="flex items-center space-x-1 2xl:space-x-2">
+              <div className="flex-shrink-0">
+                <Icon className="size-4 2xl:size-5 text-gray-600 group-hover:text-blue-600 transition-all duration-200 ease-in" />
+              </div>
+              <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-2">
+                <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+                  {element.fieldName}
+                </p>
+              </div>
+            </div>
+          </div>
+          // <DraggableElement  element={element} index={element._id}/>
         );
     }
   };

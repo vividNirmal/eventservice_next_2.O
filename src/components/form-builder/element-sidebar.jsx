@@ -59,7 +59,7 @@ import { Button } from '../ui/button';
 
 
 // icon pass as per field type
-const fieldTypeIcons = {
+export const fieldTypeIcons = {
   text: Type,
   email: Mail,
   url: Link,
@@ -183,14 +183,12 @@ export function ElementSidebar({form,onCreateelemet}) {
       <Card className="border-0 rounded-none 2xl:p-4 grow">
         <CardHeader className="px-0">
           <CardTitle className="text-sm font-semibold text-gray-700">Form Elements</CardTitle>
-          
           {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-4" />
             <Input placeholder="Search elements..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 h-9 2xl:h-11 2xl:text-base" />
           </div>
         </CardHeader>
-        
         <CardContent className="p-0">
           {searchResults ? (
             // Show search results
@@ -198,7 +196,7 @@ export function ElementSidebar({form,onCreateelemet}) {
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Search Results ({searchResults.length})</h3>
               <div className="space-y-2">
                 {searchResults.map((element,index) => (
-                  <DraggableElement key={index} element={element} index={index}  />
+                  <DraggableElement key={index} element={element} index={index} />
                 ))}
               </div>
               {searchResults.length === 0 && (<p className="text-sm text-gray-500 text-center py-8">No elements found matching "{searchTerm}"</p>)}
@@ -211,38 +209,38 @@ export function ElementSidebar({form,onCreateelemet}) {
             searchTerm={searchTerm}
           />
           <div className='grid grid-cols-3 gap-2'>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <Type className='size-5' />
               <h3 className='text-xs font-medium text-center'>Single Input</h3>
             </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <ListCollapse className='size-5' />
               <h3 className='text-xs font-medium text-center'>Dropdown</h3>
             </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <SquareCheck className='size-5' />
               <h3 className='text-xs font-medium text-center'>Checkbox</h3>
             </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <Disc2 className='size-5' />
               <h3 className='text-xs font-medium text-center'>Radio Group</h3>
             </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <PencilRuler className='size-5' />
               <h3 className='text-xs font-medium text-center'>Text Editor</h3>
             </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <File className='size-5' />
               <h3 className='text-xs font-medium text-center'>File</h3>
             </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            {/* <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <ReceiptText className='size-5' />
               <h3 className='text-xs font-medium text-center'>T & C</h3>
-            </div>
-            <div className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
+            </div> */}
+            {/* <div onClick={handelecreateElement} className='bg-white border border-solid border-zinc-300 rounded-lg cursor-pointer flex flex-col gap-2 items-center px-1 p-4 hover:bg-zinc-50 shadow-[0_0_5px_0_rgba(0,0,0,0.07)]'>
               <Code className='size-5' />
               <h3 className='text-xs font-medium text-center'>HTML</h3>
-            </div>
+            </div> */}
           </div>
           </>
           )}

@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 // import { FormBuilder } from "@/components/form-builder/form-builder";
 import { FormPreview } from "@/components/form-builder/form-preview";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -148,21 +147,6 @@ export default function FormBuilderPage() {
     setAutoSaveTimer(timer);
   };
 
-  const handleFormSettingsChange = (field, value) => {    
-    const updatedForm = { ...form, [field]: value };    
-    setForm(updatedForm);
-
-    // Auto-save settings changes
-    if (autoSaveTimer) {
-      clearTimeout(autoSaveTimer);
-    }
-
-    const timer = setTimeout(() => {
-      autoSaveForm(updatedForm);
-    }, 1000); // Faster save for settings changes
-
-    setAutoSaveTimer(timer);
-  };
 
   const autoSaveForm = async (formData) => {
     if (!formData.formName.trim() || !formData.userType) {
@@ -179,7 +163,7 @@ export default function FormBuilderPage() {
         settings: formData.settings,
       };
 
-      await apiPut(`/forms/${formId}`, payload);
+      // await apiPut(`/forms/${formId}`, payload);
 
       setForm((prev) => ({
         ...prev,
@@ -213,7 +197,7 @@ export default function FormBuilderPage() {
         settings: form.settings,
       };
 
-      const response = await apiPut(`/forms/${formId}`, formData);
+      // const response = await apiPut(`/forms/${formId}`, formData);
 
       if (response.status === 1) {
         toast.success("Form saved successfully");
