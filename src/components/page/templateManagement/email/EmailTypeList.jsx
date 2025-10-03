@@ -99,6 +99,8 @@ const EmailTypeList = () => {
         toast.success("Email type created successfully");
         setIsAddModalOpen(false);
         fetchTemplateTypes();
+      } else {
+        toast.error("Failed to create email type");
       }
     } catch (error) {
       console.error("Error creating template type:", error);
@@ -127,6 +129,8 @@ const EmailTypeList = () => {
         setIsEditModalOpen(false);
         setTemplateToEdit(null);
         fetchTemplateTypes();
+      } else {
+        toast.error("Failed to update email type");
       }
     } catch (error) {
       console.error("Error updating template type:", error);
@@ -149,6 +153,8 @@ const EmailTypeList = () => {
         setIsDeleteDialogOpen(false);
         setTemplateToDelete(null);
         fetchTemplateTypes();
+      } else {
+        toast.error("Failed to delete email template type");
       }
     } catch (error) {
       console.error("Error deleting template type:", error);

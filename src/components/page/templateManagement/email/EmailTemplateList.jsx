@@ -116,6 +116,8 @@ const EmailTemplateList = () => {
         toast.success("Email template created successfully");
         setIsFormOpen(false);
         fetchTemplates();
+      } else {
+        toast.error("Failed to create email template");
       }
     } catch (error) {
       console.error("Error creating template:", error);
@@ -132,6 +134,7 @@ const EmailTemplateList = () => {
     try {
       const payload = {
         ...values,
+        type: "email",
       };
 
       const response = await updateRequest(
@@ -144,6 +147,8 @@ const EmailTemplateList = () => {
         setIsFormOpen(false);
         setTemplateToEdit(null);
         fetchTemplates();
+      } else {
+        toast.error("Failed to update email template");
       }
     } catch (error) {
       console.error("Error updating template:", error);
