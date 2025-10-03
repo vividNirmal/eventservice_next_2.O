@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { CustomPagination } from "@/components/common/pagination";
 import { TemplateTypeSheet } from "../components/TemplateTypeSheet";
-import { Plus, Search, Edit, Trash2, Copy, Mail } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Copy, Mail, Loader2 } from "lucide-react";
 import {
   getRequest,
   postRequest,
@@ -75,7 +75,7 @@ const EmailTypeList = () => {
       if (response.status === 1) {
         setTemplateTypes(response.data.templateTypes || []);
         setTotalPages(response.data.pagination?.totalPages || 1);
-        setTotalCount(response.data.pagination?.totalCount || 0);
+        setTotalCount(response.data.pagination?.totalData || 0);
       }
     } catch (error) {
       console.error("Error fetching template types:", error);
@@ -208,139 +208,131 @@ const EmailTypeList = () => {
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Mail className="h-6 w-6" />
-                Email Template Types
-              </CardTitle>
-              <CardDescription>
-                Manage your email template types - Total {totalCount} types
-                found
-              </CardDescription>
-            </div>
-            <div className="flex items-center space-x-4">
-              {/* Limit Selector */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Show:
-                </span>
-                <Select
-                  value={selectedLimit.toString()}
-                  onValueChange={handleLimitChange}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dataLimits.map((limit) => (
-                      <SelectItem key={limit} value={limit.toString()}>
-                        {limit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      <Card className={"gap-0 py-3 shadow-none"}>
+        <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
+          <CardTitle>Email Template Types</CardTitle>
+          <CardDescription className={"display-none"}></CardDescription>
+          <div className="flex items-center space-x-3 ml-auto">
+            {/* Add Button */}
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Email Type
+            </Button>
+          </div>
 
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search types..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  className="pl-10 w-64"
-                />
-              </div>
-
-              {/* Add Button */}
-              <Button onClick={() => setIsAddModalOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Email Type
-              </Button>
+          <div className="flex items-center space-x-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search types"
+                value={searchTerm}
+                onChange={handleSearch}
+                className="pl-10"
+              />
             </div>
+
+            <Select
+              value={selectedLimit.toString()}
+              onValueChange={handleLimitChange}
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {dataLimits.map((limit) => (
+                  <SelectItem key={limit} value={limit.toString()}>
+                    {limit}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
 
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-1/3">Type Name</TableHead>
-                  <TableHead className="w-1/3">Created At</TableHead>
-                  <TableHead className="text-right w-1/3">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8">
-                      Loading template types...
-                    </TableCell>
-                  </TableRow>
-                ) : templateTypes.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8">
-                      {searchTerm
-                        ? "No template types found matching your search"
-                        : "No template types found"}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  templateTypes.map((template) => (
-                    <TableRow key={template._id}>
-                      <TableCell className="font-medium w-1/3">
-                        {template.typeName}
-                      </TableCell>
-                      <TableCell className="w-1/3">{formatDate(template.createdAt)}</TableCell>
-                      <TableCell className="text-right w-1/3">
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleCopyDetails(template)}
-                            title="Copy template type details"
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditModal(template)}
-                            title="Edit template type"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openDeleteDialog(template)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            title="Delete template type"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <CustomPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalCount={totalCount}
-              itemsPerPage={selectedLimit}
-              onPageChange={handlePageChange}
-            />
+        <CardContent className={"grow flex flex-col"}>
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="rounded-lg border overflow-auto flex-1">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-1/3">Type Name</TableHead>
+                        <TableHead className="w-1/3">Created At</TableHead>
+                        <TableHead className="text-right w-1/3">
+                          Actions
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {templateTypes.length > 0 ? (
+                        templateTypes.map((template) => (
+                          <TableRow key={template._id}>
+                            <TableCell className="font-medium w-1/3">
+                              {template.typeName}
+                            </TableCell>
+                            <TableCell className="w-1/3">
+                              {formatDate(template.createdAt)}
+                            </TableCell>
+                            <TableCell className="text-right w-1/3">
+                              <div className="flex justify-end space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleCopyDetails(template)}
+                                  title="Copy template type details"
+                                >
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openEditModal(template)}
+                                  title="Edit template type"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openDeleteDialog(template)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  title="Delete template type"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={3} className="h-24 text-center">
+                            No template types found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+              {/* Pagination */}
+              {totalCount > 1 && (
+                <div className="mt-4">
+                  <CustomPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    pageSize={selectedLimit}
+                    totalEntries={totalCount}
+                  />
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
