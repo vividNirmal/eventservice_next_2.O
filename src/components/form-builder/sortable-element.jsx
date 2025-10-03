@@ -38,7 +38,7 @@ export function SortableElement({element, children, onEdit, onDelete, isSelected
       </div>
 
       {/* Action Buttons */}
-      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+      <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col xl:flex-row gap-1">
         <Button variant="outline" size="sm" onClick={handleEdit} className="size-8 p-0 bg-white hover:bg-gray-50">
           <Edit className="size-4" />
         </Button>
@@ -48,7 +48,7 @@ export function SortableElement({element, children, onEdit, onDelete, isSelected
       </div>
 
       {/* Element Content */}
-      <div className="pr-20 pl-6">{children}</div>
+      <div className="pr-8 xl:pr-20 pl-8">{children}</div>
 
       {/* Selected Indicator */}
       {isSelected && (

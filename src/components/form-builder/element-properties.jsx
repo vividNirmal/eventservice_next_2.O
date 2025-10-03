@@ -118,10 +118,10 @@ export function ElementProperties({ element, onSave, onClose }) {
   const isDivider = element.type === 'divider';
 
   return (
-    <div className="w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
+    <div className="w-60 xl:w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
       <Card className="border-0 rounded-none grow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-          <CardTitle className="text-lg">Element Properties</CardTitle>
+          <CardTitle className="text-base xl:text-lg">Element Properties</CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>

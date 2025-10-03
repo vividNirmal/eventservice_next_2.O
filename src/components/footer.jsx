@@ -44,22 +44,14 @@ export default function Footer() {
         >
           <source src="/videos/movie.mp4" type="video/mp4" />
         </video>
-        <Image
-          src={playIcon}
-          alt="play icon"
-          width={64}
-          height={64}
-          className="lg:w-auto sm:w-16 w-12 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        />
+        <Image src={playIcon} alt="play icon" width={64} height={64} className="lg:w-auto sm:w-16 w-12 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
       </div>
 
       {/* Footer */}
       <footer className="bg-[#131641] pb-5 sm:pb-8 lg:pb-11">
         {/* Top Title */}
         <div className="bg-[#D9D9D9] py-2 lg:py-3.5 px-4">
-          <h3 className="text-primaryBlueColor font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-[40px] leading-10 text-center">
-            All ACROSS INDIA
-          </h3>
+          <h3 className="text-primaryBlueColor font-semibold text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-[40px] leading-10 text-center">All ACROSS INDIA</h3>
         </div>
 
         {/* City List */}

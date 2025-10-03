@@ -48,6 +48,7 @@ import {
   Car
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { Button } from '../ui/button';
 
 // Comprehensive form element groups for event management
 const ELEMENT_GROUPS = {
@@ -499,14 +500,14 @@ function DraggableElement({ element }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group p-2 2xl:p-3 bg-white border border-gray-200 rounded-md 2xl:rounded-lg cursor-grab shadow active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+      className="group p-2 2xl:p-3 bg-white border border-solid border-gray-200 rounded-md 2xl:rounded-lg cursor-grab shadow active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200 ease-in"
     >
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-1 2xl:space-x-2">
         <div className="flex-shrink-0">
-          <Icon className="size-4 2xl:size-5 text-gray-600 group-hover:text-blue-600" />
+          <Icon className="size-4 2xl:size-5 text-gray-600 group-hover:text-blue-600 transition-all duration-200 ease-in" />
         </div>
-        <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-2">
-          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">{element.label}</p>
+        <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-1 2xl:pl-2">
+          <p className="text-xs xl:text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-all duration-200 ease-in">{element.label}</p>
           {/* <p className="text-xs text-gray-500 truncate">
             {element.description}
           </p> */}
@@ -572,20 +573,15 @@ export function ElementSidebar() {
   }, [searchTerm, allElements]);
 
   return (
-    <div className="w-80 bg-gray-50 border-r border-gray-200 relative z-10 flex flex-col">
-      <Card className="border-0 rounded-none 2xl:p-4 grow">
+    <div className="w-60 xl:w-80 bg-gray-50 border-r border-gray-200 relative z-10 flex flex-col">
+      <Card className="border-0 rounded-none 2xl:p-4 grow !pb-16">
         <CardHeader className="px-0">
           <CardTitle className="text-sm font-semibold text-gray-700">Form Elements</CardTitle>
           
           {/* Search Input */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search elements..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-9 2xl:h-11 2xl:text-base"
-            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-4" />
+            <Input placeholder="Search elements..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 h-9 2xl:h-11 2xl:text-base" />
           </div>
         </CardHeader>
         
@@ -595,27 +591,21 @@ export function ElementSidebar() {
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Search Results ({searchResults.length})</h3>
               <div className="space-y-2">
-                {searchResults.map((element) => (
-                  <DraggableElement key={element.type} element={element} />
-                ))}
+                {searchResults.map((element) => (<DraggableElement key={element.type} element={element} />))}
               </div>
-              {searchResults.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-8">No elements found matching "{searchTerm}"</p>
-              )}
+              {searchResults.length === 0 && (<p className="text-sm text-gray-500 text-center py-8">No elements found matching "{searchTerm}"</p>)}
             </div>
           ) : (
             // Show all groups
             Object.entries(ELEMENT_GROUPS).map(([key, group]) => (
-              <ElementGroup
-                key={key}
-                title={group.title}
-                elements={group.elements}
-                searchTerm={searchTerm}
-              />
+              <ElementGroup key={key} title={group.title} elements={group.elements} searchTerm={searchTerm} />
             ))
           )}
         </CardContent>
       </Card>
+      <div className='shrink-0 w-60 xl:w-80 p-4 py-3 bg-white shadow-[0_-4px_4px_0_rgba(0,0,0,0.12)] fixed bottom-0 left-0'>
+        <Button className={'w-full'}>Create field</Button>
+      </div>
     </div>
   );
 }

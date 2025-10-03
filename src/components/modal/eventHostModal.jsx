@@ -548,15 +548,9 @@ const EventModal = ({
                       }`}
                   >
                     <div className="text-center">
-                      <div className="mb-4 flex justify-center">
-                        {type.icon}
-                      </div>
-                      <h3 className="font-semibold text-lg mb-2">
-                        {type.title}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {type.description}
-                      </p>
+                      <div className="mb-4 flex justify-center">{type.icon}</div>
+                      <h3 className="font-semibold text-lg mb-2">{type.title}</h3>
+                      <p className="text-sm text-gray-600">{type.description}</p>
                     </div>
                   </div>
                 ))}
