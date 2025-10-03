@@ -13,9 +13,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { CustomCombobox } from "@/components/common/customcombox";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
+import { CustomCombobox } from "@/components/common/customcombox";
 
 export function FormFieldAddDrawer({
   isOpen,
@@ -23,13 +23,7 @@ export function FormFieldAddDrawer({
   editUser = null,
   refetch,
   loading = false,
-}) {
-  const [companyList, setCompanyList] = useState([]);
-  const Role = [
-    { value: "admin", title: "Admin" },
-    { value: "manager", title: "Manager" },
-    { value: "customer", title: "Customer" },
-  ];
+}) {   
   const fieldTypeOptions = [
     { value: "text", title: "Text" },
     { value: "textarea", title: "Textarea" },
@@ -70,6 +64,7 @@ export function FormFieldAddDrawer({
       fieldDescription: "",
       fieldminLimit: "",
       fieldmaxLimit: "",
+      fieldTitle:"",
       specialCharactor: false,
     },
     validationSchema: Yup.object({
@@ -107,7 +102,7 @@ export function FormFieldAddDrawer({
           });
           
           // Append additional fields if their values are not null or empty
-          const fields = ['placeHolder', 'fieldDescription', 'fieldminLimit', 'fieldmaxLimit'];
+          const fields = ['placeHolder', 'fieldDescription', 'fieldminLimit', 'fieldmaxLimit',"fieldTitle"];
           fields.forEach((field) => {
             if (values[field] !== undefined && values[field] !== null && values[field] !== "") {
               formData.append(field, values[field]);
@@ -148,7 +143,7 @@ export function FormFieldAddDrawer({
           
 
           // Append additional fields if their values are not null or empty
-          const fields = ['placeHolder', 'fieldDescription', 'fieldminLimit', 'fieldmaxLimit'];
+          const fields = ['placeHolder', 'fieldDescription', 'fieldminLimit', 'fieldmaxLimit',"fieldTitle"];
           fields.forEach((field) => {
             if (values[field] !== undefined && values[field] !== null && values[field] !== "") {
               formData.append(field, values[field]);
@@ -177,6 +172,7 @@ export function FormFieldAddDrawer({
     formik.resetForm();
     if (editUser) {
       formik.setValues({
+        fieldTitle : editUser.fieldTitle || "",
         fieldName: editUser.fieldName || "",
         fieldType: editUser.fieldType || "",
         placeHolder: editUser.placeHolder || "",
@@ -202,7 +198,7 @@ export function FormFieldAddDrawer({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={formik.handleSubmit} className="space-y-4 mt-6">
+        <form onSubmit={formik.handleSubmit} className="space-y-4 mt-6 overflow-x-auto">
           <div className="space-y-2">
             <Label htmlFor="fieldName">Field Name</Label>
             <Input
@@ -216,6 +212,21 @@ export function FormFieldAddDrawer({
             />
             {formik.touched.fieldName && formik.errors.fieldName && (
               <p className="text-sm text-red-500">{formik.errors.fieldName}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="fieldName">Field Title</Label>
+          <Input
+              id="fieldTitle"
+              name="fieldTitle"
+              placeholder="Enter fieldTitle"
+              value={formik.values.fieldTitle}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+            />
+            {formik.touched.fieldTitle && formik.errors.fieldTitle && (
+              <p className="text-sm text-red-500">{formik.errors.fieldTitle}</p>
             )}
           </div>
 

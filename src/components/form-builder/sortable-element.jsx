@@ -12,12 +12,12 @@ import { cn } from '@/lib/utils';
  * Wraps form elements to make them sortable within the canvas
  */
 export function SortableElement({element, children, onEdit, onDelete, isSelected, onSelect}){
-  const{attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({ id: element.id });
+  const{attributes, listeners, setNodeRef, transform, transition, isDragging} = useSortable({ id: element._id });
   const style = {transform: CSS.Transform.toString(transform), transition};
 
   const handleClick = (e) => {
-    e.stopPropagation();
-    onSelect(element.id);
+    e.stopPropagation();    
+    onSelect(element._id);
   };
 
   const handleEdit = (e) => {
@@ -27,7 +27,7 @@ export function SortableElement({element, children, onEdit, onDelete, isSelected
 
   const handleDelete = (e) => {
     e.stopPropagation();
-    onDelete(element.id);
+    onDelete(element._id);
   };
 
   return (

@@ -10,6 +10,20 @@ export const generateId = () => {
   return `element_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
+export function createRandom5CharAlphanum() {
+  // Define the pool of characters: digits and lowercase/uppercase letters
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const length = 5;
+
+  for (let i = 0; i < length; i++) {
+    // Select a random character from the pool
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+
+  return result;
+}
+
 /**
  * Convert a label to a valid form field name
  * @param {string} label - The label to convert

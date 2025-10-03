@@ -30,7 +30,7 @@ export function FormCanvas({
      
   
 
-  const handleCanvasClick = (e) => {
+  const handleCanvasClick = (e) => {        
     // Only deselect if clicking directly on canvas, not on elements
     if (e.target === e.currentTarget) {
       onElementSelect(null);
@@ -58,7 +58,7 @@ export function FormCanvas({
                 {elements
                   .sort((a, b) => a.position - b.position)
                   .map((element) => (
-                    <SortableElement key={element.id} element={element} onEdit={onElementEdit} onDelete={onElementDelete} isSelected={selectedElementId === element.id} onSelect={onElementSelect}>
+                    <SortableElement key={element._id} element={element} onEdit={onElementEdit} onDelete={onElementDelete} isSelected={selectedElementId === element._id} onSelect={onElementSelect}>
                       <FormElementRenderer element={element} preview={true} />
                     </SortableElement>
                   ))}

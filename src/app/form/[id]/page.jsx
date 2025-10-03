@@ -34,6 +34,7 @@ export default function PublicFormPage() {
         // Transform the form data to match FormRenderer expectations
         const transformedForm = {
           id: formData._id,
+          userType : formData.userType,
           title: formData.formName,
           description: `Please fill out this ${formData.userType} form`,
           elements: formData.formFields || [],

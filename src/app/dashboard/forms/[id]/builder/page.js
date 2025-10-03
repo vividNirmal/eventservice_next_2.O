@@ -133,9 +133,7 @@ export default function FormBuilderPage() {
     }
   };
 
-  const handleFormChange = (updatedForm) => {
-    console.log("✏️ Form changed:", updatedForm);
-    
+  const handleFormChange = (updatedForm) => {        
     setForm(updatedForm);
 
     // Auto-save after 2 seconds of inactivity
@@ -150,10 +148,8 @@ export default function FormBuilderPage() {
     setAutoSaveTimer(timer);
   };
 
-  const handleFormSettingsChange = (field, value) => {
-    console.log(`🔧 Form settings change - Field: ${field}, Value:`, value);
-    const updatedForm = { ...form, [field]: value };
-    console.log("📝 Updated form after settings change:", updatedForm);
+  const handleFormSettingsChange = (field, value) => {    
+    const updatedForm = { ...form, [field]: value };    
     setForm(updatedForm);
 
     // Auto-save settings changes
@@ -237,12 +233,7 @@ export default function FormBuilderPage() {
   const handleGoBack = () => {
     // it should go back to the route where the user came from
     router.back();
-  };
-
-  const handlePreview = () => {
-    // Preview is now handled by the FormPreview component
-  };
-
+  };  
   const handleCreatePage = async () => {
     if (!pageName.trim()) {
       toast.error("Please enter a page name");

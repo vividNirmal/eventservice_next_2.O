@@ -49,9 +49,8 @@ export function DndFormBuilder({
   };
 
   const handleDragEnd = (event) => {
-    const { active, over } = event;
-    console.log('Drag ended:', { active, over });
-
+    const { active, over } = event;        
+    
     if (!over) return;
 
     // Extract page index from the canvas ID (form-canvas-{pageIndex})
@@ -64,9 +63,7 @@ export function DndFormBuilder({
 
     // Check if dragging from sidebar to canvas
     if (active.id.startsWith('sidebar-')) {
-      const elementType = active.id.replace('sidebar-', '');
-      console.log('Adding new element:', active, over);
-      
+      const elementType = active.id.replace('sidebar-', '');                        
       // Determine which page to add to
       let targetPageIndex = currentPageIndex;
       
@@ -77,8 +74,11 @@ export function DndFormBuilder({
       
       // Check if dropping on canvas or on an existing element
       if (over.id.startsWith('form-canvas-') || !over.id.startsWith('sidebar-')) {
-        // Create new element
-        const newElement = createDefaultElement(elementType);
+        const newElemetData = {
+          ...active.data.current,
+          _id: generateId()
+        }
+        const newElement = newElemetData;
         
         // If dropping on an existing element, insert after it
         if (!over.id.startsWith('form-canvas-') && !over.id.startsWith('sidebar-')) {
@@ -109,8 +109,7 @@ export function DndFormBuilder({
       const oldIndex = elements.findIndex(el => el.id === active.id);
       const newIndex = elements.findIndex(el => el.id === over.id);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        console.log('Reordering elements:', { oldIndex, newIndex });
+      if (oldIndex !== -1 && newIndex !== -1) {        
         const reorderedElements = arrayMove(elements, oldIndex, newIndex);
         
         // Update positions

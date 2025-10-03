@@ -544,7 +544,7 @@ const ParticipantForm = ({
                 <div className="size-8 lg:size-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                   <User className="size-4 lg:size-5 text-white" />
                 </div>
-                <h3 className="text-[14px] lg:text-xl font-bold text-slate-800 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <h3 className="text-[14px] lg:text-xl font-bold  bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Personal Details
                 </h3>
               </div>
@@ -600,7 +600,7 @@ const ParticipantForm = ({
                 <div className="size-8 lg:size-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                   <Building2 className="size-4 lg:size-5 text-white" />
                 </div>
-                <h3 className="text-[14px] lg:text-xl font-bold text-slate-800 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h3 className="text-[14px] lg:text-xl font-bold  bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   Professional Information
                 </h3>
               </div>
