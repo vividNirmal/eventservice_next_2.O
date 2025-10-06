@@ -85,12 +85,14 @@ const SmsTypeList = () => {
     }
   };
 
-  const handleAddTemplateType = async (typeName) => {
+  const handleAddTemplateType = async (data) => {
     setIsCreating(true);
     try {
       const payload = {
         type: "sms",
-        typeName,
+        typeName: data.typeName,
+        module: data.module,
+        actionType: data.actionType,
       };
 
       const response = await postRequest("template-types", payload);
@@ -100,7 +102,7 @@ const SmsTypeList = () => {
         setIsAddModalOpen(false);
         fetchTemplateTypes();
       } else {
-        toast.error("Failed to create sms type");
+        toast.error(response?.message || "Failed to create sms type");
       }
     } catch (error) {
       console.error("Error creating template type:", error);
@@ -110,13 +112,15 @@ const SmsTypeList = () => {
     }
   };
 
-  const handleEditTemplateType = async (typeName) => {
+  const handleEditTemplateType = async (data) => {
     if (!templateToEdit) return;
 
     setIsUpdating(true);
     try {
       const payload = {
-        typeName,
+        typeName: data.typeName,
+        module: data.module,
+        actionType: data.actionType,
       };
 
       const response = await updateRequest(
@@ -130,7 +134,7 @@ const SmsTypeList = () => {
         setTemplateToEdit(null);
         fetchTemplateTypes();
       } else {
-        toast.error("Failed to update sms type");
+        toast.error(response?.message || "Failed to update sms type");
       }
     } catch (error) {
       console.error("Error updating template type:", error);
@@ -154,7 +158,7 @@ const SmsTypeList = () => {
         setTemplateToDelete(null);
         fetchTemplateTypes();
       } else {
-        toast.error("Failed to delete sms template type");
+        toast.error(response?.message || "Failed to delete sms template type");
       }
     } catch (error) {
       console.error("Error deleting template type:", error);
@@ -212,50 +216,43 @@ const SmsTypeList = () => {
     });
   };
 
+  // Helper function to format module and action type for display
+  const formatEnumValue = (value) => {
+    return value?.charAt(0)?.toUpperCase() + value?.slice(1);
+  };
+
   return (
     <>
-      <Card className={"gap-0 py-3 shadow-none"}>
-        <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
-          <CardTitle>Sms Template Types</CardTitle>
-          <CardDescription className={"display-none"}></CardDescription>
+      <Card className={"gap-0 p-0 2xl:p-0 shadow-none border-0 grow flex flex-col"}>
+        <CardHeader className={"flex flex-wrap items-center gap-3 rounded-xl border border-solid border-zinc-200 p-4 2xl:p-5 shadow-none"}>
+          <CardTitle className={'p-0'}>SMS Template Types</CardTitle>
+          <CardDescription className={"hidden"}></CardDescription>
           <div className="flex items-center space-x-3 ml-auto">
             {/* Add Button */}
-            <Button onClick={() => setIsAddModalOpen(true)}>
+            <Button onClick={() => setIsAddModalOpen(true)} className={'2xl:text-sm 2xl:h-10'}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Sms Type
+              Add SMS Type
             </Button>
           </div>
-
-          <div className="flex items-center space-x-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search types"
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10"
-              />
-            </div>
-
-            <Select
-              value={selectedLimit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {dataLimits.map((limit) => (
-                  <SelectItem key={limit} value={limit.toString()}>
-                    {limit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="relative w-60">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input placeholder="Search types" value={searchTerm} onChange={handleSearch} className="pl-10" />
           </div>
+          <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {dataLimits.map((limit) => (
+                <SelectItem key={limit} value={limit.toString()}>
+                  {limit}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardHeader>
 
-        <CardContent className={"grow flex flex-col"}>
+        <CardContent className={"h-20 grow flex flex-col"}>
           {loading ? (
             <div className="flex items-center justify-center h-32">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -267,9 +264,11 @@ const SmsTypeList = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-1/3">Type Name</TableHead>
-                        <TableHead className="w-1/3">Created At</TableHead>
-                        <TableHead className="text-right w-1/3">
+                        <TableHead className="w-1/4">Type Name</TableHead>
+                        <TableHead className="w-1/4">Module</TableHead>
+                        <TableHead className="w-1/4">Action Type</TableHead>
+                        <TableHead className="w-1/4">Created At</TableHead>
+                        <TableHead className="text-right w-1/4">
                           Actions
                         </TableHead>
                       </TableRow>
@@ -278,13 +277,19 @@ const SmsTypeList = () => {
                       {templateTypes.length > 0 ? (
                         templateTypes.map((template) => (
                           <TableRow key={template._id}>
-                            <TableCell className="font-medium w-1/3">
+                            <TableCell className="font-medium w-1/4">
                               {template.typeName}
                             </TableCell>
-                            <TableCell className="w-1/3">
+                            <TableCell className="w-1/4">
+                              {formatEnumValue(template.module)}
+                            </TableCell>
+                            <TableCell className="w-1/4">
+                              {formatEnumValue(template.actionType)}
+                            </TableCell>
+                            <TableCell className="w-1/4">
                               {formatDate(template.createdAt)}
                             </TableCell>
-                            <TableCell className="text-right w-1/3">
+                            <TableCell className="text-right w-1/4">
                               <div className="flex justify-end space-x-2">
                                 <Button
                                   variant="outline"
@@ -317,7 +322,7 @@ const SmsTypeList = () => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={3} className="h-24 text-center">
+                          <TableCell colSpan={5} className="h-24 text-center">
                             No template types found
                           </TableCell>
                         </TableRow>
@@ -349,7 +354,7 @@ const SmsTypeList = () => {
         onClose={() => setIsAddModalOpen(false)}
         onSubmit={handleAddTemplateType}
         isSubmitting={isCreating}
-        title="Add New Sms Type"
+        title="Add New SMS Type"
         description="Create a new type for your sms templates."
         submitButtonText="Create Type"
       />
@@ -363,11 +368,9 @@ const SmsTypeList = () => {
         }}
         onSubmit={handleEditTemplateType}
         isSubmitting={isUpdating}
-        initialData={
-          templateToEdit ? { typeName: templateToEdit.typeName } : undefined
-        }
-        title="Edit Sms Type"
-        description="Update the sms template type name."
+        initialData={templateToEdit || undefined}
+        title="Edit SMS Type"
+        description="Update the sms template type details."
         submitButtonText="Update Type"
       />
 
