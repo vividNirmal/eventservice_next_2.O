@@ -82,7 +82,7 @@ export function DndFormBuilder({
         
         // If dropping on an existing element, insert after it
         if (!over.id.startsWith('form-canvas-') && !over.id.startsWith('sidebar-')) {
-          const targetIndex = elements.findIndex(el => el.id === over.id);
+          const targetIndex = elements.findIndex(el => el._id === over.id);
           if (targetIndex !== -1) {
             newElement.position = targetIndex + 1;
             // Update positions of elements after the target
@@ -106,8 +106,8 @@ export function DndFormBuilder({
 
     // Check if reordering elements within canvas
     if (active.id !== over.id && !active.id.startsWith('sidebar-') && !over.id.startsWith('sidebar-')) {
-      const oldIndex = elements.findIndex(el => el.id === active.id);
-      const newIndex = elements.findIndex(el => el.id === over.id);
+      const oldIndex = elements.findIndex(el => el._id === active.id);
+      const newIndex = elements.findIndex(el => el._id === over.id);
 
       if (oldIndex !== -1 && newIndex !== -1) {        
         const reorderedElements = arrayMove(elements, oldIndex, newIndex);
@@ -132,7 +132,7 @@ export function DndFormBuilder({
       onDragEnd={handleDragEnd}
     >
       <SortableContext 
-        items={elements.map(el => el.id)} 
+        items={elements.map(el => el._id)} 
         strategy={verticalListSortingStrategy}
       >
         {children}

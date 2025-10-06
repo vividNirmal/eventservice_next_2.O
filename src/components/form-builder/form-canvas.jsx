@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableElement } from './sortable-element';
 import { FormElementRenderer } from '../form-elements/form-element-renderer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +25,8 @@ export function FormCanvas({
   onElementSelect,
   title,
   description,
-  onPagetitleUpdate
+  onPagetitleUpdate,
+  onElementsReorder // Add this prop
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [cardtitle, setTitle] = useState(title);
@@ -44,7 +46,6 @@ export function FormCanvas({
     }
   };  
 
-  
   const handleSave = () => {
     setIsEditing(false);
     onPagetitleUpdate({
@@ -52,8 +53,10 @@ export function FormCanvas({
       'pageDescription' : carddescription,
       'pageindex' : pageuniqid
     })
-    // you can trigger API call here to save updated values
   };
+
+  // Sort elements by position
+  const sortedElements = [...elements].sort((a, b) => a.position - b.position);
   
   return (
     <div className="flex-1 bg-gray-100">
@@ -107,13 +110,23 @@ export function FormCanvas({
               </div>
             ) : (
               <div className="space-y-4 p-4 2xl:p-6">
-                {elements
-                  .sort((a, b) => a.position - b.position)
-                  .map((element) => (
-                    <SortableElement key={element._id} element={element} onEdit={onElementEdit} onDelete={onElementDelete} isSelected={selectedElementId === element._id} onSelect={onElementSelect}>
+                <SortableContext 
+                  items={sortedElements.map(el => el._id)} 
+                  strategy={verticalListSortingStrategy}
+                >
+                  {sortedElements.map((element) => (
+                    <SortableElement 
+                      key={element._id} 
+                      element={element} 
+                      onEdit={onElementEdit} 
+                      onDelete={onElementDelete} 
+                      isSelected={selectedElementId === element._id} 
+                      onSelect={onElementSelect}
+                    >
                       <FormElementRenderer element={element} preview={true} />
                     </SortableElement>
                   ))}
+                </SortableContext>
                 
                 {/* Drop zone at the bottom */}
                 {isOver && (
