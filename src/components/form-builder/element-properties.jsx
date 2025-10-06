@@ -39,6 +39,7 @@ const fieldTypeOptions = [
   { value: "url", title: "URL" },
   { value: "tel", title: "Telephone" },
   { value: "hidden", title: "Hidden" },
+  { value: "html", title: "HTML" },
 ];
 const BooleanOptions = [
   { value: "yes", title: "Yes" },

@@ -1,9 +1,5 @@
 import axios from "axios";
-
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.laptoprental.co/api/v1";
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 
-// "https://levenex.macbookonrent.in/api/v1/";
-"http://localhost:4080/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4080/api/v1";
 function getToken(tokenKey = "token") {
   if (typeof window !== "undefined") {
     return localStorage.getItem(tokenKey);

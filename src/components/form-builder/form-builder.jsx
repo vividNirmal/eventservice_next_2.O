@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useCallback } from 'react';
-import { DndFormBuilder } from './dnd-context';
-import { ElementSidebar } from './element-sidebar';
-import { FormCanvas } from './form-canvas';
-import { ElementProperties } from './element-properties';
-import { Button } from '../ui/button';
-import { PackagePlusIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useState, useCallback } from "react";
+import { DndFormBuilder } from "./dnd-context";
+import { ElementSidebar } from "./element-sidebar";
+import { FormCanvas } from "./form-canvas";
+import { ElementProperties } from "./element-properties";
+import { Button } from "../ui/button";
+import { PackagePlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +17,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from '../ui/textarea';
-import { apiPut } from '@/lib/api';
 import { createRandom5CharAlphanum, generateId } from '@/lib/form-utils';
 import { toast } from 'sonner';
 
@@ -30,9 +28,7 @@ export function FormBuilder({ form, onFormChange }) {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
-    const [pageDescription, setPageDescription] = useState("");  
-  const router = useRouter();
-  // Find selected element across all pages
+  const [pageDescription, setPageDescription] = useState("");    
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -56,8 +52,7 @@ export function FormBuilder({ form, onFormChange }) {
   );
 
   const handleAddElement = useCallback(
-    (newElement, pageIndex) => {      
-
+    (newElement, pageIndex) => {
       const targetPageIndex = pageIndex ?? currentPageIndex;
       const updatedPages = [...form.pages];
       setCurrentPageIndex(targetPageIndex);
@@ -138,80 +133,65 @@ export function FormBuilder({ form, onFormChange }) {
   }, []);
 
   // Get all elements from current page for DndContext
-  const currentPageElements = form.pages[currentPageIndex]?.elements || [];
+  const currentPageElements = form.pages[currentPageIndex]?.elements || []; 
 
-  const handleSubmitField = () => {
-    const formData = {
-      formName: form.formName,
-      userType: form.userType,
-      pages: form.pages,
-      settings: form.settings,
-    };
-    const response = apiPut(`/forms/${form.id}`, formData);
-
-    if (response.status === 1) {
-      router.back();
-      toast.success("Form saved successfully");
-    }
-  };
-
-  const createElement = (data) => {
+  const createElement = (inputType) => {    
+    
     const createNewlement = {
       fieldName: createRandom5CharAlphanum(),
       fieldOptions: [],
-      fieldType: "text",
+      fieldType: inputType,
       isPrimary: false,
       isRequired: false,
       placeHolder: "Please Enter Address",
       specialCharactor: false,
-      _id:generateId()
+      _id: generateId(),
     };
     handleAddElement(createNewlement, currentPageIndex);
   };
   const pageDateUpdate = useCallback(
-  ({ pageTitle, pageDescription, pageindex }) => {
-    const updatedPages = form.pages.map((page, idx) =>
-      idx === pageindex
-        ? {
-            ...page,
-            name: pageTitle,
-            description: pageDescription,
-          }
-        : page
-    );
+    ({ pageTitle, pageDescription, pageindex }) => {
+      const updatedPages = form.pages.map((page, idx) =>
+        idx === pageindex
+          ? {
+              ...page,
+              name: pageTitle,
+              description: pageDescription,
+            }
+          : page
+      );
 
-    onFormChange({
-      ...form,
-      pages: updatedPages,
-    });
-  },
-  [form, onFormChange]
-);
-  // function pageDateUpdate(data){
-  //   console.log(data);
-    
-  // }
+      onFormChange({
+        ...form,
+        pages: updatedPages,
+      });
+    },
+    [form, onFormChange]
+  );  
 
-  const handleCreatePage = async () => {
+  const handleCreatePage = useCallback(() => {
     if (!pageName.trim()) {
       toast.error("Please enter a page name");
       return;
     }
-    try {
-      const response = await apiPut(`/forms/add-page/${form.id}`, {
-        pageName: pageName,
-        description: pageDescription,
-      });
-      if (response.status === 1) {
-        toast.success("Page created successfully");
-        setOpenPageModal(false);
-        setPageName("");
-        setPageDescription("");
-      }
-    } catch (error) {
-      console.error("🚨 Error creating page:", error);      
-    }        
-  };
+
+    const newPage = {
+      _id: Date.now().toString(), // or uuid
+      name: pageName,
+      description: pageDescription,
+      elements: [],
+    };
+
+    onFormChange({
+      ...form,
+      pages: [...form.pages, newPage],
+    });
+
+    toast.success("Page added successfully");
+    setOpenPageModal(false);
+    setPageName("");
+    setPageDescription("");
+  }, [pageName, pageDescription, form, onFormChange]);
 
   return (
     <div className="flex flex-col bg-gray-100 h-16 grow">
@@ -222,15 +202,15 @@ export function FormBuilder({ form, onFormChange }) {
         currentPageIndex={currentPageIndex}
       >
         <div className="flex grow overflow-auto">
-          <ElementSidebar form={form} onCreateelemet={createElement} />
+          <ElementSidebar form={form} onCreateelemet={(data)=>createElement(data)} currentPageIndex={currentPageIndex}/>
           <div className="w-1/3 grow flex flex-col gap-4 p-4 sticky top-0">
             <div className="overflow-auto gap-4 flex flex-col h-20 grow pr-4">
-              <div className='flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg'>
-              <Button onClick={() => setOpenPageModal(true)}>
-                <PackagePlusIcon className="h-4 w-4 mr-2" />
-                Page
-              </Button>
-            </div>
+              <div className="flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg">
+                <Button onClick={() => setOpenPageModal(true)}>
+                  <PackagePlusIcon className="h-4 w-4 mr-2" />
+                  Page
+                </Button>
+              </div>
               {form.pages.map((page, pageIndex) => (
                 <FormCanvas
                   key={`page-${pageIndex}`}
@@ -242,10 +222,10 @@ export function FormBuilder({ form, onFormChange }) {
                   onElementDelete={handleElementDelete}
                   selectedElementId={selectedElementId}
                   onElementSelect={handleElementSelect}
-                  onPagetitleUpdate = {pageDateUpdate}
+                  onPagetitleUpdate={pageDateUpdate}
                 />
               ))}
-            </div>            
+            </div>
             {/* <div className='flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg'>
               <Button>Save</Button>
               <Button variant={"secondary"}>Discard</Button>

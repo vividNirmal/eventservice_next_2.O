@@ -3,11 +3,9 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { Breadcrumbs } from "@/components/breadcrumb";
 import Header from "@/components/header";
 import DashboardPage from "@/components/page/dashboard/dashboardPage";
-import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
+  SidebarProvider,  
 } from "@/components/ui/sidebar";
 import { Loader2 } from "lucide-react";
 import { Suspense, useState, useEffect } from "react";
