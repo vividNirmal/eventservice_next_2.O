@@ -221,21 +221,11 @@ export function ElementProperties({ element, onSave, onClose }) {
 
         <CardContent className="space-y-6">
           <form onSubmit={formik.handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="fieldTitle">Field Title</Label>
-              <Input
-                id="fieldTitle"
-                name="fieldTitle"
-                placeholder="Enter field title"
-                value={formik.values.fieldTitle}
-                onChange={handleFieldTitleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
+              <Input id="fieldTitle" name="fieldTitle" placeholder="Enter field title" value={formik.values.fieldTitle} onChange={handleFieldTitleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
               {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-                <p className="text-sm text-red-500">
-                  {formik.errors.fieldTitle}
-                </p>
+                <p className="text-sm text-red-500 absolute left-0 -bottom-1">{formik.errors.fieldTitle}</p>
               )}
             </div>
 
