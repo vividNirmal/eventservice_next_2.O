@@ -130,6 +130,41 @@ const StaticNavigation = ({ eventId = null }) => {
           isActive: activeSection === 'scanning-devices',
         }
       ]
+    },
+    {
+      id: 'userTemplate',
+      label: "Manage Templates",
+      icon: FileText,
+      show: true,
+      description: 'Manage Templates',
+      isExpandable: true,
+      isExpanded: expandedSections.userTemplate,
+      subItems: [
+        {
+          id: 'email',
+          label: 'Email Templates',
+          icon: FileText,
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/email-management` : '/dashboard/email-management',
+          description: 'Manage email templates',
+          isActive: activeSection === 'email',
+        },
+        {
+          id: 'sms',
+          label: 'SMS Templates',
+          icon: Users,
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/sms-management` : '/dashboard/sms-management',
+          description: 'Manage sms templates',
+          isActive: activeSection === 'sms',
+        },
+        {
+          id: 'whatsapp',
+          label: 'People',
+          icon: Users,
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/whatsapp-management` : '/dashboard/whatsapp-management',
+          description: 'Manage whatsapp templates',
+          isActive: activeSection === 'whatsapp',
+        }
+      ]
     }
   ];
 
