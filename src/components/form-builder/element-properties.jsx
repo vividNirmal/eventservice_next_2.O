@@ -19,6 +19,7 @@ import {
 import { X, Plus, Trash2 } from "lucide-react";
 import { labelToName } from "@/lib/form-utils";
 import { CustomCombobox } from "../common/customcombox";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
 
 /**
  * Element Properties Component with Formik & Yup
@@ -210,224 +211,210 @@ export function ElementProperties({ element, onSave, onClose }) {
 
   return (
     <div className="w-60 xl:w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
-      <Card className="border-0 rounded-none grow">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4">
-          <CardTitle className="text-base xl:text-lg">
-            Element Properties
-          </CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+      <Card className="border-0 rounded-none grow gap-0 xl:gap-0 2xl:p-4">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
+          <CardTitle className="text-base xl:text-lg">Element Properties</CardTitle>
+          <Button variant="ghost" size="sm" className={'!p-0'} onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <form onSubmit={formik.handleSubmit} className="space-y-6">
-            <div className="flex flex-col gap-1">
-              <Label htmlFor="fieldTitle">Field Title</Label>
-              <Input id="fieldTitle" name="fieldTitle" placeholder="Enter field title" value={formik.values.fieldTitle} onChange={handleFieldTitleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
-              {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-                <p className="text-sm text-red-500 absolute left-0 -bottom-1">{formik.errors.fieldTitle}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fieldName">Field Name</Label>
-              <Input
-                id="fieldName"
-                name="fieldName"
-                placeholder="Enter field name"
-                value={formik.values.fieldName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-              {formik.touched.fieldName && formik.errors.fieldName && (
-                <p className="text-sm text-red-500">
-                  {formik.errors.fieldName}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fieldType">Field Type</Label>
-              <CustomCombobox
-                name="fieldType"
-                value={formik.values.fieldType}
-                onChange={(value) => formik.setFieldValue("fieldType", value)}
-                onBlur={() => formik.setFieldTouched("fieldType", true)}
-                valueKey="value"
-                labelKey="title"
-                options={fieldTypeOptions || []}
-                placeholder="Select Field Type"
-                id="fieldType"
-              />
-              {formik.touched.fieldType && formik.errors.fieldType && (
-                <p className="text-sm text-red-500">
-                  {formik.errors.fieldType}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="isRequired">Is Field Required?</Label>
-              <CustomCombobox
-                name="isRequired"
-                value={formik.values.isRequired}
-                onChange={(value) => formik.setFieldValue("isRequired", value)}
-                valueKey="value"
-                labelKey="title"
-                search={false}
-                options={BooleanOptions || []}
-                placeholder="Select Field Required"
-                id="isRequired"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="placeHolder">Place Holder</Label>
-              <Input
-                id="placeHolder"
-                name="placeHolder"
-                type="text"
-                placeholder="Enter placeHolder address"
-                value={formik.values.placeHolder}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-              {formik.touched.placeHolder && formik.errors.placeHolder && (
-                <p className="text-sm text-red-500">
-                  {formik.errors.placeHolder}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="requiredErrorText">Required Error Text</Label>
-              <Input
-                id="requiredErrorText"
-                name="requiredErrorText"
-                type="text"
-                placeholder="Enter requiredErrorText address"
-                value={formik.values.requiredErrorText}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-            </div>
-
-            {["radio", "checkbox", "select"].includes(
-              formik.values.fieldType
-            ) && (
-              <div className="space-y-2">
-                <Label>Options</Label>
-
-                <div className="space-y-2">
-                  {formik.values.fieldOptions?.map((opt, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        value={opt}
-                        onChange={(e) => {
-                          const newOptions = [...formik.values.fieldOptions];
-                          newOptions[index] = e.target.value;
-                          formik.setFieldValue("fieldOptions", newOptions);
-                        }}
-                        placeholder={`Option ${index + 1}`}
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => {
-                          const newOptions = formik.values.fieldOptions.filter(
-                            (_, i) => i !== index
-                          );
-                          formik.setFieldValue("fieldOptions", newOptions);
-                        }}
-                      >
-                        Remove
-                      </Button>
+          <form onSubmit={formik.handleSubmit}>
+            <Accordion type="single" collapsible className="w-full" defaultValue="generalSettings-1">
+              <AccordionItem value="generalSettings-1">
+                <AccordionTrigger className={'hover:no-underline text-sm font-semibold text-gray-700'}>General settings</AccordionTrigger>
+                <AccordionContent className={'space-y-5'}>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fieldTitle">Field Title</Label>
+                    <Input id="fieldTitle" name="fieldTitle" placeholder="Enter field title" value={formik.values.fieldTitle} onChange={handleFieldTitleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
+                    {formik.touched.fieldTitle && formik.errors.fieldTitle && (
+                      <p className="text-sm text-red-500 absolute left-0 -bottom-1">{formik.errors.fieldTitle}</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fieldName">Field Name</Label>
+                    <Input
+                      id="fieldName"
+                      name="fieldName"
+                      placeholder="Enter field name"
+                      value={formik.values.fieldName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                    {formik.touched.fieldName && formik.errors.fieldName && (
+                      <p className="text-sm text-red-500">
+                        {formik.errors.fieldName}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fieldType">Field Type</Label>
+                    <CustomCombobox
+                      name="fieldType"
+                      value={formik.values.fieldType}
+                      onChange={(value) => formik.setFieldValue("fieldType", value)}
+                      onBlur={() => formik.setFieldTouched("fieldType", true)}
+                      valueKey="value"
+                      labelKey="title"
+                      options={fieldTypeOptions || []}
+                      placeholder="Select Field Type"
+                      id="fieldType"
+                    />
+                    {formik.touched.fieldType && formik.errors.fieldType && (
+                      <p className="text-sm text-red-500">
+                        {formik.errors.fieldType}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="isRequired">Is Field Required?</Label>
+                    <CustomCombobox
+                      name="isRequired"
+                      value={formik.values.isRequired}
+                      onChange={(value) => formik.setFieldValue("isRequired", value)}
+                      valueKey="value"
+                      labelKey="title"
+                      search={false}
+                      options={BooleanOptions || []}
+                      placeholder="Select Field Required"
+                      id="isRequired"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="placeHolder">Place Holder</Label>
+                    <Input
+                      id="placeHolder"
+                      name="placeHolder"
+                      type="text"
+                      placeholder="Enter placeHolder address"
+                      value={formik.values.placeHolder}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                    {formik.touched.placeHolder && formik.errors.placeHolder && (
+                      <p className="text-sm text-red-500">
+                        {formik.errors.placeHolder}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="requiredErrorText">Required Error Text</Label>
+                    <Input
+                      id="requiredErrorText"
+                      name="requiredErrorText"
+                      type="text"
+                      placeholder="Enter requiredErrorText address"
+                      value={formik.values.requiredErrorText}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  {["radio", "checkbox", "select"].includes(
+                    formik.values.fieldType
+                  ) && (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between">
+                        <Label className={'text-sm font-semibold text-gray-700 pt-2 pb-0'}>Options</Label>
+                        <Button type="button" variant="outline" className={'!p-1.5 size-8 shrink-0'} onClick={() => formik.setFieldValue("fieldOptions", [...(formik.values.fieldOptions || []),"",])}>
+                          <Plus/>
+                        </Button>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {formik.values.fieldOptions?.map((opt, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Input type="text" value={opt} className={'h-8 p-2'}
+                              onChange={(e) => {
+                                const newOptions = [...formik.values.fieldOptions];
+                                newOptions[index] = e.target.value;
+                                formik.setFieldValue("fieldOptions", newOptions);
+                              }}
+                              placeholder={`Option ${index + 1}`}
+                            />
+                            <Button type="button" variant="destructive" className={'!p-1.5 size-8 shrink-0'}
+                              onClick={() => {
+                                const newOptions = formik.values.fieldOptions.filter(
+                                  (_, i) => i !== index
+                                );
+                                formik.setFieldValue("fieldOptions", newOptions);
+                              }}
+                            >
+                              <Trash2/>
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      {formik.touched.fieldOptions && formik.errors.fieldOptions && (
+                        <p className="text-sm text-red-500">{formik.errors.fieldOptions}</p>
+                      )}
                     </div>
-                  ))}
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() =>
-                      formik.setFieldValue("fieldOptions", [
-                        ...(formik.values.fieldOptions || []),
-                        "",
-                      ])
-                    }
-                  >
-                    + Add Option
-                  </Button>
-                </div>
-
-                {formik.touched.fieldOptions && formik.errors.fieldOptions && (
-                  <p className="text-sm text-red-500">
-                    {formik.errors.fieldOptions}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="fieldDescription">Field Description</Label>
-              <Input
-                id="fieldDescription"
-                name="fieldDescription"
-                type="text"
-                placeholder="Enter Field Description address"
-                value={formik.values.fieldDescription}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fieldminLimit">Field Minum length</Label>
-              <Input
-                id="fieldminLimit"
-                name="fieldminLimit"
-                type="text"
-                placeholder="Enter Field Minimum Lenght"
-                value={formik.values.fieldminLimit}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="fieldmaxLimit">Field Maximum length </Label>
-              <Input
-                id="fieldmaxLimit"
-                name="fieldmaxLimit"
-                type="text"
-                placeholder="Enter Field Maximum Lenght"
-                value={formik.values.fieldmaxLimit}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="specialCharactor">Is special Charactor?</Label>
-              <CustomCombobox
-                name="specialCharactor"
-                value={formik.values.specialCharactor}
-                onChange={(value) =>
-                  formik.setFieldValue("specialCharactor", value)
-                }
-                valueKey="value"
-                labelKey="title"
-                search={false}
-                options={BooleanOptions || []}
-                placeholder="Select Field Required"
-                id="specialCharactor"
-              />
-            </div>
-
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="generalSettings-2">
+                <AccordionTrigger className={'hover:no-underline text-sm font-semibold text-gray-700'}>General settings</AccordionTrigger>
+                <AccordionContent className={'space-y-5'}>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fieldDescription">Field Description</Label>
+                    <Input
+                      id="fieldDescription"
+                      name="fieldDescription"
+                      type="text"
+                      placeholder="Enter Field Description address"
+                      value={formik.values.fieldDescription}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fieldminLimit">Field Minum length</Label>
+                    <Input
+                      id="fieldminLimit"
+                      name="fieldminLimit"
+                      type="text"
+                      placeholder="Enter Field Minimum Lenght"
+                      value={formik.values.fieldminLimit}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fieldmaxLimit">Field Maximum length </Label>
+                    <Input
+                      id="fieldmaxLimit"
+                      name="fieldmaxLimit"
+                      type="text"
+                      placeholder="Enter Field Maximum Lenght"
+                      value={formik.values.fieldmaxLimit}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="specialCharactor">Is special Charactor?</Label>
+                    <CustomCombobox
+                      name="specialCharactor"
+                      value={formik.values.specialCharactor}
+                      onChange={(value) =>
+                        formik.setFieldValue("specialCharactor", value)
+                      }
+                      valueKey="value"
+                      labelKey="title"
+                      search={false}
+                      options={BooleanOptions || []}
+                      placeholder="Select Field Required"
+                      id="specialCharactor"
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
             {/* Save Button */}
             <div className="pt-4 border-t">
               <Button type="submit" className="w-full">

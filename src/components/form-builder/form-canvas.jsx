@@ -110,19 +110,9 @@ export function FormCanvas({
               </div>
             ) : (
               <div className="space-y-4 p-4 2xl:p-6">
-                <SortableContext 
-                  items={sortedElements.map(el => el._id)} 
-                  strategy={verticalListSortingStrategy}
-                >
+                <SortableContext items={sortedElements.map(el => el._id)} strategy={verticalListSortingStrategy}>
                   {sortedElements.map((element) => (
-                    <SortableElement 
-                      key={element._id} 
-                      element={element} 
-                      onEdit={onElementEdit} 
-                      onDelete={onElementDelete} 
-                      isSelected={selectedElementId === element._id} 
-                      onSelect={onElementSelect}
-                    >
+                    <SortableElement key={element._id} element={element} onEdit={onElementEdit} onDelete={onElementDelete} isSelected={selectedElementId === element._id} onSelect={onElementSelect}>
                       <FormElementRenderer element={element} preview={true} />
                     </SortableElement>
                   ))}

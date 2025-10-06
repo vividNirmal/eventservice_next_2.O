@@ -6,7 +6,7 @@ import { ElementSidebar } from "./element-sidebar";
 import { FormCanvas } from "./form-canvas";
 import { ElementProperties } from "./element-properties";
 import { Button } from "../ui/button";
-import { PackagePlusIcon } from "lucide-react";
+import { ArrowDownFromLine, ArrowUpFromLine, PackagePlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -206,10 +206,18 @@ export function FormBuilder({ form, onFormChange }) {
           <ElementSidebar form={form} onCreateelemet={(data)=>createElement(data)} currentPageIndex={currentPageIndex}/>
           <div className="w-1/3 grow flex flex-col gap-4 p-4 sticky top-0">
             <div className="overflow-auto gap-4 flex flex-col h-20 grow pr-4">
-              <div className="flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg">
+              <div className="flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg border border-solid border-zinc-200">
                 <Button onClick={() => setOpenPageModal(true)}>
                   <PackagePlusIcon className="h-4 w-4 mr-2" />
                   Page
+                </Button>
+                <Button variant={'secondary'} className={'shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500'}>
+                  <ArrowUpFromLine />
+                  Export
+                </Button>
+                <Button variant={'secondary'} className={'shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500'}>
+                  <ArrowDownFromLine />
+                  Import
                 </Button>
               </div>
               {form.pages.map((page, pageIndex) => (
