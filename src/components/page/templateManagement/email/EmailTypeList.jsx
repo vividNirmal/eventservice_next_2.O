@@ -85,12 +85,14 @@ const EmailTypeList = () => {
     }
   };
 
-  const handleAddTemplateType = async (typeName) => {
+  const handleAddTemplateType = async (data) => {
     setIsCreating(true);
     try {
       const payload = {
         type: "email",
-        typeName,
+        typeName: data.typeName,
+        module: data.module,
+        actionType: data.actionType,
       };
 
       const response = await postRequest("template-types", payload);
@@ -100,7 +102,7 @@ const EmailTypeList = () => {
         setIsAddModalOpen(false);
         fetchTemplateTypes();
       } else {
-        toast.error("Failed to create email type");
+        toast.error(response?.message || "Failed to create email type");
       }
     } catch (error) {
       console.error("Error creating template type:", error);
@@ -110,13 +112,15 @@ const EmailTypeList = () => {
     }
   };
 
-  const handleEditTemplateType = async (typeName) => {
+  const handleEditTemplateType = async (data) => {
     if (!templateToEdit) return;
 
     setIsUpdating(true);
     try {
       const payload = {
-        typeName,
+        typeName: data.typeName,
+        module: data.module,
+        actionType: data.actionType,
       };
 
       const response = await updateRequest(
@@ -130,7 +134,7 @@ const EmailTypeList = () => {
         setTemplateToEdit(null);
         fetchTemplateTypes();
       } else {
-        toast.error("Failed to update email type");
+        toast.error(response?.message || "Failed to update email type");
       }
     } catch (error) {
       console.error("Error updating template type:", error);
@@ -154,7 +158,7 @@ const EmailTypeList = () => {
         setTemplateToDelete(null);
         fetchTemplateTypes();
       } else {
-        toast.error("Failed to delete email template type");
+        toast.error(response?.message || "Failed to delete email template type");
       }
     } catch (error) {
       console.error("Error deleting template type:", error);
@@ -212,6 +216,11 @@ const EmailTypeList = () => {
     });
   };
 
+  // Helper function to format module and action type for display
+  const formatEnumValue = (value) => {
+    return value?.charAt(0)?.toUpperCase() + value?.slice(1);
+  };
+
   return (
     <>
       <Card className={"gap-0 p-0 2xl:p-0 shadow-none border-0 grow flex flex-col"}>
@@ -255,9 +264,11 @@ const EmailTypeList = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-1/3">Type Name</TableHead>
-                        <TableHead className="w-1/3">Created At</TableHead>
-                        <TableHead className="text-right w-1/3">
+                        <TableHead className="w-1/4">Type Name</TableHead>
+                        <TableHead className="w-1/4">Module</TableHead>
+                        <TableHead className="w-1/4">Action Type</TableHead>
+                        <TableHead className="w-1/4">Created At</TableHead>
+                        <TableHead className="text-right w-1/4">
                           Actions
                         </TableHead>
                       </TableRow>
@@ -266,13 +277,19 @@ const EmailTypeList = () => {
                       {templateTypes.length > 0 ? (
                         templateTypes.map((template) => (
                           <TableRow key={template._id}>
-                            <TableCell className="font-medium w-1/3">
+                            <TableCell className="font-medium w-1/4">
                               {template.typeName}
                             </TableCell>
-                            <TableCell className="w-1/3">
+                            <TableCell className="w-1/4">
+                              {formatEnumValue(template.module)}
+                            </TableCell>
+                            <TableCell className="w-1/4">
+                              {formatEnumValue(template.actionType)}
+                            </TableCell>
+                            <TableCell className="w-1/4">
                               {formatDate(template.createdAt)}
                             </TableCell>
-                            <TableCell className="text-right w-1/3">
+                            <TableCell className="text-right w-1/4">
                               <div className="flex justify-end space-x-2">
                                 <Button
                                   variant="outline"
@@ -305,7 +322,7 @@ const EmailTypeList = () => {
                         ))
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={3} className="h-24 text-center">
+                          <TableCell colSpan={5} className="h-24 text-center">
                             No template types found
                           </TableCell>
                         </TableRow>
@@ -351,11 +368,9 @@ const EmailTypeList = () => {
         }}
         onSubmit={handleEditTemplateType}
         isSubmitting={isUpdating}
-        initialData={
-          templateToEdit ? { typeName: templateToEdit.typeName } : undefined
-        }
+        initialData={templateToEdit || undefined}
         title="Edit Email Type"
-        description="Update the email template type name."
+        description="Update the email template type details."
         submitButtonText="Update Type"
       />
 
