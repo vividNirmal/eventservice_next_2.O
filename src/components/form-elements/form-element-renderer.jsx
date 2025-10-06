@@ -630,7 +630,7 @@ export function FormElementRenderer({
       default:
         const Icon = fieldTypeIcons[element.fieldType] || Type;
         return (
-          <div className="group p-2 2xl:p-3 bg-white border border-solid border-gray-200 rounded-md 2xl:rounded-lg cursor-grab shadow active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200 ease-in">
+          <div className="group p-2 2xl:p-3 bg-white border border-solid border-gray-200 rounded-md 2xl:rounded-lg cursor-grab active:cursor-grabbing hover:border-blue-300 transition-all duration-200 ease-in">
             <div className="flex items-center space-x-1 2xl:space-x-2">
               <div className="flex-shrink-0">
                 <Icon className="size-4 2xl:size-5 text-gray-600 group-hover:text-blue-600 transition-all duration-200 ease-in" />
@@ -653,7 +653,7 @@ export function FormElementRenderer({
   }
 
   return (
-    <div className="w-full space-y-2 bg-gray-50 group-hover:bg-white p-2.5 rounded-lg transition-colors duration-300 ease-in">
+    <div className="w-full space-y-2 bg-gray-50 group-hover:bg-white rounded-lg transition-colors duration-300 ease-in">
       {renderLabel()}
       {renderElement()}
       {renderDescription()}
