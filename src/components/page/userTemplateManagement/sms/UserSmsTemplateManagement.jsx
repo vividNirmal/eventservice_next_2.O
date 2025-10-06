@@ -35,17 +35,15 @@ const DefaultTemplateList = dynamic(
   }
 );
 
-const UserEmailTemplateManagement = ({ eventId }) => {
+const UserSmsTemplateManagement = ({ eventId }) => {
   const [activeTab, setActiveTab] = useState("user-templates");
 
   const activeTabContent = useMemo(() => {
     switch (activeTab) {
       case "user-templates":
-        return (
-          <UserEmailTemplateList eventId={eventId} templateType={"email"} />
-        );
+        return <UserEmailTemplateList eventId={eventId} templateType={"sms"} />;
       case "default-templates":
-        return <DefaultTemplateList eventId={eventId} templateType={"email"} />;
+        return <DefaultTemplateList eventId={eventId} templateType={"sms"} />;
       default:
         return null;
     }
@@ -54,9 +52,9 @@ const UserEmailTemplateManagement = ({ eventId }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Email Template Management</CardTitle>
+        <CardTitle>SMS Template Management</CardTitle>
         <CardDescription>
-          Manage your custom email templates and view default templates
+          Manage your custom SMS templates and view default templates
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -77,4 +75,4 @@ const UserEmailTemplateManagement = ({ eventId }) => {
   );
 };
 
-export default React.memo(UserEmailTemplateManagement);
+export default React.memo(UserSmsTemplateManagement);

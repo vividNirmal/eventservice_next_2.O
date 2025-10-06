@@ -1,4 +1,3 @@
-// app/user/templates/email/components/UserTemplateList.jsx
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -36,9 +35,9 @@ import {
 import { getRequest, deleteRequest } from "@/service/viewService";
 import { toast } from "sonner";
 
-const UserEmailTemplateList = ({ eventId }) => {
+const UserTemplateList = ({ eventId, templateType }) => {
   const router = useRouter();
-  const templateType = "email";
+  // const templateType = "email";
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -108,12 +107,14 @@ const UserEmailTemplateList = ({ eventId }) => {
   };
 
   const handleCreateTemplate = () => {
-    router.push(`/dashboard/event-host/${eventId}/email-management/create`);
+    router.push(
+      `/dashboard/event-host/${eventId}/${templateType}-management/create`
+    );
   };
 
   const handleEditTemplate = (templateId) => {
     router.push(
-      `/dashboard/event-host/${eventId}/email-management/create/${templateId}`
+      `/dashboard/event-host/${eventId}/${templateType}-management/create/${templateId}`
     );
   };
 
@@ -310,4 +311,4 @@ const UserEmailTemplateList = ({ eventId }) => {
   );
 };
 
-export default UserEmailTemplateList;
+export default UserTemplateList;

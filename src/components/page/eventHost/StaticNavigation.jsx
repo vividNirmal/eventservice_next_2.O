@@ -9,7 +9,11 @@ import {
   CalendarDays,
   HomeIcon,
   FileText,
-  Monitor
+  Monitor,
+  Mail,
+  MessageCircleMore,
+  LayoutTemplate,
+  Phone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -134,7 +138,7 @@ const StaticNavigation = ({ eventId = null }) => {
     {
       id: 'userTemplate',
       label: "Manage Templates",
-      icon: FileText,
+      icon: LayoutTemplate,
       show: true,
       description: 'Manage Templates',
       isExpandable: true,
@@ -143,7 +147,7 @@ const StaticNavigation = ({ eventId = null }) => {
         {
           id: 'email',
           label: 'Email Templates',
-          icon: FileText,
+          icon: Mail,
           url: actualEventId ? `/dashboard/event-host/${actualEventId}/email-management` : '/dashboard/email-management',
           description: 'Manage email templates',
           isActive: activeSection === 'email',
@@ -151,15 +155,15 @@ const StaticNavigation = ({ eventId = null }) => {
         {
           id: 'sms',
           label: 'SMS Templates',
-          icon: Users,
+          icon: MessageCircleMore,
           url: actualEventId ? `/dashboard/event-host/${actualEventId}/sms-management` : '/dashboard/sms-management',
           description: 'Manage sms templates',
           isActive: activeSection === 'sms',
         },
         {
           id: 'whatsapp',
-          label: 'People',
-          icon: Users,
+          label: 'WhatsApp Templates',
+          icon: Phone,
           url: actualEventId ? `/dashboard/event-host/${actualEventId}/whatsapp-management` : '/dashboard/whatsapp-management',
           description: 'Manage whatsapp templates',
           isActive: activeSection === 'whatsapp',

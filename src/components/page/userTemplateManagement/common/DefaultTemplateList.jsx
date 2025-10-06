@@ -1,12 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,12 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CustomPagination } from "@/components/common/pagination";
-import { 
-  Search, 
-  Loader2,
-  Eye,
-  Copy
-} from "lucide-react";
+import { Search, Loader2, Eye, Copy } from "lucide-react";
 import { getRequest } from "@/service/viewService";
 import { toast } from "sonner";
 
@@ -76,7 +66,9 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
   };
 
   const handleViewTemplate = (templateId) => {
-    router.push(`/dashboard/event-host/${eventId}/email-management/create/${templateId}`);
+    router.push(
+      `/dashboard/event-host/${eventId}/email-management/create/${templateId}`
+    );
   };
 
   const handleSearch = (e) => {
@@ -122,7 +114,10 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
               className="pl-10"
             />
           </div>
-          <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
+          <Select
+            value={selectedLimit.toString()}
+            onValueChange={handleLimitChange}
+          >
             <SelectTrigger className="w-[100px]">
               <SelectValue />
             </SelectTrigger>
@@ -201,7 +196,6 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
                   pageSize={selectedLimit}
                   totalEntries={totalCount}
                 />
-
               </div>
             )}
           </>

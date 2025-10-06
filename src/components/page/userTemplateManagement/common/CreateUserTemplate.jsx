@@ -43,11 +43,15 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
 });
 
-export default function CreateUserTemplate({ eventId, templateId , templateType}) {
+export default function CreateUserTemplate({
+  eventId,
+  templateId,
+  templateType,
+}) {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  console.log("templateType>>>>>>>>>>>>>", templateType)
+  console.log("templateType>>>>>>>>>>>>>", templateType);
   const isEdit = !!templateId;
 
   const [availableTypes, setAvailableTypes] = useState([]);
@@ -149,7 +153,8 @@ export default function CreateUserTemplate({ eventId, templateId , templateType}
         bcc: initialData?.defaultOption?.bcc || [""],
       },
       eventId: initialData?.eventId || eventId || null, // 👈 Add this line
-      companyId: initialData?.companyId || localStorage.getItem("companyId") || null,
+      companyId:
+        initialData?.companyId || localStorage.getItem("companyId") || null,
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -187,7 +192,6 @@ export default function CreateUserTemplate({ eventId, templateId , templateType}
       formData.append("type", templateType);
       formData.append("status", "active");
 
-      
       // Append event and company IDs
       formData.append("eventId", values.eventId);
       formData.append("companyId", values.companyId);
@@ -439,29 +443,29 @@ export default function CreateUserTemplate({ eventId, templateId , templateType}
                     </div>
                   </div>
                 </div>
-                    <div className="flex flex-col gap-1">
-                      <Label htmlFor="formName">Form Name</Label>
-                      <div className="relative">
-                        <Input
-                          id="formName"
-                          name="formName"
-                          value={formik.values.formName}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          placeholder="Enter form name"
-                          className={
-                            formik.touched.formName && formik.errors.formName
-                              ? "border-red-500"
-                              : ""
-                          }
-                        />
-                        {formik.touched.formName && formik.errors.formName && (
-                          <p className="text-red-500 text-xs mt-1">
-                            {formik.errors.formName}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="formName">Form Name</Label>
+                  <div className="relative">
+                    <Input
+                      id="formName"
+                      name="formName"
+                      value={formik.values.formName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      placeholder="Enter form name"
+                      className={
+                        formik.touched.formName && formik.errors.formName
+                          ? "border-red-500"
+                          : ""
+                      }
+                    />
+                    {formik.touched.formName && formik.errors.formName && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {formik.errors.formName}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
                 {/* Email Specific Fields */}
                 {templateType === "email" && (
@@ -639,33 +643,29 @@ export default function CreateUserTemplate({ eventId, templateId , templateType}
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Default Options Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Default Options</CardTitle>
-                <CardDescription>
-                  Configure default settings for this template
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label
-                    htmlFor="currentlyUsed"
-                    className="text-sm font-medium"
-                  >
-                    Set as currently used template
-                  </Label>
-                  <Switch
-                    id="currentlyUsed"
-                    checked={formik.values.defaultOption.used}
-                    onCheckedChange={(checked) =>
-                      formik.setFieldValue("defaultOption.used", checked)
-                    }
-                  />
-                </div>
+            {templateType === "email" && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Default Options</CardTitle>
+                  <CardDescription>
+                    Configure default settings for this template
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="used" className="text-sm font-medium">
+                      Set default options
+                    </Label>
+                    <Switch
+                      id="used"
+                      checked={formik.values.defaultOption.used}
+                      onCheckedChange={(checked) =>
+                        formik.setFieldValue("defaultOption.used", checked)
+                      }
+                    />
+                  </div>
 
-                {formik.values.defaultOption.used &&
-                  templateType === "email" && (
+                  {formik.values.defaultOption.used && (
                     <div className="space-y-4 pt-2">
                       {/* CC Emails */}
                       <div className="space-y-3">
@@ -758,8 +758,9 @@ export default function CreateUserTemplate({ eventId, templateId , templateType}
                       </div>
                     </div>
                   )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Actions Card */}
             <Card>
