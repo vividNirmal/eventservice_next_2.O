@@ -31,11 +31,12 @@ import {
   Plus,
   Minus,
   ArrowLeft,
+  Download,
 } from "lucide-react";
 import { textEditormodule } from "@/lib/constant";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
-import { postRequest, updateRequest, getRequest } from "@/service/viewService";
+import { postRequest, updateRequest, getRequest, fileDownloadRequest } from "@/service/viewService";
 import { toast } from "sonner";
 
 // Dynamically import ReactQuill
@@ -319,6 +320,29 @@ export default function CreateUserTemplate({
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  // attachment Dwonload
+  const handleDownload = async (filename) => {
+    try {
+      const blob = await fileDownloadRequest(
+        "GET",
+        `/user-templates/attachments?templateId=${templateId}&filename=${filename}`
+      );
+
+      // Create temporary download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "file.pdf"; // 👈 You can dynamically set from API response header
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error("Download failed:", err.message);
+    }
   };
 
   if (loading) {
@@ -613,7 +637,7 @@ export default function CreateUserTemplate({
                             {formatFileSize(attachment.size)} •{" "}
                             {attachment.mimetype || attachment.type}
                           </span>
-                          {/* {attachment.path && (
+                          {attachment && (
                             <a
                               href={attachment.path}
                               target="_blank"
@@ -622,9 +646,18 @@ export default function CreateUserTemplate({
                             >
                               View File
                             </a>
-                          )} */}
+                          )}
                         </div>
                       </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownload(attachment?.filename)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-red-50"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
                       <Button
                         type="button"
                         variant="outline"
