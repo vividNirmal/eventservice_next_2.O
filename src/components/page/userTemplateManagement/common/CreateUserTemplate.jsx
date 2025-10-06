@@ -259,7 +259,7 @@ export default function CreateUserTemplate({
         toast.success(
           `Template ${isEdit ? "updated" : "created"} successfully`
         );
-        router.push(`/dashboard/event-host/${eventId}/email-management`);
+        router.push(`/dashboard/event-host/${eventId}/${templateType}-management`);
       } else {
         toast.error(`Failed to ${isEdit ? "update" : "create"} template`);
       }
