@@ -36,7 +36,7 @@ export function FormElementRenderer({
     if (onChange && !preview) {
       onChange(name, newValue);
     }
-  };
+  };    
 
   const renderLabel = () => {
     if (!label) return null;
@@ -637,7 +637,7 @@ export function FormElementRenderer({
               </div>
               <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-2">
                 <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
-                  {element.fieldName}
+                  {element.fieldTitle}
                 </p>
               </div>
             </div>

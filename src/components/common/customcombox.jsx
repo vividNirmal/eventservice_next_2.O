@@ -17,13 +17,17 @@ import { FixedSizeList } from "react-window";
 
 const ITEM_HEIGHT = 36;
 
-// ✅ outerElementType for FixedSizeList
 const OuterElement = React.forwardRef(function OuterElement({ children, className, ...rest }, ref) {
   return (
     <div
       ref={ref}
       {...rest}
-      className={cn("overflow-auto p-1", className)} // mimic CommandList style
+      className={cn("overflow-auto p-1", className)}
+      style={{
+        ...rest.style,
+        maxHeight: "300px",
+        scrollbarWidth: "thin",
+      }}
     >
       {children}
     </div>
@@ -32,7 +36,7 @@ const OuterElement = React.forwardRef(function OuterElement({ children, classNam
 
 const InnerElement = React.forwardRef(function InnerElement({ children, className, ...rest }, ref) {
   return (
-    <div ref={ref} {...rest} className={className}>
+    <div ref={ref} {...rest} className={cn("command-list-wrapper", className)}>
       {children}
     </div>
   );
@@ -76,7 +80,9 @@ export function CustomCombobox({
 
   const filteredOptions = useMemo(() => {
     if (!searchTerm) return options;
-    return options.filter((opt) => opt[labelKey].toLowerCase().includes(searchTerm.toLowerCase()));
+    return options.filter((opt) => 
+      opt[labelKey]?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
   }, [options, searchTerm, labelKey]);
 
   const selectedOptions = useMemo(() => {
@@ -125,32 +131,28 @@ export function CustomCombobox({
       return <span className="text-muted-foreground">{placeholder}</span>;
     }
     if (!multiSelect) {
-      return <span>{selectedOptions[0]?.[labelKey]}</span>;
+      return <span className="truncate">{selectedOptions[0]?.[labelKey]}</span>;
     }
     if (selectedOptions.length <= maxDisplay) {
       return (
-        <div className="flex flex-wrap gap-1">
+        <div className="flex flex-wrap gap-1 overflow-hidden">
           {selectedOptions.map((opt) => (
-            <Badge key={opt[valueKey]} variant="secondary" className="text-xs">
-              {opt[labelKey]}
-              <span
-                role="button"
-                tabIndex={0}
-                className="ml-1 hover:bg-muted rounded-full cursor-pointer"
+            <Badge 
+              key={opt[valueKey]} 
+              variant="secondary" 
+              className="text-xs max-w-[120px] truncate"
+            >
+              <span className="truncate">{opt[labelKey]}</span>
+              <button
+                type="button"
+                className="ml-1 rounded-full hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleRemove(opt[valueKey]);
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleRemove(opt[valueKey]);
-                  }
-                }}
               >
                 <X className="h-3 w-3" />
-              </span>
+              </button>
             </Badge>
           ))}
         </div>
@@ -196,16 +198,28 @@ export function CustomCombobox({
         <CommandItem
           key={opt[valueKey]}
           value={opt[labelKey]}
-          onSelect={() => handleSelect(opt[valueKey])}
+          onSelect={() => !isDisabled && handleSelect(opt[valueKey])}
           disabled={isDisabled}
-          style={style}
+          style={{
+            ...style,
+            height: ITEM_HEIGHT,
+            display: 'flex',
+            alignItems: 'center',
+          }}
           className={cn(
-            "flex items-center justify-between",
-            isDisabled && "opacity-50 cursor-not-allowed"
+            "flex items-center justify-between px-3 py-2 text-sm",
+            "hover:bg-accent hover:text-accent-foreground",
+            isSelected && "bg-accent/50",
+            isDisabled && "opacity-50 cursor-not-allowed pointer-events-none"
           )}
         >
-          {opt[labelKey]}
-          <Check className={cn("ml-auto h-4 w-4", isSelected ? "opacity-100" : "opacity-0")} />
+          <span className="flex-1 truncate">{opt[labelKey]}</span>
+          <Check 
+            className={cn(
+              "ml-2 h-4 w-4 flex-shrink-0", 
+              isSelected ? "opacity-100" : "opacity-0"
+            )} 
+          />
         </CommandItem>
       );
     },
@@ -223,7 +237,7 @@ export function CustomCombobox({
           disabled={disabled}
           className={cn(
             "w-full justify-between",
-            multiSelect ? "min-h-10 h-auto" : "h-10",
+            multiSelect ? "min-h-10 h-auto py-2" : "h-10",
             className
           )}
           name={name}
@@ -235,32 +249,41 @@ export function CustomCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0" style={{ width: triggerWidth }} align="start">
-        <Command>{
-          search && (
-            <CommandInput
-              placeholder={searchPlaceholder}
-              className="h-9"
-              value={searchTerm}
-              onValueChange={setSearchTerm}
-            />
-
-          )
-          }
-          {filteredOptions.length === 0 ? (
-            <CommandEmpty>{emptyMessage}</CommandEmpty>
-          ) : (
-            <FixedSizeList
-              height={Math.min(filteredOptions.length * ITEM_HEIGHT, 300)}
-              itemCount={filteredOptions.length}
-              itemSize={ITEM_HEIGHT}
-              width="100%"
-              outerElementType={OuterElement}
-              innerElementType={InnerElement}
-            >
-              {Row}
-            </FixedSizeList>
+      <PopoverContent 
+        className="p-0 w-full min-w-[var(--radix-popover-trigger-width)]" 
+        align="start"
+        style={{ width: triggerWidth > 0 ? triggerWidth : "auto" }}
+      >
+        <Command className="border-0">
+          {search && (
+            <div className="border-b">
+              <CommandInput
+                placeholder={searchPlaceholder}
+                className="h-9 border-0"
+                value={searchTerm}
+                onValueChange={setSearchTerm}
+              />
+            </div>
           )}
+          <CommandList className="p-0">
+            {filteredOptions.length === 0 ? (
+              <CommandEmpty className="py-6 text-center text-sm">
+                {emptyMessage}
+              </CommandEmpty>
+            ) : (
+              <FixedSizeList
+                height={Math.min(filteredOptions.length * ITEM_HEIGHT, 300)}
+                itemCount={filteredOptions.length}
+                itemSize={ITEM_HEIGHT}
+                width="100%"
+                outerElementType={OuterElement}
+                innerElementType={InnerElement}
+                className="command-virtual-list"
+              >
+                {Row}
+              </FixedSizeList>
+            )}
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>

@@ -35,10 +35,8 @@ export function FormCanvas({
     data: {
       type: 'type1',
     }
-  });  
-     
+  });    
   
-
   const handleCanvasClick = (e) => {        
     // Only deselect if clicking directly on canvas, not on elements
     if (e.target === e.currentTarget) {

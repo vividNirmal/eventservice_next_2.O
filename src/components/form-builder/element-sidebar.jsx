@@ -109,7 +109,7 @@ export function DraggableElement({ element, index }) {
         </div>
         <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-2">
           <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
-            {element.fieldName}
+            {element.fieldTitle}
           </p>
         </div>
       </div>

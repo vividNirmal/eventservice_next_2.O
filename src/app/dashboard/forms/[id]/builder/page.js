@@ -191,13 +191,13 @@ export default function FormBuilderPage() {
 
       // Prepare the form data for API
       const formData = {
-        formName: form.formName,
-        userType: form.userType,
-        formFields: form.elements,
-        settings: form.settings,
-      };
+      formName: form.formName,
+      userType: form.userType,
+      pages: form.pages,
+      settings: form.settings,
+    };
 
-      // const response = await apiPut(`/forms/${formId}`, formData);
+      const response = await apiPut(`/forms/${formId}`, formData);
 
       if (response.status === 1) {
         toast.success("Form saved successfully");

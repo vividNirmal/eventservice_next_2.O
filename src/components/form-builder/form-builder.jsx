@@ -138,7 +138,8 @@ export function FormBuilder({ form, onFormChange }) {
   const createElement = (inputType) => {    
     
     const createNewlement = {
-      fieldName: createRandom5CharAlphanum(),
+      fieldTitle : createRandom5CharAlphanum(),
+      fieldName: '',
       fieldOptions: [],
       fieldType: inputType,
       isPrimary: false,

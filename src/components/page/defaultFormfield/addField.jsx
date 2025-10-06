@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import { CustomCombobox } from "@/components/common/customcombox";
+import { labelToName } from "@/lib/form-utils";
 
 export function FormFieldAddDrawer({
   isOpen,
@@ -23,7 +24,7 @@ export function FormFieldAddDrawer({
   editUser = null,
   refetch,
   loading = false,
-}) {   
+}) {
   const fieldTypeOptions = [
     { value: "text", title: "Text" },
     { value: "textarea", title: "Textarea" },
@@ -52,6 +53,7 @@ export function FormFieldAddDrawer({
     { value: "Service Provider", title: "Service Provider" },
     { value: "Accompanying", title: "Accompanying" },
   ];
+
   const formik = useFormik({
     initialValues: {
       fieldName: "",
@@ -61,10 +63,11 @@ export function FormFieldAddDrawer({
       requiredErrorText: "",
       fieldOptions: [],
       userType: [],
+      userFieldMapping: [],
       fieldDescription: "",
       fieldminLimit: "",
       fieldmaxLimit: "",
-      fieldTitle:"",
+      fieldTitle: "",
       specialCharactor: false,
     },
     validationSchema: Yup.object({
@@ -100,16 +103,26 @@ export function FormFieldAddDrawer({
           values.userType.forEach((otp, index) => {
             formData.append(`userType[${index}]`, otp);
           });
-          
+          values.userFieldMapping.forEach((user, index) => {
+            formData.append(`userFieldMapping[${index}]`, user);
+          });
           // Append additional fields if their values are not null or empty
-          const fields = ['placeHolder', 'fieldDescription', 'fieldminLimit', 'fieldmaxLimit',"fieldTitle"];
+          const fields = [
+            "placeHolder",
+            "fieldDescription",
+            "fieldminLimit",
+            "fieldmaxLimit",
+            "fieldTitle",
+          ];
           fields.forEach((field) => {
-            if (values[field] !== undefined && values[field] !== null && values[field] !== "") {
+            if (
+              values[field] !== undefined &&
+              values[field] !== null &&
+              values[field] !== ""
+            ) {
               formData.append(field, values[field]);
             }
           });
-          
-          
 
           const response = await postRequest(
             `update-default-field/${editUser._id}`,
@@ -139,19 +152,30 @@ export function FormFieldAddDrawer({
               formData.append(`fieldOptions[${index}]`, opt);
             });
           }
-          
-          
 
           // Append additional fields if their values are not null or empty
-          const fields = ['placeHolder', 'fieldDescription', 'fieldminLimit', 'fieldmaxLimit',"fieldTitle"];
+          const fields = [
+            "placeHolder",
+            "fieldDescription",
+            "fieldminLimit",
+            "fieldmaxLimit",
+            "fieldTitle",
+          ];
           fields.forEach((field) => {
-            if (values[field] !== undefined && values[field] !== null && values[field] !== "") {
+            if (
+              values[field] !== undefined &&
+              values[field] !== null &&
+              values[field] !== ""
+            ) {
               formData.append(field, values[field]);
             }
           });
 
           values.userType.forEach((otp, index) => {
             formData.append(`userType[${index}]`, otp);
+          });
+          values.userFieldMapping.forEach((user, index) => {
+            formData.append(`userFieldMapping[${index}]`, user);
           });
           const response = await postRequest("store-default-field", formData);
 
@@ -168,11 +192,31 @@ export function FormFieldAddDrawer({
     },
   });
 
+  // Get filtered user types for "Assign default field to users" based on selected "User To Allow"
+  const getFilteredUserTypes = () => {
+    if (formik.values.userType.length === 0) {
+      return [];
+    }
+    return userType.filter((user) =>
+      formik.values.userType.includes(user.value)
+    );
+  };
+
+  // Handle user type change - automatically add to userFieldMapping
+  const handleUserTypeChange = (selectedValues) => {
+    formik.setFieldValue("userType", selectedValues);
+  };
+  const handleFieldTitleChange = (e) => {
+    const value = e.target.value;
+    formik.setFieldValue("fieldTitle", value);
+    formik.setFieldValue("fieldName", labelToName(value));
+  };
+
   useEffect(() => {
     formik.resetForm();
     if (editUser) {
       formik.setValues({
-        fieldTitle : editUser.fieldTitle || "",
+        fieldTitle: editUser.fieldTitle || "",
         fieldName: editUser.fieldName || "",
         fieldType: editUser.fieldType || "",
         placeHolder: editUser.placeHolder || "",
@@ -180,10 +224,11 @@ export function FormFieldAddDrawer({
         fieldOptions: editUser.fieldOptions || [],
         userType: editUser.userType || [],
         isRequired: editUser.isRequired === true ? "yes" : "no",
-        fieldDescription : editUser.fieldDescription || '',
-        fieldminLimit : editUser.fieldminLimit|| "",
-        fieldmaxLimit : editUser.fieldmaxLimit,
+        fieldDescription: editUser.fieldDescription || "",
+        fieldminLimit: editUser.fieldminLimit || "",
+        fieldmaxLimit: editUser.fieldmaxLimit,
         specialCharactor: editUser.specialCharactor === true ? "yes" : "no",
+        userFieldMapping: editUser.userFieldMapping || [],
       });
     }
   }, [editUser, isOpen]);
@@ -198,13 +243,34 @@ export function FormFieldAddDrawer({
           </SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={formik.handleSubmit} className="space-y-4 mt-6 overflow-x-auto">
+        <form
+          onSubmit={formik.handleSubmit}
+          className="space-y-4 mt-6 overflow-x-auto"
+        >
+          <div className="flex flex-col gap-1">
+            <Label htmlFor="fieldTitle">Field Title</Label>
+            <Input
+              id="fieldTitle"
+              name="fieldTitle"
+              placeholder="Enter field title"
+              value={formik.values.fieldTitle}
+              onChange={handleFieldTitleChange}
+              onBlur={formik.handleBlur}
+              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+            />
+            {formik.touched.fieldTitle && formik.errors.fieldTitle && (
+              <p className="text-sm text-red-500 absolute left-0 -bottom-1">
+                {formik.errors.fieldTitle}
+              </p>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="fieldName">Field Name</Label>
             <Input
               id="fieldName"
               name="fieldName"
-              placeholder="Enter fieldName"
+              placeholder="Enter field name"
               value={formik.values.fieldName}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -213,16 +279,7 @@ export function FormFieldAddDrawer({
             {formik.touched.fieldName && formik.errors.fieldName && (
               <p className="text-sm text-red-500">{formik.errors.fieldName}</p>
             )}
-          </div>
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="fieldName">Field Title</Label>
-            <div className="relative pb-3.5">
-              <Input id="fieldTitle" name="fieldTitle" placeholder="Enter fieldTitle" value={formik.values.fieldTitle} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
-              {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-                <p className="text-sm text-red-500 absolute left-0 -bottom-1">{formik.errors.fieldTitle}</p>
-              )}
-            </div>
-          </div>
+          </div>         
 
           <div className="space-y-2">
             <Label htmlFor="fieldType">Field Type</Label>
@@ -261,7 +318,7 @@ export function FormFieldAddDrawer({
             <CustomCombobox
               name="userType"
               value={formik.values.userType}
-              onChange={(value) => formik.setFieldValue("userType", value)}
+              onChange={handleUserTypeChange}
               onBlur={() => formik.setFieldTouched("userType", true)}
               valueKey="value"
               labelKey="title"
@@ -271,7 +328,33 @@ export function FormFieldAddDrawer({
               id="userType"
             />
           </div>
-
+          <div className="space-y-2">
+            <Label htmlFor="isRequired">Assign default field to users</Label>
+            <CustomCombobox
+              name="userFieldMapping"
+              value={formik.values.userFieldMapping}
+              onChange={(value) =>
+                formik.setFieldValue("userFieldMapping", value)
+              }
+              onBlur={() => formik.setFieldTouched("userFieldMapping", true)}
+              valueKey="value"
+              labelKey="title"
+              multiSelect={true}
+              options={getFilteredUserTypes()}
+              placeholder={
+                formik.values.userType.length === 0
+                  ? "First select User To Allow"
+                  : "Select User Type to assign"
+              }
+              id="userFieldMapping"
+              disabled={formik.values.userType.length === 0}
+            />
+            {formik.values.userType.length === 0 && (
+              <p className="text-sm text-gray-500">
+                Please select User To Allow first to assign fields
+              </p>
+            )}
+          </div>
           <div className="space-y-2">
             <Label htmlFor="placeHolder">Place Holder</Label>
             <Input
@@ -374,7 +457,7 @@ export function FormFieldAddDrawer({
               className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
             />
           </div>
-           <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="fieldminLimit">Field Minum length</Label>
             <Input
               id="fieldminLimit"
@@ -405,7 +488,9 @@ export function FormFieldAddDrawer({
             <CustomCombobox
               name="specialCharactor"
               value={formik.values.specialCharactor}
-              onChange={(value) => formik.setFieldValue("specialCharactor", value)}
+              onChange={(value) =>
+                formik.setFieldValue("specialCharactor", value)
+              }
               valueKey="value"
               labelKey="title"
               search={false}
