@@ -356,49 +356,41 @@ export default function CreateUserTemplate({
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCancel}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back</span>
+          <Button variant="outline" size="sm" onClick={handleCancel} className="flex items-center size-10">
+            <ArrowLeft className="size-5" />
+            {/* <span>Back</span> */}
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-lg leading-none font-semibold tracking-tight flex items-center gap-2">
               {isEdit ? "Edit Template" : "Create Template"}
-              <Badge variant="outline" className={getTypeColor(templateType)}>
+              <Badge variant="outline" className={cn("rounded-sm leading-none py-1", getTypeColor(templateType))}>
                 {getTypeDisplayName(templateType).toUpperCase()}
               </Badge>
             </h1>
-            <p className="text-muted-foreground">
-              {isEdit
-                ? `Update your ${getTypeDisplayName(
-                    templateType
-                  ).toLowerCase()} template details.`
-                : `Create a new ${getTypeDisplayName(
-                    templateType
-                  ).toLowerCase()} template for your communications.`}
-            </p>
+            <p className="text-zinc-400 text-xs">{isEdit ? `Update your ${getTypeDisplayName(templateType).toLowerCase()} template details.` : `Create a new ${getTypeDisplayName(templateType).toLowerCase()} template for your communications.`}</p>
           </div>
+        </div>
+        <div className="flex justify-end gap-4">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> )}
+            {isSubmitting ? "Saving..." : isEdit ? "Update Template" : "Create Template"}
+          </Button>
+          <Button type="button" variant="destructive" onClick={handleCancel} disabled={isSubmitting}>Cancel</Button>
         </div>
       </div>
 
       <form onSubmit={formik.handleSubmit}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="flex flex-wrap gap-6">
           {/* Main Form Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:w-5/12 grow space-y-6">
             <Card>
-              <CardHeader>
+              <CardHeader className={'px-0'}>
                 <CardTitle>Template Information</CardTitle>
-                <CardDescription>
-                  Basic details and content for your template
-                </CardDescription>
+                <CardDescription className={'text-zinc-400 text-xs'}>Basic details and content for your template</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Basic Information */}
@@ -588,83 +580,42 @@ export default function CreateUserTemplate({
             {/* Attachments Section - Only for email */}
             {templateType === "email" && (
               <Card>
-                <CardHeader>
+                <CardHeader className={'px-0'}>
                   <CardTitle>Attachments</CardTitle>
-                  <CardDescription>
-                    Add files to be sent with your email template
-                  </CardDescription>
+                  <CardDescription className={'text-zinc-400 text-xs'}>Add files to be sent with your email template</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* File Upload */}
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <input
-                      type="file"
-                      id="attachments"
-                      multiple
-                      onChange={(e) => handleFileUpload(e.target.files)}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="attachments"
-                      className="cursor-pointer block"
-                    >
+                    <input type="file" id="attachments" multiple onChange={(e) => handleFileUpload(e.target.files)} className="hidden" />
+                    <label htmlFor="attachments" className="cursor-pointer block">
                       <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-lg font-medium text-gray-600 mb-2">
-                        Upload Attachments
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Click to upload attachments or drag and drop files here
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        All allowed file types for email attachments
-                      </p>
+                      <p className="text-lg font-medium text-gray-600 mb-2">Upload Attachments</p>
+                      <p className="text-sm text-gray-500">Click to upload attachments or drag and drop files here</p>
+                      <p className="text-xs text-gray-400 mt-1">All allowed file types for email attachments</p>
                     </label>
                   </div>
 
                   {/* Attachments List */}
                   {attachments.map((attachment, index) => (
-                    <div
-                      key={attachment.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
+                    <div key={attachment.id} className="flex items-center justify-between gap-3 p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <Paperclip className="h-5 w-5 text-gray-400" />
-                        <div>
-                          <span className="text-sm font-medium block">
-                            {attachment.originalName || attachment.name}
-                          </span>
+                        <Paperclip className="size-6 text-gray-400" />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium block">{attachment.originalName || attachment.name}</span>
                           <span className="text-xs text-gray-500">
                             {formatFileSize(attachment.size)} •{" "}
                             {attachment.mimetype || attachment.type}
+                            {attachment && (
+                              <a href={attachment.path} target="_blank" rel="noopener noreferrer" className="cursor-pointer text-xs text-blue-600 hover:underline pl-1.5">View File</a>
+                            )}
                           </span>
-                          {attachment && (
-                            <a
-                              href={attachment.path}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-blue-600 hover:underline"
-                            >
-                              View File
-                            </a>
-                          )}
                         </div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDownload(attachment?.filename)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-red-50"
-                      >
+                      <Button type="button" variant="outline" size="sm" onClick={() => handleDownload(attachment?.filename)} className="size-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 ml-auto">
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeAttachment(index)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
+                      <Button type="button" variant="outline" size="sm" onClick={() => removeAttachment(index)} className="size-8 text-red-600 hover:text-red-700 hover:bg-red-50">
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
@@ -675,14 +626,12 @@ export default function CreateUserTemplate({
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {templateType === "email" && (
-              <Card>
-                <CardHeader>
+          {templateType === "email" && (
+            <div className="lg:w-1/3 space-y-6">
+              <Card className={'min-h-60'}>
+                <CardHeader className={'px-0'}>
                   <CardTitle>Default Options</CardTitle>
-                  <CardDescription>
-                    Configure default settings for this template
-                  </CardDescription>
+                  <CardDescription className={'text-zinc-400 text-xs'}>Configure default settings for this template</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -793,40 +742,8 @@ export default function CreateUserTemplate({
                   )}
                 </CardContent>
               </Card>
-            )}
-
-            {/* Actions Card */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full"
-                >
-                  {isSubmitting && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {isSubmitting
-                    ? "Saving..."
-                    : isEdit
-                    ? "Update Template"
-                    : "Create Template"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleCancel}
-                  disabled={isSubmitting}
-                  className="w-full"
-                >
-                  Cancel
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+            </div>
+          )}
         </div>
       </form>
     </div>
