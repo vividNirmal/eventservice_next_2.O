@@ -23,6 +23,26 @@ import { CustomPagination } from "@/components/common/pagination";
 import { Search, Loader2, Eye, Copy } from "lucide-react";
 import { getRequest } from "@/service/viewService";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
+import { useFormik } from "formik";
+import dynamic from "next/dynamic";
+import { textEditormodule } from "@/lib/constant";
+
+// Dynamically import ReactQuill
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+});
+
 
 const DefaultTemplateList = ({ eventId, templateType }) => {
   const router = useRouter();
@@ -33,6 +53,8 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
   const [selectedLimit, setSelectedLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [template,setTemplate] = useState(null)
 
   const dataLimits = [10, 20, 30, 50];
 
@@ -65,11 +87,38 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
     }
   };
 
-  const handleViewTemplate = (templateId) => {
-    router.push(
-      `/dashboard/event-host/${eventId}/email-management/create/${templateId}`
-    );
-  };
+  
+const formik = useFormik({
+  initialValues: {
+    name: "",
+    type: "",
+    subject: "",
+    content: "",
+    text: "",
+  },  
+  onSubmit: () => {},
+});
+
+  const handleViewTemplate = async (templateId) => {
+  try {
+    const response = await getRequest(`templates/${templateId}`);
+    if (response?.data) {
+      formik.setValues({
+        name: response.data.name || "",
+        type: response.data.type || "",
+        subject: response.data.subject || "",
+        content: response.data.content || "",
+        text: response.data.text || "",
+      });
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  } catch (error) {
+    console.error("Failed to load template", error);
+    setOpen(false);
+  }
+};
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -99,6 +148,7 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
   };
 
   return (
+    <>
     <Card className="shadow-none">
       <CardHeader>
         <CardTitle>Default Templates</CardTitle>
@@ -202,6 +252,106 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
         )}
       </CardContent>
     </Card>
+     <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-pretty">View Template</DialogTitle>
+            <DialogDescription>
+              Read-only preview of your message template.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={formik.handleSubmit}>
+            <div className="grid gap-4 py-2">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Template Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formik.values.name}
+                  readOnly
+                  disabled
+                  className="bg-muted/40"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="type">Template Type</Label>
+                <Input
+                  id="type"
+                  name="type"
+                  value={formik.values.type}
+                  readOnly
+                  disabled
+                  className="bg-muted/40"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  name="subject"
+                  value={formik.values.subject}
+                  readOnly
+                  disabled
+                  className="bg-muted/40"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="content">HTML Content *</Label>
+                <div className="min-h-64 border rounded-md">
+                  <ReactQuill
+                    id="content"
+                    name="content"
+                    theme="snow"
+                    value={formik.values.content}
+                    readOnly={true} // <-- make it read-only
+                    modules={textEditormodule.modules}
+                    className="w-full min-h-64 flex flex-col 
+        [&>.ql-container.ql-snow]:flex 
+        [&>.ql-container.ql-snow]:flex-col 
+        [&>.ql-container>.ql-editor]:grow 
+        [&>.ql-toolbar.ql-snow]:rounded-t-md 
+        [&>.ql-container.ql-snow]:rounded-b-md 
+        [&>.ql-container.ql-snow]:flex-grow"
+                  />
+                </div>
+                {formik.touched.content && formik.errors.content && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {formik.errors.content}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="text">Text</Label>
+                <Textarea
+                  id="text"
+                  name="text"
+                  value={formik.values.text}
+                  readOnly
+                  disabled
+                  className="min-h-[80px] bg-muted/40"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => setOpen(false)}
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+    </>
   );
 };
 

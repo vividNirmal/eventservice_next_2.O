@@ -74,6 +74,28 @@ export default function CreateUserTemplate({
       const response = await getRequest(`user-templates/${templateId}`);
       if (response.status === 1) {
         console.log("Fetched template data:", response.data);
+        formik.setValues({
+          name: response.data.name || "",
+          typeId: response.data.typeId?._id || "",
+          formName: response.data.formName || "",
+          subject: response.data.subject || "",
+          content: response.data.content || "",
+          text: response.data.text || "",
+          defaultOption: {
+            used: response.data.defaultOption?.used || false,
+            cc: response.data.defaultOption?.cc?.length
+              ? response.data.defaultOption.cc
+              : [""],
+            bcc: response.data.defaultOption?.bcc?.length
+              ? response.data.defaultOption.bcc
+              : [""],
+          },
+          eventId: response.data.eventId || eventId || null,
+          companyId:
+            response.data.companyId ||
+            localStorage.getItem("companyId") ||
+            null,
+        });
         setInitialData(response.data);
 
         // Initialize attachments from fetched data - preserve original structure
@@ -612,9 +634,9 @@ export default function CreateUserTemplate({
                           </span>
                         </div>
                       </div>
-                      <Button type="button" variant="outline" size="sm" onClick={() => handleDownload(attachment?.filename)} className="size-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 ml-auto">
+                      {/* <Button type="button" variant="outline" size="sm" onClick={() => handleDownload(attachment?.filename)} className="size-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 ml-auto">
                         <Download className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                       <Button type="button" variant="outline" size="sm" onClick={() => removeAttachment(index)} className="size-8 text-red-600 hover:text-red-700 hover:bg-red-50">
                         <X className="h-4 w-4" />
                       </Button>
