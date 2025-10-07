@@ -27,7 +27,7 @@ import { ChevronRight, ChevronLeft } from 'lucide-react';
 // Import hooks
 import { useTicketForm } from './hooks/useTicketForm';
 import { useImageUpload } from './hooks/useImageUpload';
-import { useSlotAmounts } from './hooks/useSlotAmounts';
+import { useTicketAmount } from './hooks/useSlotAmounts';
 
 // Import utils
 import { validateStep } from './utils/validation';
@@ -58,7 +58,7 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
   // Custom hooks
   const { formData, setFormData, isEditMode, errors, setErrors, handleInputChange, resetForm, initializeEditData } = useTicketForm(editData);
   const imageHandlers = useImageUpload(formData, setFormData);
-  const slotAmountHandlers = useSlotAmounts(formData, setFormData);
+  const ticketAmountHandlers = useTicketAmount(formData, setFormData);
 
   // Helper function to fetch forms
   const fetchForms = useCallback(async (userType) => {
@@ -194,7 +194,7 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
             formData={formData}
             handleInputChange={handleInputChange}
             errors={errors}
-            slotAmountHandlers={slotAmountHandlers}
+            ticketAmountHandlers={ticketAmountHandlers}
           />
         );
       case 3:
@@ -240,7 +240,7 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
           </DialogTitle>
         </DialogHeader>
 
-        <StepIndicator currentStep={currentStep} setCurrentStep={setCurrentStep} />
+        <StepIndicator currentStep={currentStep} setCurrentStep={setCurrentStep} validateStepBeforeChange={validateCurrentStep} />
 
         <div className="min-h-[300px]">
           {renderStepContent()}

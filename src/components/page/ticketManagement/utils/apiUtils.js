@@ -68,6 +68,64 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
   const hasFiles = formData.bannerImage || formData.desktopBannerImage || formData.mobileBannerImage;
   const companyId = localStorage.getItem('companyId');
 
+  // Prepare ticketAmount based on selected type only
+  const prepareTicketAmount = () => {
+    const { ticketAmount } = formData;
+    
+    // Base structure with type
+    const baseAmount = {
+      type: ticketAmount.type,
+      feeSetting: ticketAmount.feeSetting,
+      materialNumber: ticketAmount.materialNumber || null,
+      wbs: ticketAmount.wbs || null
+    };
+
+    switch (ticketAmount.type) {
+      case 'free':
+        // For free tickets, only send type and optional fields
+        return baseAmount;
+
+      case 'dateSlab':
+        // For dateSlab, only send dateRangeAmounts and currency
+        return {
+          ...baseAmount,
+          currency: ticketAmount.currency,
+          dateRangeAmounts: ticketAmount.dateRangeAmounts
+            .filter(slab => slab.startDateTime && slab.endDateTime) // Only include valid slabs
+            .map(slab => ({
+              startDateTime: new Date(slab.startDateTime),
+              endDateTime: new Date(slab.endDateTime),
+              amount: Number(slab.amount) || 0
+            }))
+        };
+
+      case 'businessSlab':
+        // For businessSlab, only send businessSlabs and currency
+        return {
+          ...baseAmount,
+          currency: ticketAmount.currency,
+          businessSlabs: ticketAmount.businessSlabs
+            .filter(slab => slab.startDateTime && slab.endDateTime) // Only include valid slabs
+            .map(slab => ({
+              startDateTime: new Date(slab.startDateTime),
+              endDateTime: new Date(slab.endDateTime),
+              categoryAmounts: (slab.categoryAmounts || [])
+                .filter(cat => cat.category && cat.amount > 0) // Only include valid categories
+                .map(cat => ({
+                  category: cat.category,
+                  amount: Number(cat.amount) || 0
+                }))
+            }))
+            .filter(slab => slab.categoryAmounts.length > 0) // Only include slabs with valid categories
+        };
+
+      default:
+        return baseAmount;
+    }
+  };
+
+  const ticketAmountForSubmission = prepareTicketAmount();
+
   if (hasFiles) {
     // Use FormData for file uploads
     const formDataToSend = new FormData();
@@ -83,15 +141,9 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
         return;
       }
 
-      if (key === 'slotAmounts') {
-        // Handle slot amounts array - stringify for FormData
-        const slots = formData.isFree ? [] : formData.slotAmounts.map(slot => ({
-          ...slot,
-          startDateTime: new Date(slot.startDateTime),
-          endDateTime: new Date(slot.endDateTime),
-          amount: Number(slot.amount)
-        }));
-        formDataToSend.append(key, JSON.stringify(slots));
+      if (key === 'ticketAmount') {
+        // Stringify only the relevant ticketAmount data
+        formDataToSend.append('ticketAmount', JSON.stringify(ticketAmountForSubmission));
       } else if (key === 'ctaSettings') {
         // Handle array fields
         formData[key].forEach((item, index) => {
@@ -103,15 +155,7 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       } else if (key === 'notifications') {
         // Send notifications as JSON string
         formDataToSend.append('notifications', JSON.stringify(formData.notifications));
-      }
-      
-      // else if (key === 'crossRegisterCategories') {
-      //   // Handle array fields
-      //   formData[key].forEach((item, index) => {
-      //     formDataToSend.append(`crossRegisterCategories[${index}]`, item);
-      //   });
-      // } 
-      else if (key === 'bannerImage' || key === 'desktopBannerImage' || key === 'mobileBannerImage') {
+      } else if (key === 'bannerImage' || key === 'desktopBannerImage' || key === 'mobileBannerImage') {
         // Handle file uploads
         if (formData[key]) {
           formDataToSend.append(key, formData[key]);
@@ -142,13 +186,7 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Use JSON for non-file submissions
     const submitData = {
       ...formData,
-      // Convert string dates to Date objects for slot amounts
-      slotAmounts: formData.isFree ? [] : formData.slotAmounts.map(slot => ({
-        ...slot,
-        startDateTime: new Date(slot.startDateTime),
-        endDateTime: new Date(slot.endDateTime),
-        amount: Number(slot.amount)
-      })),
+      ticketAmount: ticketAmountForSubmission,
       startCount: Number(formData.startCount),
       ticketPerUser: Number(formData.ticketPerUser),
       advancedSettings: {

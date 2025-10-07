@@ -15,6 +15,12 @@ export const TICKET_CATEGORY_OPTIONS = [
   'Standard'
 ];
 
+export const TICKET_AMOUNT_TYPES = [
+  { value: 'free', label: 'Free Ticket' },
+  { value: 'dateSlab', label: 'Date-based Pricing' },
+  { value: 'businessSlab', label: 'Business Category Pricing' }
+];
+
 export const CURRENCY_OPTIONS = [
   'USD',
   'INR',
@@ -80,16 +86,15 @@ export const INITIAL_FORM_DATA = {
   companyId: null,
 
   // Step 2 - Ticket Amount
-  isFree: true,
-  currency: 'USD',
-  slotAmounts: [{
-    startDateTime: null,
-    endDateTime: null,
-    amount: 0
-  }],
-  feeSetting: 'not-merge',
-  materialNumber: null,
-  wbs: null,
+ ticketAmount: {
+    type: 'free',
+    currency: 'USD',
+    dateRangeAmounts: [], // Start empty
+    businessSlabs: [], // Start empty
+    feeSetting: 'not-merge',
+    materialNumber: null,
+    wbs: null
+  },
 
   // Step 3 - Ticket Settings
   ticketPerUser: 1,

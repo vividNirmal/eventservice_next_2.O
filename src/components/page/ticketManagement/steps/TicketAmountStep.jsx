@@ -2,37 +2,88 @@ import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Trash2 } from 'lucide-react';
-import { CURRENCY_OPTIONS, FEE_SETTING_OPTIONS } from '../constants/ticketConstants';
+import { CURRENCY_OPTIONS, FEE_SETTING_OPTIONS, TICKET_AMOUNT_TYPES } from '../constants/ticketConstants';
 
 const TicketAmountStep = ({ 
   formData, 
   handleInputChange, 
   errors, 
-  slotAmountHandlers 
+  ticketAmountHandlers 
 }) => {
-  const { handleSlotAmountChange, addSlotAmount, removeSlotAmount } = slotAmountHandlers;
+  const {
+    handleTicketAmountTypeChange,
+    handleTicketAmountChange,
+    handleDateSlabChange,
+    addDateSlab,
+    removeDateSlab,
+    handleBusinessSlabChange,
+    handleBusinessCategoryAmountChange,
+    addBusinessSlab,
+    removeBusinessSlab,
+    addBusinessCategory,
+    removeBusinessCategory,
+    checkDateOverlaps // Add this new function
+  } = ticketAmountHandlers;
+
+  const { ticketAmount } = formData;
+
+  // Function to format date for datetime-local input (fixes timezone issue)
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    
+    // If it's already in the correct format (from datetime-local input), return as is
+    if (typeof dateString === 'string' && dateString.includes('T')) {
+      return dateString;
+    }
+    
+    // If it's a Date object or ISO string from backend, convert to local datetime string
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    
+    // Convert to local timezone format for datetime-local input
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center space-x-2">
-        <Label>Free Ticket</Label>
-        <Switch
-          checked={formData.isFree}
-          onCheckedChange={(checked) => handleInputChange('isFree', checked)}
-        />
+      {/* Ticket Amount Type Selection - Changed to Select Input */}
+      <div className="space-y-2">
+        <Label htmlFor="ticketAmountType">Ticket Type *</Label>
+        <Select
+          value={ticketAmount.type}
+          onValueChange={(value) => handleTicketAmountTypeChange(value)}
+        >
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Select ticket type" />
+          </SelectTrigger>
+          <SelectContent>
+            {TICKET_AMOUNT_TYPES.map(option => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
-      {!formData.isFree && (
+      {/* Conditional Fields Based on Ticket Type */}
+      {ticketAmount.type !== 'free' && (
         <>
+          {/* Currency */}
           <div className="space-y-2">
             <Label htmlFor="currency">Currency *</Label>
             <Select
-              value={formData.currency}
-              onValueChange={(value) => handleInputChange('currency', value)}
+              value={ticketAmount.currency}
+              onValueChange={(value) => handleTicketAmountChange('currency', value)}
             >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Select currency" />
@@ -47,73 +98,236 @@ const TicketAmountStep = ({
             </Select>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Slot Amounts</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addSlotAmount}
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Add Slot
-              </Button>
-            </div>
-
+          {/* Date Slab Pricing */}
+          {ticketAmount.type === 'dateSlab' && (
             <div className="space-y-4">
-              {formData.slotAmounts.map((slot, index) => (
-                <Card key={index}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">Slot {index + 1}</CardTitle>
-                      {formData.slotAmounts.length > 1 && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => removeSlotAmount(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label>Start Date & Time *</Label>
-                        <Input
-                          type="datetime-local"
-                          value={slot.startDateTime}
-                          onChange={(e) => handleSlotAmountChange(index, 'startDateTime', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>End Date & Time *</Label>
-                        <Input
-                          type="datetime-local"
-                          value={slot.endDateTime}
-                          onChange={(e) => handleSlotAmountChange(index, 'endDateTime', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Amount *</Label>
-                        <Input
-                          type="number"
-                          value={slot.amount}
-                          onChange={(e) => handleSlotAmountChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                          placeholder="2000"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
+              <div className="flex items-center justify-between">
+                <Label>Date-based Pricing Slabs</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addDateSlab}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Date Slab
+                </Button>
+              </div>
 
-          <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-4">
+                {ticketAmount.dateRangeAmounts.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-6 text-center text-muted-foreground">
+                      No date slabs added. Click "Add Date Slab" to create one.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  ticketAmount.dateRangeAmounts.map((slab, index) => {
+                    const overlapError = checkDateOverlaps && checkDateOverlaps(index);
+                    
+                    return (
+                      <Card key={index}>
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm">Date Slab {index + 1}</CardTitle>
+                            {ticketAmount.dateRangeAmounts.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeDateSlab(index)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {overlapError && (
+                            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
+                              {overlapError}
+                            </div>
+                          )}
+                          <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <Label>Start Date & Time *</Label>
+                              <Input
+                                type="datetime-local"
+                                value={formatDateForInput(slab.startDateTime)}
+                                onChange={(e) => handleDateSlabChange(index, 'startDateTime', e.target.value)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>End Date & Time *</Label>
+                              <Input
+                                type="datetime-local"
+                                value={formatDateForInput(slab.endDateTime)}
+                                onChange={(e) => handleDateSlabChange(index, 'endDateTime', e.target.value)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Amount *</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={slab.amount}
+                                onChange={(e) => handleDateSlabChange(index, 'amount', parseFloat(e.target.value) || 0)}
+                                placeholder="2000"
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Business Slab Pricing */}
+          {ticketAmount.type === 'businessSlab' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Business Category Pricing Slabs</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addBusinessSlab}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Business Slab
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {ticketAmount.businessSlabs.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-6 text-center text-muted-foreground">
+                      No business slabs added. Click "Add Business Slab" to create one.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  ticketAmount.businessSlabs.map((slab, slabIndex) => {
+                    const overlapError = checkDateOverlaps && checkDateOverlaps(slabIndex, 'business');
+                    
+                    return (
+                      <Card key={slabIndex}>
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm">Business Slab {slabIndex + 1}</CardTitle>
+                            {ticketAmount.businessSlabs.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => removeBusinessSlab(slabIndex)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {overlapError && (
+                            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
+                              {overlapError}
+                            </div>
+                          )}
+                          
+                          {/* Date Range for Business Slab */}
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className="space-y-2">
+                              <Label>Start Date & Time *</Label>
+                              <Input
+                                type="datetime-local"
+                                value={formatDateForInput(slab.startDateTime)}
+                                onChange={(e) => handleBusinessSlabChange(slabIndex, 'startDateTime', e.target.value)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>End Date & Time *</Label>
+                              <Input
+                                type="datetime-local"
+                                value={formatDateForInput(slab.endDateTime)}
+                                onChange={(e) => handleBusinessSlabChange(slabIndex, 'endDateTime', e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Category Amounts */}
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <Label>Category Pricing</Label>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => addBusinessCategory(slabIndex)}
+                              >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add Category
+                              </Button>
+                            </div>
+
+                            {slab.categoryAmounts.map((categoryAmount, categoryIndex) => (
+                              <div key={categoryIndex} className="flex items-center gap-4">
+                                <div className="flex-1 space-y-2">
+                                  <Label>Category</Label>
+                                  <Input
+                                    type="text"
+                                    value={categoryAmount.category}
+                                    onChange={(e) => handleBusinessCategoryAmountChange(
+                                      slabIndex, 
+                                      categoryIndex, 
+                                      'category', 
+                                      e.target.value
+                                    )}
+                                    placeholder="e.g., VIP, Premium, Standard"
+                                  />
+                                </div>
+                                <div className="flex-1 space-y-2">
+                                  <Label>Amount</Label>
+                                  <Input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={categoryAmount.amount}
+                                    onChange={(e) => handleBusinessCategoryAmountChange(
+                                      slabIndex, 
+                                      categoryIndex, 
+                                      'amount', 
+                                      parseFloat(e.target.value) || 0
+                                    )}
+                                    placeholder="2000"
+                                  />
+                                </div>
+                                {slab.categoryAmounts.length > 1 && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-6"
+                                    onClick={() => removeBusinessCategory(slabIndex, categoryIndex)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="feeSetting">Fee Setting *</Label>
               <Select
@@ -151,7 +365,7 @@ const TicketAmountStep = ({
                 placeholder="Enter WBS"
               />
             </div>
-          </div>
+          </div> */}
         </>
       )}
     </div>

@@ -44,18 +44,62 @@ export const validateBasicInfo = (formData) => {
 
 export const validateTicketAmount = (formData) => {
   const errors = {};
+  const { ticketAmount } = formData;
   
-  if (!formData.isFree) {
-    if (!formData.currency) {
-      errors.currency = 'Currency is required';
+  if (ticketAmount.type !== 'free') {
+    if (!ticketAmount.currency) {
+      errors.currency = 'Currency is required for paid tickets';
     }
     
-    if (!formData.feeSetting) {
-      errors.feeSetting = 'Fee setting is required';
+    if (!ticketAmount.feeSetting) {
+      errors.feeSetting = 'Fee setting is required for paid tickets';
     }
     
-    if (formData.slotAmounts.length === 0) {
-      errors.slotAmounts = 'At least one slot amount is required';
+    // Validate date slabs
+    if (ticketAmount.type === 'dateSlab') {
+      if (!ticketAmount.dateRangeAmounts || ticketAmount.dateRangeAmounts.length === 0) {
+        errors.dateRangeAmounts = 'At least one date slab is required';
+      } else {
+        ticketAmount.dateRangeAmounts.forEach((slab, index) => {
+          if (!slab.startDateTime) {
+            errors[`dateSlab_${index}_start`] = `Start date is required for slab ${index + 1}`;
+          }
+          if (!slab.endDateTime) {
+            errors[`dateSlab_${index}_end`] = `End date is required for slab ${index + 1}`;
+          }
+          if (slab.amount <= 0) {
+            errors[`dateSlab_${index}_amount`] = `Amount must be greater than 0 for slab ${index + 1}`;
+          }
+        });
+      }
+    }
+    
+    // Validate business slabs
+    if (ticketAmount.type === 'businessSlab') {
+      if (!ticketAmount.businessSlabs || ticketAmount.businessSlabs.length === 0) {
+        errors.businessSlabs = 'At least one business slab is required';
+      } else {
+        ticketAmount.businessSlabs.forEach((slab, slabIndex) => {
+          if (!slab.startDateTime) {
+            errors[`businessSlab_${slabIndex}_start`] = `Start date is required for business slab ${slabIndex + 1}`;
+          }
+          if (!slab.endDateTime) {
+            errors[`businessSlab_${slabIndex}_end`] = `End date is required for business slab ${slabIndex + 1}`;
+          }
+          if (!slab.categoryAmounts || slab.categoryAmounts.length === 0) {
+            errors[`businessSlab_${slabIndex}_categories`] = `At least one category is required for business slab ${slabIndex + 1}`;
+          } else {
+            slab.categoryAmounts.forEach((category, categoryIndex) => {
+              if (!category.category) {
+                errors[`businessSlab_${slabIndex}_category_${categoryIndex}_name`] = `Category name is required`;
+              }
+              if (category.amount <= 0) {
+                errors[`businessSlab_${slabIndex}_category_${categoryIndex}_amount`] = `Amount must be greater than 0`;
+              }
+            });
+          }
+        });
+      }
     }
   }
   

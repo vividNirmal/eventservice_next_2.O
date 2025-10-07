@@ -49,36 +49,6 @@ export const useTicketForm = (editData = null) => {
     [errors]
   );
 
-  // const handleInputChange = useCallback((field, value) => {
-  //   setFormData(prev => {
-  //     if (field.includes('.')) {
-  //       // Handle nested updates
-  //       const [parent, child] = field.split('.');
-  //       return {
-  //         ...prev,
-  //         [parent]: {
-  //           ...prev[parent],
-  //           [child]: value
-  //         }
-  //       };
-  //     } else {
-  //       // Flat update
-  //       return {
-  //         ...prev,
-  //         [field]: value
-  //       };
-  //     }
-  //   });
-
-  //   // Clear error for this field when user starts typing
-  //   if (errors[field]) {
-  //     setErrors(prev => ({
-  //       ...prev,
-  //       [field]: undefined
-  //     }));
-  //   }
-  // }, [errors]);
-
   const resetForm = useCallback(() => {
     const companyId = typeof window !== 'undefined' ? localStorage.getItem('companyId') : null;
     setFormData({
@@ -98,6 +68,22 @@ export const useTicketForm = (editData = null) => {
         await fetchFormsByUserType(editData.userType);
       }
       
+      // Helper function to format date for datetime-local input
+      const formatDateForInput = (dateString) => {
+        if (!dateString) return null;
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return null;
+        
+        // Convert to local timezone format for datetime-local input
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+      };
+      
       // Then set the form data with proper registrationFormId
       setFormData({
         ...editData,
@@ -112,8 +98,37 @@ export const useTicketForm = (editData = null) => {
         companyId: editData.companyId || null,
         bannerImage: editData.bannerImage || null,
         bannerImagePreview: editData.bannerImage || null,
-        materialNumber: editData.materialNumber || null,
-        wbs: editData.wbs || null,
+        
+        // Handle ticketAmount structure with proper date formatting
+        ticketAmount: editData.ticketAmount ? {
+          type: editData.ticketAmount.type || 'free',
+          currency: editData.ticketAmount.currency || null,
+          feeSetting: editData.ticketAmount.feeSetting || 'not-merge',
+          materialNumber: editData.ticketAmount.materialNumber || null,
+          wbs: editData.ticketAmount.wbs || null,
+          dateRangeAmounts: (editData.ticketAmount.dateRangeAmounts || []).map(slab => ({
+            startDateTime: formatDateForInput(slab.startDateTime),
+            endDateTime: formatDateForInput(slab.endDateTime),
+            amount: slab.amount || 0
+          })),
+          businessSlabs: (editData.ticketAmount.businessSlabs || []).map(slab => ({
+            startDateTime: formatDateForInput(slab.startDateTime),
+            endDateTime: formatDateForInput(slab.endDateTime),
+            categoryAmounts: (slab.categoryAmounts || []).map(cat => ({
+              category: cat.category || '',
+              amount: cat.amount || 0
+            }))
+          }))
+        } : {
+          type: 'free',
+          currency: 'USD',
+          dateRangeAmounts: [],
+          businessSlabs: [],
+          feeSetting: 'not-merge',
+          materialNumber: null,
+          wbs: null
+        },
+        
         linkBannerDesktop: editData.linkBannerDesktop || null,
         linkBannerMobile: editData.linkBannerMobile || null,
         desktopBannerImage: editData.desktopBannerImage || null,
@@ -167,18 +182,6 @@ export const useTicketForm = (editData = null) => {
             })),
           }
         },
-        // Ensure slotAmounts has proper structure
-        slotAmounts: editData.slotAmounts && editData.slotAmounts.length > 0
-          ? editData.slotAmounts.map(slot => ({
-            startDateTime: slot.startDateTime ? new Date(slot.startDateTime).toISOString().slice(0, 16) : null,
-            endDateTime: slot.endDateTime ? new Date(slot.endDateTime).toISOString().slice(0, 16) : null,
-            amount: slot.amount || 0
-          }))
-          : [{
-            startDateTime: null,
-            endDateTime: null,
-            amount: 0
-          }],
         // Ensure arrays are properly initialized
         ctaSettings: editData.ctaSettings || [],
       });
