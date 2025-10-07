@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 // import { FormBuilder } from "@/components/form-builder/form-builder";
-import { FormPreview } from "@/components/form-builder/form-preview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,19 +13,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  ArrowLeft,
-  Save,
-  Eye,
-  PackagePlus,
-  PackagePlusIcon,
-} from "lucide-react";
+import { ArrowLeft, Save, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { apiGet, apiPut } from "@/lib/api";
 import { generateId } from "@/lib/form-utils";
 import { getRequest } from "@/service/viewService";
 import { Textarea } from "@/components/ui/textarea";
 import { FormBuilder } from "@/components/form-builder/form-builder";
+import FormPreview from "@/components/form-builder/form-preview";
 
 const userTypeOptions = [
   "Event Attendee",
@@ -48,7 +42,7 @@ export default function FormBuilderPage() {
   const [form, setForm] = useState({
     id: formId,
     formName: "",
-    userType: "",    
+    userType: "",
     elements: [],
     pages: [],
     settings: {
@@ -132,7 +126,7 @@ export default function FormBuilderPage() {
     }
   };
 
-  const handleFormChange = (updatedForm) => {        
+  const handleFormChange = (updatedForm) => {
     setForm(updatedForm);
 
     // Auto-save after 2 seconds of inactivity
@@ -146,7 +140,6 @@ export default function FormBuilderPage() {
 
     setAutoSaveTimer(timer);
   };
-
 
   const autoSaveForm = async (formData) => {
     if (!formData.formName.trim() || !formData.userType) {
@@ -167,7 +160,8 @@ export default function FormBuilderPage() {
 
       setForm((prev) => ({
         ...prev,
-        updatedAt: new Date().toISOString(), }));
+        updatedAt: new Date().toISOString(),
+      }));
     } catch (error) {
       console.error("Auto-save failed:", error);
     } finally {
@@ -191,11 +185,11 @@ export default function FormBuilderPage() {
 
       // Prepare the form data for API
       const formData = {
-      formName: form.formName,
-      userType: form.userType,
-      pages: form.pages,
-      settings: form.settings,
-    };
+        formName: form.formName,
+        userType: form.userType,
+        pages: form.pages,
+        settings: form.settings,
+      };
 
       const response = await apiPut(`/forms/${formId}`, formData);
 
@@ -217,7 +211,7 @@ export default function FormBuilderPage() {
   const handleGoBack = () => {
     // it should go back to the route where the user came from
     router.back();
-  };  
+  };
   const handleCreatePage = async () => {
     if (!pageName.trim()) {
       toast.error("Please enter a page name");
@@ -235,8 +229,8 @@ export default function FormBuilderPage() {
         setPageDescription("");
       }
     } catch (error) {
-      console.error("🚨 Error creating page:", error);      
-    }        
+      console.error("🚨 Error creating page:", error);
+    }
   };
 
   if (loading) {
@@ -257,13 +251,19 @@ export default function FormBuilderPage() {
       <div className="bg-white border-b border-gray-200 px-4 2xl:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" onClick={handleGoBack} className={'!p-2 size-9 bg-gray-50 border border-solid border-gray-200 group hover:border-blue-500 hover:bg-blue-500 transition-all duration-200 ease-in'}>
+            <Button
+              variant="ghost"
+              onClick={handleGoBack}
+              className={
+                "!p-2 size-9 bg-gray-50 border border-solid border-gray-200 group hover:border-blue-500 hover:bg-blue-500 transition-all duration-200 ease-in"
+              }
+            >
               <ArrowLeft className="size-full text-gray-600 group-hover:text-white transition-all duration-200 ease-in" />
               {/* Back to Forms */}
             </Button>
-            <div className='pl-3 border-l border-solid border-gray-300 text-sm text-gray-600 flex items-center'>
+            <div className="pl-3 border-l border-solid border-gray-300 text-sm text-gray-600 flex items-center">
               {/* <h1 className="text-base 2xl:text-lg font-semibold text-gray-900">Form Builder</h1> */}
-              {form.formName || originalForm?.formName || 'New Form'}
+              {form.formName || originalForm?.formName || "New Form"}
               {/* {autoSaving && (
                 <span className="ml-2 text-blue-600 text-xs">
                   • Auto-saving...
@@ -273,19 +273,15 @@ export default function FormBuilderPage() {
           </div>
 
           <div className="flex items-center space-x-3">
-            <FormPreview
+            {/* <FormPreview
               form={form}
               trigger={
-                <Button variant="outline">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview
-                </Button>
               }
-            />
-            {/* <Button onClick={() => setOpenPageModal(true)}>
-              <PackagePlusIcon className="h-4 w-4 mr-2" />
-              Page
-            </Button> */}
+            /> */}
+            <Button variant="outline" onClick={() => router.push("preview")}>
+              <Eye className="h-4 w-4 mr-2" />
+              Preview
+            </Button>
             <Button onClick={handleSave} disabled={saving}>
               <Save className="h-4 w-4 mr-2" />
               {saving ? "Saving..." : "Save Form"}

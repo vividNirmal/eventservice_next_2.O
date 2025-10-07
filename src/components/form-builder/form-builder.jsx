@@ -36,9 +36,7 @@ export function FormBuilder({ form, onFormChange }) {
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const router = useRouter();
-  // const [importDielg]
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);  
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -126,8 +124,7 @@ export function FormBuilder({ form, onFormChange }) {
         elements: page.elements.map((el) =>
           el._id === updatedElement._id ? updatedElement : el
         ),
-      }));
-
+      }));            
       onFormChange({
         ...form,
         pages: updatedPages,

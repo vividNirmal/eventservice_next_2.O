@@ -6,20 +6,16 @@ import * as Yup from "yup";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { X, Plus, Trash2 } from "lucide-react";
 import { labelToName } from "@/lib/form-utils";
 import { CustomCombobox } from "../common/customcombox";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 
 /**
  * Element Properties Component with Formik & Yup
@@ -111,7 +107,7 @@ export function ElementProperties({ element, onSave, onClose }) {
       specialCharactor: false,
     },
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: (values) => {     
       const updatedElement = {
         ...element,
         fieldTitle: values.fieldTitle,
@@ -119,7 +115,7 @@ export function ElementProperties({ element, onSave, onClose }) {
         fieldType: values.fieldType,
         placeHolder: values.placeHolder,
         fieldDescription: values.fieldDescription,
-        required: values.required,
+        isRequired: values.isRequired == "yes" ? true : false,
         defaultValue: values.defaultValue,
         options: values.options,
         content: values.content,
@@ -128,7 +124,14 @@ export function ElementProperties({ element, onSave, onClose }) {
           (rule) => rule.type && (rule.type === "required" || rule.message)
         ),
       };
-
+      if (["radio", "checkbox", "select"].includes(values.fieldType)) {
+        updatedElement.fieldOptions = values.fieldOptions.map((opt, index) => {
+          const key = labelToName(opt);
+          return JSON.stringify({ [key]: opt });
+        });
+      } else {
+        updatedElement.fieldOptions = values.fieldOptions;
+      }
       onSave(updatedElement);
     },
   });
@@ -137,17 +140,30 @@ export function ElementProperties({ element, onSave, onClose }) {
   useEffect(() => {
     if (element) {
       formik.resetForm();
+      const parsedOptions = Array.isArray(element.fieldOptions)
+        ? element.fieldOptions.map((opt) => {
+            try {
+              const obj = JSON.parse(opt); // Parse JSON string
+              return Object.values(obj)[0]; // Take first value (e.g. "Option 1")
+            } catch {
+              return opt; // if not JSON, keep as is
+            }
+          })
+        : [];
       formik.setValues({
         fieldTitle: element.fieldTitle || "",
         fieldName: element.fieldName || "",
-        placeholder: element.placeHolder || "",
+        fieldType: element.fieldType || "",
+        placeHolder: element.placeHolder || "",
+        requiredErrorText: element.requiredErrorText || "",
+        fieldOptions: parsedOptions || [],
+        userType: element.userType || [],
+        isRequired: element.isRequired === true ? "yes" : "no",
         fieldDescription: element.fieldDescription || "",
-        required: element.required || false,
-        defaultValue: element.defaultValue || "",
-        fieldType: element.fieldType || "text",
-        options: element.options || [],
-        content: element.content || "",
-        headingLevel: element.headingLevel || "h2",
+        fieldminLimit: element.fieldminLimit || "",
+        fieldmaxLimit: element.fieldmaxLimit,
+        specialCharactor: element.specialCharactor === true ? "yes" : "no",
+        userFieldMapping: element.userFieldMapping || [],
       });
       setValidationRules(element.validation || []);
     }
@@ -213,23 +229,51 @@ export function ElementProperties({ element, onSave, onClose }) {
     <div className="w-60 xl:w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
       <Card className="border-0 rounded-none grow gap-0 xl:gap-0 2xl:p-4">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-          <CardTitle className="text-base xl:text-lg">Element Properties</CardTitle>
-          <Button variant="ghost" size="sm" className={'!p-0'} onClick={onClose}>
+          <CardTitle className="text-base xl:text-lg">
+            Element Properties
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            className={"!p-0"}
+            onClick={onClose}
+          >
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
 
         <CardContent className="space-y-6">
           <form onSubmit={formik.handleSubmit}>
-            <Accordion type="single" collapsible className="w-full" defaultValue="generalSettings-1">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              defaultValue="generalSettings-1"
+            >
               <AccordionItem value="generalSettings-1">
-                <AccordionTrigger className={'hover:no-underline text-sm font-semibold text-gray-700'}>General settings</AccordionTrigger>
-                <AccordionContent className={'space-y-5'}>
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
+                  }
+                >
+                  General settings
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldTitle">Field Title</Label>
-                    <Input id="fieldTitle" name="fieldTitle" placeholder="Enter field title" value={formik.values.fieldTitle} onChange={handleFieldTitleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
+                    <Input
+                      id="fieldTitle"
+                      name="fieldTitle"
+                      placeholder="Enter field title"
+                      value={formik.values.fieldTitle}
+                      onChange={handleFieldTitleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
                     {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-                      <p className="text-sm text-red-500 absolute left-0 -bottom-1">{formik.errors.fieldTitle}</p>
+                      <p className="text-sm text-red-500 absolute left-0 -bottom-1">
+                        {formik.errors.fieldTitle}
+                      </p>
                     )}
                   </div>
                   <div className="flex flex-col gap-1">
@@ -254,7 +298,9 @@ export function ElementProperties({ element, onSave, onClose }) {
                     <CustomCombobox
                       name="fieldType"
                       value={formik.values.fieldType}
-                      onChange={(value) => formik.setFieldValue("fieldType", value)}
+                      onChange={(value) =>
+                        formik.setFieldValue("fieldType", value)
+                      }
                       onBlur={() => formik.setFieldTouched("fieldType", true)}
                       valueKey="value"
                       labelKey="title"
@@ -273,7 +319,9 @@ export function ElementProperties({ element, onSave, onClose }) {
                     <CustomCombobox
                       name="isRequired"
                       value={formik.values.isRequired}
-                      onChange={(value) => formik.setFieldValue("isRequired", value)}
+                      onChange={(value) =>
+                        formik.setFieldValue("isRequired", value)
+                      }
                       valueKey="value"
                       labelKey="title"
                       search={false}
@@ -294,14 +342,17 @@ export function ElementProperties({ element, onSave, onClose }) {
                       onBlur={formik.handleBlur}
                       className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                     />
-                    {formik.touched.placeHolder && formik.errors.placeHolder && (
-                      <p className="text-sm text-red-500">
-                        {formik.errors.placeHolder}
-                      </p>
-                    )}
+                    {formik.touched.placeHolder &&
+                      formik.errors.placeHolder && (
+                        <p className="text-sm text-red-500">
+                          {formik.errors.placeHolder}
+                        </p>
+                      )}
                   </div>
                   <div className="flex flex-col gap-1">
-                    <Label htmlFor="requiredErrorText">Required Error Text</Label>
+                    <Label htmlFor="requiredErrorText">
+                      Required Error Text
+                    </Label>
                     <Input
                       id="requiredErrorText"
                       name="requiredErrorText"
@@ -318,45 +369,85 @@ export function ElementProperties({ element, onSave, onClose }) {
                   ) && (
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center justify-between">
-                        <Label className={'text-sm font-semibold text-gray-700 pt-2 pb-0'}>Options</Label>
-                        <Button type="button" variant="outline" className={'!p-1.5 size-8 shrink-0'} onClick={() => formik.setFieldValue("fieldOptions", [...(formik.values.fieldOptions || []),"",])}>
-                          <Plus/>
+                        <Label
+                          className={
+                            "text-sm font-semibold text-gray-700 pt-2 pb-0"
+                          }
+                        >
+                          Options
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className={"!p-1.5 size-8 shrink-0"}
+                          onClick={() =>
+                            formik.setFieldValue("fieldOptions", [
+                              ...(formik.values.fieldOptions || []),
+                              "",
+                            ])
+                          }
+                        >
+                          <Plus />
                         </Button>
                       </div>
                       <div className="flex flex-col gap-1">
                         {formik.values.fieldOptions?.map((opt, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            <Input type="text" value={opt} className={'h-8 p-2'}
+                            <Input
+                              type="text"
+                              value={opt}
+                              className={"h-8 p-2"}
                               onChange={(e) => {
-                                const newOptions = [...formik.values.fieldOptions];
+                                const newOptions = [
+                                  ...formik.values.fieldOptions,
+                                ];
                                 newOptions[index] = e.target.value;
-                                formik.setFieldValue("fieldOptions", newOptions);
+                                formik.setFieldValue(
+                                  "fieldOptions",
+                                  newOptions
+                                );
                               }}
                               placeholder={`Option ${index + 1}`}
                             />
-                            <Button type="button" variant="destructive" className={'!p-1.5 size-8 shrink-0'}
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              className={"!p-1.5 size-8 shrink-0"}
                               onClick={() => {
-                                const newOptions = formik.values.fieldOptions.filter(
-                                  (_, i) => i !== index
+                                const newOptions =
+                                  formik.values.fieldOptions.filter(
+                                    (_, i) => i !== index
+                                  );
+                                formik.setFieldValue(
+                                  "fieldOptions",
+                                  newOptions
                                 );
-                                formik.setFieldValue("fieldOptions", newOptions);
                               }}
                             >
-                              <Trash2/>
+                              <Trash2 />
                             </Button>
                           </div>
                         ))}
                       </div>
-                      {formik.touched.fieldOptions && formik.errors.fieldOptions && (
-                        <p className="text-sm text-red-500">{formik.errors.fieldOptions}</p>
-                      )}
+                      {formik.touched.fieldOptions &&
+                        formik.errors.fieldOptions && (
+                          <p className="text-sm text-red-500">
+                            {formik.errors.fieldOptions}
+                          </p>
+                        )}
                     </div>
                   )}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="generalSettings-2">
-                <AccordionTrigger className={'hover:no-underline text-sm font-semibold text-gray-700'}>General settings</AccordionTrigger>
-                <AccordionContent className={'space-y-5'}>
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
+                  }
+                >
+                  Other settings
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldDescription">Field Description</Label>
                     <Input
@@ -397,7 +488,9 @@ export function ElementProperties({ element, onSave, onClose }) {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <Label htmlFor="specialCharactor">Is special Charactor?</Label>
+                    <Label htmlFor="specialCharactor">
+                      Is special Charactor?
+                    </Label>
                     <CustomCombobox
                       name="specialCharactor"
                       value={formik.values.specialCharactor}

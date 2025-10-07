@@ -97,7 +97,9 @@ export function FormFieldAddDrawer({
           }
           if (["radio", "checkbox", "select"].includes(values.fieldType)) {
             values.fieldOptions.forEach((opt, index) => {
-              formData.append(`fieldOptions[${index}]`, opt);
+              const key = labelToName(opt);
+               const obj = { [key]: opt };
+              formData.append(`fieldOptions[${index}]`, obj);
             });
           }
           values.userType.forEach((otp, index) => {
@@ -149,7 +151,9 @@ export function FormFieldAddDrawer({
           }
           if (["radio", "checkbox", "select"].includes(values.fieldType)) {
             values.fieldOptions.forEach((opt, index) => {
-              formData.append(`fieldOptions[${index}]`, opt);
+              const key = labelToName(opt);
+               const obj = { [key]: opt };
+              formData.append(`fieldOptions[${index}]`, JSON.stringify(obj));
             });
           }
 
@@ -215,13 +219,24 @@ export function FormFieldAddDrawer({
   useEffect(() => {
     formik.resetForm();
     if (editUser) {
+      const parsedOptions =
+      Array.isArray(editUser.fieldOptions)
+        ? editUser.fieldOptions.map((opt) => {
+            try {
+              const obj = JSON.parse(opt); // Parse JSON string
+              return Object.values(obj)[0]; // Take first value (e.g. "Option 1")
+            } catch {
+              return opt; // if not JSON, keep as is
+            }
+          })
+        : [];
       formik.setValues({
         fieldTitle: editUser.fieldTitle || "",
         fieldName: editUser.fieldName || "",
         fieldType: editUser.fieldType || "",
         placeHolder: editUser.placeHolder || "",
         requiredErrorText: editUser.requiredErrorText || "",
-        fieldOptions: editUser.fieldOptions || [],
+        fieldOptions: parsedOptions || [],
         userType: editUser.userType || [],
         isRequired: editUser.isRequired === true ? "yes" : "no",
         fieldDescription: editUser.fieldDescription || "",
