@@ -85,7 +85,7 @@ const TicketAmountStep = ({
               value={ticketAmount.currency}
               onValueChange={(value) => handleTicketAmountChange('currency', value)}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-64">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
@@ -126,17 +126,12 @@ const TicketAmountStep = ({
                     const overlapError = checkDateOverlaps && checkDateOverlaps(index);
                     
                     return (
-                      <Card key={index}>
-                        <CardHeader className="pb-3">
+                      <Card key={index} className={'2xl:p-4 gap-2 2xl:gap-2'}>
+                        <CardHeader className="pb-0 !px-0">
                           <div className="flex items-center justify-between">
                             <CardTitle className="text-sm">Date Slab {index + 1}</CardTitle>
                             {ticketAmount.dateRangeAmounts.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeDateSlab(index)}
-                              >
+                              <Button type="button" variant="outline" size="sm" onClick={() => removeDateSlab(index)}>
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             )}
@@ -144,36 +139,20 @@ const TicketAmountStep = ({
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {overlapError && (
-                            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-                              {overlapError}
-                            </div>
+                            <div className="text-sm text-red-500 bg-red-50 p-2 rounded">{overlapError}</div>
                           )}
                           <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-1.5">
                               <Label>Start Date & Time *</Label>
-                              <Input
-                                type="datetime-local"
-                                value={formatDateForInput(slab.startDateTime)}
-                                onChange={(e) => handleDateSlabChange(index, 'startDateTime', e.target.value)}
-                              />
+                              <Input type="datetime-local" value={formatDateForInput(slab.startDateTime)} onChange={(e) => handleDateSlabChange(index, 'startDateTime', e.target.value)} />
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-1.5">
                               <Label>End Date & Time *</Label>
-                              <Input
-                                type="datetime-local"
-                                value={formatDateForInput(slab.endDateTime)}
-                                onChange={(e) => handleDateSlabChange(index, 'endDateTime', e.target.value)}
-                              />
+                              <Input type="datetime-local" value={formatDateForInput(slab.endDateTime)} onChange={(e) => handleDateSlabChange(index, 'endDateTime', e.target.value)} />
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-1.5">
                               <Label>Amount *</Label>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={slab.amount}
-                                onChange={(e) => handleDateSlabChange(index, 'amount', parseFloat(e.target.value) || 0)}
-                                placeholder="2000"
+                              <Input type="number" min="0" step="0.01" value={slab.amount} onChange={(e) => handleDateSlabChange(index, 'amount', parseFloat(e.target.value) || 0)} placeholder="2000"
                               />
                             </div>
                           </div>
@@ -191,12 +170,7 @@ const TicketAmountStep = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Business Category Pricing Slabs</Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addBusinessSlab}
-                >
+                <Button type="button" variant="outline" size="sm" onClick={addBusinessSlab}>
                   <Plus className="h-4 w-4 mr-1" />
                   Add Business Slab
                 </Button>
@@ -215,7 +189,7 @@ const TicketAmountStep = ({
                     
                     return (
                       <Card key={slabIndex}>
-                        <CardHeader className="pb-3">
+                        <CardHeader className="pb-0 !px-0">
                           <div className="flex items-center justify-between">
                             <CardTitle className="text-sm">Business Slab {slabIndex + 1}</CardTitle>
                             {ticketAmount.businessSlabs.length > 1 && (
@@ -239,34 +213,21 @@ const TicketAmountStep = ({
                           
                           {/* Date Range for Business Slab */}
                           <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-1.5">
                               <Label>Start Date & Time *</Label>
-                              <Input
-                                type="datetime-local"
-                                value={formatDateForInput(slab.startDateTime)}
-                                onChange={(e) => handleBusinessSlabChange(slabIndex, 'startDateTime', e.target.value)}
-                              />
+                              <Input type="datetime-local" value={formatDateForInput(slab.startDateTime)} onChange={(e) => handleBusinessSlabChange(slabIndex, 'startDateTime', e.target.value)} />
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-1.5">
                               <Label>End Date & Time *</Label>
-                              <Input
-                                type="datetime-local"
-                                value={formatDateForInput(slab.endDateTime)}
-                                onChange={(e) => handleBusinessSlabChange(slabIndex, 'endDateTime', e.target.value)}
-                              />
+                              <Input type="datetime-local" value={formatDateForInput(slab.endDateTime)} onChange={(e) => handleBusinessSlabChange(slabIndex, 'endDateTime', e.target.value)} />
                             </div>
                           </div>
 
                           {/* Category Amounts */}
                           <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                              <Label>Category Pricing</Label>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => addBusinessCategory(slabIndex)}
-                              >
+                              <Label className={'font-semibold text-sm'}>Category Pricing</Label>
+                              <Button type="button" variant="outline" size="sm" onClick={() => addBusinessCategory(slabIndex)}>
                                 <Plus className="h-4 w-4 mr-1" />
                                 Add Category
                               </Button>

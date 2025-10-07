@@ -1,5 +1,6 @@
 import React from 'react';
 import { STEP_TITLES } from '../constants/ticketConstants';
+import { cn } from '@/lib/utils';
 
 const StepIndicator = ({ currentStep, setCurrentStep, validateStepBeforeChange }) => {
  return (
@@ -25,25 +26,10 @@ const StepIndicator = ({ currentStep, setCurrentStep, validateStepBeforeChange }
 
         return (
           <div key={stepNumber} className="flex items-center">
-            <div 
-              onClick={handleClick} 
-              className={`
-                cursor-pointer flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium
-                ${isActive ? 'bg-blue-600 text-white' :
-                  isCompleted ? 'bg-blue-600 text-white' :
-                    'bg-gray-200 text-gray-600'}
-              `}
-            >
-              {stepNumber}
-            </div>
-            <span 
-              onClick={handleClick} 
-              className={`ml-2 text-sm ${isActive ? 'font-medium' : 'text-gray-600'} cursor-pointer`}
-            >
-              {title}
-            </span>
+            <div onClick={handleClick} className={cn("shrink-0 cursor-pointer flex items-center justify-center size-8 rounded-full text-sm font-medium", isActive ? 'bg-blue-600 text-white' : isCompleted ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600')}>{stepNumber}</div>
+            <span onClick={handleClick} className={cn("ml-2 text-sm leading-normal cursor-pointer", isActive ? 'font-medium' : 'text-gray-600')}>{title}</span>
             {stepNumber < STEP_TITLES.length && (
-              <div className="w-8 h-px bg-gray-300 ml-4" />
+              <div className="w-8 h-px bg-gray-300 ml-2" />
             )}
           </div>
         );
