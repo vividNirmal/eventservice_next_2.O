@@ -5,6 +5,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { fetchTemplateTypesByChannel, fetchTemplatesForTypeId } from '../utils/apiUtils';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 const CHANNELS = [
   { key: 'emailNotification', label: 'Email Notification', type: 'email' },
@@ -144,52 +145,35 @@ const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }
         const isLoading = loadingByChannel[type];
 
         return (
-          <div key={key} className="space-y-4 border rounded-md p-4">
+          <div key={key} className="space-y-4 border rounded-md px-4 py-2.5">
             <div className="flex items-center justify-between">
-              <Label className="text-base font-medium">{label}</Label>
-              <Switch
-                checked={!!detail.enabled}
-                onCheckedChange={(checked) => setChannelEnabled(key, checked, type)}
-              />
+              <Label className={'font-medium mb-0'}>{label}</Label>
+              <Switch checked={!!detail.enabled} onCheckedChange={(checked) => setChannelEnabled(key, checked, type)} />
             </div>
 
             {detail.enabled && (
               <div className="space-y-3">
                 {isLoading && <p className="text-sm text-muted-foreground">Loading {type} template types and options...</p>}
-
-                {!isLoading && tTypes.length === 0 && (
-                  <p className="text-sm text-muted-foreground">No template types configured by admin for this channel.</p>
-                )}
-
+                {!isLoading && tTypes.length === 0 && (<p className="text-sm text-muted-foreground">No template types configured by admin for this channel.</p>)}
                 {!isLoading && tTypes.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-4">
                     {tTypes.map((tt) => {
                       const options = optionsByTypeId[tt._id] || [];
                       const selectedVal = findSelectedValue(detail, tt._id);
 
                       return (
-                        <div key={tt._id} className="space-y-2">
-                          <Label>
-                            {tt.typeName || tt.actionType}
-                            {tt.actionType ? ` (${tt.actionType})` : ''}
-                          </Label>
-                          <Select
-                            value={selectedVal}
-                            onValueChange={handleSelectChange(key, type, tt)}
-                          >
+                        <div key={tt._id} className="flex flex-col gap-1">
+                          <Label className={'capitalize'}>{tt.typeName || tt.actionType} <Badge variant="secondary" className="bg-zinc-200 px-1.5 text-xs">{tt.actionType ? ` (${tt.actionType})` : ''}</Badge> </Label>
+                          <Select value={selectedVal} onValueChange={handleSelectChange(key, type, tt)}>
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select a template" />
                             </SelectTrigger>
                             <SelectContent>
                               {options.length === 0 ? (
-                                <SelectItem value="__none" disabled>
-                                  No templates found
-                                </SelectItem>
+                                <SelectItem value="__none" disabled>No templates found</SelectItem>
                               ) : (
                                 options.map(opt => (
-                                  <SelectItem key={opt.value} value={opt.value}>
-                                    {opt.label}
-                                  </SelectItem>
+                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                                 ))
                               )}
                             </SelectContent>
@@ -199,10 +183,6 @@ const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }
                     })}
                   </div>
                 )}
-                <Separator />
-                <p className="text-xs text-muted-foreground">
-                  Tip: Options include Admin templates and your Custom templates for each action type.
-                </p>
               </div>
             )}
           </div>

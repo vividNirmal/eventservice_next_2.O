@@ -40,11 +40,8 @@ const TicketSettingsStep = ({
 
         <div className="space-y-2">
           <Label htmlFor="ticketAccess">Ticket Access *</Label>
-          <Select
-            value={formData.ticketAccess}
-            onValueChange={(value) => handleInputChange('ticketAccess', value)}
-          >
-            <SelectTrigger>
+          <Select value={formData.ticketAccess} onValueChange={(value) => handleInputChange('ticketAccess', value)}>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
