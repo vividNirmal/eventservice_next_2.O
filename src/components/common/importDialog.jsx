@@ -57,7 +57,8 @@ export function ProductImportModal({ isOpen, onClose, apiEndpoint, title, refetc
       if (response) {
         toast.success(response.message);        
         handleCloseClick()
-        refetch();
+        refetch(response?.data);
+        
       } else {
         setImportError(response.message);
       }

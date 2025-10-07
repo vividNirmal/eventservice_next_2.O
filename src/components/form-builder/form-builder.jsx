@@ -25,6 +25,7 @@ import { createRandom5CharAlphanum, generateId } from "@/lib/form-utils";
 import { toast } from "sonner";
 import { fileDownloadRequest } from "@/service/viewService";
 import { ProductImportModal } from "../common/importDialog";
+import { useRouter } from "next/navigation";
 
 /**
  * Main Form Builder Component
@@ -36,6 +37,7 @@ export function FormBuilder({ form, onFormChange }) {
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const router = useRouter();
   // const [importDielg]
   const selectedElement = selectedElementId
     ? form.pages
@@ -141,7 +143,7 @@ export function FormBuilder({ form, onFormChange }) {
   }, []);
 
   // Get all elements from current page for DndContext
-  const currentPageElements = form.pages[currentPageIndex]?.elements || [];
+  const currentPageElements = form?.pages[currentPageIndex]?.elements || [];
 
   const createElement = (inputType) => {
     const createNewlement = {
@@ -216,20 +218,22 @@ export function FormBuilder({ form, onFormChange }) {
     }
   };
   // Fetch latest form state after import (called from ProductImportModal)
-  const fetchStates = async () => {
-    try {
-      const response = await fetch(`/form/${form?.id}`);
-      if (!response.ok) throw new Error("Failed to fetch form data");
-      const updatedForm = await response.json();
-      // Update form state from parent component
-      if (typeof onFormChange === "function") {
-        onFormChange(updatedForm);
+  const fetchStates = useCallback(
+    (data) => {
+      try {
+        // Only update the pages property of the form
+        onFormChange({
+          ...form,
+          pages: data?.form.pages,
+        });
+        toast.success("Form pages refreshed successfully");
+      } catch (error) {
+        toast.error("Error refreshing form pages");
+        console.error(error);
       }
-      toast.success("Form imported and refreshed successfully");
-    } catch (error) {
-      toast.error(error?.message || "Failed to refresh form state");
-    }
-  };
+    },
+    [form, onFormChange]
+  );
 
   return (
     <div className="flex flex-col bg-gray-100 h-16 grow">
@@ -263,7 +267,7 @@ export function FormBuilder({ form, onFormChange }) {
                   Export
                 </Button>
                 <Button
-                onClick={() => setIsImportModalOpen(true)}
+                  onClick={() => setIsImportModalOpen(true)}
                   variant={"secondary"}
                   className={
                     "shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500"
@@ -341,7 +345,7 @@ export function FormBuilder({ form, onFormChange }) {
         </DialogContent>
       </Dialog>
       {/* json File Import */}
-       <ProductImportModal
+      <ProductImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         title="Import From Json"

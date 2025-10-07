@@ -62,7 +62,7 @@ export function FormPreview({ form, trigger }) {
           </DialogHeader>
 
           <div className="py-4">
-            {form.elements.length === 0 ? (
+            {form?.pages?.elements?.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <Eye className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p className="text-lg font-medium">No elements to preview</p>
