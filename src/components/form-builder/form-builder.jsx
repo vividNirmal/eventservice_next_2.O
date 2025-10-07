@@ -6,7 +6,11 @@ import { ElementSidebar } from "./element-sidebar";
 import { FormCanvas } from "./form-canvas";
 import { ElementProperties } from "./element-properties";
 import { Button } from "../ui/button";
-import { ArrowDownFromLine, ArrowUpFromLine, PackagePlusIcon } from "lucide-react";
+import {
+  ArrowDownFromLine,
+  ArrowUpFromLine,
+  PackagePlusIcon,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,9 +20,10 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Textarea } from '../ui/textarea';
-import { createRandom5CharAlphanum, generateId } from '@/lib/form-utils';
-import { toast } from 'sonner';
+import { Textarea } from "../ui/textarea";
+import { createRandom5CharAlphanum, generateId } from "@/lib/form-utils";
+import { toast } from "sonner";
+import { fileDownloadRequest } from "@/service/viewService";
 
 /**
  * Main Form Builder Component
@@ -28,7 +33,7 @@ export function FormBuilder({ form, onFormChange }) {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
-  const [pageDescription, setPageDescription] = useState("");    
+  const [pageDescription, setPageDescription] = useState("");
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -133,13 +138,12 @@ export function FormBuilder({ form, onFormChange }) {
   }, []);
 
   // Get all elements from current page for DndContext
-  const currentPageElements = form.pages[currentPageIndex]?.elements || []; 
+  const currentPageElements = form.pages[currentPageIndex]?.elements || [];
 
-  const createElement = (inputType) => {    
-    
+  const createElement = (inputType) => {
     const createNewlement = {
-      fieldTitle : createRandom5CharAlphanum(),
-      fieldName: '',
+      fieldTitle: createRandom5CharAlphanum(),
+      fieldName: "",
       fieldOptions: [],
       fieldType: inputType,
       isPrimary: false,
@@ -168,7 +172,7 @@ export function FormBuilder({ form, onFormChange }) {
       });
     },
     [form, onFormChange]
-  );  
+  );
 
   const handleCreatePage = useCallback(() => {
     if (!pageName.trim()) {
@@ -194,6 +198,21 @@ export function FormBuilder({ form, onFormChange }) {
     setPageDescription("");
   }, [pageName, pageDescription, form, onFormChange]);
 
+  const handleExportForm = async () => {
+  try {
+    const res = await fileDownloadRequest("GET", `/form/export/${form?.id}`);
+    const blob = new Blob([res], { type: "application/json" }); // Changed to application/json
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `form-${form?.id}-pages.json`; // Or use your fileName variable
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    toast.error(error?.message);
+  }
+};
+
   return (
     <div className="flex flex-col bg-gray-100 h-16 grow">
       <DndFormBuilder
@@ -203,7 +222,11 @@ export function FormBuilder({ form, onFormChange }) {
         currentPageIndex={currentPageIndex}
       >
         <div className="flex grow overflow-auto">
-          <ElementSidebar form={form} onCreateelemet={(data)=>createElement(data)} currentPageIndex={currentPageIndex}/>
+          <ElementSidebar
+            form={form}
+            onCreateelemet={(data) => createElement(data)}
+            currentPageIndex={currentPageIndex}
+          />
           <div className="w-1/3 grow flex flex-col gap-4 p-4 sticky top-0">
             <div className="overflow-auto gap-4 flex flex-col h-20 grow pr-4">
               <div className="flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg border border-solid border-zinc-200">
@@ -211,11 +234,22 @@ export function FormBuilder({ form, onFormChange }) {
                   <PackagePlusIcon className="h-4 w-4 mr-2" />
                   Page
                 </Button>
-                <Button variant={'secondary'} className={'shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500'}>
+                <Button
+                  onClick={handleExportForm}
+                  variant={"secondary"}
+                  className={
+                    "shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500"
+                  }
+                >
                   <ArrowUpFromLine />
                   Export
                 </Button>
-                <Button variant={'secondary'} className={'shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500'}>
+                <Button
+                  variant={"secondary"}
+                  className={
+                    "shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500"
+                  }
+                >
                   <ArrowDownFromLine />
                   Import
                 </Button>
