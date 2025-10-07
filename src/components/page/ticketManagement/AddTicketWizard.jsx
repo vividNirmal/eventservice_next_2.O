@@ -222,6 +222,8 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
           <NotificationsStep
             formData={formData}
             handleInputChange={handleInputChange}
+            eventId={eventId}
+            setFormData={setFormData}
           />
         );
       default:

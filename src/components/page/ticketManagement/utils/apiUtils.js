@@ -1,6 +1,52 @@
 import { getRequest, postRequest, updateRequest } from '@/service/viewService';
 import { toast } from 'sonner';
 
+export const fetchTemplateTypesByChannel = async (channel /* 'email' | 'sms' | 'whatsapp' */) => {
+  try {
+    // TemplateType: module=ticket, type=<channel>
+    const res = await getRequest(`template-types?module=ticket&type=${channel}`);
+    if (res.status === 1) {
+      return res.data?.templateTypes || res.data || [];
+    }
+  } catch (e) {
+    console.error('fetchTemplateTypesByChannel error', e);
+  }
+  return [];
+};
+
+// Fetch both admin Templates and user UserTemplates for a specific typeId
+export const fetchTemplatesForTypeId = async ({ typeId, channel, eventId, companyId }) => {
+  try {
+    const [adminRes, userRes] = await Promise.all([
+      getRequest(`templates?type=${channel}&typeId=${typeId}&status=active`),
+      getRequest(
+        `user-templates?type=${channel}&typeId=${typeId}&status=active${eventId ? `&eventId=${eventId}` : ''}${companyId ? `&companyId=${companyId}` : ''}`
+      ),
+    ]);
+    const admin = (adminRes.status === 1 ? (adminRes.data?.templates || adminRes.data || []) : []);
+    const user = (userRes.status === 1 ? (userRes.data?.templates || userRes.data || []) : []);
+
+    // Normalize records to { _id, name, isCustom, templateRef }
+    const adminNorm = admin.map(t => ({
+      _id: t._id,
+      name: t.name || t.subject || 'Untitled',
+      isCustom: false,
+      templateRef: 'Template',
+    }));
+    const userNorm = user.map(t => ({
+      _id: t._id,
+      name: t.name || t.subject || 'Untitled',
+      isCustom: true,
+      templateRef: 'UserTemplate',
+    }));
+
+    return { admin: adminNorm, user: userNorm };
+  } catch (e) {
+    console.error('fetchTemplatesForTypeId error', e);
+    return { admin: [], user: [] };
+  }
+};
+
 export const fetchFormsByUserType = async (userType, eventId, setAvailableForms) => {
   try {
     // Include both userType and eventId in the query

@@ -68,13 +68,13 @@ export const STEP_TITLES = [
 
 export const INITIAL_FORM_DATA = {
   // Step 1 - Basic Info
-  ticketName: null,
+  ticketName: "",
   userType: null,
   registrationFormId: null,
   ticketCategory: null,
-  serialNoPrefix: null,
+  serialNoPrefix: "",
   startCount: '0000',
-  description: null,
+  description: "",
   bannerImage: null,
   bannerImagePreview: null,
   companyId: null,
@@ -108,7 +108,7 @@ export const INITIAL_FORM_DATA = {
     ticketBuyLimitMax: 10,
     hasQuantityLimit: false,
     badgeCategory: 'visitor',
-    registrationFilterDate: null,
+    registrationFilterDate: new Date().toISOString().slice(0, 10),
     allowCrossRegister: false,
     crossRegisterCategories: [],
     autoApprovedUser: false,
@@ -120,8 +120,8 @@ export const INITIAL_FORM_DATA = {
 
   // Step 5 - Notifications
   notifications: {
-    emailNotification: false,
-    smsNotification: false,
-    whatsappNotification: false
+    emailNotification: { enabled: false, templates: [] },
+    smsNotification: { enabled: false, templates: [] },
+    whatsappNotification: { enabled: false, templates: [] },
   }
 };

@@ -1,35 +1,213 @@
-import React from 'react';
+// steps/NotificationsStep.jsx
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { fetchTemplateTypesByChannel, fetchTemplatesForTypeId } from '../utils/apiUtils';
+import { Separator } from '@/components/ui/separator';
 
-const NotificationsStep = ({ formData, handleInputChange }) => {
+const CHANNELS = [
+  { key: 'emailNotification', label: 'Email Notification', type: 'email' },
+  { key: 'smsNotification', label: 'SMS Notification', type: 'sms' },
+  { key: 'whatsappNotification', label: 'WhatsApp Notification', type: 'whatsapp' },
+];
+
+const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }) => {
+  const [typesByChannel, setTypesByChannel] = useState({
+    email: [],
+    sms: [],
+    whatsapp: [],
+  });
+  const [optionsByTypeId, setOptionsByTypeId] = useState({}); // { [typeId]: [{value,label,templateRef,isCustom}] }
+  const [loadingByChannel, setLoadingByChannel] = useState({
+    email: false,
+    sms: false,
+    whatsapp: false,
+  });
+
+  const companyId = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('companyId') || null;
+    }
+    return null;
+  }, []);
+
+  const getDetail = (channelKey) =>
+    formData?.notifications?.[channelKey] || { enabled: false, templates: [] };
+
+  const findSelectedValue = (detail, typeId) => {
+    const m = (detail?.templates || []).find(
+      t => (t.typeId?._id || t.typeId) === typeId
+    );
+    if (!m) return '';
+    const ref = m.isCustom ? 'UserTemplate' : 'Template';
+    return `${ref}:${m.templateId?._id || m.templateId}`;
+  };
+
+  const setChannelEnabled = useCallback((channelKey, enabled, channelType) => {
+    setFormData(prev => {
+      const detail = prev?.notifications?.[channelKey] || { enabled: false, templates: [] };
+      // Clear templates when toggled off
+      const nextDetail = enabled ? { ...detail, enabled } : { enabled, templates: [] };
+      return {
+        ...prev,
+        notifications: {
+          ...prev.notifications,
+          [channelKey]: nextDetail,
+        },
+      };
+    });
+    if (enabled) {
+      ensureChannelLoaded(channelType);
+    }
+  }, [setFormData]);
+
+  const ensureChannelLoaded = useCallback(async (channelType) => {
+    if (typesByChannel[channelType]?.length > 0) return; // already loaded
+    setLoadingByChannel(prev => ({ ...prev, [channelType]: true }));
+    try {
+      const tTypes = await fetchTemplateTypesByChannel(channelType);
+      setTypesByChannel(prev => ({ ...prev, [channelType]: tTypes }));
+
+      // fetch options for each typeId
+      const promises = (tTypes || []).map(t =>
+        fetchTemplatesForTypeId({ typeId: t._id, channel: channelType, eventId, companyId })
+          .then(({ admin, user }) => {
+            const items = [
+              ...admin.map(a => ({ value: `Template:${a._id}`, label: `Admin: ${a.name}`, templateRef: 'Template', isCustom: false })),
+              ...user.map(u => ({ value: `UserTemplate:${u._id}`, label: `Custom: ${u.name}`, templateRef: 'UserTemplate', isCustom: true })),
+            ];
+            return { typeId: t._id, items };
+          })
+      );
+
+      const results = await Promise.all(promises);
+      setOptionsByTypeId(prev => {
+        const next = { ...prev };
+        results.forEach(({ typeId, items }) => {
+          next[typeId] = items;
+        });
+        return next;
+      });
+    } finally {
+      setLoadingByChannel(prev => ({ ...prev, [channelType]: false }));
+    }
+  }, [typesByChannel, eventId, companyId]);
+
+  const handleSelectChange = useCallback((channelKey, channelType, type) => (val) => {
+    if (!val) return;
+    const [templateRef, templateId] = val.split(':');
+    const isCustom = templateRef === 'UserTemplate';
+    setFormData(prev => {
+      const detail = prev.notifications?.[channelKey] || { enabled: false, templates: [] };
+      const templates = Array.isArray(detail.templates) ? [...detail.templates] : [];
+      const typeId = type._id;
+      const idx = templates.findIndex(t => (t.typeId?._id || t.typeId) === typeId);
+
+      const nextMapping = {
+        typeId,
+        templateId,
+        actionType: type.actionType || '',
+        isCustom,
+        // templateRef is optional; backend will set via pre-save; send it if you want:
+        // templateRef,
+      };
+
+      if (idx >= 0) templates[idx] = nextMapping;
+      else templates.push(nextMapping);
+
+      return {
+        ...prev,
+        notifications: {
+          ...prev.notifications,
+          [channelKey]: { ...detail, templates },
+        },
+      };
+    });
+  }, [setFormData]);
+
+  // Auto-load meta for channels that are already enabled in edit mode
+  useEffect(() => {
+    CHANNELS.forEach(({ key, type }) => {
+      if (getDetail(key)?.enabled) {
+        ensureChannelLoaded(type);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={formData.notifications.emailNotification}
-            onCheckedChange={(checked) => handleInputChange('notifications.emailNotification', checked)}
-          />
-          <Label>Email Notification</Label>
-        </div>
+      {CHANNELS.map(({ key, label, type }) => {
+        const detail = getDetail(key);
+        const tTypes = typesByChannel[type] || [];
+        const isLoading = loadingByChannel[type];
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={formData.notifications.smsNotification}
-            onCheckedChange={(checked) => handleInputChange('notifications.smsNotification', checked)}
-          />
-          <Label>SMS Notification</Label>
-        </div>
+        return (
+          <div key={key} className="space-y-4 border rounded-md p-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-base font-medium">{label}</Label>
+              <Switch
+                checked={!!detail.enabled}
+                onCheckedChange={(checked) => setChannelEnabled(key, checked, type)}
+              />
+            </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={formData.notifications.whatsappNotification}
-            onCheckedChange={(checked) => handleInputChange('notifications.whatsappNotification', checked)}
-          />
-          <Label>WhatsApp Notification</Label>
-        </div>
-      </div>
+            {detail.enabled && (
+              <div className="space-y-3">
+                {isLoading && <p className="text-sm text-muted-foreground">Loading {type} template types and options...</p>}
+
+                {!isLoading && tTypes.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No template types configured by admin for this channel.</p>
+                )}
+
+                {!isLoading && tTypes.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {tTypes.map((tt) => {
+                      const options = optionsByTypeId[tt._id] || [];
+                      const selectedVal = findSelectedValue(detail, tt._id);
+
+                      return (
+                        <div key={tt._id} className="space-y-2">
+                          <Label>
+                            {tt.typeName || tt.actionType}
+                            {tt.actionType ? ` (${tt.actionType})` : ''}
+                          </Label>
+                          <Select
+                            value={selectedVal}
+                            onValueChange={handleSelectChange(key, type, tt)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select a template" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {options.length === 0 ? (
+                                <SelectItem value="__none" disabled>
+                                  No templates found
+                                </SelectItem>
+                              ) : (
+                                options.map(opt => (
+                                  <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </SelectItem>
+                                ))
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <Separator />
+                <p className="text-xs text-muted-foreground">
+                  Tip: Options include Admin templates and your Custom templates for each action type.
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };
