@@ -24,6 +24,7 @@ import { Textarea } from "../ui/textarea";
 import { createRandom5CharAlphanum, generateId } from "@/lib/form-utils";
 import { toast } from "sonner";
 import { fileDownloadRequest } from "@/service/viewService";
+import { ProductImportModal } from "../common/importDialog";
 
 /**
  * Main Form Builder Component
@@ -34,6 +35,8 @@ export function FormBuilder({ form, onFormChange }) {
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  // const [importDielg]
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -199,19 +202,34 @@ export function FormBuilder({ form, onFormChange }) {
   }, [pageName, pageDescription, form, onFormChange]);
 
   const handleExportForm = async () => {
-  try {
-    const res = await fileDownloadRequest("GET", `/form/export/${form?.id}`);
-    const blob = new Blob([res], { type: "application/json" }); // Changed to application/json
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `form-${form?.id}-pages.json`; // Or use your fileName variable
-    a.click();
-    URL.revokeObjectURL(url);
-  } catch (error) {
-    toast.error(error?.message);
-  }
-};
+    try {
+      const res = await fileDownloadRequest("GET", `/form/export/${form?.id}`);
+      const blob = new Blob([res], { type: "application/json" }); // Changed to application/json
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `form-${form?.id}-pages.json`; // Or use your fileName variable
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error(error?.message);
+    }
+  };
+  // Fetch latest form state after import (called from ProductImportModal)
+  const fetchStates = async () => {
+    try {
+      const response = await fetch(`/form/${form?.id}`);
+      if (!response.ok) throw new Error("Failed to fetch form data");
+      const updatedForm = await response.json();
+      // Update form state from parent component
+      if (typeof onFormChange === "function") {
+        onFormChange(updatedForm);
+      }
+      toast.success("Form imported and refreshed successfully");
+    } catch (error) {
+      toast.error(error?.message || "Failed to refresh form state");
+    }
+  };
 
   return (
     <div className="flex flex-col bg-gray-100 h-16 grow">
@@ -245,6 +263,7 @@ export function FormBuilder({ form, onFormChange }) {
                   Export
                 </Button>
                 <Button
+                onClick={() => setIsImportModalOpen(true)}
                   variant={"secondary"}
                   className={
                     "shadow-lg border border-solid border-gray-200 hover:text-white hover:border-blue-500 hover:bg-blue-500"
@@ -283,6 +302,8 @@ export function FormBuilder({ form, onFormChange }) {
           />
         </div>
       </DndFormBuilder>
+
+      {/* create page  */}
       <Dialog open={openPageModal} onOpenChange={setOpenPageModal}>
         <DialogContent>
           <DialogHeader>
@@ -319,6 +340,14 @@ export function FormBuilder({ form, onFormChange }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* json File Import */}
+       <ProductImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        title="Import From Json"
+        apiEndpoint={`/form/import/${form?.id}`} // Example API endpoint
+        refetch={fetchStates}
+      />
     </div>
   );
 }
