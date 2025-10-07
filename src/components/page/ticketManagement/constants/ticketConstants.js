@@ -115,7 +115,8 @@ export const INITIAL_FORM_DATA = {
     authenticateByOTP: false,
     autoPassword: false,
     addAllDiscount: false,
-    individualDiscount: false
+    individualDiscount: false,
+    registrationSuccessMessage: "",
   },
 
   // Step 5 - Notifications

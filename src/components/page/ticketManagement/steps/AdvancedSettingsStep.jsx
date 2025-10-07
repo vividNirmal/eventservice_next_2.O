@@ -5,6 +5,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { BADGE_CATEGORY_OPTIONS, CROSS_REGISTER_CATEGORY_OPTIONS } from '../constants/ticketConstants';
+import dynamic from "next/dynamic";
+import { textEditormodule } from "@/lib/constant";
+
+// Dynamically import ReactQuill
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+});
 
 const AdvancedSettingsStep = ({ 
   formData, 
@@ -144,6 +151,36 @@ const AdvancedSettingsStep = ({
             onCheckedChange={(checked) => handleInputChange('advancedSettings.individualDiscount', checked)}
           />
         </div>
+      </div>
+
+      {/* ---- Registration Success Message ---- */}
+      <div className="space-y-2">
+        <Label>Registration Success Message (Optional)</Label>
+        <div className="min-h-64 border rounded-md">
+          <ReactQuill
+            theme="snow"
+            value={formData.advancedSettings.registrationSuccessMessage || ""}
+            onChange={(value) =>
+              handleInputChange(
+                "advancedSettings.registrationSuccessMessage",
+                value
+              )
+            }
+            modules={textEditormodule.modules}
+            className="w-full min-h-64 flex flex-col 
+              [&>.ql-container.ql-snow]:flex 
+              [&>.ql-container.ql-snow]:flex-col 
+              [&>.ql-container>.ql-editor]:grow 
+              [&>.ql-toolbar.ql-snow]:rounded-t-md 
+              [&>.ql-container.ql-snow]:rounded-b-md 
+              [&>.ql-container.ql-snow]:flex-grow"
+          />
+        </div>
+        {errors?.advancedSettings?.registrationSuccessMessage && (
+          <p className="text-red-500 text-xs mt-1">
+            {errors.advancedSettings.registrationSuccessMessage}
+          </p>
+        )}
       </div>
     </div>
   );

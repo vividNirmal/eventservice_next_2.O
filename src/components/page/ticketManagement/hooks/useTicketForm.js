@@ -134,7 +134,8 @@ export const useTicketForm = (editData = null) => {
           authenticateByOTP: editData.advancedSettings?.authenticateByOTP || false,
           autoPassword: editData.advancedSettings?.autoPassword || false,
           addAllDiscount: editData.advancedSettings?.addAllDiscount || false,
-          individualDiscount: editData.advancedSettings?.individualDiscount || false
+          individualDiscount: editData.advancedSettings?.individualDiscount || false,
+          registrationSuccessMessage: editData.advancedSettings?.registrationSuccessMessage || "",
         },
         notifications: {
           emailNotification: {
