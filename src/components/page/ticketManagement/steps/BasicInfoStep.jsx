@@ -191,6 +191,12 @@ const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms }) 
               value={formData.startCount || '0000'}
               onChange={(e) => handleStartCountChange(e.target.value)}
               placeholder="0000"
+              onBlur={() => {
+                handleInputChange(
+                  'startCount',
+                  formData.startCount?.padStart(4, '0') || '0000'
+                );
+              }}
               className={errors.startCount ? 'border-red-500' : null}
               maxLength={6}
             />

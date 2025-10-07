@@ -107,7 +107,7 @@ export const useTicketForm = (editData = null) => {
         registrationFormId: editData.registrationFormId?._id || editData.registrationFormId || null,
         ticketCategory: editData.ticketCategory || null,
         serialNoPrefix: editData.serialNoPrefix || null,
-        startCount: editData.startCount?.toString() || null,
+        startCount: editData.startCount != null ? String(editData.startCount).padStart(4, '0') : '0000',
         description: editData.description || null,
         companyId: editData.companyId || null,
         bannerImage: editData.bannerImage || null,
