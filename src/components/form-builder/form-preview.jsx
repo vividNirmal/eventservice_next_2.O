@@ -1,44 +1,24 @@
 "use client";
-
 import React, { useState, useMemo, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Eye, X, ChevronLeft, ChevronRight, Check } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue,} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { getRequest } from "@/service/viewService";
-const ReactQuill = dynamic(() => import("react-quill-new"), {
-  ssr: false,
-});
+import { cn } from "@/lib/utils";
+import { CustomCombobox } from "../common/customcombox";
+const ReactQuill = dynamic(() => import("react-quill-new"), {ssr: false,});
 
 /**
  * Form Preview Component
@@ -292,10 +272,7 @@ function FormPreview() {
 
         case "radio":
           return (
-            <RadioGroup
-              value={value}
-              onValueChange={(val) => formik.setFieldValue(fieldName, val)}
-            >
+            <RadioGroup className={'flex flex-wrap'} value={value} onValueChange={(val) => formik.setFieldValue(fieldName, val)}>
               {fieldOptions?.map((option, idx) => {
                 // Parse if it's a JSON string
                 let parsedOption = option;
@@ -308,27 +285,13 @@ function FormPreview() {
                 }
 
                 // Extract key-value pairs
-                const optionValue =
-                  parsedOption.value ||
-                  Object.keys(parsedOption)[0] ||
-                  parsedOption;
-                const optionLabel =
-                  parsedOption.label ||
-                  Object.values(parsedOption)[0] ||
-                  parsedOption;
+                const optionValue = parsedOption.value || Object.keys(parsedOption)[0] || parsedOption;
+                const optionLabel = parsedOption.label || Object.values(parsedOption)[0] || parsedOption;
 
                 return (
-                  <div key={idx} className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value={optionValue}
-                      id={`${fieldName}-${idx}`}
-                    />
-                    <Label
-                      htmlFor={`${fieldName}-${idx}`}
-                      className="font-normal cursor-pointer"
-                    >
-                      {optionLabel}
-                    </Label>
+                  <div key={idx} className="inline-flex items-center space-x-2">
+                    <RadioGroupItem className={'data-[state=checked]:[&>span>svg]:fill-blue-500 data-[state=checked]:[&>span>svg]:text-blue-500'} value={optionValue} id={`${fieldName}-${idx}`} />
+                    <Label htmlFor={`${fieldName}-${idx}`} className="font-normal cursor-pointer mb-0">{optionLabel}</Label>
                   </div>
                 );
               })}
@@ -338,16 +301,8 @@ function FormPreview() {
         case "checkbox":
           return (
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id={fieldName}
-                checked={value}
-                onCheckedChange={(checked) =>
-                  formik.setFieldValue(fieldName, checked)
-                }
-              />
-              <Label htmlFor={fieldName} className="font-normal cursor-pointer">
-                {placeHolder || "Check this box"}
-              </Label>
+              <Checkbox className={'data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500'} id={fieldName} checked={value} onCheckedChange={(checked) => formik.setFieldValue(fieldName, checked)} />
+              <Label htmlFor={fieldName} className="font-normal cursor-pointer mb-0">{placeHolder || "Check this box"}</Label>
             </div>
           );
 
@@ -414,19 +369,52 @@ function FormPreview() {
               className={error ? "border-red-500" : ""}
             />
           );
+        case "select":
+          const transformedOptions = fieldOptions?.map((option) => {
+          let parsedOption = option;
+          if (typeof option === "string") {
+            try {
+              parsedOption = JSON.parse(option);
+            } catch (e) {
+              parsedOption = option;
+            }
+          }
+
+          const optionValue =
+            parsedOption.value ||
+            Object.keys(parsedOption)[0] ||
+            parsedOption;
+          const optionLabel =
+            parsedOption.label ||
+            Object.values(parsedOption)[0] ||
+            parsedOption;
+
+          return {
+            value: optionValue,
+            title: optionLabel,
+          };
+        }) || [];
+
+        return (
+          <CustomCombobox 
+            name={fieldName}
+            id={fieldName}
+            value={value}
+            onChange={(val) => formik.setFieldValue(fieldName, val)}
+            onBlur={() => formik.setFieldTouched(fieldName, true)}
+            valueKey="value"
+            labelKey="title"
+            search = {transformedOptions.length > 10 ? true : false}
+            options={transformedOptions}
+            placeholder={placeHolder || "Select an option"}
+            className={error ? "border-red-500" : ""}
+          />
+        );
+ 
 
         default:
           return (
-            <Input
-              type={fieldType}
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder={placeHolder}
-              className={error ? "border-red-500" : ""}
-            />
+            <Input type={fieldType} id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={placeHolder} className={error ? "border-red-500" : ""} />
           );
       }
     };
@@ -436,23 +424,22 @@ function FormPreview() {
     }
 
     return (
-      <div key={_id} className="space-y-2">
-        <Label htmlFor={fieldName}>
-          {fieldTitle || fieldName}
-          {isRequired && <span className="text-red-500 ml-1">*</span>}
-        </Label>
-        {fieldDescription && (
-          <p className="text-xs text-muted-foreground">{fieldDescription}</p>
-        )}
-        {renderInput()}
-        {error && <p className="text-sm text-red-600">{error}</p>}
+      <div key={_id} className="flex flex-col gap-1.5">
+        <div className="flex flex-wrap justify-between">
+          <Label className={'mb-0'} htmlFor={fieldName}>{fieldTitle || fieldName} {isRequired && <sup className="text-red-500">*</sup>}</Label>
+          {fieldDescription && (<p className="text-xs text-muted-foreground">{fieldDescription}</p>)}
+        </div>
+        <div className="relative pb-3.5">
+          {renderInput()}
+          {error && <p className="capitalize text-xs text-red-500 absolute left-0 -bottom-1">{error}</p>}
+        </div>
       </div>
     );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading form builder...</p>
@@ -462,83 +449,33 @@ function FormPreview() {
   }
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto py-9">
       <Button type="button" variant="outline" onClick={() => router.back()}>
         <ChevronLeft className="h-4 w-4 mr-2" />
         Back
-      </Button>      
-
-      {/* <Dialog open={isOpen} onOpenChange={setIsOpen} className="w-full">
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle>{form.formName}</DialogTitle>
-                <DialogDescription>
-                  <Badge variant="secondary" className="mt-1">
-                    {form.userType}
-                  </Badge>
-                </DialogDescription>
-              </div>
-            </div>
-          </DialogHeader> */}
+      </Button>
 
       {form.pages.length > 1 && (
-        <>
+        <div className="relative py-4">
           {/* Progress Bar */}
-          <div className="space-y-2">
-            {/* <Progress value={progress} className="h-2" /> */}
-            <p className="text-sm text-muted-foreground text-center">
-              Step {currentStep + 1} of {form.pages.length}
-            </p>
-          </div>
+          <Progress value={progress} className="h-2 absolute top-8 bg-muted [&>div]:bg-blue-500" />
+
           {/* Step Indicators */}
-          <div className="flex items-center justify-between py-4">
+          <ul className="flex items-center justify-between">
             {form.pages.map((page, index) => (
-              <div key={index} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`flex items-center justify-center w-10 h-10 rounded-full font-semibold transition-all ${
-                      index < currentStep
-                        ? "bg-green-500 text-white"
-                        : index === currentStep
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {index < currentStep ? (
-                      <Check className="h-5 w-5" />
-                    ) : (
-                      index + 1
-                    )}
-                  </div>
-                  <div
-                    className={`mt-2 text-xs font-medium text-center ${
-                      index === currentStep
-                        ? "text-primary"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {page.name}
-                  </div>
-                </div>
-                {index < form.pages.length - 1 && (
-                  <div
-                    className={`h-1 flex-1 mx-2 rounded transition-all ${
-                      index < currentStep ? "bg-green-500" : "bg-muted"
-                    }`}
-                  />
-                )}
-              </div>
+              <li key={index} className="flex flex-col items-center gap-2.5 basis-0 flex-1 text-center relative z-10">
+                <div className={cn("flex items-center justify-center size-9 2xl:size-10 rounded-full font-semibold border border-solid transition-all", index < currentStep ? "bg-green-500 text-white" : index === currentStep ? "border-blue-500 bg-white" : "bg-muted border-muted text-muted-foreground")}>{index < currentStep ? (<Check className="h-5 w-5" />) : (index + 1)}</div>
+                <div className={cn("capitalize font-medium text-xs 2xl:text-sm", index === currentStep ? "text-foreground" : "text-muted-foreground")}>{page.name}</div>
+              </li>
             ))}
-          </div>
-        </>
+          </ul>
+        </div>
       )}
 
       {/* Form Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto ">
         <Card>
-          <CardHeader>
+          <CardHeader className={"!px-0"}>
             <CardTitle>{currentPage.name}</CardTitle>
             <CardDescription>{currentPage.description}</CardDescription>
           </CardHeader>
@@ -550,7 +487,7 @@ function FormPreview() {
                 <p className="text-sm">Add fields to see them here</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-2">
                 {currentPage.elements.map((element) => renderField(element))}
               </div>
             )}
@@ -559,13 +496,8 @@ function FormPreview() {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handlePrevious}
-          disabled={isFirstStep}
-        >
+      <div className="flex items-center justify-between pt-4">
+        <Button type="button" variant="outline" onClick={handlePrevious} disabled={isFirstStep}>
           <ChevronLeft className="h-4 w-4 mr-2" />
           Previous
         </Button>
