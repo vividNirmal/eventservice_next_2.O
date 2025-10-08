@@ -40,6 +40,7 @@ import TicketAmountStep from './steps/TicketAmountStep';
 import TicketSettingsStep from './steps/TicketSettingsStep';
 import AdvancedSettingsStep from './steps/AdvancedSettingsStep';
 import NotificationsStep from './steps/NotificationsStep';
+import { getRequest } from '@/service/viewService';
 
 import { toast } from 'sonner';
 
@@ -59,6 +60,36 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
   const { formData, setFormData, isEditMode, errors, setErrors, handleInputChange, resetForm, initializeEditData } = useTicketForm(editData);
   const imageHandlers = useImageUpload(formData, setFormData);
   const ticketAmountHandlers = useTicketAmount(formData, setFormData);
+
+  const [userTypes, setUserTypes] = useState([]);
+
+  useEffect(() => {
+    const fetchUserTypes = async () => {
+      try {
+        const companyId = localStorage.getItem("companyId");
+
+        const params = new URLSearchParams({
+          ...(companyId && { companyId })
+        });
+
+        const response = await getRequest(`user-types?${params}`);
+        if (response.status === 1) {
+          const types = Array.isArray(response.data)
+            ? response.data
+            : response.data?.items || response.data?.userTypes || [];
+          setUserTypes(types);
+        } else {
+          setUserTypes([]);
+        }
+      } catch (error) {
+        console.error("Error fetching user types:", error);
+        toast.error("Failed to fetch user types");
+        setUserTypes([]);
+      }
+    };
+
+    fetchUserTypes();
+  }, []);
 
   // Helper function to fetch forms
   const fetchForms = useCallback(async (userType) => {
@@ -187,6 +218,7 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
             handleInputChange={handleInputChange}
             errors={errors}
             availableForms={availableForms}
+            userTypes={userTypes}
           />
         );
       case 2:

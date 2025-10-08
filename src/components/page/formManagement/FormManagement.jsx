@@ -78,12 +78,33 @@ const FormManagement = ({ eventId }) => {
     formName: '',
     userType: ''
   });
+  const [userTypes, setUserTypes] = useState([]);
 
   const dataLimits = [10, 20, 30, 50];
 
   useEffect(() => {
+    fetchUserTypes();
     fetchForms();
   }, [currentPage, selectedLimit, searchTerm]);
+
+  const fetchUserTypes = async () => {
+    try {
+      const companyId = localStorage.getItem("companyId");
+      const params = new URLSearchParams({
+        ...(companyId && { companyId }),
+      });
+
+      const response = await getRequest(`user-types?${params}`);
+      console.log("Fetched user types:", response);
+
+      if (response.status === 1) {
+        setUserTypes(response.data.userTypes || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user types:", error);
+      toast.error("Failed to fetch user types");
+    }
+  };
 
   const fetchForms = async () => {
     setLoading(true);
@@ -138,6 +159,8 @@ const FormManagement = ({ eventId }) => {
         setIsAddModalOpen(false);
         setNewForm({ formName: '', userType: '' });
         fetchForms();
+      } else {
+        toast.error(response.message || 'Failed to create form');
       }
     } catch (error) {
       console.error('Error creating form:', error);
@@ -158,6 +181,8 @@ const FormManagement = ({ eventId }) => {
         setIsDeleteDialogOpen(false);
         setFormToDelete(null);
         fetchForms();
+      } else {
+        toast.error(response.message || 'Failed to delete form');
       }
     } catch (error) {
       console.error('Error deleting form:', error);
@@ -194,6 +219,8 @@ const FormManagement = ({ eventId }) => {
         setFormToEdit(null);
         setEditForm({ formName: '', userType: '' });
         fetchForms();
+      } else {
+        toast.error(response.message || 'Failed to update form');
       }
     } catch (error) {
       console.error('Error updating form:', error);
@@ -351,9 +378,9 @@ const FormManagement = ({ eventId }) => {
                           <SelectValue placeholder="Select user type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {userTypeOptions.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
+                          {userTypes?.map((type) => (
+                            <SelectItem key={type._id} value={type._id}>
+                              {type.typeName}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -385,14 +412,17 @@ const FormManagement = ({ eventId }) => {
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="editUserType" className="text-right">User Type *</Label>
-                      <Select value={editForm.userType} onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}>
+                      <Select
+                        value={editForm.userType}
+                        onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}
+                      >
                         <SelectTrigger className="col-span-3">
                           <SelectValue placeholder="Select user type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {userTypeOptions.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
+                          {userTypes?.map((type) => (
+                            <SelectItem key={type._id} value={type._id}>
+                              {type.typeName}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -463,7 +493,7 @@ const FormManagement = ({ eventId }) => {
                       </TableCell>
                       <TableCell>
                         <Badge className={getUserTypeBadgeColor(form.userType)}>
-                          {form.userType}
+                          {form?.userType?.typeName}
                         </Badge>
                       </TableCell>
                       <TableCell>

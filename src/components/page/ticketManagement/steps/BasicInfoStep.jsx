@@ -12,7 +12,7 @@ const ErrorMessage = ({ error }) => {
   return <div className="text-red-500 text-sm mt-1">{error}</div>;
 };
 
-const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms }) => {
+const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms, userTypes }) => {
   // Handle startCount input with validation
   const handleStartCountChange = (value) => {
     // Only allow numbers 0-9
@@ -59,11 +59,15 @@ const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms }) 
               <SelectValue placeholder="Select user type" />
             </SelectTrigger>
             <SelectContent className="w-full">
-              {USER_TYPE_OPTIONS.map(option => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
+              {Array.isArray(userTypes) && userTypes.length > 0 ? (
+                userTypes.map((type) => (
+                  <SelectItem key={type._id} value={type._id}>
+                    {type.typeName}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem disabled>No user types found</SelectItem>
+              )}
             </SelectContent>
           </Select>
           <ErrorMessage error={errors.userType} />

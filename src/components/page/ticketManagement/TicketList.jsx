@@ -772,7 +772,7 @@ const TicketList = ({ eventId }) => {
                   <TableHead>User Type</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Amount</TableHead>
+                  {/* <TableHead>Amount</TableHead> */}
                   <TableHead>Created At</TableHead>
                   <TableHead>Link</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -781,13 +781,13 @@ const TicketList = ({ eventId }) => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       Loading tickets...
                     </TableCell>
                   </TableRow>
                 ) : tickets.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       No tickets found
                     </TableCell>
                   </TableRow>
@@ -805,7 +805,7 @@ const TicketList = ({ eventId }) => {
                       </TableCell>
                       <TableCell>
                         <Badge className={getUserTypeBadgeColor(ticket.userType)}>
-                          {ticket.userType}
+                          {ticket?.userType?.typeName || "N/A"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -818,7 +818,7 @@ const TicketList = ({ eventId }) => {
                           {ticket.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         {ticket.isFree ? (
                           <Badge className="bg-green-100 text-green-800">Free</Badge>
                         ) : (
@@ -826,7 +826,7 @@ const TicketList = ({ eventId }) => {
                             {ticket.currency} {ticket.slotAmounts?.[0]?.amount || 'N/A'}
                           </span>
                         )}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         {formatDate(ticket.createdAt)}
                       </TableCell>
