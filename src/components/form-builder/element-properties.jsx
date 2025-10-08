@@ -48,14 +48,77 @@ const BooleanOptions = [
   { value: "no", title: "No" },
 ];
 
-const userType = [
-  { value: "Event Attendee", title: "Event Attendee" },
-  { value: "Exhibiting Company", title: "Exhibiting Company" },
-  { value: "Sponsor", title: "Sponsor" },
-  { value: "Speaker", title: "Speaker" },
-  { value: "Service Provider", title: "Service Provider" },
-  { value: "Accompanying", title: "Accompanying" },
+  const fileTypeOptions = [
+  // Documents
+  { value: "pdf", title: "PDF" },
+  { value: "doc", title: "DOC" },
+  { value: "docx", title: "DOCX" },
+  { value: "txt", title: "TXT" },
+  { value: "rtf", title: "RTF" },
+  { value: "odt", title: "ODT" },
+  
+  // Spreadsheets
+  { value: "xls", title: "XLS" },
+  { value: "xlsx", title: "XLSX" },
+  { value: "csv", title: "CSV" },
+  { value: "ods", title: "ODS" },
+  
+  // Presentations
+  { value: "ppt", title: "PPT" },
+  { value: "pptx", title: "PPTX" },
+  { value: "odp", title: "ODP" },
+  
+  // Images
+  { value: "jpg", title: "JPG" },
+  { value: "jpeg", title: "JPEG" },
+  { value: "png", title: "PNG" },
+  { value: "gif", title: "GIF" },
+  { value: "bmp", title: "BMP" },
+  { value: "svg", title: "SVG" },
+  { value: "webp", title: "WEBP" },
+  { value: "ico", title: "ICO" },
+  
+  // Videos
+  { value: "mp4", title: "MP4" },
+  { value: "avi", title: "AVI" },
+  { value: "mov", title: "MOV" },
+  { value: "wmv", title: "WMV" },
+  { value: "flv", title: "FLV" },
+  { value: "mkv", title: "MKV" },
+  { value: "webm", title: "WEBM" },
+  
+  // Audio
+  { value: "mp3", title: "MP3" },
+  { value: "wav", title: "WAV" },
+  { value: "flac", title: "FLAC" },
+  { value: "aac", title: "AAC" },
+  { value: "ogg", title: "OGG" },
+  { value: "wma", title: "WMA" },
+  
+  // Archives
+  { value: "zip", title: "ZIP" },
+  { value: "rar", title: "RAR" },
+  { value: "7z", title: "7Z" },
+  { value: "tar", title: "TAR" },
+  { value: "gz", title: "GZ" },
+  
+  // Code/Data
+  { value: "json", title: "JSON" },
+  { value: "xml", title: "XML" },
+  { value: "html", title: "HTML" },
+  { value: "css", title: "CSS" },
+  { value: "js", title: "JavaScript" },
+  { value: "ts", title: "TypeScript" },
+  { value: "jsx", title: "JSX" },
+  { value: "tsx", title: "TSX" },
+  
+  // Other
+  { value: "exe", title: "EXE" },
+  { value: "dmg", title: "DMG" },
+  { value: "apk", title: "APK" },
+  { value: "iso", title: "ISO" }
 ];
+
 export function ElementProperties({ element, onSave, onClose }) {
   const [validationRules, setValidationRules] = useState([]);
 
@@ -115,6 +178,8 @@ export function ElementProperties({ element, onSave, onClose }) {
       optionValue: "",
       optionName: "",
       optionRequestType: "",
+      fileType : [],
+      fileSize :"", 
     },
     validationSchema,
     onSubmit: (values) => {
@@ -131,12 +196,7 @@ export function ElementProperties({ element, onSave, onClose }) {
         options: values.options,
         content: values.content,
         headingLevel: values.headingLevel,
-        requiredErrorText: values.requiredErrorText,
-        optionUrl: values.optionUrl,
-        optionPath: values.optionPath,
-        optionValue: values.optionValue,
-        optionName: values.optionName,
-        optionRequestType: values.optionRequestType,
+        requiredErrorText: values.requiredErrorText,        
         validation: validationRules.filter(
           (rule) => rule.type && (rule.type === "required" || rule.message)
         ),
@@ -149,6 +209,15 @@ export function ElementProperties({ element, onSave, onClose }) {
       } else {
         updatedElement.fieldOptions = values.fieldOptions;
       }
+      // Only include RESTful and file validation fields if they are not null/empty
+      if (values.optionUrl) updatedElement.optionUrl = values.optionUrl;
+      if (values.optionPath) updatedElement.optionPath = values.optionPath;
+      if (values.optionValue) updatedElement.optionValue = values.optionValue;
+      if (values.optionName) updatedElement.optionName = values.optionName;
+      if (values.optionRequestType) updatedElement.optionRequestType = values.optionRequestType;
+
+      if (values.fileType && values.fileType.length > 0) updatedElement.fileType = values.fileType;
+      if (values.fileSize) updatedElement.fileSize = values.fileSize;
       onSave(updatedElement);
     },
   });
@@ -187,6 +256,8 @@ export function ElementProperties({ element, onSave, onClose }) {
         optionName: element.optionName,
         optionRequestType: element.optionRequestType,
         optionDepending: element.optionDepending,
+        fileType: element.filevalidation?.[0]?.fileType || [],
+        fileSize: element.filevalidation?.[0]?.fileSize || "",
       });
       setValidationRules(element.validation || []);
     }
@@ -630,6 +701,51 @@ export function ElementProperties({ element, onSave, onClose }) {
                   </AccordionContent>
                 </AccordionItem>
               )}
+                {["file"].includes(formik.values.fieldType) && (
+              <AccordionItem value="File_Validation">
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
+                  }
+                >
+                  File Validation 
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>                 
+                  <div className="space-y-2">
+                    <Label htmlFor="fileType">File Type To validate</Label>
+                    <CustomCombobox
+                      name="fileType"
+                      value={formik.values.fileType}
+                      onChange={(value) =>
+                        formik.setFieldValue("fileType", value)
+                      }
+                      onBlur={() =>
+                        formik.setFieldTouched("fileType", true)
+                      }
+                      valueKey="value"
+                      labelKey="title"
+                      options={fileTypeOptions || []}
+                      search={true}
+                      multiSelect={true}
+                      placeholder="Select  Request Type"
+                      id="fileType"
+                    />                   
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fileSize">File Minimum Size</Label>
+                    <Input
+                      id="fileSize"
+                      name="fileSize"
+                      placeholder="Enter File Minimum Size in MB"
+                      value={formik.values.fileSize}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>                  
+                </AccordionContent>
+              </AccordionItem>
+            )}
             </Accordion>
             {/* Save Button */}
             <div className="pt-4 border-t">

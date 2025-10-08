@@ -20,8 +20,7 @@ function CleanAttendeeContent() {
           setIsLoading(false);
           return;
         }
-
-        console.log("Resolving device URL for shortId:", shortId);
+        
         
         // Call the backend to resolve the shortId (using userGetRequest for public access)
         const response = await userGetRequest(`resolve-device-url/${shortId}`);

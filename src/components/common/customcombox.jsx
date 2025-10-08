@@ -10,37 +10,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandGroup,
 } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { FixedSizeList } from "react-window";
 
 const ITEM_HEIGHT = 36;
-
-const OuterElement = React.forwardRef(function OuterElement({ children, className, ...rest }, ref) {
-  return (
-    <div
-      ref={ref}
-      {...rest}
-      className={cn("overflow-auto p-1", className)}
-      style={{
-        ...rest.style,
-        maxHeight: "300px",
-        scrollbarWidth: "thin",
-      }}
-    >
-      {children}
-    </div>
-  );
-});
-
-const InnerElement = React.forwardRef(function InnerElement({ children, className, ...rest }, ref) {
-  return (
-    <div ref={ref} {...rest} className={cn("command-list-wrapper", className)}>
-      {children}
-    </div>
-  );
-});
+const MAX_HEIGHT = 300;
 
 export function CustomCombobox({
   options = [],
@@ -186,46 +162,6 @@ export function CustomCombobox({
     multiSelect,
   ]);
 
-  const Row = useCallback(
-    ({ index, style }) => {
-      const opt = filteredOptions[index];
-      if (!opt) return null;
-
-      const isSelected = normalizedValue.includes(opt[valueKey]);
-      const isDisabled = opt[disabledKey];
-
-      return (
-        <CommandItem
-          key={opt[valueKey]}
-          value={opt[labelKey]}
-          onSelect={() => !isDisabled && handleSelect(opt[valueKey])}
-          disabled={isDisabled}
-          style={{
-            ...style,
-            height: ITEM_HEIGHT,
-            display: 'flex',
-            alignItems: 'center',
-          }}
-          className={cn(
-            "flex items-center justify-between px-3 py-2 text-sm",
-            "hover:bg-accent hover:text-accent-foreground",
-            isSelected && "bg-accent/50",
-            isDisabled && "opacity-50 cursor-not-allowed pointer-events-none"
-          )}
-        >
-          <span className="flex-1 truncate">{opt[labelKey]}</span>
-          <Check 
-            className={cn(
-              "ml-2 h-4 w-4 flex-shrink-0", 
-              isSelected ? "opacity-100" : "opacity-0"
-            )} 
-          />
-        </CommandItem>
-      );
-    },
-    [filteredOptions, normalizedValue, valueKey, labelKey, disabledKey, handleSelect]
-  );
-
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
@@ -265,23 +201,39 @@ export function CustomCombobox({
               />
             </div>
           )}
-          <CommandList className="p-0">
+          <CommandList className="max-h-[300px]">
             {filteredOptions.length === 0 ? (
               <CommandEmpty className="py-6 text-center text-sm">
                 {emptyMessage}
               </CommandEmpty>
             ) : (
-              <FixedSizeList
-                height={Math.min(filteredOptions.length * ITEM_HEIGHT, 300)}
-                itemCount={filteredOptions.length}
-                itemSize={ITEM_HEIGHT}
-                width="100%"
-                outerElementType={OuterElement}
-                innerElementType={InnerElement}
-                className="command-virtual-list"
-              >
-                {Row}
-              </FixedSizeList>
+              <CommandGroup>
+                {filteredOptions.map((opt) => {
+                  const isSelected = normalizedValue.includes(opt[valueKey]);
+                  const isDisabled = opt[disabledKey];
+
+                  return (
+                    <CommandItem
+                      key={opt[valueKey]}
+                      value={opt[labelKey]}
+                      onSelect={() => !isDisabled && handleSelect(opt[valueKey])}
+                      disabled={isDisabled}
+                      className={cn(
+                        "flex items-center justify-between px-3 py-2 text-sm",
+                        isDisabled && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      <span className="flex-1 truncate">{opt[labelKey]}</span>
+                      <Check 
+                        className={cn(
+                          "ml-2 h-4 w-4 flex-shrink-0", 
+                          isSelected ? "opacity-100" : "opacity-0"
+                        )} 
+                      />
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
             )}
           </CommandList>
         </Command>

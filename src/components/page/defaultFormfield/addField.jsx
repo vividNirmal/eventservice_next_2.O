@@ -58,6 +58,78 @@ export function FormFieldAddDrawer({
     { value: "no", title: "No" },
   ];
 
+  const fileTypeOptions = [
+  // Documents
+  { value: "pdf", title: "PDF" },
+  { value: "doc", title: "DOC" },
+  { value: "docx", title: "DOCX" },
+  { value: "txt", title: "TXT" },
+  { value: "rtf", title: "RTF" },
+  { value: "odt", title: "ODT" },
+  
+  // Spreadsheets
+  { value: "xls", title: "XLS" },
+  { value: "xlsx", title: "XLSX" },
+  { value: "csv", title: "CSV" },
+  { value: "ods", title: "ODS" },
+  
+  // Presentations
+  { value: "ppt", title: "PPT" },
+  { value: "pptx", title: "PPTX" },
+  { value: "odp", title: "ODP" },
+  
+  // Images
+  { value: "jpg", title: "JPG" },
+  { value: "jpeg", title: "JPEG" },
+  { value: "png", title: "PNG" },
+  { value: "gif", title: "GIF" },
+  { value: "bmp", title: "BMP" },
+  { value: "svg", title: "SVG" },
+  { value: "webp", title: "WEBP" },
+  { value: "ico", title: "ICO" },
+  
+  // Videos
+  { value: "mp4", title: "MP4" },
+  { value: "avi", title: "AVI" },
+  { value: "mov", title: "MOV" },
+  { value: "wmv", title: "WMV" },
+  { value: "flv", title: "FLV" },
+  { value: "mkv", title: "MKV" },
+  { value: "webm", title: "WEBM" },
+  
+  // Audio
+  { value: "mp3", title: "MP3" },
+  { value: "wav", title: "WAV" },
+  { value: "flac", title: "FLAC" },
+  { value: "aac", title: "AAC" },
+  { value: "ogg", title: "OGG" },
+  { value: "wma", title: "WMA" },
+  
+  // Archives
+  { value: "zip", title: "ZIP" },
+  { value: "rar", title: "RAR" },
+  { value: "7z", title: "7Z" },
+  { value: "tar", title: "TAR" },
+  { value: "gz", title: "GZ" },
+  
+  // Code/Data
+  { value: "json", title: "JSON" },
+  { value: "xml", title: "XML" },
+  { value: "html", title: "HTML" },
+  { value: "css", title: "CSS" },
+  { value: "js", title: "JavaScript" },
+  { value: "ts", title: "TypeScript" },
+  { value: "jsx", title: "JSX" },
+  { value: "tsx", title: "TSX" },
+  
+  // Other
+  { value: "exe", title: "EXE" },
+  { value: "dmg", title: "DMG" },
+  { value: "apk", title: "APK" },
+  { value: "iso", title: "ISO" }
+];
+
+
   // const userType = [
   //   { value: "Event Attendee", title: "Event Attendee" },
   //   { value: "Exhibiting Company", title: "Exhibiting Company" },
@@ -68,7 +140,7 @@ export function FormFieldAddDrawer({
   // ];
 
   const formik = useFormik({
-    initialValues: {
+        initialValues: {
       fieldName: "",
       fieldType: "",
       isRequired: false,
@@ -87,11 +159,15 @@ export function FormFieldAddDrawer({
       optionValue: "",
       optionName: "",
       optionRequestType: "",
+      fileType : [],
+      fileSize :"",      
     },
+
     validationSchema: Yup.object({
       fieldName: Yup.string().required("Name is required"),
       fieldType: Yup.string().required("Field Type is required"),
     }),
+
     onSubmit: async (values) => {
       try {
         const formData = new FormData();
@@ -143,6 +219,20 @@ export function FormFieldAddDrawer({
               formData.append(field, values[field]);
             }
           });
+          if(values.fileType.length > 0){
+             values.fileType.forEach((type, typeIndex) => {
+              formData.append(
+                `filevalidation[0][fileType][${typeIndex}]`, 
+                type
+              );
+            });
+          }
+          if (values.fileSize) {
+            formData.append(
+              `filevalidation[0][fileSize]`, 
+              values.fileSize
+            );
+          }
 
           const response = await postRequest(
             `update-default-field/${editUser._id}`,
@@ -204,6 +294,20 @@ export function FormFieldAddDrawer({
           values.userFieldMapping.forEach((user, index) => {
             formData.append(`userFieldMapping[${index}]`, user);
           });
+          if(values.fileType.length > 0){
+             values.fileType.forEach((type, typeIndex) => {
+              formData.append(
+                `filevalidation[0][fileType][${typeIndex}]`, 
+                type
+              );
+            });
+          }
+          if (values.fileSize) {
+            formData.append(
+              `filevalidation[0][fileSize]`, 
+              values.fileSize
+            );
+          }
           const response = await postRequest("store-default-field", formData);
 
           if (response.status == 1) {
@@ -273,6 +377,8 @@ export function FormFieldAddDrawer({
         optionName: editUser.optionName,
         optionRequestType: editUser.optionRequestType,
         optionDepending: editUser.optionDepending,
+        fileType: editUser.filevalidation?.[0]?.fileType || [],
+        fileSize: editUser.filevalidation?.[0]?.fileSize || "",
       });
     }
   }, [editUser, isOpen]);
@@ -710,6 +816,51 @@ export function FormFieldAddDrawer({
                       className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                     />
                   </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}            
+            {["file"].includes(formik.values.fieldType) && (
+              <AccordionItem value="File_Validation">
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
+                  }
+                >
+                  File Validation 
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>                 
+                  <div className="space-y-2">
+                    <Label htmlFor="fileType">File Type To validate</Label>
+                    <CustomCombobox
+                      name="fileType"
+                      value={formik.values.fileType}
+                      onChange={(value) =>
+                        formik.setFieldValue("fileType", value)
+                      }
+                      onBlur={() =>
+                        formik.setFieldTouched("fileType", true)
+                      }
+                      valueKey="value"
+                      labelKey="title"
+                      options={fileTypeOptions || []}
+                      search={true}
+                      multiSelect={true}
+                      placeholder="Select  Request Type"
+                      id="fileType"
+                    />                   
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="fileSize">File Minimum Size</Label>
+                    <Input
+                      id="fileSize"
+                      name="fileSize"
+                      placeholder="Enter File Minimum Size in MB"
+                      value={formik.values.fileSize}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>                  
                 </AccordionContent>
               </AccordionItem>
             )}
