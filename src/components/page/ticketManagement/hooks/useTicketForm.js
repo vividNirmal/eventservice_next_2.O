@@ -65,7 +65,7 @@ export const useTicketForm = (editData = null) => {
       
       // First fetch forms for the user type if it exists
       if (editData.userType) {
-        await fetchFormsByUserType(editData.userType);
+        await fetchFormsByUserType(editData.userType._id);
       }
       
       // Helper function to format date for datetime-local input
@@ -89,7 +89,7 @@ export const useTicketForm = (editData = null) => {
         ...editData,
         // Ensure strings for proper form handling
         ticketName: editData.ticketName || null,
-        userType: editData.userType || null,
+        userType: editData.userType?._id || null,
         registrationFormId: editData.registrationFormId?._id || editData.registrationFormId || null,
         ticketCategory: editData.ticketCategory || null,
         serialNoPrefix: editData.serialNoPrefix || null,

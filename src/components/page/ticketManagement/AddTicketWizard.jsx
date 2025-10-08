@@ -170,7 +170,6 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
     const stepErrors = validateStep(currentStep, formData);
     setErrors(stepErrors);
     return Object.keys(stepErrors).length === 0;
-    return true;
   }, [currentStep, formData, setErrors]);
 
   const nextStep = useCallback(() => {
