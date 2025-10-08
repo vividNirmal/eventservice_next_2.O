@@ -476,9 +476,24 @@ const TicketList = ({ eventId }) => {
   }, [fetchTickets, checkFormsAvailability]);
 
   // Memoize copy handler
-  const handleCopyTicketDetails = useCallback((ticket) => {
-    navigator.clipboard.writeText(`Ticket Name: ${ticket.ticketName}, User Type: ${ticket.userType}`);
-    toast.success("Ticket details copied to clipboard!");
+  const handleCopyTicketUrl = useCallback(async (ticket) => {
+    try {
+      const config = await getRequest(`tickets/get-ticket-url/${ticket._id}`,);
+
+      if (config.status == 1) {
+        const encryptedText = config.data;
+        const uniqueUrl =
+          `${window.location.protocol}//` + window.location.host + encryptedText;
+        await navigator.clipboard.writeText(uniqueUrl);
+        toast.success("Ticket URL copied to clipboard!");
+        // setTimeout(() => setCopied(false), 1000);
+      } else {
+        toast.error(config.message || "Failed to get device URL");
+        console.log("Error:", config.message);
+      }
+    } catch (err) {
+      toast.error("Failed to copy URL");
+    }
   }, []);
 
   return (
@@ -848,7 +863,7 @@ const TicketList = ({ eventId }) => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleCopyTicketDetails(ticket)}
+                            onClick={() => handleCopyTicketUrl(ticket)}
                             title="Copy ticket name and user type"
                           >
                             <Copy className="h-4 w-4" />
