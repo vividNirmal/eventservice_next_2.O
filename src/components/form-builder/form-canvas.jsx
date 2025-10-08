@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { SortableElement } from './sortable-element';
@@ -23,14 +23,19 @@ export function FormCanvas({
   onElementDelete,
   selectedElementId,
   onElementSelect,
-  title,
-  description,
+  title = "",
+  description = "",
   onPagetitleUpdate,
 }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [cardtitle, setTitle] = useState(title);
-  const [carddescription, setDescription] = useState(description);
+  const [cardtitle, setTitle] = useState(title || "");
+  const [carddescription, setDescription] = useState(description || "");
 
+  useEffect(() => {
+    setTitle(title || "");
+    setDescription(description || "");
+  }, [title, description]);
+  
   const { setNodeRef, isOver } = useDroppable({
     id: `form-canvas-${pageuniqid}`,
     data: {

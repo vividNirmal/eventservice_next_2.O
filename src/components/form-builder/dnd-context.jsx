@@ -35,9 +35,7 @@ export function DndFormBuilder({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 15, // Increased from 8 to 15 pixels - requires more intentional drag
-        delay: 50, // Added 100ms delay before drag starts
-        tolerance: 5, // Added tolerance for small movements
+        distance: 15, // Increased from 8 to 15 pixels - requires more intentional drag        
       },
     }),
     useSensor(KeyboardSensor, {

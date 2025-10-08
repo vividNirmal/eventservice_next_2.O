@@ -116,10 +116,12 @@ export function ElementProperties({ element, onSave, onClose }) {
         placeHolder: values.placeHolder,
         fieldDescription: values.fieldDescription,
         isRequired: values.isRequired == "yes" ? true : false,
+        specialCharactor :values.specialCharactor == "yes" ? true : false,
         defaultValue: values.defaultValue,
         options: values.options,
         content: values.content,
         headingLevel: values.headingLevel,
+        requiredErrorText : values.requiredErrorText,
         validation: validationRules.filter(
           (rule) => rule.type && (rule.type === "required" || rule.message)
         ),
