@@ -180,6 +180,9 @@ export function ElementProperties({ element, onSave, onClose }) {
       optionRequestType: "",
       fileType : [],
       fileSize :"", 
+      fieldVisibleIf: "",
+      fieldEnableIf: "",
+      fieldRequiredIf: "",
     },
     validationSchema,
     onSubmit: (values) => {
@@ -528,6 +531,95 @@ export function ElementProperties({ element, onSave, onClose }) {
                   </div>
                 </AccordionContent>
               </AccordionItem>
+                <AccordionItem value="field-logic-config">
+              <AccordionTrigger className="text-sm font-medium text-gray-800 hover:no-underline">
+                Field Logic Configure
+              </AccordionTrigger>
+              <AccordionContent className="space-y-0">
+                <Accordion type="single" collapsible className="w-full">
+                  {/* Field Visible If */}
+                  <AccordionItem value="visible" className="border-b">
+                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                      Field Visible If?
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Condition</div>
+                          <div>
+                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                          </div>
+                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                        </div>
+                        <Textarea
+                          name="fieldVisibleIf"
+                          value={formik.values.fieldVisibleIf}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder=""
+                          rows={3}
+                          className="w-full resize-none text-sm"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Field Enable If */}
+                  <AccordionItem value="enable" className="border-b">
+                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                      Field Enable If?
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Condition</div>
+                          <div>
+                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                          </div>
+                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                        </div>
+                        <Textarea
+                          name="fieldEnableIf"
+                          value={formik.values.fieldEnableIf}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder=""
+                          rows={3}
+                          className="w-full resize-none text-sm"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Field Required If */}
+                  <AccordionItem value="required" className="border-b-0">
+                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                      Field Required If?
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Condition</div>
+                          <div>
+                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                          </div>
+                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                        </div>
+                        <Textarea
+                          name="fieldRequiredIf"
+                          value={formik.values.fieldRequiredIf}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder=""
+                          rows={3}
+                          className="w-full resize-none text-sm"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </AccordionContent>
+            </AccordionItem>
               {["radio", "checkbox", "select"].includes(
                 formik.values.fieldType
               ) && (

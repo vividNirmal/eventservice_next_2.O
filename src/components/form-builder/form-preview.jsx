@@ -7,13 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -33,6 +26,156 @@ import { CustomCombobox } from "../common/customcombox";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 /**
+ * Custom hook to fetch dynamic options for select fields
+ */
+const useDynamicOptions = (element) => {
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      // Check if this field has API configuration
+      if (!element.optionUrl || !element.optionPath) {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Construct the full API URL
+        const apiUrl = `${element.optionUrl}`;
+        
+        // Make the API request based on request type
+        let response;
+        if (element.optionRequestType === "GET") {
+          response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+        } else if (element.optionRequestType === "POST") {
+          response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}), // Add any required POST data here
+          });
+        }
+
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Extract the data array from response
+        const dataArray = data.data[element.optionPath] || data.result[element.optionPath] || data[element.optionPath];
+        
+        if (Array.isArray(dataArray)) {
+          // Transform API data to option format
+          const transformedOptions = dataArray.map((item) => ({
+            value: item[element.optionValue || "_id"] || item.id || item.value,
+            title: item[element.optionName || "name"] || item.label || item.title,
+          }));
+          
+          setOptions(transformedOptions);
+        } else {
+          console.error("API response is not an array:", dataArray);
+          setOptions([]);
+        }
+      } catch (err) {
+        console.error("Error fetching dynamic options:", err);
+        setError(err.message);
+        setOptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOptions();
+  }, [element.optionUrl, element.optionPath, element.optionValue, element.optionName, element.optionRequestType]);
+
+  return { options, loading, error };
+};
+
+/**
+ * Dynamic Select Component with API support
+ */
+const DynamicSelect = ({ element, value, onChange, onBlur, error }) => {
+  const { options: apiOptions, loading, error: apiError } = useDynamicOptions(element);
+
+  // Use API options if available, otherwise use static fieldOptions
+  const options = useMemo(() => {
+    if (element.optionUrl && element.optionPath) {
+      return apiOptions;
+    }
+
+    // Transform static options
+    return (element.fieldOptions || []).map((option) => {
+      let parsedOption = option;
+      if (typeof option === "string") {
+        try {
+          parsedOption = JSON.parse(option);
+        } catch (e) {
+          parsedOption = option;
+        }
+      }
+
+      const optionValue =
+        parsedOption.value ||
+        Object.keys(parsedOption)[0] ||
+        parsedOption;
+      const optionLabel =
+        parsedOption.label ||
+        Object.values(parsedOption)[0] ||
+        parsedOption;
+
+      return {
+        value: optionValue,
+        title: optionLabel,
+      };
+    });
+  }, [element.fieldOptions, element.optionUrl, element.optionPath, apiOptions]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 p-2 border rounded-md">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        <span className="text-sm text-muted-foreground">Loading options...</span>
+      </div>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <div className="p-2 border border-red-300 rounded-md bg-red-50">
+        <span className="text-sm text-red-600">Error loading options: {apiError}</span>
+      </div>
+    );
+  }
+
+  return (
+    <CustomCombobox
+      name={element.fieldName}
+      id={element.fieldName}
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      valueKey="value"
+      labelKey="title"
+      search={options.length > 10}
+      options={options}
+      placeholder={element.placeHolder || "Select an option"}
+      className={error ? "border-red-500" : ""}
+    />
+  );
+};
+
+/**
  * Form Preview Component
  * Shows a preview of how the form will look to end users
  */
@@ -43,6 +186,7 @@ function FormPreview() {
   const params = useParams();
   const router = useRouter();
   const formId = params.id;
+
   useEffect(() => {
     fetchForm();
   }, [formId]);
@@ -81,7 +225,13 @@ function FormPreview() {
         const fieldName = element.fieldName;
 
         // Set initial values
-        values[fieldName] = element.fieldType === "checkbox" ? false : "";
+        if (element.fieldType === "checkbox" && element.fieldOptions?.length > 1) {
+          values[fieldName] = [];
+        } else if (element.fieldType === "checkbox") {
+          values[fieldName] = false;
+        } else {
+          values[fieldName] = "";
+        }
 
         // Build validation schema
         let fieldValidation;
@@ -103,7 +253,11 @@ function FormPreview() {
             );
             break;
           case "checkbox":
-            fieldValidation = Yup.boolean();
+            if (element.fieldOptions?.length > 1) {
+              fieldValidation = Yup.array();
+            } else {
+              fieldValidation = Yup.boolean();
+            }
             break;
           default:
             fieldValidation = Yup.string();
@@ -112,10 +266,17 @@ function FormPreview() {
         // Required validation
         if (element.isRequired) {
           if (element.fieldType === "checkbox") {
-            fieldValidation = fieldValidation.oneOf(
-              [true],
-              element.requiredErrorText || "This field is required"
-            );
+            if (element.fieldOptions?.length > 1) {
+              fieldValidation = fieldValidation.min(
+                1,
+                element.requiredErrorText || "This field is required"
+              );
+            } else {
+              fieldValidation = fieldValidation.oneOf(
+                [true],
+                element.requiredErrorText || "This field is required"
+              );
+            }
           } else {
             fieldValidation = fieldValidation.required(
               element.requiredErrorText || "This field is required"
@@ -241,45 +402,13 @@ function FormPreview() {
           );
 
         case "select":
-          const transformedOptions =
-            fieldOptions?.map((option) => {
-              let parsedOption = option;
-              if (typeof option === "string") {
-                try {
-                  parsedOption = JSON.parse(option);
-                } catch (e) {
-                  parsedOption = option;
-                }
-              }
-
-              const optionValue =
-                parsedOption.value ||
-                Object.keys(parsedOption)[0] ||
-                parsedOption;
-              const optionLabel =
-                parsedOption.label ||
-                Object.values(parsedOption)[0] ||
-                parsedOption;
-
-              return {
-                value: optionValue,
-                title: optionLabel,
-              };
-            }) || [];
-
           return (
-            <CustomCombobox
-              name={fieldName}
-              id={fieldName}
+            <DynamicSelect
+              element={element}
               value={value}
               onChange={(val) => formik.setFieldValue(fieldName, val)}
               onBlur={() => formik.setFieldTouched(fieldName, true)}
-              valueKey="value"
-              labelKey="title"
-              search={transformedOptions.length > 10 ? true : false}
-              options={transformedOptions}
-              placeholder={placeHolder || "Select an option"}
-              className={error ? "border-red-500" : ""}
+              error={error}
             />
           );
 
@@ -291,7 +420,6 @@ function FormPreview() {
               onValueChange={(val) => formik.setFieldValue(fieldName, val)}
             >
               {fieldOptions?.map((option, idx) => {
-                // Parse if it's a JSON string
                 let parsedOption = option;
                 if (typeof option === "string") {
                   try {
@@ -301,7 +429,6 @@ function FormPreview() {
                   }
                 }
 
-                // Extract key-value pairs
                 const optionValue =
                   parsedOption.value ||
                   Object.keys(parsedOption)[0] ||
@@ -336,7 +463,6 @@ function FormPreview() {
           return (
             <div className={"flex flex-wrap"}>
               {fieldOptions?.map((option, idx) => {
-                // Parse if it's a JSON string
                 let parsedOption = option;
                 if (typeof option === "string") {
                   try {
@@ -346,7 +472,6 @@ function FormPreview() {
                   }
                 }
 
-                // Extract key-value pairs
                 const optionValue =
                   parsedOption.value ||
                   Object.keys(parsedOption)[0] ||
@@ -356,7 +481,6 @@ function FormPreview() {
                   Object.values(parsedOption)[0] ||
                   parsedOption;
 
-                // Handle array value for multiple checkboxes
                 const isChecked = Array.isArray(value)
                   ? value.includes(optionValue)
                   : value === optionValue;
@@ -415,7 +539,7 @@ function FormPreview() {
                 onBlur={() => formik.setFieldTouched(fieldName, true)}
                 placeholder={placeHolder}
                 theme="snow"
-                className= {error ? "border-red-500" : "w-full min-h-72 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"}
+                className={error ? "border-red-500" : "w-full min-h-72 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"}
               />
             </>
           );
@@ -522,13 +646,11 @@ function FormPreview() {
 
         {form.pages.length > 1 && (
           <div className="relative py-4">
-            {/* Progress Bar */}
             <Progress
               value={progress}
               className="h-2 absolute top-8 bg-muted [&>div]:bg-blue-500"
             />
 
-            {/* Step Indicators */}
             <ul className="flex items-center justify-between">
               {form.pages.map((page, index) => (
                 <li
@@ -567,7 +689,6 @@ function FormPreview() {
           </div>
         )}
 
-        {/* Form Content */}
         <div className="flex-1 overflow-y-auto ">
           <Card>
             <CardHeader className={"!px-0"}>
@@ -590,7 +711,6 @@ function FormPreview() {
           </Card>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between pt-4">
           <Button
             type="button"
@@ -614,8 +734,6 @@ function FormPreview() {
             </Button>
           )}
         </div>
-        {/* </DialogContent>
-        </Dialog> */}
       </div>
     </div>
   );

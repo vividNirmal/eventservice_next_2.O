@@ -23,6 +23,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Textarea } from "@/components/ui/textarea";
 
 export function FormFieldAddDrawer({
   isOpen,
@@ -59,76 +60,75 @@ export function FormFieldAddDrawer({
   ];
 
   const fileTypeOptions = [
-  // Documents
-  { value: "pdf", title: "PDF" },
-  { value: "doc", title: "DOC" },
-  { value: "docx", title: "DOCX" },
-  { value: "txt", title: "TXT" },
-  { value: "rtf", title: "RTF" },
-  { value: "odt", title: "ODT" },
-  
-  // Spreadsheets
-  { value: "xls", title: "XLS" },
-  { value: "xlsx", title: "XLSX" },
-  { value: "csv", title: "CSV" },
-  { value: "ods", title: "ODS" },
-  
-  // Presentations
-  { value: "ppt", title: "PPT" },
-  { value: "pptx", title: "PPTX" },
-  { value: "odp", title: "ODP" },
-  
-  // Images
-  { value: "jpg", title: "JPG" },
-  { value: "jpeg", title: "JPEG" },
-  { value: "png", title: "PNG" },
-  { value: "gif", title: "GIF" },
-  { value: "bmp", title: "BMP" },
-  { value: "svg", title: "SVG" },
-  { value: "webp", title: "WEBP" },
-  { value: "ico", title: "ICO" },
-  
-  // Videos
-  { value: "mp4", title: "MP4" },
-  { value: "avi", title: "AVI" },
-  { value: "mov", title: "MOV" },
-  { value: "wmv", title: "WMV" },
-  { value: "flv", title: "FLV" },
-  { value: "mkv", title: "MKV" },
-  { value: "webm", title: "WEBM" },
-  
-  // Audio
-  { value: "mp3", title: "MP3" },
-  { value: "wav", title: "WAV" },
-  { value: "flac", title: "FLAC" },
-  { value: "aac", title: "AAC" },
-  { value: "ogg", title: "OGG" },
-  { value: "wma", title: "WMA" },
-  
-  // Archives
-  { value: "zip", title: "ZIP" },
-  { value: "rar", title: "RAR" },
-  { value: "7z", title: "7Z" },
-  { value: "tar", title: "TAR" },
-  { value: "gz", title: "GZ" },
-  
-  // Code/Data
-  { value: "json", title: "JSON" },
-  { value: "xml", title: "XML" },
-  { value: "html", title: "HTML" },
-  { value: "css", title: "CSS" },
-  { value: "js", title: "JavaScript" },
-  { value: "ts", title: "TypeScript" },
-  { value: "jsx", title: "JSX" },
-  { value: "tsx", title: "TSX" },
-  
-  // Other
-  { value: "exe", title: "EXE" },
-  { value: "dmg", title: "DMG" },
-  { value: "apk", title: "APK" },
-  { value: "iso", title: "ISO" }
-];
+    // Documents
+    { value: "pdf", title: "PDF" },
+    { value: "doc", title: "DOC" },
+    { value: "docx", title: "DOCX" },
+    { value: "txt", title: "TXT" },
+    { value: "rtf", title: "RTF" },
+    { value: "odt", title: "ODT" },
 
+    // Spreadsheets
+    { value: "xls", title: "XLS" },
+    { value: "xlsx", title: "XLSX" },
+    { value: "csv", title: "CSV" },
+    { value: "ods", title: "ODS" },
+
+    // Presentations
+    { value: "ppt", title: "PPT" },
+    { value: "pptx", title: "PPTX" },
+    { value: "odp", title: "ODP" },
+
+    // Images
+    { value: "jpg", title: "JPG" },
+    { value: "jpeg", title: "JPEG" },
+    { value: "png", title: "PNG" },
+    { value: "gif", title: "GIF" },
+    { value: "bmp", title: "BMP" },
+    { value: "svg", title: "SVG" },
+    { value: "webp", title: "WEBP" },
+    { value: "ico", title: "ICO" },
+
+    // Videos
+    { value: "mp4", title: "MP4" },
+    { value: "avi", title: "AVI" },
+    { value: "mov", title: "MOV" },
+    { value: "wmv", title: "WMV" },
+    { value: "flv", title: "FLV" },
+    { value: "mkv", title: "MKV" },
+    { value: "webm", title: "WEBM" },
+
+    // Audio
+    { value: "mp3", title: "MP3" },
+    { value: "wav", title: "WAV" },
+    { value: "flac", title: "FLAC" },
+    { value: "aac", title: "AAC" },
+    { value: "ogg", title: "OGG" },
+    { value: "wma", title: "WMA" },
+
+    // Archives
+    { value: "zip", title: "ZIP" },
+    { value: "rar", title: "RAR" },
+    { value: "7z", title: "7Z" },
+    { value: "tar", title: "TAR" },
+    { value: "gz", title: "GZ" },
+
+    // Code/Data
+    { value: "json", title: "JSON" },
+    { value: "xml", title: "XML" },
+    { value: "html", title: "HTML" },
+    { value: "css", title: "CSS" },
+    { value: "js", title: "JavaScript" },
+    { value: "ts", title: "TypeScript" },
+    { value: "jsx", title: "JSX" },
+    { value: "tsx", title: "TSX" },
+
+    // Other
+    { value: "exe", title: "EXE" },
+    { value: "dmg", title: "DMG" },
+    { value: "apk", title: "APK" },
+    { value: "iso", title: "ISO" },
+  ];
 
   // const userType = [
   //   { value: "Event Attendee", title: "Event Attendee" },
@@ -140,7 +140,7 @@ export function FormFieldAddDrawer({
   // ];
 
   const formik = useFormik({
-        initialValues: {
+    initialValues: {
       fieldName: "",
       fieldType: "",
       isRequired: false,
@@ -159,8 +159,11 @@ export function FormFieldAddDrawer({
       optionValue: "",
       optionName: "",
       optionRequestType: "",
-      fileType : [],
-      fileSize :"",      
+      fileType: [],
+      fileSize: "",
+      fieldVisibleIf: "",
+      fieldEnableIf: "",
+      fieldRequiredIf: "",
     },
 
     validationSchema: Yup.object({
@@ -219,19 +222,16 @@ export function FormFieldAddDrawer({
               formData.append(field, values[field]);
             }
           });
-          if(values.fileType.length > 0){
-             values.fileType.forEach((type, typeIndex) => {
+          if (values.fileType.length > 0) {
+            values.fileType.forEach((type, typeIndex) => {
               formData.append(
-                `filevalidation[0][fileType][${typeIndex}]`, 
+                `filevalidation[0][fileType][${typeIndex}]`,
                 type
               );
             });
           }
           if (values.fileSize) {
-            formData.append(
-              `filevalidation[0][fileSize]`, 
-              values.fileSize
-            );
+            formData.append(`filevalidation[0][fileSize]`, values.fileSize);
           }
 
           const response = await postRequest(
@@ -294,19 +294,16 @@ export function FormFieldAddDrawer({
           values.userFieldMapping.forEach((user, index) => {
             formData.append(`userFieldMapping[${index}]`, user);
           });
-          if(values.fileType.length > 0){
-             values.fileType.forEach((type, typeIndex) => {
+          if (values.fileType.length > 0) {
+            values.fileType.forEach((type, typeIndex) => {
               formData.append(
-                `filevalidation[0][fileType][${typeIndex}]`, 
+                `filevalidation[0][fileType][${typeIndex}]`,
                 type
               );
             });
           }
           if (values.fileSize) {
-            formData.append(
-              `filevalidation[0][fileSize]`, 
-              values.fileSize
-            );
+            formData.append(`filevalidation[0][fileSize]`, values.fileSize);
           }
           const response = await postRequest("store-default-field", formData);
 
@@ -328,9 +325,7 @@ export function FormFieldAddDrawer({
     if (formik.values.userType.length === 0) {
       return [];
     }
-    return userType.filter((user) =>
-      formik.values.userType.includes(user._id)
-    );
+    return userType.filter((user) => formik.values.userType.includes(user._id));
   };
 
   // Handle user type change - automatically add to userFieldMapping
@@ -344,7 +339,7 @@ export function FormFieldAddDrawer({
   };
 
   useEffect(() => {
-    fetchUserTypes()
+    fetchUserTypes();
     formik.resetForm();
     if (editUser) {
       const parsedOptions = Array.isArray(editUser.fieldOptions)
@@ -384,8 +379,8 @@ export function FormFieldAddDrawer({
   }, [editUser, isOpen]);
 
   const fetchUserTypes = async () => {
-    try {      
-      const response = await getRequest(`user-types`);      
+    try {
+      const response = await getRequest(`user-types`);
       if (response.status === 1) {
         setUserTypes(response.data.userTypes || []);
       }
@@ -652,6 +647,95 @@ export function FormFieldAddDrawer({
                 </div>
               </AccordionContent>
             </AccordionItem>
+            <AccordionItem value="field-logic-config">
+              <AccordionTrigger className="text-sm font-medium text-gray-800 hover:no-underline">
+                Field Logic Configure
+              </AccordionTrigger>
+              <AccordionContent className="space-y-0">
+                <Accordion type="single" collapsible className="w-full">
+                  {/* Field Visible If */}
+                  <AccordionItem value="visible" className="border-b">
+                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                      Field Visible If?
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Condition</div>
+                          <div>
+                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                          </div>
+                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                        </div>
+                        <Textarea
+                          name="fieldVisibleIf"
+                          value={formik.values.fieldVisibleIf}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder=""
+                          rows={3}
+                          className="w-full resize-none text-sm"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Field Enable If */}
+                  <AccordionItem value="enable" className="border-b">
+                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                      Field Enable If?
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Condition</div>
+                          <div>
+                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                          </div>
+                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                        </div>
+                        <Textarea
+                          name="fieldEnableIf"
+                          value={formik.values.fieldEnableIf}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder=""
+                          rows={3}
+                          className="w-full resize-none text-sm"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Field Required If */}
+                  <AccordionItem value="required" className="border-b-0">
+                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                      Field Required If?
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-2">
+                        <div className="text-xs text-gray-400 space-y-1">
+                          <div>Condition</div>
+                          <div>
+                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                          </div>
+                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                        </div>
+                        <Textarea
+                          name="fieldRequiredIf"
+                          value={formik.values.fieldRequiredIf}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          placeholder=""
+                          rows={3}
+                          className="w-full resize-none text-sm"
+                        />
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </AccordionContent>
+            </AccordionItem>
             {["radio", "checkbox", "select"].includes(
               formik.values.fieldType
             ) && (
@@ -818,7 +902,7 @@ export function FormFieldAddDrawer({
                   </div>
                 </AccordionContent>
               </AccordionItem>
-            )}            
+            )}
             {["file"].includes(formik.values.fieldType) && (
               <AccordionItem value="File_Validation">
                 <AccordionTrigger
@@ -826,9 +910,9 @@ export function FormFieldAddDrawer({
                     "hover:no-underline text-sm font-semibold text-gray-700"
                   }
                 >
-                  File Validation 
+                  File Validation
                 </AccordionTrigger>
-                <AccordionContent className={"space-y-5"}>                 
+                <AccordionContent className={"space-y-5"}>
                   <div className="space-y-2">
                     <Label htmlFor="fileType">File Type To validate</Label>
                     <CustomCombobox
@@ -837,9 +921,7 @@ export function FormFieldAddDrawer({
                       onChange={(value) =>
                         formik.setFieldValue("fileType", value)
                       }
-                      onBlur={() =>
-                        formik.setFieldTouched("fileType", true)
-                      }
+                      onBlur={() => formik.setFieldTouched("fileType", true)}
                       valueKey="value"
                       labelKey="title"
                       options={fileTypeOptions || []}
@@ -847,7 +929,7 @@ export function FormFieldAddDrawer({
                       multiSelect={true}
                       placeholder="Select  Request Type"
                       id="fileType"
-                    />                   
+                    />
                   </div>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fileSize">File Minimum Size</Label>
@@ -860,7 +942,7 @@ export function FormFieldAddDrawer({
                       onBlur={formik.handleBlur}
                       className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                     />
-                  </div>                  
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             )}
