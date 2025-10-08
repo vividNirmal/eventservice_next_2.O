@@ -38,6 +38,11 @@ const fieldTypeOptions = [
   { value: "hidden", title: "Hidden" },
   { value: "html", title: "HTML" },
 ];
+ const optionRequestTypeOptions = [
+    { value: "GET", title: "GET" },
+    { value: "POST", title: "POST" },
+    { value: "PUT", title: "PUT" },
+  ];
 const BooleanOptions = [
   { value: "yes", title: "Yes" },
   { value: "no", title: "No" },
@@ -105,9 +110,14 @@ export function ElementProperties({ element, onSave, onClose }) {
       fieldmaxLimit: "",
       fieldTitle: "",
       specialCharactor: false,
+      optionUrl: "",
+      optionPath: "",
+      optionValue: "",
+      optionName: "",
+      optionRequestType: "",
     },
     validationSchema,
-    onSubmit: (values) => {     
+    onSubmit: (values) => {
       const updatedElement = {
         ...element,
         fieldTitle: values.fieldTitle,
@@ -116,12 +126,17 @@ export function ElementProperties({ element, onSave, onClose }) {
         placeHolder: values.placeHolder,
         fieldDescription: values.fieldDescription,
         isRequired: values.isRequired == "yes" ? true : false,
-        specialCharactor :values.specialCharactor == "yes" ? true : false,
+        specialCharactor: values.specialCharactor == "yes" ? true : false,
         defaultValue: values.defaultValue,
         options: values.options,
         content: values.content,
         headingLevel: values.headingLevel,
-        requiredErrorText : values.requiredErrorText,
+        requiredErrorText: values.requiredErrorText,
+        optionUrl: values.optionUrl,
+        optionPath: values.optionPath,
+        optionValue: values.optionValue,
+        optionName: values.optionName,
+        optionRequestType: values.optionRequestType,
         validation: validationRules.filter(
           (rule) => rule.type && (rule.type === "required" || rule.message)
         ),
@@ -166,6 +181,12 @@ export function ElementProperties({ element, onSave, onClose }) {
         fieldmaxLimit: element.fieldmaxLimit,
         specialCharactor: element.specialCharactor === true ? "yes" : "no",
         userFieldMapping: element.userFieldMapping || [],
+         optionUrl: element.optionUrl,
+        optionPath: element.optionPath,
+        optionValue: element.optionValue,
+        optionName: element.optionName,
+        optionRequestType: element.optionRequestType,
+        optionDepending: element.optionDepending,
       });
       setValidationRules(element.validation || []);
     }
@@ -366,79 +387,6 @@ export function ElementProperties({ element, onSave, onClose }) {
                       className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                     />
                   </div>
-                  {["radio", "checkbox", "select"].includes(
-                    formik.values.fieldType
-                  ) && (
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between">
-                        <Label
-                          className={
-                            "text-sm font-semibold text-gray-700 pt-2 pb-0"
-                          }
-                        >
-                          Options
-                        </Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className={"!p-1.5 size-8 shrink-0"}
-                          onClick={() =>
-                            formik.setFieldValue("fieldOptions", [
-                              ...(formik.values.fieldOptions || []),
-                              "",
-                            ])
-                          }
-                        >
-                          <Plus />
-                        </Button>
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        {formik.values.fieldOptions?.map((opt, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <Input
-                              type="text"
-                              value={opt}
-                              className={"h-8 p-2"}
-                              onChange={(e) => {
-                                const newOptions = [
-                                  ...formik.values.fieldOptions,
-                                ];
-                                newOptions[index] = e.target.value;
-                                formik.setFieldValue(
-                                  "fieldOptions",
-                                  newOptions
-                                );
-                              }}
-                              placeholder={`Option ${index + 1}`}
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              className={"!p-1.5 size-8 shrink-0"}
-                              onClick={() => {
-                                const newOptions =
-                                  formik.values.fieldOptions.filter(
-                                    (_, i) => i !== index
-                                  );
-                                formik.setFieldValue(
-                                  "fieldOptions",
-                                  newOptions
-                                );
-                              }}
-                            >
-                              <Trash2 />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                      {formik.touched.fieldOptions &&
-                        formik.errors.fieldOptions && (
-                          <p className="text-sm text-red-500">
-                            {formik.errors.fieldOptions}
-                          </p>
-                        )}
-                    </div>
-                  )}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="generalSettings-2">
@@ -509,6 +457,179 @@ export function ElementProperties({ element, onSave, onClose }) {
                   </div>
                 </AccordionContent>
               </AccordionItem>
+              {["radio", "checkbox", "select"].includes(
+                formik.values.fieldType
+              ) && (
+                <AccordionItem value="generalSettings-4">
+                  <AccordionTrigger
+                    className={
+                      "hover:no-underline text-sm font-semibold text-gray-700"
+                    }
+                  >
+                    Option Configuration
+                  </AccordionTrigger>
+                  <AccordionContent className={"space-y-5"}>
+                    <div className="space-y-2">
+                      <Label>Options</Label>
+
+                      <div className="space-y-2">
+                        {formik.values.fieldOptions?.map((opt, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <Input
+                              type="text"
+                              value={opt}
+                              onChange={(e) => {
+                                const newOptions = [
+                                  ...formik.values.fieldOptions,
+                                ];
+                                newOptions[index] = e.target.value;
+                                formik.setFieldValue(
+                                  "fieldOptions",
+                                  newOptions
+                                );
+                              }}
+                              placeholder={`Option ${index + 1}`}
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={() => {
+                                const newOptions =
+                                  formik.values.fieldOptions.filter(
+                                    (_, i) => i !== index
+                                  );
+                                formik.setFieldValue(
+                                  "fieldOptions",
+                                  newOptions
+                                );
+                              }}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() =>
+                            formik.setFieldValue("fieldOptions", [
+                              ...(formik.values.fieldOptions || []),
+                              "",
+                            ])
+                          }
+                        >
+                          + Add Option
+                        </Button>
+                      </div>
+
+                      {formik.touched.fieldOptions &&
+                        formik.errors.fieldOptions && (
+                          <p className="text-sm text-red-500">
+                            {formik.errors.fieldOptions}
+                          </p>
+                        )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
+              {["select"].includes(formik.values.fieldType) && (
+                <AccordionItem value="OptionRESETFul">
+                  <AccordionTrigger
+                    className={
+                      "hover:no-underline text-sm font-semibold text-gray-700"
+                    }
+                  >
+                    option Configure from RESETFul service
+                  </AccordionTrigger>
+                  <AccordionContent className={"space-y-5"}>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="optionUrl">service Url</Label>
+                      <Input
+                        id="optionUrl"
+                        name="optionUrl"
+                        placeholder="Enter service Url"
+                        value={formik.values.optionUrl}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="optionRequestType">Request Type</Label>
+                      <CustomCombobox
+                        name="optionRequestType"
+                        value={formik.values.optionRequestType}
+                        onChange={(value) =>
+                          formik.setFieldValue("optionRequestType", value)
+                        }
+                        onBlur={() =>
+                          formik.setFieldTouched("optionRequestType", true)
+                        }
+                        valueKey="value"
+                        labelKey="title"
+                        options={optionRequestTypeOptions || []}
+                        search={false}
+                        placeholder="Select  Request Type"
+                        id="optionRequestType"
+                      />
+                      {formik.touched.fieldType && formik.errors.fieldType && (
+                        <p className="text-sm text-red-500">
+                          {formik.errors.fieldType}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="optionPath">Path</Label>
+                      <Input
+                        id="optionPath"
+                        name="optionPath"
+                        placeholder="Enter Path"
+                        value={formik.values.optionPath}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="optionValue">Value Name</Label>
+                      <Input
+                        id="optionValue"
+                        name="optionValue"
+                        placeholder="Enter Value Name"
+                        value={formik.values.optionValue}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="optionName">Text Name</Label>
+                      <Input
+                        id="optionName"
+                        name="optionName"
+                        placeholder="Enter Text Name"
+                        value={formik.values.optionName}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="optionDepending">Field Depending</Label>
+                      <Input
+                        id="optionDepending"
+                        name="optionDepending"
+                        placeholder="Enter Field Name Depending "
+                        value={formik.values.optionDepending}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
             </Accordion>
             {/* Save Button */}
             <div className="pt-4 border-t">

@@ -17,6 +17,12 @@ import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import { CustomCombobox } from "@/components/common/customcombox";
 import { labelToName } from "@/lib/form-utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export function FormFieldAddDrawer({
   isOpen,
@@ -25,6 +31,7 @@ export function FormFieldAddDrawer({
   refetch,
   loading = false,
 }) {
+  const [userType, setUserTypes] = useState([]);
   const fieldTypeOptions = [
     { value: "text", title: "Text" },
     { value: "textarea", title: "Textarea" },
@@ -40,19 +47,25 @@ export function FormFieldAddDrawer({
     { value: "tel", title: "Telephone" },
     { value: "hidden", title: "Hidden" },
   ];
+
+  const optionRequestTypeOptions = [
+    { value: "GET", title: "GET" },
+    { value: "POST", title: "POST" },
+    { value: "PUT", title: "PUT" },
+  ];
   const BooleanOptions = [
     { value: "yes", title: "Yes" },
     { value: "no", title: "No" },
   ];
 
-  const userType = [
-    { value: "Event Attendee", title: "Event Attendee" },
-    { value: "Exhibiting Company", title: "Exhibiting Company" },
-    { value: "Sponsor", title: "Sponsor" },
-    { value: "Speaker", title: "Speaker" },
-    { value: "Service Provider", title: "Service Provider" },
-    { value: "Accompanying", title: "Accompanying" },
-  ];
+  // const userType = [
+  //   { value: "Event Attendee", title: "Event Attendee" },
+  //   { value: "Exhibiting Company", title: "Exhibiting Company" },
+  //   { value: "Sponsor", title: "Sponsor" },
+  //   { value: "Speaker", title: "Speaker" },
+  //   { value: "Service Provider", title: "Service Provider" },
+  //   { value: "Accompanying", title: "Accompanying" },
+  // ];
 
   const formik = useFormik({
     initialValues: {
@@ -69,15 +82,15 @@ export function FormFieldAddDrawer({
       fieldmaxLimit: "",
       fieldTitle: "",
       specialCharactor: false,
+      optionUrl: "",
+      optionPath: "",
+      optionValue: "",
+      optionName: "",
+      optionRequestType: "",
     },
     validationSchema: Yup.object({
       fieldName: Yup.string().required("Name is required"),
       fieldType: Yup.string().required("Field Type is required"),
-      fieldOptions: Yup.array().when("fieldType", {
-        is: (val) => ["radio", "checkbox", "select"].includes(val),
-        then: (schema) => schema.min(1, "At least one option is required"),
-        otherwise: (schema) => schema.notRequired(),
-      }),
     }),
     onSubmit: async (values) => {
       try {
@@ -98,7 +111,7 @@ export function FormFieldAddDrawer({
           if (["radio", "checkbox", "select"].includes(values.fieldType)) {
             values.fieldOptions.forEach((opt, index) => {
               const key = labelToName(opt);
-               const obj = { [key]: opt };
+              const obj = { [key]: opt };
               formData.append(`fieldOptions[${index}]`, obj);
             });
           }
@@ -115,6 +128,11 @@ export function FormFieldAddDrawer({
             "fieldminLimit",
             "fieldmaxLimit",
             "fieldTitle",
+            "optionUrl",
+            "optionPath",
+            "optionValue",
+            "optionName",
+            "optionRequestType",
           ];
           fields.forEach((field) => {
             if (
@@ -152,7 +170,7 @@ export function FormFieldAddDrawer({
           if (["radio", "checkbox", "select"].includes(values.fieldType)) {
             values.fieldOptions.forEach((opt, index) => {
               const key = labelToName(opt);
-               const obj = { [key]: opt };
+              const obj = { [key]: opt };
               formData.append(`fieldOptions[${index}]`, JSON.stringify(obj));
             });
           }
@@ -164,6 +182,11 @@ export function FormFieldAddDrawer({
             "fieldminLimit",
             "fieldmaxLimit",
             "fieldTitle",
+            "optionUrl",
+            "optionPath",
+            "optionValue",
+            "optionName",
+            "optionRequestType",
           ];
           fields.forEach((field) => {
             if (
@@ -202,7 +225,7 @@ export function FormFieldAddDrawer({
       return [];
     }
     return userType.filter((user) =>
-      formik.values.userType.includes(user.value)
+      formik.values.userType.includes(user._id)
     );
   };
 
@@ -217,10 +240,10 @@ export function FormFieldAddDrawer({
   };
 
   useEffect(() => {
+    fetchUserTypes()
     formik.resetForm();
     if (editUser) {
-      const parsedOptions =
-      Array.isArray(editUser.fieldOptions)
+      const parsedOptions = Array.isArray(editUser.fieldOptions)
         ? editUser.fieldOptions.map((opt) => {
             try {
               const obj = JSON.parse(opt); // Parse JSON string
@@ -244,10 +267,27 @@ export function FormFieldAddDrawer({
         fieldmaxLimit: editUser.fieldmaxLimit,
         specialCharactor: editUser.specialCharactor === true ? "yes" : "no",
         userFieldMapping: editUser.userFieldMapping || [],
+        optionUrl: editUser.optionUrl,
+        optionPath: editUser.optionPath,
+        optionValue: editUser.optionValue,
+        optionName: editUser.optionName,
+        optionRequestType: editUser.optionRequestType,
+        optionDepending: editUser.optionDepending,
       });
     }
   }, [editUser, isOpen]);
 
+  const fetchUserTypes = async () => {
+    try {      
+      const response = await getRequest(`user-types`);      
+      if (response.status === 1) {
+        setUserTypes(response.data.userTypes || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user types:", error);
+      toast.error("Failed to fetch user types");
+    }
+  };
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[400px] sm:w-[540px] px-4">
@@ -262,258 +302,418 @@ export function FormFieldAddDrawer({
           onSubmit={formik.handleSubmit}
           className="space-y-4 mt-6 overflow-x-auto"
         >
-          <div className="flex flex-col gap-1">
-            <Label htmlFor="fieldTitle">Field Title</Label>
-            <Input
-              id="fieldTitle"
-              name="fieldTitle"
-              placeholder="Enter field title"
-              value={formik.values.fieldTitle}
-              onChange={handleFieldTitleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-            {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-              <p className="text-sm text-red-500 absolute left-0 -bottom-1">
-                {formik.errors.fieldTitle}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="fieldName">Field Name</Label>
-            <Input
-              id="fieldName"
-              name="fieldName"
-              placeholder="Enter field name"
-              value={formik.values.fieldName}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-            {formik.touched.fieldName && formik.errors.fieldName && (
-              <p className="text-sm text-red-500">{formik.errors.fieldName}</p>
-            )}
-          </div>         
-
-          <div className="space-y-2">
-            <Label htmlFor="fieldType">Field Type</Label>
-            <CustomCombobox
-              name="fieldType"
-              value={formik.values.fieldType}
-              onChange={(value) => formik.setFieldValue("fieldType", value)}
-              onBlur={() => formik.setFieldTouched("fieldType", true)}
-              valueKey="value"
-              labelKey="title"
-              options={fieldTypeOptions || []}
-              placeholder="Select Field Type"
-              id="fieldType"
-            />
-            {formik.touched.fieldType && formik.errors.fieldType && (
-              <p className="text-sm text-red-500">{formik.errors.fieldType}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="isRequired">Is Field Required?</Label>
-            <CustomCombobox
-              name="isRequired"
-              value={formik.values.isRequired}
-              onChange={(value) => formik.setFieldValue("isRequired", value)}
-              valueKey="value"
-              labelKey="title"
-              search={false}
-              options={BooleanOptions || []}
-              placeholder="Select Field Required"
-              id="isRequired"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="isRequired">User To Allow</Label>
-            <CustomCombobox
-              name="userType"
-              value={formik.values.userType}
-              onChange={handleUserTypeChange}
-              onBlur={() => formik.setFieldTouched("userType", true)}
-              valueKey="value"
-              labelKey="title"
-              multiSelect={true}
-              options={userType || []}
-              placeholder="Select User Type to allow"
-              id="userType"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="isRequired">Assign default field to users</Label>
-            <CustomCombobox
-              name="userFieldMapping"
-              value={formik.values.userFieldMapping}
-              onChange={(value) =>
-                formik.setFieldValue("userFieldMapping", value)
-              }
-              onBlur={() => formik.setFieldTouched("userFieldMapping", true)}
-              valueKey="value"
-              labelKey="title"
-              multiSelect={true}
-              options={getFilteredUserTypes()}
-              placeholder={
-                formik.values.userType.length === 0
-                  ? "First select User To Allow"
-                  : "Select User Type to assign"
-              }
-              id="userFieldMapping"
-              disabled={formik.values.userType.length === 0}
-            />
-            {formik.values.userType.length === 0 && (
-              <p className="text-sm text-gray-500">
-                Please select User To Allow first to assign fields
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="placeHolder">Place Holder</Label>
-            <Input
-              id="placeHolder"
-              name="placeHolder"
-              type="text"
-              placeholder="Enter placeHolder address"
-              value={formik.values.placeHolder}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-            {formik.touched.placeHolder && formik.errors.placeHolder && (
-              <p className="text-sm text-red-500">
-                {formik.errors.placeHolder}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="requiredErrorText">Required Error Text</Label>
-            <Input
-              id="requiredErrorText"
-              name="requiredErrorText"
-              type="text"
-              placeholder="Enter requiredErrorText address"
-              value={formik.values.requiredErrorText}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-          </div>
-
-          {["radio", "checkbox", "select"].includes(
-            formik.values.fieldType
-          ) && (
-            <div className="space-y-2">
-              <Label>Options</Label>
-
-              <div className="space-y-2">
-                {formik.values.fieldOptions?.map((opt, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      type="text"
-                      value={opt}
-                      onChange={(e) => {
-                        const newOptions = [...formik.values.fieldOptions];
-                        newOptions[index] = e.target.value;
-                        formik.setFieldValue("fieldOptions", newOptions);
-                      }}
-                      placeholder={`Option ${index + 1}`}
-                    />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => {
-                        const newOptions = formik.values.fieldOptions.filter(
-                          (_, i) => i !== index
-                        );
-                        formik.setFieldValue("fieldOptions", newOptions);
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    formik.setFieldValue("fieldOptions", [
-                      ...(formik.values.fieldOptions || []),
-                      "",
-                    ])
+          <Accordion
+            type="single"
+            collapsible
+            className="w-full"
+            defaultValue="generalSettings-1"
+          >
+            <AccordionItem value="generalSettings-1">
+              <AccordionTrigger
+                className={
+                  "hover:no-underline text-sm font-semibold text-gray-700"
+                }
+              >
+                General settings
+              </AccordionTrigger>
+              <AccordionContent className={"space-y-5"}>
+                <div className="flex flex-col gap-1">
+                  <Label htmlFor="fieldTitle">Field Title</Label>
+                  <Input
+                    id="fieldTitle"
+                    name="fieldTitle"
+                    placeholder="Enter field title"
+                    value={formik.values.fieldTitle}
+                    onChange={handleFieldTitleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                  {formik.touched.fieldTitle && formik.errors.fieldTitle && (
+                    <p className="text-sm text-red-500 absolute left-0 -bottom-1">
+                      {formik.errors.fieldTitle}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fieldName">Field Name</Label>
+                  <Input
+                    id="fieldName"
+                    name="fieldName"
+                    placeholder="Enter field name"
+                    value={formik.values.fieldName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                  {formik.touched.fieldName && formik.errors.fieldName && (
+                    <p className="text-sm text-red-500">
+                      {formik.errors.fieldName}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fieldType">Field Type</Label>
+                  <CustomCombobox
+                    name="fieldType"
+                    value={formik.values.fieldType}
+                    onChange={(value) =>
+                      formik.setFieldValue("fieldType", value)
+                    }
+                    onBlur={() => formik.setFieldTouched("fieldType", true)}
+                    valueKey="value"
+                    labelKey="title"
+                    options={fieldTypeOptions || []}
+                    placeholder="Select Field Type"
+                    id="fieldType"
+                  />
+                  {formik.touched.fieldType && formik.errors.fieldType && (
+                    <p className="text-sm text-red-500">
+                      {formik.errors.fieldType}
+                    </p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="placeHolder">Place Holder</Label>
+                  <Input
+                    id="placeHolder"
+                    name="placeHolder"
+                    type="text"
+                    placeholder="Enter placeHolder address"
+                    value={formik.values.placeHolder}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                  {formik.touched.placeHolder && formik.errors.placeHolder && (
+                    <p className="text-sm text-red-500">
+                      {formik.errors.placeHolder}
+                    </p>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="generalSettings-2">
+              <AccordionTrigger
+                className={
+                  "hover:no-underline text-sm font-semibold text-gray-700"
+                }
+              >
+                Permission settings
+              </AccordionTrigger>
+              <AccordionContent className={"space-y-5"}>
+                <div className="space-y-2">
+                  <Label htmlFor="isRequired">Is Field Required?</Label>
+                  <CustomCombobox
+                    name="isRequired"
+                    value={formik.values.isRequired}
+                    onChange={(value) =>
+                      formik.setFieldValue("isRequired", value)
+                    }
+                    valueKey="value"
+                    labelKey="title"
+                    search={false}
+                    options={BooleanOptions || []}
+                    placeholder="Select Field Required"
+                    id="isRequired"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="isRequired">User To Allow</Label>
+                  <CustomCombobox
+                    name="userType"
+                    value={formik.values.userType}
+                    onChange={handleUserTypeChange}
+                    onBlur={() => formik.setFieldTouched("userType", true)}
+                    valueKey="_id"
+                    labelKey="typeName"
+                    multiSelect={true}
+                    options={userType || []}
+                    placeholder="Select User Type to allow"
+                    id="userType"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="isRequired">
+                    Assign default field to users
+                  </Label>
+                  <CustomCombobox
+                    name="userFieldMapping"
+                    value={formik.values.userFieldMapping}
+                    onChange={(value) =>
+                      formik.setFieldValue("userFieldMapping", value)
+                    }
+                    onBlur={() =>
+                      formik.setFieldTouched("userFieldMapping", true)
+                    }
+                    valueKey="_id"
+                    labelKey="typeName"
+                    multiSelect={true}
+                    options={getFilteredUserTypes()}
+                    placeholder={
+                      formik.values.userType.length === 0
+                        ? "First select User To Allow"
+                        : "Select User Type to assign"
+                    }
+                    id="userFieldMapping"
+                    disabled={formik.values.userType.length === 0}
+                  />
+                  {formik.values.userType.length === 0 && (
+                    <p className="text-sm text-gray-500">
+                      Please select User To Allow first to assign fields
+                    </p>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="generalSettings-3">
+              <AccordionTrigger
+                className={
+                  "hover:no-underline text-sm font-semibold text-gray-700"
+                }
+              >
+                Other settings
+              </AccordionTrigger>
+              <AccordionContent className={"space-y-5"}>
+                <div className="space-y-2">
+                  <Label htmlFor="requiredErrorText">Required Error Text</Label>
+                  <Input
+                    id="requiredErrorText"
+                    name="requiredErrorText"
+                    type="text"
+                    placeholder="Enter requiredErrorText address"
+                    value={formik.values.requiredErrorText}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fieldDescription">Field Description</Label>
+                  <Input
+                    id="fieldDescription"
+                    name="fieldDescription"
+                    type="text"
+                    placeholder="Enter Field Description address"
+                    value={formik.values.fieldDescription}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fieldminLimit">Field Minum length</Label>
+                  <Input
+                    id="fieldminLimit"
+                    name="fieldminLimit"
+                    type="text"
+                    placeholder="Enter Field Minimum Lenght"
+                    value={formik.values.fieldminLimit}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fieldmaxLimit">Field Maximum length </Label>
+                  <Input
+                    id="fieldmaxLimit"
+                    name="fieldmaxLimit"
+                    type="text"
+                    placeholder="Enter Field Maximum Lenght"
+                    value={formik.values.fieldmaxLimit}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="specialCharactor">
+                    Is special Charactor?
+                  </Label>
+                  <CustomCombobox
+                    name="specialCharactor"
+                    value={formik.values.specialCharactor}
+                    onChange={(value) =>
+                      formik.setFieldValue("specialCharactor", value)
+                    }
+                    valueKey="value"
+                    labelKey="title"
+                    search={false}
+                    options={BooleanOptions || []}
+                    placeholder="Select Field Required"
+                    id="specialCharactor"
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            {["radio", "checkbox", "select"].includes(
+              formik.values.fieldType
+            ) && (
+              <AccordionItem value="generalSettings-4">
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
                   }
                 >
-                  + Add Option
-                </Button>
-              </div>
+                  Option Configuration
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>
+                  <div className="space-y-2">
+                    <Label>Options</Label>
 
-              {formik.touched.fieldOptions && formik.errors.fieldOptions && (
-                <p className="text-sm text-red-500">
-                  {formik.errors.fieldOptions}
-                </p>
-              )}
-            </div>
-          )}
+                    <div className="space-y-2">
+                      {formik.values.fieldOptions?.map((opt, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <Input
+                            type="text"
+                            value={opt}
+                            onChange={(e) => {
+                              const newOptions = [
+                                ...formik.values.fieldOptions,
+                              ];
+                              newOptions[index] = e.target.value;
+                              formik.setFieldValue("fieldOptions", newOptions);
+                            }}
+                            placeholder={`Option ${index + 1}`}
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => {
+                              const newOptions =
+                                formik.values.fieldOptions.filter(
+                                  (_, i) => i !== index
+                                );
+                              formik.setFieldValue("fieldOptions", newOptions);
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
 
-          <div className="space-y-2">
-            <Label htmlFor="fieldDescription">Field Description</Label>
-            <Input
-              id="fieldDescription"
-              name="fieldDescription"
-              type="text"
-              placeholder="Enter Field Description address"
-              value={formik.values.fieldDescription}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="fieldminLimit">Field Minum length</Label>
-            <Input
-              id="fieldminLimit"
-              name="fieldminLimit"
-              type="text"
-              placeholder="Enter Field Minimum Lenght"
-              value={formik.values.fieldminLimit}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="fieldmaxLimit">Field Maximum length </Label>
-            <Input
-              id="fieldmaxLimit"
-              name="fieldmaxLimit"
-              type="text"
-              placeholder="Enter Field Maximum Lenght"
-              value={formik.values.fieldmaxLimit}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="specialCharactor">Is special Charactor?</Label>
-            <CustomCombobox
-              name="specialCharactor"
-              value={formik.values.specialCharactor}
-              onChange={(value) =>
-                formik.setFieldValue("specialCharactor", value)
-              }
-              valueKey="value"
-              labelKey="title"
-              search={false}
-              options={BooleanOptions || []}
-              placeholder="Select Field Required"
-              id="specialCharactor"
-            />
-          </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          formik.setFieldValue("fieldOptions", [
+                            ...(formik.values.fieldOptions || []),
+                            "",
+                          ])
+                        }
+                      >
+                        + Add Option
+                      </Button>
+                    </div>
+
+                    {formik.touched.fieldOptions &&
+                      formik.errors.fieldOptions && (
+                        <p className="text-sm text-red-500">
+                          {formik.errors.fieldOptions}
+                        </p>
+                      )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {["select"].includes(formik.values.fieldType) && (
+              <AccordionItem value="OptionRESETFul">
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
+                  }
+                >
+                  option Configure from RESETFul service
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="optionUrl">service Url</Label>
+                    <Input
+                      id="optionUrl"
+                      name="optionUrl"
+                      placeholder="Enter service Url"
+                      value={formik.values.optionUrl}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="optionRequestType">Request Type</Label>
+                    <CustomCombobox
+                      name="optionRequestType"
+                      value={formik.values.optionRequestType}
+                      onChange={(value) =>
+                        formik.setFieldValue("optionRequestType", value)
+                      }
+                      onBlur={() =>
+                        formik.setFieldTouched("optionRequestType", true)
+                      }
+                      valueKey="value"
+                      labelKey="title"
+                      options={optionRequestTypeOptions || []}
+                      search={false}
+                      placeholder="Select  Request Type"
+                      id="optionRequestType"
+                    />
+                    {formik.touched.fieldType && formik.errors.fieldType && (
+                      <p className="text-sm text-red-500">
+                        {formik.errors.fieldType}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="optionPath">Path</Label>
+                    <Input
+                      id="optionPath"
+                      name="optionPath"
+                      placeholder="Enter Path"
+                      value={formik.values.optionPath}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="optionValue">Value Name</Label>
+                    <Input
+                      id="optionValue"
+                      name="optionValue"
+                      placeholder="Enter Value Name"
+                      value={formik.values.optionValue}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="optionName">Text Name</Label>
+                    <Input
+                      id="optionName"
+                      name="optionName"
+                      placeholder="Enter Text Name"
+                      value={formik.values.optionName}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="optionDepending">Field Depending</Label>
+                    <Input
+                      id="optionDepending"
+                      name="optionDepending"
+                      placeholder="Enter Field Name Depending "
+                      value={formik.values.optionDepending}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                    />
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
