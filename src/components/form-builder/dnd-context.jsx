@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -16,7 +16,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { createDefaultElement, generateId } from '@/lib/form-utils';
+import { generateId } from '@/lib/form-utils';
 
 /**
  * DndFormBuilder Component
@@ -27,12 +27,17 @@ export function DndFormBuilder({
   elements, 
   onElementsChange, 
   onAddElement,
-  currentPageIndex // Add current page index prop
+  currentPageIndex 
 }) {
+  const [activeId, setActiveId] = useState(null);
+  const [activeElement, setActiveElement] = useState(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 15, // Increased from 8 to 15 pixels - requires more intentional drag
+        delay: 50, // Added 100ms delay before drag starts
+        tolerance: 5, // Added tolerance for small movements
       },
     }),
     useSensor(KeyboardSensor, {
@@ -41,17 +46,69 @@ export function DndFormBuilder({
   );
 
   const handleDragStart = (event) => {
-    console.log('Drag started:', event);
+    const { active } = event;
+    setActiveId(active.id);
+    
+    // Store the active element for drag overlay
+    if (active.id.startsWith('sidebar-')) {
+      setActiveElement(active.data.current);
+    } else {
+      const element = elements.find(el => el._id === active.id);
+      setActiveElement(element);
+    }
   };
 
   const handleDragOver = (event) => {
-    console.log('Drag over:', event);
+    // You can add visual feedback here if needed
   };
 
   const handleDragEnd = (event) => {
-    const { active, over } = event;        
+    const { active, over } = event;
     
-    if (!over) return;
+    setActiveId(null);
+    setActiveElement(null);
+    
+    // VALIDATION 1: If no drop target at all, cancel the drag
+    if (!over) {
+      console.log('❌ Drop canceled: No drop target');
+      return;
+    }
+
+    // VALIDATION 2: Check if dragging from sidebar
+    if (active.id.startsWith('sidebar-')) {
+      // CRITICAL FIX: Check multiple conditions for sidebar drops
+      const isSidebarDrop = 
+        (over.id && typeof over.id === 'string' && over.id.startsWith('sidebar-')) || // Dropped on sidebar element
+        over.id === 'sidebar-droppable'; // Dropped on sidebar container
+      
+      if (isSidebarDrop) {
+        console.log('❌ Drop canceled: Cannot drop back on sidebar', { overId: over.id });
+        return; // Don't add element - user canceled
+      }
+      
+      // Check if the drop target is valid
+      const isOverCanvas = over.id && typeof over.id === 'string' && over.id.startsWith('form-canvas-');
+      const isOverCanvasElement = over.id && 
+        !over.id.startsWith('sidebar-') && 
+        !over.id.startsWith('form-canvas-') &&
+        !over.id.startsWith('properties-'); // Also exclude properties panel
+      
+      // Only proceed if dropped on canvas area or existing canvas element
+      if (!isOverCanvas && !isOverCanvasElement) {
+        console.log('❌ Drop canceled: Invalid drop zone', {
+          droppedOn: over.id,
+          isOverCanvas,
+          isOverCanvasElement
+        });
+        return; // Cancel the drop
+      }
+      
+      console.log('✅ Valid drop zone detected', {
+        droppedOn: over.id,
+        isOverCanvas,
+        isOverCanvasElement
+      });
+    }
 
     // Extract page index from the canvas ID (form-canvas-{pageIndex})
     const getPageIndexFromCanvasId = (canvasId) => {
@@ -74,11 +131,11 @@ export function DndFormBuilder({
       
       // Check if dropping on canvas or on an existing element
       if (over.id.startsWith('form-canvas-') || !over.id.startsWith('sidebar-')) {
-        const newElemetData = {
+        const newElementData = {
           ...active.data.current,
           _id: generateId()
-        }
-        const newElement = newElemetData;
+        };
+        const newElement = newElementData;
         
         // If dropping on an existing element, insert after it
         if (!over.id.startsWith('form-canvas-') && !over.id.startsWith('sidebar-')) {
@@ -123,6 +180,11 @@ export function DndFormBuilder({
     }
   };
 
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setActiveElement(null);
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -130,6 +192,7 @@ export function DndFormBuilder({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
     >
       <SortableContext 
         items={elements.map(el => el._id)} 
@@ -138,8 +201,17 @@ export function DndFormBuilder({
         {children}
       </SortableContext>
       
-      <DragOverlay>
-        {/* Drag overlay content can be added here if needed */}
+      <DragOverlay dropAnimation={{
+        duration: 200,
+        easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+      }}>
+        {activeElement ? (
+          <div className="bg-white border-2 border-blue-500 rounded-lg p-4 shadow-2xl opacity-90 cursor-grabbing">
+            <div className="text-sm font-medium text-gray-900">
+              {activeElement.fieldTitle || activeElement.fieldName || 'Element'}
+            </div>
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -50,6 +50,7 @@ import {
   ReceiptText,
   File,
   PencilRuler,
+  GripVertical,
   
 } from "lucide-react";
 import {
@@ -60,6 +61,7 @@ import {
 } from "../ui/accordion";
 import { getApiWithParam } from "@/service/viewService";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // icon pass as per field type
 export const fieldTypeIcons = {
@@ -81,15 +83,19 @@ export const fieldTypeIcons = {
 
 // Dreaggable Element
 
+// Update only the DraggableElement component in element-sidebar.jsx
+
 export function DraggableElement({ element, index }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `sidebar-${element?._id}`,
     data: element,
+   
   });
 
   const style = transform
     ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        transition: 'transform 0ms', // Remove transition during drag for immediate feedback
       }
     : undefined;
 
@@ -101,17 +107,26 @@ export function DraggableElement({ element, index }) {
       style={style}
       {...listeners}
       {...attributes}
-      className="group p-2 2xl:p-3 bg-white border border-solid border-gray-200 rounded-md 2xl:rounded-lg cursor-grab shadow active:cursor-grabbing hover:border-blue-300 hover:shadow-sm transition-all duration-200 ease-in"
+      className={cn(
+        "group p-2 2xl:p-3 bg-white border border-solid rounded-md 2xl:rounded-lg",
+        "cursor-grab active:cursor-grabbing",
+        "shadow-sm hover:shadow-md",
+        "transition-all duration-200 ease-in-out",
+        "hover:border-blue-400 hover:bg-blue-50",
+        // Only show drag effects when actually dragging (not on small movements)
+        isDragging ? "opacity-40 scale-95 rotate-2 shadow-xl border-blue-500" : ""
+      )}
     >
       <div className="flex items-center space-x-1 2xl:space-x-2">
         <div className="flex-shrink-0">
           <Icon className="size-4 2xl:size-5 text-gray-600 group-hover:text-blue-600 transition-all duration-200 ease-in" />
         </div>
         <div className="flex-1 min-w-0 border-l border-solid border-gray-200 pl-2">
-          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600">
+          <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
             {element.fieldTitle}
           </p>
         </div>
+        {/* <GripVertical className="size-4 text-gray-400 group-hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" /> */}
       </div>
     </div>
   );
@@ -155,6 +170,13 @@ function ElementGroup({ elements, searchTerm }) {
 export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [defaultElement, setDefaultElement] = useState([]);
+   const { setNodeRef, isOver } = useDroppable({
+    id: 'sidebar-droppable',
+    data: {
+      type: 'sidebar',
+      accepts: [] // Doesn't accept any drops
+    }
+  });
 
   useEffect(() => {
     elementFtch();
@@ -196,7 +218,10 @@ export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
  
 
   return (
-    <div className="w-60 xl:w-80 bg-gray-50 border-r border-gray-200 relative z-10 flex flex-col">
+    <div ref={setNodeRef} className={cn(
+        "w-60 xl:w-80 bg-gray-50 border-r border-gray-200 relative z-10 flex flex-col",
+        isOver && "bg-red-50 border-red-300" // Visual feedback when hovering (red = invalid)
+      )}>
       <Card className="border-0 rounded-none 2xl:p-4 grow">
         <CardHeader className="px-0">
           <CardTitle className="text-sm font-semibold text-gray-700">Form Elements</CardTitle>
