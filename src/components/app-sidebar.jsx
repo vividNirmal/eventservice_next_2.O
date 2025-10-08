@@ -119,6 +119,7 @@ export function AppSidebar({ ...props }) {
           { title: "Forms", url: "/dashboard/form-management" },
           { title: "Ticket Management", url: "/dashboard/ticket-management" },
           { title: "Default Fields", url: "/dashboard/default-fields" },
+          { title: "User Types", url: "/dashboard/user-types" },
         ],
         show: true,
       },

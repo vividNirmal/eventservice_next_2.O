@@ -15,10 +15,6 @@ const TicketList = dynamic(() => import('./TicketList'), {
   loading: () => <div className="flex justify-center items-center h-64">Loading tickets...</div>
 });
 
-const UserTypeMapping = dynamic(() => import('../userType/UserTypeMappingList'), {
-  ssr: false,
-  loading: () => <div className="flex justify-center items-center h-64">Loading user type mapping...</div>
-});
 
 const TicketManagement = ({ eventId }) => {
   const [activeTab, setActiveTab] = useState('forms');
@@ -30,8 +26,6 @@ const TicketManagement = ({ eventId }) => {
         return <FormManagement eventId={eventId} />;
       case 'tickets':
         return <TicketList eventId={eventId} />;
-      case 'user-type-mapping':
-        return <UserTypeMapping eventId={eventId} />;
       default:
         return null;
     }
@@ -52,9 +46,6 @@ const TicketManagement = ({ eventId }) => {
               </TabsTrigger>
               <TabsTrigger value="tickets" className="px-6">
                 Tickets
-              </TabsTrigger>
-              <TabsTrigger value="user-type-mapping" className="px-6">
-                User Type Mapping
               </TabsTrigger>
             </TabsList>
             

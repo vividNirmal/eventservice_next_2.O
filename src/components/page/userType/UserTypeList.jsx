@@ -62,7 +62,7 @@ const userTypeValidationSchema = Yup.object({
     .max(50, "User type name must be less than 50 characters"),
 });
 
-const UserTypeList = ({ eventId }) => {
+const UserTypeList = () => {
   const router = useRouter();
   const [userTypes, setUserTypes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -111,12 +111,10 @@ const UserTypeList = ({ eventId }) => {
   const fetchUserTypes = async () => {
     setLoading(true);
     try {
-      const companyId = localStorage.getItem("companyId");
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: selectedLimit.toString(),
         ...(searchTerm && { search: searchTerm }),
-        ...(companyId && { companyId: companyId }),
       });
 
       const response = await getRequest(`user-types?${params}`);
@@ -137,11 +135,8 @@ const UserTypeList = ({ eventId }) => {
   const handleAddUserType = async (values) => {
     setIsCreating(true);
     try {
-      const companyId = localStorage.getItem("companyId");
       const payload = {
         typeName: values.typeName,
-        companyId: companyId || null,
-        ...(eventId && { eventId: eventId }),
       };
 
       const response = await postRequest("user-types", payload);
@@ -189,10 +184,8 @@ const UserTypeList = ({ eventId }) => {
 
     setIsUpdating(true);
     try {
-      const companyId = localStorage.getItem("companyId");
       const payload = {
         typeName: values.typeName,
-        companyId: companyId || null,
       };
 
       const response = await updateRequest(

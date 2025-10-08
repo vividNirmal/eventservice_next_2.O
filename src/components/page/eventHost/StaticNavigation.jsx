@@ -105,14 +105,6 @@ const StaticNavigation = ({ eventId = null }) => {
           url: actualEventId ? `/dashboard/event-host/${actualEventId}/people` : '/dashboard/people',
           description: 'Manage event participants',
           isActive: activeSection === 'people',
-        },
-        {
-          id: 'userType',
-          label: 'User Type',
-          icon: ShieldUser,
-          url: actualEventId ? `/dashboard/event-host/${actualEventId}/user-type` : '/dashboard/user-type',
-          description: 'Manage User Types',
-          isActive: activeSection === 'userType',
         }
       ]
     },
