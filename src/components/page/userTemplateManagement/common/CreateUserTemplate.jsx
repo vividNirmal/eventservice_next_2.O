@@ -52,7 +52,6 @@ export default function CreateUserTemplate({
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  console.log("templateType>>>>>>>>>>>>>", templateType);
   const isEdit = !!templateId;
 
   const [availableTypes, setAvailableTypes] = useState([]);
@@ -628,9 +627,9 @@ export default function CreateUserTemplate({
                           <span className="text-xs text-gray-500">
                             {formatFileSize(attachment.size)} •{" "}
                             {attachment.mimetype || attachment.type}
-                            {attachment && (
+                            {/* {attachment && (
                               <a href={attachment.path} target="_blank" rel="noopener noreferrer" className="cursor-pointer text-xs text-blue-600 hover:underline pl-1.5">View File</a>
-                            )}
+                            )} */}
                           </span>
                         </div>
                       </div>
