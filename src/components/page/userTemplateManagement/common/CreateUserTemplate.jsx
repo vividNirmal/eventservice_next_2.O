@@ -377,7 +377,7 @@ export default function CreateUserTemplate({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
@@ -395,13 +395,7 @@ export default function CreateUserTemplate({
             <p className="text-zinc-400 text-xs">{isEdit ? `Update your ${getTypeDisplayName(templateType).toLowerCase()} template details.` : `Create a new ${getTypeDisplayName(templateType).toLowerCase()} template for your communications.`}</p>
           </div>
         </div>
-        <div className="flex justify-end gap-4">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> )}
-            {isSubmitting ? "Saving..." : isEdit ? "Update Template" : "Create Template"}
-          </Button>
-          <Button type="button" variant="destructive" onClick={handleCancel} disabled={isSubmitting}>Cancel</Button>
-        </div>
+        
       </div>
 
       <form onSubmit={formik.handleSubmit}>
@@ -765,6 +759,13 @@ export default function CreateUserTemplate({
               </Card>
             </div>
           )}
+        </div>
+        <div className="flex justify-end gap-4 absolute top-0 right-0 z-1">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && ( <Loader2 className="mr-2 h-4 w-4 animate-spin" /> )}
+            {isSubmitting ? "Saving..." : isEdit ? "Update Template" : "Create Template"}
+          </Button>
+          <Button type="button" variant="destructive" onClick={handleCancel} disabled={isSubmitting}>Cancel</Button>
         </div>
       </form>
     </div>
