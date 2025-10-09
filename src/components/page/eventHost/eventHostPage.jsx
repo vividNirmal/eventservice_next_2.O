@@ -480,20 +480,8 @@ const EventHostPage = () => {
       <div className="flex-1">
         {/* Search Bar */}
         <div className="mb-4 flex flex-wrap items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="w-2/4 grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2"
-          />
-          <Button
-            className="w-fit h-10 border border-solid border-black"
-            onClick={handleAddEvent}
-            size="lg"
-          >
-            Add New Event
-          </Button>
+          <input type="text" placeholder="Search events..." value={searchQuery} onChange={handleSearch} className="w-2/4 grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2" />
+          <Button className="w-fit h-10" onClick={handleAddEvent} size="lg">Add New Event</Button>
         </div>
         {/* Filter Buttons */}
         <div className="w-full space-y-4">

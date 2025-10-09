@@ -750,18 +750,18 @@ function FormPreview() {
   }
 
   return (
-    <div className="bg-zinc-50">
-      <div className="max-w-6xl mx-auto py-9 ">
-        <Button type="button" variant="outline" onClick={() => router.back()}>
+    <div className="h-svh overflow-auto flex flex-col bg-no-repeat bg-cover bg-center" style={{ backgroundImage: "url('/assets/images/form-bg.png')" }}>
+      <div className="max-w-6xl mx-auto w-full py-9 flex flex-col h-96 grow gap-y-4">
+        <Button className={'w-24'} type="button" variant="outline" onClick={() => router.back()}>
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
 
         {form.pages.length > 1 && (
-          <div className="relative py-4">
+          <div className="relative">
             <Progress
               value={progress}
-              className="h-2 absolute top-8 bg-muted [&>div]:bg-blue-500"
+              className="h-2 absolute top-5 bg-muted [&>div]:bg-blue-500"
             />
 
             <ul className="flex items-center justify-between">
@@ -802,7 +802,7 @@ function FormPreview() {
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto ">
+        <div className="flex flex-col h-96 grow overflow-auto">
           <Card>
             <CardHeader className={"!px-0"}>
               <CardTitle>{currentPage.name}</CardTitle>

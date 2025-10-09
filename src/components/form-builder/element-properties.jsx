@@ -359,74 +359,41 @@ useEffect(() => {
     <div className="w-60 xl:w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
       <Card className="border-0 rounded-none grow gap-0 xl:gap-0 2xl:p-4">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
-          <CardTitle className="text-base xl:text-lg">
-            Element Properties
-          </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={"!p-0"}
-            onClick={onClose}
-          >
+          <CardTitle className="text-base xl:text-lg">Element Properties</CardTitle>
+          <Button variant="ghost" size="sm" className={"!p-0"} onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
-
         <CardContent className="space-y-6">
           <form onSubmit={formik.handleSubmit}>
-            <Accordion
-              type="single"
-              collapsible
-              className="w-full"
-              defaultValue="generalSettings-1"
-            >
+            <Accordion type="single" collapsible className="w-full" defaultValue="generalSettings-1">
               <AccordionItem value="generalSettings-1">
-                <AccordionTrigger
-                  className={
-                    "hover:no-underline text-sm font-semibold text-gray-700"
-                  }
-                >
-                  General settings
-                </AccordionTrigger>
+                <AccordionTrigger className={"hover:no-underline text-sm font-semibold text-gray-700"}>General settings</AccordionTrigger>
                 <AccordionContent className={"space-y-5"}>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldTitle">Field Title</Label>
-                    <Input
-                      id="fieldTitle"
-                      name="fieldTitle"
-                      placeholder="Enter field title"
-                      value={formik.values.fieldTitle}
-                      onChange={handleFieldTitleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
-                    {formik.touched.fieldTitle && formik.errors.fieldTitle && (
-                      <p className="text-sm text-red-500 absolute left-0 -bottom-1">
-                        {formik.errors.fieldTitle}
-                      </p>
-                    )}
+                    <div className="relative pb-3.5">
+                      <Input id="fieldTitle" name="fieldTitle" placeholder="Enter field title" value={formik.values.fieldTitle} onChange={handleFieldTitleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
+                      {formik.touched.fieldTitle && formik.errors.fieldTitle && (
+                        <p className="text-xs text-red-500 absolute left-0 -bottom-1">{formik.errors.fieldTitle}</p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldName">Field Name</Label>
-                    <Input
-                      id="fieldName"
-                      name="fieldName"
-                      placeholder="Enter field name"
-                      value={formik.values.fieldName}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
-                    {formik.touched.fieldName && formik.errors.fieldName && (
-                      <p className="text-sm text-red-500">
-                        {formik.errors.fieldName}
-                      </p>
-                    )}
+                    <div className="relative pb-3.5">
+                      <Input id="fieldName" name="fieldName" placeholder="Enter field name" value={formik.values.fieldName} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
+                      {formik.touched.fieldName && formik.errors.fieldName && (
+                        <p className="text-xs text-red-500 absolute left-0 -bottom-1">
+                          {formik.errors.fieldName}
+                        </p>
+                      )}
+                    </div>
                   </div>
 
                   {["html"].includes(formik.values.fieldType) ? (
                     <div>
-                      <Button variant="ghost" type="button" >
+                      <Button variant="ghost" type="button">
                         <Pencil />
                       </Button>
                     </div>
@@ -458,236 +425,107 @@ useEffect(() => {
                       </div>
                       <div className="flex flex-col gap-1">
                         <Label htmlFor="isRequired">Is Field Required?</Label>
-                        <CustomCombobox
-                          name="isRequired"
-                          value={formik.values.isRequired}
-                          onChange={(value) =>
-                            formik.setFieldValue("isRequired", value)
-                          }
-                          valueKey="value"
-                          labelKey="title"
-                          search={false}
-                          options={BooleanOptions || []}
-                          placeholder="Select Field Required"
-                          id="isRequired"
-                        />
+                        <CustomCombobox name="isRequired" value={formik.values.isRequired} onChange={(value) => formik.setFieldValue("isRequired", value)} valueKey="value" labelKey="title" search={false} options={BooleanOptions || []} placeholder="Select Field Required" id="isRequired" />
                       </div>
                       <div className="flex flex-col gap-1">
                         <Label htmlFor="placeHolder">Place Holder</Label>
-                        <Input
-                          id="placeHolder"
-                          name="placeHolder"
-                          type="text"
-                          placeholder="Enter placeHolder address"
-                          value={formik.values.placeHolder}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                        />
-                        {formik.touched.placeHolder &&
-                          formik.errors.placeHolder && (
-                            <p className="text-sm text-red-500">
-                              {formik.errors.placeHolder}
-                            </p>
-                          )}
+                        <div className="relative pb-3.5">
+                          <Input id="placeHolder" name="placeHolder" type="text" placeholder="Enter placeHolder address" value={formik.values.placeHolder} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
+                          {formik.touched.placeHolder && formik.errors.placeHolder && (<p className="text-xs text-red-500 absolute left-0 -bottom-1">{formik.errors.placeHolder}</p>)}
+                        </div>
                       </div>
                       <div className="flex flex-col gap-1">
-                        <Label htmlFor="requiredErrorText">
-                          Required Error Text
-                        </Label>
-                        <Input
-                          id="requiredErrorText"
-                          name="requiredErrorText"
-                          type="text"
-                          placeholder="Enter requiredErrorText address"
-                          value={formik.values.requiredErrorText}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                        />
+                        <Label htmlFor="requiredErrorText">Required Error Text</Label>
+                        <Input id="requiredErrorText" name="requiredErrorText" type="text" placeholder="Enter requiredErrorText address" value={formik.values.requiredErrorText} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                       </div>
                     </>
                   )}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="generalSettings-2">
-                <AccordionTrigger
-                  className={
-                    "hover:no-underline text-sm font-semibold text-gray-700"
-                  }
-                >
+                <AccordionTrigger className={"hover:no-underline text-sm font-semibold text-gray-700"}>
                   Other settings
                 </AccordionTrigger>
                 <AccordionContent className={"space-y-5"}>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldDescription">Field Description</Label>
-                    <Input
-                      id="fieldDescription"
-                      name="fieldDescription"
-                      type="text"
-                      placeholder="Enter Field Description address"
-                      value={formik.values.fieldDescription}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
+                    <Input id="fieldDescription" name="fieldDescription" type="text" placeholder="Enter Field Description address" value={formik.values.fieldDescription} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                   </div>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldminLimit">Field Minum length</Label>
-                    <Input
-                      id="fieldminLimit"
-                      name="fieldminLimit"
-                      type="text"
-                      placeholder="Enter Field Minimum Lenght"
-                      value={formik.values.fieldminLimit}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
+                    <Input id="fieldminLimit" name="fieldminLimit" type="text" placeholder="Enter Field Minimum Lenght" value={formik.values.fieldminLimit} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                   </div>
                   <div className="flex flex-col gap-1">
                     <Label htmlFor="fieldmaxLimit">Field Maximum length </Label>
-                    <Input
-                      id="fieldmaxLimit"
-                      name="fieldmaxLimit"
-                      type="text"
-                      placeholder="Enter Field Maximum Lenght"
-                      value={formik.values.fieldmaxLimit}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
+                    <Input id="fieldmaxLimit" name="fieldmaxLimit" type="text" placeholder="Enter Field Maximum Lenght" value={formik.values.fieldmaxLimit} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <Label htmlFor="specialCharactor">
-                      Is special Charactor?
-                    </Label>
-                    <CustomCombobox
-                      name="specialCharactor"
-                      value={formik.values.specialCharactor}
-                      onChange={(value) =>
-                        formik.setFieldValue("specialCharactor", value)
-                      }
-                      valueKey="value"
-                      labelKey="title"
-                      search={false}
-                      options={BooleanOptions || []}
-                      placeholder="Select Field Required"
-                      id="specialCharactor"
-                    />
+                    <Label htmlFor="specialCharactor">Is special Charactor?</Label>
+                    <CustomCombobox name="specialCharactor" value={formik.values.specialCharactor} onChange={(value) => formik.setFieldValue("specialCharactor", value)} valueKey="value" labelKey="title" search={false} options={BooleanOptions || []} placeholder="Select Field Required" id="specialCharactor" />
                   </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="field-logic-config">
-                <AccordionTrigger className="text-sm font-medium text-gray-800 hover:no-underline">
-                  Field Logic Configure
-                </AccordionTrigger>
+                <AccordionTrigger className="text-sm font-medium text-gray-800 hover:no-underline">Field Logic Configure</AccordionTrigger>
                 <AccordionContent className="space-y-0">
                   <Accordion type="single" collapsible className="w-full">
                     {/* Field Visible If */}
                     <AccordionItem value="visible" className="border-b">
-                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
-                        Field Visible If?
-                      </AccordionTrigger>
+                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">Field Visible If?</AccordionTrigger>
                       <AccordionContent className="pb-4">
                         <div className="space-y-2">
                           <div className="text-xs text-gray-400 space-y-1">
                             <div>Condition</div>
-                            <div>
-                              Ex- {"{openTime}"} &lt; {"{closeTime}"}
-                            </div>
+                            <div>Ex- {"{openTime}"} &lt; {"{closeTime}"}</div>
                             <div>Ex- {"{openTime}"} &gt; 08:00</div>
                           </div>
-                          <Textarea
-                            name="fieldVisibleIf"
-                            value={formik.values.fieldVisibleIf}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            placeholder=""
-                            rows={3}
-                            className="w-full resize-none text-sm"
-                          />
+                          <Textarea name="fieldVisibleIf" value={formik.values.fieldVisibleIf} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="" rows={3} className="w-full resize-none text-sm" />
                         </div>
                       </AccordionContent>
                     </AccordionItem>
 
                     {/* Field Enable If */}
                     <AccordionItem value="enable" className="border-b">
-                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
-                        Field Enable If?
-                      </AccordionTrigger>
+                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">Field Enable If?</AccordionTrigger>
                       <AccordionContent className="pb-4">
                         <div className="space-y-2">
                           <div className="text-xs text-gray-400 space-y-1">
                             <div>Condition</div>
-                            <div>
-                              Ex- {"{openTime}"} &lt; {"{closeTime}"}
-                            </div>
+                            <div>Ex- {"{openTime}"} &lt; {"{closeTime}"}</div>
                             <div>Ex- {"{openTime}"} &gt; 08:00</div>
                           </div>
-                          <Textarea
-                            name="fieldEnableIf"
-                            value={formik.values.fieldEnableIf}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            placeholder=""
-                            rows={3}
-                            className="w-full resize-none text-sm"
-                          />
+                          <Textarea name="fieldEnableIf" value={formik.values.fieldEnableIf} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="" rows={3} className="w-full resize-none text-sm" />
                         </div>
                       </AccordionContent>
                     </AccordionItem>
 
                     {/* Field Required If */}
                     <AccordionItem value="required" className="border-b-0">
-                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
-                        Field Required If?
-                      </AccordionTrigger>
+                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">Field Required If?</AccordionTrigger>
                       <AccordionContent className="pb-4">
                         <div className="space-y-2">
                           <div className="text-xs text-gray-400 space-y-1">
                             <div>Condition</div>
-                            <div>
-                              Ex- {"{openTime}"} &lt; {"{closeTime}"}
-                            </div>
+                            <div>Ex- {"{openTime}"} &lt; {"{closeTime}"}</div>
                             <div>Ex- {"{openTime}"} &gt; 08:00</div>
                           </div>
-                          <Textarea
-                            name="fieldRequiredIf"
-                            value={formik.values.fieldRequiredIf}
-                            onChange={formik.handleChange}
-                            onBlur={formik.handleBlur}
-                            placeholder=""
-                            rows={3}
-                            className="w-full resize-none text-sm"
-                          />
+                          <Textarea name="fieldRequiredIf" value={formik.values.fieldRequiredIf} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="" rows={3} className="w-full resize-none text-sm" />
                         </div>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
                 </AccordionContent>
               </AccordionItem>
-              {["radio", "checkbox", "select"].includes(
-                formik.values.fieldType
-              ) && (
+              {["radio", "checkbox", "select"].includes(formik.values.fieldType) && (
                 <AccordionItem value="generalSettings-4">
-                  <AccordionTrigger
-                    className={
-                      "hover:no-underline text-sm font-semibold text-gray-700"
-                    }
-                  >
-                    Option Configuration
-                  </AccordionTrigger>
+                  <AccordionTrigger className={"hover:no-underline text-sm font-semibold text-gray-700"}>Option Configuration</AccordionTrigger>
                   <AccordionContent className={"space-y-5"}>
                     <div className="space-y-2">
                       <Label>Options</Label>
-
                       <div className="space-y-2">
                         {formik.values.fieldOptions?.map((opt, index) => (
                           <div key={index} className="flex items-center gap-2">
-                            <Input
-                              type="text"
-                              value={opt}
+                            <Input type="text" value={opt}
                               onChange={(e) => {
                                 const newOptions = [
                                   ...formik.values.fieldOptions,
@@ -700,9 +538,7 @@ useEffect(() => {
                               }}
                               placeholder={`Option ${index + 1}`}
                             />
-                            <Button
-                              type="button"
-                              variant="destructive"
+                            <Button type="button" variant="destructive"
                               onClick={() => {
                                 const newOptions =
                                   formik.values.fieldOptions.filter(
@@ -719,9 +555,7 @@ useEffect(() => {
                           </div>
                         ))}
 
-                        <Button
-                          type="button"
-                          variant="outline"
+                        <Button type="button" variant="outline"
                           onClick={() =>
                             formik.setFieldValue("fieldOptions", [
                               ...(formik.values.fieldOptions || []),
@@ -734,36 +568,19 @@ useEffect(() => {
                       </div>
 
                       {formik.touched.fieldOptions &&
-                        formik.errors.fieldOptions && (
-                          <p className="text-sm text-red-500">
-                            {formik.errors.fieldOptions}
-                          </p>
-                        )}
+                        formik.errors.fieldOptions && (<p className="text-sm text-red-500">{formik.errors.fieldOptions}</p>)
+                      }
                     </div>
                   </AccordionContent>
                 </AccordionItem>
               )}
               {["select"].includes(formik.values.fieldType) && (
                 <AccordionItem value="OptionRESETFul">
-                  <AccordionTrigger
-                    className={
-                      "hover:no-underline text-sm font-semibold text-gray-700"
-                    }
-                  >
-                    option Configure from RESETFul service
-                  </AccordionTrigger>
+                  <AccordionTrigger className={"hover:no-underline text-sm font-semibold text-gray-700"}>option Configure from RESETFul service</AccordionTrigger>
                   <AccordionContent className={"space-y-5"}>
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="optionUrl">service Url</Label>
-                      <Input
-                        id="optionUrl"
-                        name="optionUrl"
-                        placeholder="Enter service Url"
-                        value={formik.values.optionUrl}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                      />
+                      <Input id="optionUrl" name="optionUrl" placeholder="Enter service Url" value={formik.values.optionUrl} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="optionRequestType">Request Type</Label>
@@ -784,71 +601,31 @@ useEffect(() => {
                         id="optionRequestType"
                       />
                       {formik.touched.fieldType && formik.errors.fieldType && (
-                        <p className="text-sm text-red-500">
-                          {formik.errors.fieldType}
-                        </p>
+                        <p className="text-sm text-red-500">{formik.errors.fieldType}</p>
                       )}
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="optionPath">Path</Label>
-                      <Input
-                        id="optionPath"
-                        name="optionPath"
-                        placeholder="Enter Path"
-                        value={formik.values.optionPath}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                      />
+                      <Input id="optionPath" name="optionPath" placeholder="Enter Path" value={formik.values.optionPath} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="optionValue">Value Name</Label>
-                      <Input
-                        id="optionValue"
-                        name="optionValue"
-                        placeholder="Enter Value Name"
-                        value={formik.values.optionValue}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                      />
+                      <Input id="optionValue" name="optionValue" placeholder="Enter Value Name" value={formik.values.optionValue} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="optionName">Text Name</Label>
-                      <Input
-                        id="optionName"
-                        name="optionName"
-                        placeholder="Enter Text Name"
-                        value={formik.values.optionName}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                      />
+                      <Input id="optionName" name="optionName" placeholder="Enter Text Name" value={formik.values.optionName} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="optionDepending">Field Depending</Label>
-                      <Input
-                        id="optionDepending"
-                        name="optionDepending"
-                        placeholder="Enter Field Name Depending "
-                        value={formik.values.optionDepending}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                      />
+                      <Input id="optionDepending" name="optionDepending" placeholder="Enter Field Name Depending " value={formik.values.optionDepending} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200" />
                     </div>
                   </AccordionContent>
                 </AccordionItem>
               )}
               {["file"].includes(formik.values.fieldType) && (
                 <AccordionItem value="File_Validation">
-                  <AccordionTrigger
-                    className={
-                      "hover:no-underline text-sm font-semibold text-gray-700"
-                    }
-                  >
-                    File Validation
-                  </AccordionTrigger>
+                  <AccordionTrigger className={"hover:no-underline text-sm font-semibold text-gray-700"}>File Validation</AccordionTrigger>
                   <AccordionContent className={"space-y-5"}>
                     <div className="space-y-2">
                       <Label htmlFor="fileType">File Type To validate</Label>
@@ -870,15 +647,7 @@ useEffect(() => {
                     </div>
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="fileSize">File Minimum Size</Label>
-                      <Input
-                        id="fileSize"
-                        name="fileSize"
-                        placeholder="Enter File Minimum Size in MB"
-                        value={formik.values.fileSize}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                      />
+                      <Input id="fileSize" name="fileSize" placeholder="Enter File Minimum Size in MB" value={formik.values.fileSize} onChange={formik.handleChange} onBlur={formik.handleBlur} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"/>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -886,9 +655,7 @@ useEffect(() => {
             </Accordion>
             {/* Save Button */}
             <div className="pt-4 border-t">
-              <Button type="submit" className="w-full">
-                Save Changes
-              </Button>
+              <Button type="submit" className="w-full">Save Changes</Button>
             </div>
           </form>
         </CardContent>
