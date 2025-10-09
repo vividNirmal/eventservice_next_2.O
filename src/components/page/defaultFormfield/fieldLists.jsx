@@ -142,10 +142,7 @@ export default function FieldLists() {
       setDeleteDialog({ open: true, users: Array.from(selectedUsers) });
     }
   };
-
-  const handleStatusChange = (user) => {
-    setStatusDialog({ open: true, user });
-  };
+ 
 
   const handleFormSubmit = async (formData) => {
     if (formData) {
@@ -156,8 +153,8 @@ export default function FieldLists() {
   const confirmDelete = async () => {
     try {
       const formData = new FormData();
-      formData.append("users_ids[]", deleteDialog.users);
-      const result = await postRequest("delete-admin-user", formData);
+      formData.append("filed_ids[]", deleteDialog.users);
+      const result = await postRequest("default-fields/delete", formData);
       if (result.status == 1) {
         toast.success("Users deleted successfully");
         setSelectedUsers(new Set());

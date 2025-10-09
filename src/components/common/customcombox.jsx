@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useRef, useLayoutEffect } from "react";
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from "react";
+import { FixedSizeList as List } from "react-window";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,7 +19,11 @@ import {
   CommandList,
   CommandGroup,
 } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 
 const ITEM_HEIGHT = 36;
@@ -51,13 +62,20 @@ export function CustomCombobox({
   }, [open, options, value, className]);
 
   const normalizedValue = useMemo(() => {
-    return multiSelect ? (Array.isArray(value) ? value : []) : value ? [value] : [];
+    return multiSelect
+      ? Array.isArray(value)
+        ? value
+        : []
+      : value
+      ? [value]
+      : [];
   }, [value, multiSelect]);
 
   const filteredOptions = useMemo(() => {
     if (!searchTerm) return options;
-    return options.filter((opt) => 
-      opt[labelKey]?.toLowerCase().includes(searchTerm.toLowerCase())
+    const lower = searchTerm.toLowerCase();
+    return options.filter((opt) =>
+      opt[labelKey]?.toLowerCase().includes(lower)
     );
   }, [options, searchTerm, labelKey]);
 
@@ -113,9 +131,9 @@ export function CustomCombobox({
       return (
         <div className="flex flex-wrap gap-1 overflow-hidden">
           {selectedOptions.map((opt) => (
-            <Badge 
-              key={opt[valueKey]} 
-              variant="secondary" 
+            <Badge
+              key={opt[valueKey]}
+              variant="secondary"
               className="text-xs max-w-[120px] truncate"
             >
               <span className="truncate">{opt[labelKey]}</span>
@@ -162,6 +180,35 @@ export function CustomCombobox({
     multiSelect,
   ]);
 
+  // Virtualized Row Renderer
+  const Row = ({ index, style }) => {
+    const opt = filteredOptions[index];
+    const isSelected = normalizedValue.includes(opt[valueKey]);
+    const isDisabled = opt[disabledKey];
+
+    return (
+      <div style={style} key={opt[valueKey]}>
+        <CommandItem
+          value={opt[labelKey]}
+          onSelect={() => !isDisabled && handleSelect(opt[valueKey])}
+          disabled={isDisabled}
+          className={cn(
+            "flex items-center justify-between px-3 py-2 text-sm",
+            isDisabled && "opacity-50 cursor-not-allowed"
+          )}
+        >
+          <span className="flex-1 truncate">{opt[labelKey]}</span>
+          <Check
+            className={cn(
+              "ml-2 h-4 w-4 flex-shrink-0",
+              isSelected ? "opacity-100" : "opacity-0"
+            )}
+          />
+        </CommandItem>
+      </div>
+    );
+  };
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
@@ -180,13 +227,15 @@ export function CustomCombobox({
           id={id}
         >
           <div className="flex-1 text-left overflow-hidden">
-            {renderTriggerContent ? renderTriggerContent() : defaultDisplayContent}
+            {renderTriggerContent
+              ? renderTriggerContent()
+              : defaultDisplayContent}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="p-0 w-full min-w-[var(--radix-popover-trigger-width)]" 
+      <PopoverContent
+        className="p-0 w-full min-w-[var(--radix-popover-trigger-width)]"
         align="start"
         style={{ width: triggerWidth > 0 ? triggerWidth : "auto" }}
       >
@@ -208,31 +257,19 @@ export function CustomCombobox({
               </CommandEmpty>
             ) : (
               <CommandGroup>
-                {filteredOptions.map((opt) => {
-                  const isSelected = normalizedValue.includes(opt[valueKey]);
-                  const isDisabled = opt[disabledKey];
-
-                  return (
-                    <CommandItem
-                      key={opt[valueKey]}
-                      value={opt[labelKey]}
-                      onSelect={() => !isDisabled && handleSelect(opt[valueKey])}
-                      disabled={isDisabled}
-                      className={cn(
-                        "flex items-center justify-between px-3 py-2 text-sm",
-                        isDisabled && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                      <span className="flex-1 truncate">{opt[labelKey]}</span>
-                      <Check 
-                        className={cn(
-                          "ml-2 h-4 w-4 flex-shrink-0", 
-                          isSelected ? "opacity-100" : "opacity-0"
-                        )} 
-                      />
-                    </CommandItem>
-                  );
-                })}
+                <div className="relative w-full">
+                  <List
+                    height={Math.min(
+                      filteredOptions.length * ITEM_HEIGHT,
+                      MAX_HEIGHT
+                    )}
+                    itemCount={filteredOptions.length}
+                    itemSize={ITEM_HEIGHT}
+                    width="100%"
+                  >
+                    {Row}
+                  </List>
+                </div>
               </CommandGroup>
             )}
           </CommandList>
