@@ -179,11 +179,13 @@ export function ElementProperties({ element, onSave, onClose }) {
     optionValue: "",
     optionName: "",
     optionRequestType: "",
+    optionDepending:"",
     fileType: [],
     fileSize: "",
     fieldVisibleIf: "",
     fieldEnableIf: "",
     fieldRequiredIf: "",
+
     // ====> ADDED <====
     fieldConfigration: [],
   },
@@ -249,6 +251,7 @@ export function ElementProperties({ element, onSave, onClose }) {
     if (values.optionPath) updatedElement.optionPath = values.optionPath;
     if (values.optionValue) updatedElement.optionValue = values.optionValue;
     if (values.optionName) updatedElement.optionName = values.optionName;
+    if (values.optionDepending) updatedElement.optionDepending = values.optionDepending;
     if (values.optionRequestType)
       updatedElement.optionRequestType = values.optionRequestType;
 

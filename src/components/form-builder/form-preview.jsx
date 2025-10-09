@@ -26,9 +26,9 @@ import { CustomCombobox } from "../common/customcombox";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 /**
- * Custom hook to fetch dynamic options for select fields
+ * Custom hook to fetch dynamic options for select fields with dependency support
  */
-const useDynamicOptions = (element) => {
+const useDynamicOptions = (element, dependentValue) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -40,12 +40,21 @@ const useDynamicOptions = (element) => {
         return;
       }
 
+      // If field has dependency and dependent value is not set, don't fetch
+      if (element.optionDepending && !dependentValue) {
+        setOptions([]);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
 
-        // Construct the full API URL
-        const apiUrl = `${element.optionUrl}`;
+        // Construct the full API URL with dependent value if exists
+        let apiUrl = element.optionUrl;
+        if (element.optionDepending && dependentValue) {
+          apiUrl = `${apiUrl}/${dependentValue}`;
+        }
         
         // Make the API request based on request type
         let response;
@@ -62,7 +71,7 @@ const useDynamicOptions = (element) => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({}), // Add any required POST data here
+            body: JSON.stringify({}),
           });
         }
 
@@ -97,16 +106,19 @@ const useDynamicOptions = (element) => {
     };
 
     fetchOptions();
-  }, [element.optionUrl, element.optionPath, element.optionValue, element.optionName, element.optionRequestType]);
+  }, [element.optionUrl, element.optionPath, element.optionValue, element.optionName, element.optionRequestType, element.optionDepending, dependentValue]);
 
   return { options, loading, error };
 };
 
 /**
- * Dynamic Select Component with API support
+ * Dynamic Select Component with API support and dependency handling
  */
-const DynamicSelect = ({ element, value, onChange, onBlur, error }) => {
-  const { options: apiOptions, loading, error: apiError } = useDynamicOptions(element);
+const DynamicSelect = ({ element, value, onChange, onBlur, error, formValues }) => {
+  // Get dependent field value if this field depends on another
+  const dependentValue = element.optionDepending ? formValues[element.optionDepending] : null;
+  
+  const { options: apiOptions, loading, error: apiError } = useDynamicOptions(element, dependentValue);
 
   // Use API options if available, otherwise use static fieldOptions
   const options = useMemo(() => {
@@ -140,6 +152,17 @@ const DynamicSelect = ({ element, value, onChange, onBlur, error }) => {
       };
     });
   }, [element.fieldOptions, element.optionUrl, element.optionPath, apiOptions]);
+
+  // Show message if dependent field is not selected
+  if (element.optionDepending && !dependentValue) {
+    return (
+      <div className="p-2 border border-gray-300 rounded-md bg-gray-50">
+        <span className="text-sm text-muted-foreground">
+          Please select {element.optionDepending} first
+        </span>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -213,6 +236,25 @@ function FormPreview() {
     }
   };
 
+  // Helper function to parse file size string to bytes
+  const parseFileSize = (sizeString) => {
+    if (!sizeString) return Infinity;
+    
+    const match = sizeString.match(/^(\d+(?:\.\d+)?)\s*(KB|MB|GB)?$/i);
+    if (!match) return Infinity;
+    
+    const value = parseFloat(match[1]);
+    const unit = (match[2] || 'MB').toUpperCase();
+    
+    const multipliers = {
+      'KB': 1024,
+      'MB': 1024 * 1024,
+      'GB': 1024 * 1024 * 1024
+    };
+    
+    return value * (multipliers[unit] || multipliers['MB']);
+  };
+
   // Generate initial values and validation schema
   const { initialValues, validationSchemas } = useMemo(() => {
     const values = {};
@@ -259,6 +301,35 @@ function FormPreview() {
               fieldValidation = Yup.boolean();
             }
             break;
+          case "file":
+            fieldValidation = Yup.mixed()
+              .test("fileType", "Invalid file type", function(value) {
+                if (!value) return true; // Allow empty if not required
+                if (!element.fileType || element.fileType.length === 0) return true;
+                
+                const fileExtension = value.name.split('.').pop().toLowerCase();
+                const allowedTypes = element.fileType.map(type => type.toLowerCase());
+                
+                if (!allowedTypes.includes(fileExtension)) {
+                  return this.createError({
+                    message: `Only ${element.fileType.join(', ')} files are allowed`
+                  });
+                }
+                return true;
+              })
+              .test("fileSize", "File too large", function(value) {
+                if (!value) return true;
+                if (!element.fileSize) return true;
+                
+                const maxSize = parseFileSize(element.fileSize);
+                if (value.size > maxSize) {
+                  return this.createError({
+                    message: `File size must be less than ${element.fileSize}`
+                  });
+                }
+                return true;
+              });
+            break;
           default:
             fieldValidation = Yup.string();
         }
@@ -277,6 +348,10 @@ function FormPreview() {
                 element.requiredErrorText || "This field is required"
               );
             }
+          } else if (element.fieldType === "file") {
+            fieldValidation = fieldValidation.required(
+              element.requiredErrorText || "This field is required"
+            );
           } else {
             fieldValidation = fieldValidation.required(
               element.requiredErrorText || "This field is required"
@@ -341,7 +416,30 @@ function FormPreview() {
     },
   });
 
-  const currentPage = form?.pages[currentStep];
+  // Clear dependent fields when parent field changes
+  const prevValuesRef = React.useRef({});
+  
+  useEffect(() => {
+    if (!currentPage) return;
+
+    currentPage.elements.forEach((element) => {
+      if (element.optionDepending) {
+        const dependentFieldName = element.optionDepending;
+        const currentValue = formik.values[dependentFieldName];
+        const previousValue = prevValuesRef.current[dependentFieldName];
+        
+        // Reset field value only when dependent field value actually changes
+        if (previousValue !== undefined && currentValue !== previousValue) {
+          formik.setFieldValue(element.fieldName, "");
+        }
+      }
+    });
+
+    // Update previous values
+    prevValuesRef.current = { ...formik.values };
+  }, [formik.values, currentPage]);
+
+  var currentPage = form?.pages[currentStep];
   const isLastStep = currentStep === form?.pages.length - 1;
   const isFirstStep = currentStep === 0;
   const progress = ((currentStep + 1) / form?.pages.length) * 100;
@@ -381,6 +479,8 @@ function FormPreview() {
       fieldDescription,
       fieldOptions,
       isRequired,
+      fileType,
+      fileSize,
     } = element;
     const value = formik.values[fieldName];
     const error = formik.touched[fieldName] && formik.errors[fieldName];
@@ -409,6 +509,7 @@ function FormPreview() {
               onChange={(val) => formik.setFieldValue(fieldName, val)}
               onBlur={() => formik.setFieldTouched(fieldName, true)}
               error={error}
+              formValues={formik.values}
             />
           );
 
@@ -519,15 +620,27 @@ function FormPreview() {
 
         case "file":
           return (
-            <Input
-              type="file"
-              id={fieldName}
-              onChange={(e) =>
-                formik.setFieldValue(fieldName, e.target.files[0])
-              }
-              onBlur={formik.handleBlur}
-              className={error ? "border-red-500" : ""}
-            />
+            <div>
+              <Input
+                type="file"
+                id={fieldName}
+                accept={fileType ? fileType.map(type => `.${type}`).join(',') : undefined}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  formik.setFieldValue(fieldName, file);
+                  formik.setFieldTouched(fieldName, true);
+                }}
+                onBlur={formik.handleBlur}
+                className={error ? "border-red-500" : ""}
+              />
+              {(fileType || fileSize) && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {fileType && `Allowed: ${fileType.join(', ')}`}
+                  {fileType && fileSize && ' | '}
+                  {fileSize && `Max size: ${fileSize}`}
+                </p>
+              )}
+            </div>
           );
 
         case "html":
