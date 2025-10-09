@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, Pencil } from "lucide-react";
 import { labelToName } from "@/lib/form-utils";
 import { CustomCombobox } from "../common/customcombox";
 import {
@@ -16,6 +16,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../ui/accordion";
+import { Textarea } from "../ui/textarea";
 
 /**
  * Element Properties Component with Formik & Yup
@@ -38,17 +39,17 @@ const fieldTypeOptions = [
   { value: "hidden", title: "Hidden" },
   { value: "html", title: "HTML" },
 ];
- const optionRequestTypeOptions = [
-    { value: "GET", title: "GET" },
-    { value: "POST", title: "POST" },
-    { value: "PUT", title: "PUT" },
-  ];
+const optionRequestTypeOptions = [
+  { value: "GET", title: "GET" },
+  { value: "POST", title: "POST" },
+  { value: "PUT", title: "PUT" },
+];
 const BooleanOptions = [
   { value: "yes", title: "Yes" },
   { value: "no", title: "No" },
 ];
 
-  const fileTypeOptions = [
+const fileTypeOptions = [
   // Documents
   { value: "pdf", title: "PDF" },
   { value: "doc", title: "DOC" },
@@ -56,18 +57,18 @@ const BooleanOptions = [
   { value: "txt", title: "TXT" },
   { value: "rtf", title: "RTF" },
   { value: "odt", title: "ODT" },
-  
+
   // Spreadsheets
   { value: "xls", title: "XLS" },
   { value: "xlsx", title: "XLSX" },
   { value: "csv", title: "CSV" },
   { value: "ods", title: "ODS" },
-  
+
   // Presentations
   { value: "ppt", title: "PPT" },
   { value: "pptx", title: "PPTX" },
   { value: "odp", title: "ODP" },
-  
+
   // Images
   { value: "jpg", title: "JPG" },
   { value: "jpeg", title: "JPEG" },
@@ -77,7 +78,7 @@ const BooleanOptions = [
   { value: "svg", title: "SVG" },
   { value: "webp", title: "WEBP" },
   { value: "ico", title: "ICO" },
-  
+
   // Videos
   { value: "mp4", title: "MP4" },
   { value: "avi", title: "AVI" },
@@ -86,7 +87,7 @@ const BooleanOptions = [
   { value: "flv", title: "FLV" },
   { value: "mkv", title: "MKV" },
   { value: "webm", title: "WEBM" },
-  
+
   // Audio
   { value: "mp3", title: "MP3" },
   { value: "wav", title: "WAV" },
@@ -94,14 +95,14 @@ const BooleanOptions = [
   { value: "aac", title: "AAC" },
   { value: "ogg", title: "OGG" },
   { value: "wma", title: "WMA" },
-  
+
   // Archives
   { value: "zip", title: "ZIP" },
   { value: "rar", title: "RAR" },
   { value: "7z", title: "7Z" },
   { value: "tar", title: "TAR" },
   { value: "gz", title: "GZ" },
-  
+
   // Code/Data
   { value: "json", title: "JSON" },
   { value: "xml", title: "XML" },
@@ -111,12 +112,12 @@ const BooleanOptions = [
   { value: "ts", title: "TypeScript" },
   { value: "jsx", title: "JSX" },
   { value: "tsx", title: "TSX" },
-  
+
   // Other
   { value: "exe", title: "EXE" },
   { value: "dmg", title: "DMG" },
   { value: "apk", title: "APK" },
-  { value: "iso", title: "ISO" }
+  { value: "iso", title: "ISO" },
 ];
 
 export function ElementProperties({ element, onSave, onClose }) {
@@ -160,111 +161,177 @@ export function ElementProperties({ element, onSave, onClose }) {
   });
 
   const formik = useFormik({
-    initialValues: {
-      fieldName: "",
-      fieldType: "",
-      isRequired: false,
-      placeHolder: "",
-      requiredErrorText: "",
-      fieldOptions: [],
-      userType: [],
-      fieldDescription: "",
-      fieldminLimit: "",
-      fieldmaxLimit: "",
-      fieldTitle: "",
-      specialCharactor: false,
-      optionUrl: "",
-      optionPath: "",
-      optionValue: "",
-      optionName: "",
-      optionRequestType: "",
-      fileType : [],
-      fileSize :"", 
-      fieldVisibleIf: "",
-      fieldEnableIf: "",
-      fieldRequiredIf: "",
-    },
-    validationSchema,
-    onSubmit: (values) => {
-      const updatedElement = {
-        ...element,
-        fieldTitle: values.fieldTitle,
-        fieldName: values.fieldName,
-        fieldType: values.fieldType,
-        placeHolder: values.placeHolder,
-        fieldDescription: values.fieldDescription,
-        isRequired: values.isRequired == "yes" ? true : false,
-        specialCharactor: values.specialCharactor == "yes" ? true : false,
-        defaultValue: values.defaultValue,
-        options: values.options,
-        content: values.content,
-        headingLevel: values.headingLevel,
-        requiredErrorText: values.requiredErrorText,        
-        validation: validationRules.filter(
-          (rule) => rule.type && (rule.type === "required" || rule.message)
-        ),
-      };
-      if (["radio", "checkbox", "select"].includes(values.fieldType)) {
-        updatedElement.fieldOptions = values.fieldOptions.map((opt, index) => {
-          const key = labelToName(opt);
-          return JSON.stringify({ [key]: opt });
-        });
-      } else {
-        updatedElement.fieldOptions = values.fieldOptions;
-      }
-      // Only include RESTful and file validation fields if they are not null/empty
-      if (values.optionUrl) updatedElement.optionUrl = values.optionUrl;
-      if (values.optionPath) updatedElement.optionPath = values.optionPath;
-      if (values.optionValue) updatedElement.optionValue = values.optionValue;
-      if (values.optionName) updatedElement.optionName = values.optionName;
-      if (values.optionRequestType) updatedElement.optionRequestType = values.optionRequestType;
+  initialValues: {
+    fieldName: "",
+    fieldType: "",
+    isRequired: false,
+    placeHolder: "",
+    requiredErrorText: "",
+    fieldOptions: [],
+    userType: [],
+    fieldDescription: "",
+    fieldminLimit: "",
+    fieldmaxLimit: "",
+    fieldTitle: "",
+    specialCharactor: false,
+    optionUrl: "",
+    optionPath: "",
+    optionValue: "",
+    optionName: "",
+    optionRequestType: "",
+    fileType: [],
+    fileSize: "",
+    fieldVisibleIf: "",
+    fieldEnableIf: "",
+    fieldRequiredIf: "",
+    // ====> ADDED <====
+    fieldConfigration: [],
+  },
+  validationSchema,
+  onSubmit: (values) => {
+    // ====> BUILD COMPLETE fieldConfigration array <====
+    const completeFieldConfigration = [...(values.fieldConfigration || [])];
 
-      if (values.fileType && values.fileType.length > 0) updatedElement.fileType = values.fileType;
-      if (values.fileSize) updatedElement.fileSize = values.fileSize;
-      onSave(updatedElement);
-    },
-  });
-
-  // Reset form when element changes
-  useEffect(() => {
-    if (element) {
-      formik.resetForm();
-      const parsedOptions = Array.isArray(element.fieldOptions)
-        ? element.fieldOptions.map((opt) => {
-            try {
-              const obj = JSON.parse(opt); // Parse JSON string
-              return Object.values(obj)[0]; // Take first value (e.g. "Option 1")
-            } catch {
-              return opt; // if not JSON, keep as is
-            }
-          })
-        : [];
-      formik.setValues({
-        fieldTitle: element.fieldTitle || "",
-        fieldName: element.fieldName || "",
-        fieldType: element.fieldType || "",
-        placeHolder: element.placeHolder || "",
-        requiredErrorText: element.requiredErrorText || "",
-        fieldOptions: parsedOptions || [],
-        userType: element.userType || [],
-        isRequired: element.isRequired === true ? "yes" : "no",
-        fieldDescription: element.fieldDescription || "",
-        fieldminLimit: element.fieldminLimit || "",
-        fieldmaxLimit: element.fieldmaxLimit,
-        specialCharactor: element.specialCharactor === true ? "yes" : "no",
-        userFieldMapping: element.userFieldMapping || [],
-         optionUrl: element.optionUrl,
-        optionPath: element.optionPath,
-        optionValue: element.optionValue,
-        optionName: element.optionName,
-        optionRequestType: element.optionRequestType,
-        optionDepending: element.optionDepending,
-        fileType: element.filevalidation?.[0]?.fileType || [],
-        fileSize: element.filevalidation?.[0]?.fileSize || "",
+    // Add fieldVisibleIf if it has a value
+    if (values.fieldVisibleIf && values.fieldVisibleIf.trim() !== "") {
+      completeFieldConfigration.push({
+        type: "fieldVisibleIf",
+        content: values.fieldVisibleIf,
       });
-      setValidationRules(element.validation || []);
     }
-  }, [element]);
+
+    // Add fieldEnableIf if it has a value
+    if (values.fieldEnableIf && values.fieldEnableIf.trim() !== "") {
+      completeFieldConfigration.push({
+        type: "fieldEnableIf",
+        content: values.fieldEnableIf,
+      });
+    }
+
+    // Add fieldRequiredIf if it has a value
+    if (values.fieldRequiredIf && values.fieldRequiredIf.trim() !== "") {
+      completeFieldConfigration.push({
+        type: "fieldRequiredIf",
+        content: values.fieldRequiredIf,
+      });
+    }
+
+    const updatedElement = {
+      ...element,
+      fieldTitle: values.fieldTitle,
+      fieldName: values.fieldName,
+      fieldType: values.fieldType,
+      placeHolder: values.placeHolder,
+      fieldDescription: values.fieldDescription,
+      isRequired: values.isRequired == "yes" ? true : false,
+      specialCharactor: values.specialCharactor == "yes" ? true : false,
+      defaultValue: values.defaultValue,
+      options: values.options,
+      content: values.content,
+      headingLevel: values.headingLevel,
+      requiredErrorText: values.requiredErrorText,
+      validation: validationRules.filter(
+        (rule) => rule.type && (rule.type === "required" || rule.message)
+      ),
+    };
+
+    if (["radio", "checkbox", "select"].includes(values.fieldType)) {
+      updatedElement.fieldOptions = values.fieldOptions.map((opt, index) => {
+        const key = labelToName(opt);
+        return JSON.stringify({ [key]: opt });
+      });
+    } else {
+      updatedElement.fieldOptions = values.fieldOptions;
+    }
+
+    // Only include RESTful and file validation fields if they are not null/empty
+    if (values.optionUrl) updatedElement.optionUrl = values.optionUrl;
+    if (values.optionPath) updatedElement.optionPath = values.optionPath;
+    if (values.optionValue) updatedElement.optionValue = values.optionValue;
+    if (values.optionName) updatedElement.optionName = values.optionName;
+    if (values.optionRequestType)
+      updatedElement.optionRequestType = values.optionRequestType;
+
+    if (values.fileType && values.fileType.length > 0)
+      updatedElement.fileType = values.fileType;
+    if (values.fileSize) updatedElement.fileSize = values.fileSize;
+
+    // ====> ADD fieldConfigration to updatedElement <====
+    if (completeFieldConfigration.length > 0) {
+      updatedElement.fieldConfigration = completeFieldConfigration;
+    }
+
+    onSave(updatedElement);
+  },
+});
+
+// Reset form when element changes
+useEffect(() => {
+  if (element) {
+    formik.resetForm();
+    
+    const parsedOptions = Array.isArray(element.fieldOptions)
+      ? element.fieldOptions.map((opt) => {
+          try {
+            const obj = JSON.parse(opt); // Parse JSON string
+            return Object.values(obj)[0]; // Take first value (e.g. "Option 1")
+          } catch {
+            return opt; // if not JSON, keep as is
+          }
+        })
+      : [];
+
+    // ====> EXTRACT logic fields from fieldConfigration <====
+    const fieldConfigrations = element.fieldConfigration || [];
+    const manualConfigurations = [];
+    let fieldVisibleIf = "";
+    let fieldEnableIf = "";
+    let fieldRequiredIf = "";
+
+    fieldConfigrations.forEach((config) => {
+      if (config.type === "fieldVisibleIf") {
+        fieldVisibleIf = config.content;
+      } else if (config.type === "fieldEnableIf") {
+        fieldEnableIf = config.content;
+      } else if (config.type === "fieldRequiredIf") {
+        fieldRequiredIf = config.content;
+      } else {
+        // Other configurations (tooltip, disclaimer, etc.)
+        manualConfigurations.push(config);
+      }
+    });
+
+    formik.setValues({
+      fieldTitle: element.fieldTitle || "",
+      fieldName: element.fieldName || "",
+      fieldType: element.fieldType || "",
+      placeHolder: element.placeHolder || "",
+      requiredErrorText: element.requiredErrorText || "",
+      fieldOptions: parsedOptions || [],
+      userType: element.userType || [],
+      isRequired: element.isRequired === true ? "yes" : "no",
+      fieldDescription: element.fieldDescription || "",
+      fieldminLimit: element.fieldminLimit || "",
+      fieldmaxLimit: element.fieldmaxLimit || "",
+      specialCharactor: element.specialCharactor === true ? "yes" : "no",
+      userFieldMapping: element.userFieldMapping || [],
+      optionUrl: element.optionUrl || "",
+      optionPath: element.optionPath || "",
+      optionValue: element.optionValue || "",
+      optionName: element.optionName || "",
+      optionRequestType: element.optionRequestType || "",
+      optionDepending: element.optionDepending || "",
+      fileType: element.filevalidation?.[0]?.fileType || [],
+      fileSize: element.filevalidation?.[0]?.fileSize || "",      
+      fieldVisibleIf: fieldVisibleIf,
+      fieldEnableIf: fieldEnableIf,
+      fieldRequiredIf: fieldRequiredIf,
+      fieldConfigration: manualConfigurations,
+    });
+    
+    setValidationRules(element.validation || []);
+  }
+}, [element]);
 
   // Auto-generate field name from field title
   const handleFieldTitleChange = (e) => {
@@ -273,44 +340,7 @@ export function ElementProperties({ element, onSave, onClose }) {
     formik.setFieldValue("fieldName", labelToName(value));
   };
 
-  // Handle option changes
-  const handleOptionChange = (index, field, value) => {
-    const newOptions = [...formik.values.options];
-    newOptions[index] = { ...newOptions[index], [field]: value };
-
-    // Auto-generate value from fieldTitle
-    if (field === "fieldTitle") {
-      newOptions[index].value = labelToName(value);
-    }
-
-    formik.setFieldValue("options", newOptions);
-  };
-
-  const addOption = () => {
-    const newOption = { fieldTitle: "", value: "" };
-    formik.setFieldValue("options", [...formik.values.options, newOption]);
-  };
-
-  const removeOption = (index) => {
-    const newOptions = formik.values.options.filter((_, i) => i !== index);
-    formik.setFieldValue("options", newOptions);
-  };
-
-  // Validation rules handlers
-  const addValidationRule = () => {
-    const newRule = { type: "required", value: "", message: "" };
-    setValidationRules((prev) => [...prev, newRule]);
-  };
-
-  const updateValidationRule = (index, field, value) => {
-    const newRules = [...validationRules];
-    newRules[index] = { ...newRules[index], [field]: value };
-    setValidationRules(newRules);
-  };
-
-  const removeValidationRule = (index) => {
-    setValidationRules((prev) => prev.filter((_, i) => i !== index));
-  };
+    
 
   if (!element) {
     return (
@@ -390,77 +420,91 @@ export function ElementProperties({ element, onSave, onClose }) {
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="fieldType">Field Type</Label>
-                    <CustomCombobox
-                      name="fieldType"
-                      value={formik.values.fieldType}
-                      onChange={(value) =>
-                        formik.setFieldValue("fieldType", value)
-                      }
-                      onBlur={() => formik.setFieldTouched("fieldType", true)}
-                      valueKey="value"
-                      labelKey="title"
-                      options={fieldTypeOptions || []}
-                      placeholder="Select Field Type"
-                      id="fieldType"
-                    />
-                    {formik.touched.fieldType && formik.errors.fieldType && (
-                      <p className="text-sm text-red-500">
-                        {formik.errors.fieldType}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="isRequired">Is Field Required?</Label>
-                    <CustomCombobox
-                      name="isRequired"
-                      value={formik.values.isRequired}
-                      onChange={(value) =>
-                        formik.setFieldValue("isRequired", value)
-                      }
-                      valueKey="value"
-                      labelKey="title"
-                      search={false}
-                      options={BooleanOptions || []}
-                      placeholder="Select Field Required"
-                      id="isRequired"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="placeHolder">Place Holder</Label>
-                    <Input
-                      id="placeHolder"
-                      name="placeHolder"
-                      type="text"
-                      placeholder="Enter placeHolder address"
-                      value={formik.values.placeHolder}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
-                    {formik.touched.placeHolder &&
-                      formik.errors.placeHolder && (
-                        <p className="text-sm text-red-500">
-                          {formik.errors.placeHolder}
-                        </p>
-                      )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="requiredErrorText">
-                      Required Error Text
-                    </Label>
-                    <Input
-                      id="requiredErrorText"
-                      name="requiredErrorText"
-                      type="text"
-                      placeholder="Enter requiredErrorText address"
-                      value={formik.values.requiredErrorText}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
-                  </div>
+
+                  {["html"].includes(formik.values.fieldType) ? (
+                    <div>
+                      <Button variant="ghost" type="button" >
+                        <Pencil />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="fieldType">Field Type</Label>
+                        <CustomCombobox
+                          name="fieldType"
+                          value={formik.values.fieldType}
+                          onChange={(value) =>
+                            formik.setFieldValue("fieldType", value)
+                          }
+                          onBlur={() =>
+                            formik.setFieldTouched("fieldType", true)
+                          }
+                          valueKey="value"
+                          labelKey="title"
+                          options={fieldTypeOptions || []}
+                          placeholder="Select Field Type"
+                          id="fieldType"
+                        />
+                        {formik.touched.fieldType &&
+                          formik.errors.fieldType && (
+                            <p className="text-sm text-red-500">
+                              {formik.errors.fieldType}
+                            </p>
+                          )}
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="isRequired">Is Field Required?</Label>
+                        <CustomCombobox
+                          name="isRequired"
+                          value={formik.values.isRequired}
+                          onChange={(value) =>
+                            formik.setFieldValue("isRequired", value)
+                          }
+                          valueKey="value"
+                          labelKey="title"
+                          search={false}
+                          options={BooleanOptions || []}
+                          placeholder="Select Field Required"
+                          id="isRequired"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="placeHolder">Place Holder</Label>
+                        <Input
+                          id="placeHolder"
+                          name="placeHolder"
+                          type="text"
+                          placeholder="Enter placeHolder address"
+                          value={formik.values.placeHolder}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                        />
+                        {formik.touched.placeHolder &&
+                          formik.errors.placeHolder && (
+                            <p className="text-sm text-red-500">
+                              {formik.errors.placeHolder}
+                            </p>
+                          )}
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Label htmlFor="requiredErrorText">
+                          Required Error Text
+                        </Label>
+                        <Input
+                          id="requiredErrorText"
+                          name="requiredErrorText"
+                          type="text"
+                          placeholder="Enter requiredErrorText address"
+                          value={formik.values.requiredErrorText}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                        />
+                      </div>
+                    </>
+                  )}
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="generalSettings-2">
@@ -531,95 +575,95 @@ export function ElementProperties({ element, onSave, onClose }) {
                   </div>
                 </AccordionContent>
               </AccordionItem>
-                <AccordionItem value="field-logic-config">
-              <AccordionTrigger className="text-sm font-medium text-gray-800 hover:no-underline">
-                Field Logic Configure
-              </AccordionTrigger>
-              <AccordionContent className="space-y-0">
-                <Accordion type="single" collapsible className="w-full">
-                  {/* Field Visible If */}
-                  <AccordionItem value="visible" className="border-b">
-                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
-                      Field Visible If?
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-4">
-                      <div className="space-y-2">
-                        <div className="text-xs text-gray-400 space-y-1">
-                          <div>Condition</div>
-                          <div>
-                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+              <AccordionItem value="field-logic-config">
+                <AccordionTrigger className="text-sm font-medium text-gray-800 hover:no-underline">
+                  Field Logic Configure
+                </AccordionTrigger>
+                <AccordionContent className="space-y-0">
+                  <Accordion type="single" collapsible className="w-full">
+                    {/* Field Visible If */}
+                    <AccordionItem value="visible" className="border-b">
+                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                        Field Visible If?
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-4">
+                        <div className="space-y-2">
+                          <div className="text-xs text-gray-400 space-y-1">
+                            <div>Condition</div>
+                            <div>
+                              Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                            </div>
+                            <div>Ex- {"{openTime}"} &gt; 08:00</div>
                           </div>
-                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                          <Textarea
+                            name="fieldVisibleIf"
+                            value={formik.values.fieldVisibleIf}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            placeholder=""
+                            rows={3}
+                            className="w-full resize-none text-sm"
+                          />
                         </div>
-                        <Textarea
-                          name="fieldVisibleIf"
-                          value={formik.values.fieldVisibleIf}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          placeholder=""
-                          rows={3}
-                          className="w-full resize-none text-sm"
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  {/* Field Enable If */}
-                  <AccordionItem value="enable" className="border-b">
-                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
-                      Field Enable If?
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-4">
-                      <div className="space-y-2">
-                        <div className="text-xs text-gray-400 space-y-1">
-                          <div>Condition</div>
-                          <div>
-                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                    {/* Field Enable If */}
+                    <AccordionItem value="enable" className="border-b">
+                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                        Field Enable If?
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-4">
+                        <div className="space-y-2">
+                          <div className="text-xs text-gray-400 space-y-1">
+                            <div>Condition</div>
+                            <div>
+                              Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                            </div>
+                            <div>Ex- {"{openTime}"} &gt; 08:00</div>
                           </div>
-                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                          <Textarea
+                            name="fieldEnableIf"
+                            value={formik.values.fieldEnableIf}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            placeholder=""
+                            rows={3}
+                            className="w-full resize-none text-sm"
+                          />
                         </div>
-                        <Textarea
-                          name="fieldEnableIf"
-                          value={formik.values.fieldEnableIf}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          placeholder=""
-                          rows={3}
-                          className="w-full resize-none text-sm"
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
+                      </AccordionContent>
+                    </AccordionItem>
 
-                  {/* Field Required If */}
-                  <AccordionItem value="required" className="border-b-0">
-                    <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
-                      Field Required If?
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-4">
-                      <div className="space-y-2">
-                        <div className="text-xs text-gray-400 space-y-1">
-                          <div>Condition</div>
-                          <div>
-                            Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                    {/* Field Required If */}
+                    <AccordionItem value="required" className="border-b-0">
+                      <AccordionTrigger className="text-sm font-normal text-gray-600 py-3 hover:no-underline">
+                        Field Required If?
+                      </AccordionTrigger>
+                      <AccordionContent className="pb-4">
+                        <div className="space-y-2">
+                          <div className="text-xs text-gray-400 space-y-1">
+                            <div>Condition</div>
+                            <div>
+                              Ex- {"{openTime}"} &lt; {"{closeTime}"}
+                            </div>
+                            <div>Ex- {"{openTime}"} &gt; 08:00</div>
                           </div>
-                          <div>Ex- {"{openTime}"} &gt; 08:00</div>
+                          <Textarea
+                            name="fieldRequiredIf"
+                            value={formik.values.fieldRequiredIf}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            placeholder=""
+                            rows={3}
+                            className="w-full resize-none text-sm"
+                          />
                         </div>
-                        <Textarea
-                          name="fieldRequiredIf"
-                          value={formik.values.fieldRequiredIf}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                          placeholder=""
-                          rows={3}
-                          className="w-full resize-none text-sm"
-                        />
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </AccordionContent>
-            </AccordionItem>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </AccordionContent>
+              </AccordionItem>
               {["radio", "checkbox", "select"].includes(
                 formik.values.fieldType
               ) && (
@@ -793,51 +837,49 @@ export function ElementProperties({ element, onSave, onClose }) {
                   </AccordionContent>
                 </AccordionItem>
               )}
-                {["file"].includes(formik.values.fieldType) && (
-              <AccordionItem value="File_Validation">
-                <AccordionTrigger
-                  className={
-                    "hover:no-underline text-sm font-semibold text-gray-700"
-                  }
-                >
-                  File Validation 
-                </AccordionTrigger>
-                <AccordionContent className={"space-y-5"}>                 
-                  <div className="space-y-2">
-                    <Label htmlFor="fileType">File Type To validate</Label>
-                    <CustomCombobox
-                      name="fileType"
-                      value={formik.values.fileType}
-                      onChange={(value) =>
-                        formik.setFieldValue("fileType", value)
-                      }
-                      onBlur={() =>
-                        formik.setFieldTouched("fileType", true)
-                      }
-                      valueKey="value"
-                      labelKey="title"
-                      options={fileTypeOptions || []}
-                      search={true}
-                      multiSelect={true}
-                      placeholder="Select  Request Type"
-                      id="fileType"
-                    />                   
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <Label htmlFor="fileSize">File Minimum Size</Label>
-                    <Input
-                      id="fileSize"
-                      name="fileSize"
-                      placeholder="Enter File Minimum Size in MB"
-                      value={formik.values.fileSize}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                    />
-                  </div>                  
-                </AccordionContent>
-              </AccordionItem>
-            )}
+              {["file"].includes(formik.values.fieldType) && (
+                <AccordionItem value="File_Validation">
+                  <AccordionTrigger
+                    className={
+                      "hover:no-underline text-sm font-semibold text-gray-700"
+                    }
+                  >
+                    File Validation
+                  </AccordionTrigger>
+                  <AccordionContent className={"space-y-5"}>
+                    <div className="space-y-2">
+                      <Label htmlFor="fileType">File Type To validate</Label>
+                      <CustomCombobox
+                        name="fileType"
+                        value={formik.values.fileType}
+                        onChange={(value) =>
+                          formik.setFieldValue("fileType", value)
+                        }
+                        onBlur={() => formik.setFieldTouched("fileType", true)}
+                        valueKey="value"
+                        labelKey="title"
+                        options={fileTypeOptions || []}
+                        search={true}
+                        multiSelect={true}
+                        placeholder="Select  Request Type"
+                        id="fileType"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <Label htmlFor="fileSize">File Minimum Size</Label>
+                      <Input
+                        id="fileSize"
+                        name="fileSize"
+                        placeholder="Enter File Minimum Size in MB"
+                        value={formik.values.fileSize}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                      />
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )}
             </Accordion>
             {/* Save Button */}
             <div className="pt-4 border-t">
