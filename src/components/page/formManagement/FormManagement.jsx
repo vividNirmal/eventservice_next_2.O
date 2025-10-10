@@ -500,7 +500,7 @@ const FormManagement = ({ eventId }) => {
                         <div className="flex items-center space-x-1">
                           <FileText className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">
-                            {form.formFields?.length || 0} fields
+                            {form.totalElements || 0} fields
                           </span>
                         </div>
                       </TableCell>
