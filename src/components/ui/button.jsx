@@ -20,6 +20,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 cursor-pointer",
         link: "text-primary underline-offset-4 hover:underline",
+        formBtn: "bg-[#3853ff] text-white shadow-none border border-solid border-[#3853ff] hover:bg-white hover:text-[#3853ff] hover:scale-103 active:scale-95",
       },
       size: {
         default: "h-8 2xl:h-9 px-4 has-[>svg]:px-3",

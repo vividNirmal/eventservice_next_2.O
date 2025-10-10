@@ -322,7 +322,7 @@ function FormPreview() {
               onBlur={formik.handleBlur}
               placeholder={placeHolder}
               rows={4}
-              className={error ? "border-red-500" : ""}
+              className={cn("border-none shadow-[0_1px_0_0_rgba(0,0,0,0.25)] focus:shadow-[0_1px_0_0_rgba(0,0,0,0.5)] rounded-none", { "border-red-500": error })}
             />
           );
 
@@ -484,13 +484,7 @@ function FormPreview() {
 
         case "hidden":
           return (
-            <Input
-              type="hidden"
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-            />
+            <Input type="hidden" id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} className={'border-none shadow-[0_1px_0_0_rgba(0,0,0,0.25)] focus:shadow-[0_1px_0_0_rgba(0,0,0,0.5)] rounded-none'} />
           );
 
         case "date":
@@ -502,7 +496,7 @@ function FormPreview() {
               value={value}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className={error ? "border-red-500" : ""}
+              className={cn("border-none shadow-[0_1px_0_0_rgba(0,0,0,0.25)] focus:shadow-[0_1px_0_0_rgba(0,0,0,0.5)] rounded-none", error ? "border-red-500" : "")}
             />
           );
 
@@ -516,22 +510,13 @@ function FormPreview() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               placeholder={placeHolder}
-              className={error ? "border-red-500" : ""}
+              className={cn("border-none shadow-[0_1px_0_0_rgba(0,0,0,0.25)] focus:shadow-[0_1px_0_0_rgba(0,0,0,0.5)] rounded-none", error ? "border-red-500" : "")}
             />
           );
 
         default:
           return (
-            <Input
-              type={fieldType}
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder={placeHolder}
-              className={error ? "border-red-500" : ""}
-            />
+            <Input type={fieldType} id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={placeHolder} className={cn("border-none shadow-[0_1px_0_0_rgba(0,0,0,0.25)] focus:shadow-[0_1px_0_0_rgba(0,0,0,0.5)] rounded-none", error ? "border-red-500" : "")} />
           );
       }
     };
@@ -575,8 +560,8 @@ function FormPreview() {
   }
 
   return (
-    <div className="h-svh overflow-auto flex flex-col bg-no-repeat bg-cover bg-top-left bg-linear-to-r from-zinc-500 via-stone-600 to-zinc-900" >
-      <div className="max-w-6xl mx-auto w-full py-9 flex flex-col h-96 grow gap-y-4">
+    <div className="h-svh overflow-auto py-8 flex flex-col bg-no-repeat bg-cover bg-top-left" style={{backgroundImage: "url('/assets/images/preview-bg.jpg')"}}>
+      <div className="max-w-6xl mx-auto w-full p-6 rounded-xl flex flex-col h-96 grow gap-y-4 bg-white/5 backdrop-blur-lg">
         <Button className={'w-24'} type="button" variant="outline" onClick={() => router.back()}>
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back
@@ -615,8 +600,8 @@ function FormPreview() {
                     className={cn(
                       "capitalize font-medium text-xs 2xl:text-sm",
                       index === currentStep
-                        ? "text-foreground"
-                        : "text-muted-foreground"
+                        ? "text-white"
+                        : "text-zinc-300"
                     )}
                   >
                     {page.name}

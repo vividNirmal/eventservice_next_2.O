@@ -3,6 +3,7 @@ import { Calendar, Ticket } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const TicketBooking = ({businessData,businessForm}) => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -59,16 +60,22 @@ const TicketBooking = ({businessData,businessForm}) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div className="flex flex-wrap gap-y-5 p-4 bg-[#f7f9fc]">
+      <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
+        <img src="/assets/images/login-img.webp" className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
+          <p className="z-1 text-white text-base 2xl:text-lg font-normal leading-normal">Lorem ipsum dolor sit amet, consectetur adipisicing elit it amet, consectetur adipisicing eli. Laboriosam veritatis nihil repudiandae.</p>
+        </div>
+      </div>
+      <div className="w-2/5 grow px-9 max-h-svh flex flex-col">
+        <div>
           {/* Header */}
-          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 text-white">
-            <div className="flex items-center gap-3 mb-2">
+          <div className="text-zinc-950 p-6 text-center flex flex-col gap-1">
+            <div className="flex items-center justify-center gap-3">
               <Ticket className="w-8 h-8" />
-              <h1 className="text-3xl font-bold">Book Your Tickets</h1>
+              <h1 className="text-3xl font-bold text-zinc-950">Book Your Tickets</h1>
             </div>
-            <p className="text-purple-100">Select your ticket category</p>
+            <p className="text-zinc-700">Select your ticket category</p>
           </div>
 
           {/* Current Date Display */}
@@ -87,72 +94,37 @@ const TicketBooking = ({businessData,businessForm}) => {
                 <p className="text-slate-600">Tickets are not available for the current date/time</p>
               </div>
             ) : (
-              <div>
+              <div className='flex flex-col items-center w-full'>
                 {/* Category Selection - Radio Buttons in One Row */}
-                <div className="mb-8">
-                  <label className="block text-lg font-semibold text-slate-700 mb-6">
-                    Select Category
-                  </label>
-                  <RadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <div className="grid grid-cols-3 gap-6">
-                      {currentPricing.map((item) => (
-                        <div key={item.category} className="relative">
-                          <div className={`flex items-center space-x-3 p-6 rounded-xl border-2 transition-all duration-300 cursor-pointer ${
-                            selectedCategory === item.category
-                              ? 'border-purple-500 bg-purple-50 shadow-lg'
-                              : 'border-slate-200 hover:border-purple-300 hover:shadow-md'
-                          }`}>
-                            <RadioGroupItem 
-                              value={item.category} 
-                              id={item.category}
-                              className="mt-1"
-                            />
-                            <Label 
-                              htmlFor={item.category} 
-                              className="flex-1 cursor-pointer"
-                            >
-                              <div className="flex flex-col">
-                                <span className="text-lg font-bold text-slate-800 mb-1">
-                                  {item.category}
-                                </span>
-                                <span className="text-2xl font-bold text-purple-600">
-                                  {formatCurrency(item.amount)}
-                                </span>
-                              </div>
-                            </Label>
-                          </div>
+                <div className="mb-8 w-full">
+                  <label className="block text-lg font-semibold text-slate-700 mb-6">Select Category</label>
+                  <RadioGroup value={selectedCategory} onValueChange={setSelectedCategory} className={"grid-cols-3 gap-6"}>
+                    {currentPricing.map((item) => (
+                      <div key={item.category} className="relative">
+                        <div className={cn("flex items-center space-x-3 p-6 rounded-lg border-2 cursor-pointer transition-all duration-200 ease-linear", selectedCategory === item.category ? 'border-[#3853ff] bg-white shadow-lg' : 'border-zinc-200')}>
+                          <RadioGroupItem value={item.category} id={item.category} className="peer absolute left-0 top-0 size-full opacity-0 rounded-xl cursor-pointer transition-all duration-200 ease-in" />
+                          <Label htmlFor={item.category}  className={cn("flex flex-col flex-1 cursor-pointer text-zinc-500", selectedCategory === item.category ? "text-[#3853ff]" : "")}>
+                            <span className="text-lg font-bold text-slate-800 mb-1 text-center">{item.category}</span>
+                            <span className={"text-2xl font-bold text-center"}>{formatCurrency(item.amount)}</span>
+                          </Label>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </RadioGroup>
                 </div>
 
                 {/* Submit Button */}
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!selectedCategory}
-                  className="w-full py-6 text-lg font-bold"
-                  size="lg"
-                >
-                  {selectedCategory ? 'Confirm Booking' : 'Select a Category'}
-                </Button>
+                <Button onClick={handleSubmit} disabled={!selectedCategory} variant={'formBtn'} className="w-fit mx-auto">{selectedCategory ? 'Confirm Booking' : 'Select a Category'}</Button>
               </div>
             )}
           </div>
         </div>
 
         {/* Date Tester (for demo purposes) */}
-        <div className="mt-6 bg-white rounded-xl shadow-lg p-6">
+        <div className="mt-5">
           <h3 className="text-lg font-semibold text-slate-700 mb-3">Test Different Dates</h3>
-          <p className="text-sm text-slate-600 mb-3">
-            Try different dates to see pricing changes based on business slabs
-          </p>
-          <input
-            type="datetime-local"
-            value={currentDateTime.toISOString().slice(0, 16)}
-            onChange={(e) => setCurrentDateTime(new Date(e.target.value))}
-            className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-purple-500 focus:outline-none"
-          />
+          <p className="text-sm text-slate-600 mb-3">Try different dates to see pricing changes based on business slabs</p>
+          <input type="datetime-local" value={currentDateTime.toISOString().slice(0, 16)} onChange={(e) => setCurrentDateTime(new Date(e.target.value))} className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:border-[#3853ff] focus:outline-none" />
         </div>
       </div>
     </div>

@@ -301,7 +301,7 @@ const UserRegisterEvent = () => {
   return (
     <>
       {/* Show registration status error if present */}
-      {registrationStatus?.status === "error" && <RegistrationStatusError />}z
+      {registrationStatus?.status === "error" && <RegistrationStatusError />}
       {/* Show normal flow only if no registration status error */}
       {!registrationStatus?.status && eventStep === 1 && (
         <ParticipanLogin

@@ -601,45 +601,24 @@ const DynamicParticipantForm = ({
   }
 
   return (
-    <div className="h-svh overflow-auto flex flex-col bg-no-repeat bg-cover bg-top-left" style={{ backgroundImage: "url('/assets/images/form-bg.jpg')"}}>
-      <div className="max-w-6xl mx-auto w-full py-9 flex flex-col h-96 grow gap-y-4">
+    <div className="flex flex-wrap gap-y-5 p-4 bg-[#f7f9fc]">
+      <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
+        <img src="/assets/images/login-img.webp" className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
+          <p className="z-1 text-white text-base 2xl:text-lg font-normal leading-normal">Lorem ipsum dolor sit amet, consectetur adipisicing elit it amet, consectetur adipisicing eli. Laboriosam veritatis nihil repudiandae.</p>
+        </div>
+      </div>
+      <div className="w-2/5 grow px-9 max-h-svh flex flex-col">
         {form.pages.length > 1 && (
           <div className="relative py-4">
-            <Progress
-              value={progress}
-              className="h-2 absolute top-8 bg-muted [&>div]:bg-blue-500"
-            />
-
+            <Progress value={progress} className="h-1 absolute top-8 bg-[repeating-linear-gradient(_90deg,_#dddddd_0px,_#dddddd_5px,_#FFFFFF_5px,_#FFFFFF_10px)] [&>div]:bg-[repeating-linear-gradient(_90deg,_#3853ff_0px,_#3853ff_6px,_#FFFFFF_6px,_#FFFFFF_12px)]" />
             <ul className="flex items-center justify-between">
               {form.pages.map((page, index) => (
-                <li
-                  key={index}
-                  className="flex flex-col items-center gap-2.5 basis-0 flex-1 text-center relative z-10"
-                >
-                  <div
-                    className={cn(
-                      "flex items-center justify-center size-9 2xl:size-10 rounded-full font-semibold border border-solid transition-all",
-                      index < currentStep
-                        ? "bg-green-500 text-white"
-                        : index === currentStep
-                        ? "border-blue-500 bg-white"
-                        : "bg-muted border-muted text-muted-foreground"
-                    )}
-                  >
-                    {index < currentStep ? (
-                      <Check className="h-5 w-5" />
-                    ) : (
-                      index + 1
-                    )}
+                <li key={index} className="flex flex-col items-center gap-2.5 basis-0 flex-1 text-center relative z-10">
+                  <div className={cn("flex items-center justify-center size-9 2xl:size-10 rounded-xl font-semibold border border-solid shadow-[0_0_0_10px_#f7f9fc] transition-all", index < currentStep ? "bg-[#3853ff] text-white" : index === currentStep ? "bg-[#3853ff] border-[#3853ff] text-white" : "bg-muted border-zinc-200 text-muted-foreground")}>
+                    {index < currentStep ? (<Check className="h-5 w-5" />) : (index + 1)}
                   </div>
-                  <div
-                    className={cn(
-                      "capitalize font-medium text-xs 2xl:text-sm",
-                      index === currentStep
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                  >
+                  <div className={cn("capitalize font-medium text-sm 2xl:text-base", index === currentStep ? "text-foreground" : "text-muted-foreground")}>
                     {page.name}
                   </div>
                 </li>
@@ -648,8 +627,8 @@ const DynamicParticipantForm = ({
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto ">
-          <Card>
+        <div className="overflow-auto h-96 grow">
+          <Card className={"rouneded-none border-0 shadow-none !p-1 bg-transparent"}>
             <CardHeader className={"!px-0"}>
               <CardTitle>{currentPage.name}</CardTitle>
               <CardDescription>{currentPage.description}</CardDescription>
@@ -672,7 +651,7 @@ const DynamicParticipantForm = ({
           </Card>
         </div>
 
-        <div className="flex items-center justify-between pt-4">
+        <div className="shrink-0 flex items-center justify-between pt-4">
           <Button
             type="button"
             variant="outline"
@@ -689,7 +668,7 @@ const DynamicParticipantForm = ({
               Submit Form
             </Button>
           ) : (
-            <Button type="button" onClick={handleNext}>
+            <Button type="button" onClick={handleNext} variant={"formBtn"}>
               Next
               <ChevronRight className="h-4 w-4 ml-2" />
             </Button>
