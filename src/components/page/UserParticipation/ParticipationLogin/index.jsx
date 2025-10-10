@@ -1,10 +1,13 @@
 import { Input } from "@/components/ui/input";
-import { userGetRequest } from "@/service/viewService";
+import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useFormik } from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail }) => {
+const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail,ticketData }) => {
+  console.log(ticketData?.desktopBannerImage,"-----------------------");
+  
+  const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL 
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -15,9 +18,21 @@ const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail }) => {
         .required("Email is required"),
     }),
     onSubmit: async (values) => {
-      const recponce = await userGetRequest(`get-user-details/${values.email}`);
-      if (onRegisterEmail)
-        onRegisterEmail({ ...recponce.data, email: values.email });
+      try {
+        const formDate = new FormData();
+        formDate.append("regEmail", values.email);
+        formDate.append("ticketId", eventData?.ticketId);
+
+        const recponce = await userPostRequest(`resolve-email`, formDate);
+
+        if (recponce.status == 1) {
+          onRegisterEmail({ ...recponce, email: values.email });
+        }else{
+          console.log(recponce);          
+        }
+      } catch (err) {
+        console.log(err?.message);
+      }
     },
   });
 
@@ -26,13 +41,13 @@ const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail }) => {
       {/* Left Image and Info */}
       <div className="w-full md:w-[38.89%] relative before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
         <img
-          src={eventData?.event_image}
+          src={`${baseURL}/${ticketData?.desktopBannerImage}`}
           className="w-full h-48 md:h-full object-cover object-center"
           alt="Plastics Recycling Show"
         />
         <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
           <img
-            src={eventData?.event_logo}
+            src={eventData?.ticket?.event_logo}
             className="max-w-[65%] lg:max-w-[240px] w-full block mb-8"
             alt="Plastics Recycling Show"
           />

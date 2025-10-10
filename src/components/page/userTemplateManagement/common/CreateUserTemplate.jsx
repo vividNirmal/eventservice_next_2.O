@@ -203,6 +203,8 @@ export default function CreateUserTemplate({
   };
 
   const handleSubmit = async (values) => {
+    console.log(values);
+    
     setIsSubmitting(true);
     try {
       const formData = new FormData();

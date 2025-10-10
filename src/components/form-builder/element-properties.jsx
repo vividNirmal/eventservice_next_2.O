@@ -17,6 +17,15 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import { Textarea } from "../ui/textarea";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 /**
  * Element Properties Component with Formik & Yup
@@ -122,6 +131,8 @@ const fileTypeOptions = [
 
 export function ElementProperties({ element, onSave, onClose }) {
   const [validationRules, setValidationRules] = useState([]);
+  const [isHtmlEditorOpen, setIsHtmlEditorOpen] = useState(false);
+  const [htmlContent, setHtmlContent] = useState("");
 
   // Determine element type flags
   const needsOptions =
@@ -331,7 +342,7 @@ useEffect(() => {
       fieldRequiredIf: fieldRequiredIf,
       fieldConfigration: manualConfigurations,
     });
-    
+    setHtmlContent(element.htmlContent || "");
     setValidationRules(element.validation || []);
   }
 }, [element]);
@@ -342,9 +353,12 @@ useEffect(() => {
     formik.setFieldValue("fieldTitle", value);
     formik.setFieldValue("fieldName", labelToName(value));
   };
-
-    
-
+   // Handle saving HTML content from editor
+  const handleSaveHtmlContent = () => {
+    formik.setFieldValue("htmlContent", htmlContent);
+    setIsHtmlEditorOpen(false);
+  };
+      
   if (!element) {
     return (
       <div className="w-80 bg-gray-50 border-l border-gray-200 p-4 content-center sticky top-0">
@@ -356,6 +370,7 @@ useEffect(() => {
   }
 
   return (
+    <>
     <div className="w-60 xl:w-80 bg-white border-l border-gray-200 flex flex-col sticky top-0 overflow-auto">
       <Card className="border-0 rounded-none grow gap-0 xl:gap-0 2xl:p-4">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 p-0">
@@ -393,9 +408,14 @@ useEffect(() => {
 
                   {["html"].includes(formik.values.fieldType) ? (
                     <div>
-                      <Button variant="ghost" type="button">
+                      <Button variant="ghost" type="button" onClick={() => setIsHtmlEditorOpen(true)} >
                         <Pencil />
                       </Button>
+                      {formik.values.htmlContent && (
+                          <p className="text-xs text-green-600">
+                            ✓ Content added ({formik.values.htmlContent.length} characters)
+                          </p>
+                        )}
                     </div>
                   ) : (
                     <>
@@ -661,5 +681,50 @@ useEffect(() => {
         </CardContent>
       </Card>
     </div>
+     <Sheet open={isHtmlEditorOpen} onOpenChange={setIsHtmlEditorOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>HTML Content Editor</SheetTitle>
+            <SheetDescription>
+              Add or edit your HTML content. You can write HTML, CSS, and even inline JavaScript.
+            </SheetDescription>
+          </SheetHeader>
+          
+          <div className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="html-editor">HTML Content</Label>              
+               <ReactQuill
+                id="html-editor"
+                value={htmlContent}
+                onChange={(e) => setHtmlContent(e)}                
+                placeholder="Enter your HTML content here..."
+                theme="snow"
+                className= "w-full min-h-72 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"
+              />              
+            </div>
+                                    
+            
+            <div className="flex gap-2 justify-end pt-4 border-t sticky bottom-0 bg-white">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setHtmlContent(htmlContent || "");
+                  setIsHtmlEditorOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSaveHtmlContent}
+              >
+                Save Content
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

@@ -219,10 +219,7 @@ export async function userGetRequest(path) {
     next: { revalidate: 3600 },
   })
     .then(async (response) => {
-      const result = await response.json();
-      
-      // Return the result regardless of response.ok status
-      // This allows us to handle both success and error responses
+      const result = await response.json();      
       return result;
     })
     .catch((error) => {
@@ -231,11 +228,8 @@ export async function userGetRequest(path) {
     });
 }
 
-export async function userPostRequest(path, data) {
-  // Prepare headers object
-  const headers = {};
-
-  // Only set Content-Type to application/json if data is NOT FormData
+export async function userPostRequest(path, data) {  
+  const headers = {};  
   if (!(data instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }

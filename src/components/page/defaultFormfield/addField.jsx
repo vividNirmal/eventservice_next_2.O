@@ -33,6 +33,7 @@ export function FormFieldAddDrawer({
   loading = false,
 }) {
   const [userType, setUserTypes] = useState([]);
+  const [submitLoader,setSubmitLoader] = useState(false)
   const fieldTypeOptions = [
     { value: "text", title: "Text" },
     { value: "textarea", title: "Textarea" },
@@ -181,8 +182,9 @@ export function FormFieldAddDrawer({
       ),
     }),
 
-    onSubmit: async (values) => {
+    onSubmit: async (values) => {      
       try {
+        setSubmitLoader(true)
         const formData = new FormData();
         const completeFieldConfigration = [...(values.fieldConfigration || [])];        
         if (values.fieldVisibleIf && values.fieldVisibleIf.trim() !== "") {
@@ -281,6 +283,7 @@ export function FormFieldAddDrawer({
           );
 
           if (response.status == 1) {
+            setSubmitLoader(false)
             toast.success("Field updated successfully");
             onClose();
             refetch(true);
@@ -361,6 +364,7 @@ export function FormFieldAddDrawer({
           const response = await postRequest("store-default-field", formData);
 
           if (response.status == 1) {
+            setSubmitLoader(false)
             toast.success("Field created successfully");
             onClose();
             refetch(true);
@@ -482,7 +486,7 @@ export function FormFieldAddDrawer({
         <FormikProvider value={formik}>
           <form
             onSubmit={formik.handleSubmit}
-            className="space-y-4 mt-6 overflow-x-auto"
+            className="space-y-4 mt-6 overflow-x-auto overflow-y-hidden"
           >
             <Accordion
               type="single"
@@ -1145,8 +1149,8 @@ export function FormFieldAddDrawer({
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={submitLoader}>
+                {submitLoader && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {editUser ? "Update Field" : "Add Field"}
               </Button>
             </div>
