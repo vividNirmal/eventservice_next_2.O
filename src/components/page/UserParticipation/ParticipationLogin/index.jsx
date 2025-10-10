@@ -4,10 +4,7 @@ import { useFormik } from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail,ticketData }) => {
-  console.log(ticketData?.desktopBannerImage,"-----------------------");
-  
-  const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL 
+const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail,ticketData }) => {      
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -20,8 +17,8 @@ const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail,ticketData 
     onSubmit: async (values) => {
       try {
         const formDate = new FormData();
-        formDate.append("regEmail", values.email);
-        formDate.append("ticketId", eventData?.ticketId);
+        formDate.append("email", values.email);
+        formDate.append("ticketId", ticketData?._id);
 
         const recponce = await userPostRequest(`resolve-email`, formDate);
 
@@ -41,13 +38,13 @@ const ParticipanLogin = ({ eventData, loader = true, onRegisterEmail,ticketData 
       {/* Left Image and Info */}
       <div className="w-full md:w-[38.89%] relative before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
         <img
-          src={`${baseURL}/${ticketData?.desktopBannerImage}`}
+          src={eventData?.event_logo}
           className="w-full h-48 md:h-full object-cover object-center"
           alt="Plastics Recycling Show"
         />
         <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
           <img
-            src={eventData?.ticket?.event_logo}
+            src={eventData?.event_image}
             className="max-w-[65%] lg:max-w-[240px] w-full block mb-8"
             alt="Plastics Recycling Show"
           />

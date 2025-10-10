@@ -7,6 +7,7 @@ import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useParams, useSearchParams } from "next/navigation";
 import { usePreventHydrationMismatch } from "@/hooks/usePreventHydrationMismatch";
 import { toast } from "sonner";
+import TicketBooking from "./businessParticipant/BusinessParticipant";
 
 const UserRegisterEvent = () => {
   // Prevent hydration mismatch from browser extensions
@@ -31,6 +32,7 @@ const UserRegisterEvent = () => {
   const [formLoading, setFormLoading] = useState(false); // Loading state for form
   const [resolvedFormId, setResolvedFormId] = useState(null); // For short URL resolved form_id
   const [registrationStatus, setRegistrationStatus] = useState(null); // For registration status errors
+  const [businessForm, setBusinessFrom] = useState(null);
 
   useEffect(() => {
     // Handle new slug URL pattern: /[eventSlug]/registration
@@ -49,7 +51,7 @@ const UserRegisterEvent = () => {
       const response = await userPostRequest("resolve-ticket-url", formData);
       if (response.status == 1) {
         setEventData(response?.data.event);
-        setTicketData(response?.data.ticket)
+        setTicketData(response?.data.ticket);
         setDynamicForm(response?.data.ticket?.registrationFormId);
         toast.success(response.message || "Job saved successfully!");
       } else {
@@ -65,7 +67,11 @@ const UserRegisterEvent = () => {
     if (emailData) {
       setUserEmail(emailData.email);
       setFaceScanner(emailData.face_scanner);
-      setEventStep(2);
+      if (ticketData?.ticketAmount?.type == "businessSlab") {
+        setEventStep(2);
+      } else {
+        setEventStep(3);
+      }
       setFormData((prev) => ({
         ...prev,
         ...emailData.user,
@@ -75,39 +81,42 @@ const UserRegisterEvent = () => {
   };
 
   // Step validation guard
-  const isStepValid = (step) => {
-    switch (step) {
-      case 1:
-        return true;
-      case 2:
-        return !!userEmail;
-      case 3:
-        return !!qrEventDetails;
-      default:
-        return false;
-    }
-  };
+  // const isStepValid = (step) => {
+  //   switch (step) {
+  //     case 1:
+  //       return true;
+  //     case 2:
+  //       return !!userEmail;
+  //     case 3:
+  //       return !!qrEventDetails;
+  //     default:
+  //       return false;
+  //   }
+  // };
 
-  // Force redirect to appropriate step if invalid
-  useEffect(() => {
-    if (!isStepValid(eventStep)) {
-      console.warn(`⚠️ Invalid step ${eventStep}, redirecting to valid step`);
-      if (!userEmail) {
-        setEventStep(1);
-      } else if (!qrEventDetails) {
-        setEventStep(2);
-      }
-    }
-  }, [eventStep, userEmail, qrEventDetails]);
+  // // Force redirect to appropriate step if invalid
+  // useEffect(() => {
+  //   if (!isStepValid(eventStep)) {
+  //     console.warn(`⚠️ Invalid step ${eventStep}, redirecting to valid step`);
+  //     if (!userEmail) {
+  //       setEventStep(1);
+  //     } else if (!qrEventDetails) {
+  //       setEventStep(2);
+  //     }
+  //   }
+  // }, [eventStep, userEmail, qrEventDetails]);
 
   const handleFormSuccess = async (response) => {
     try {
       // dyanamic FormDate convert
       const formData = new FormData();
-      formData.append("regEmail", userEmail);
+      formData.append("email", userEmail);
       formData.append("ticketId", eventData?.ticketId);
-      formData.append("eventId", eventData?._id);    
+      formData.append("eventId", eventData?._id);
       Object.entries(response).forEach(([key, value]) => {
+        if (key === "email") {
+          return;
+        }
         if (value instanceof File) {
           formData.append(key, value);
         } else if (Array.isArray(value)) {
@@ -130,9 +139,8 @@ const UserRegisterEvent = () => {
           formData.append(key, value);
         }
       });
-      const responce = await userPostRequest('store-register-form',formData)
-      if(responce.status == 1){
-        console.log(responce,"-------------------------");
+      const responce = await userPostRequest("store-register-form", formData);
+      if (responce.status == 1) {
         
       }
       // You need to call your API here, for example:
@@ -179,7 +187,14 @@ const UserRegisterEvent = () => {
     // Update qrEventDetails
     setQrEventDetails(qrDetails);
 
-    setEventStep(3);
+    setEventStep(4);
+  };
+
+  const handleBUnessDate = (data) => {
+    if (data) {
+      setBusinessFrom(data);
+      setEventStep(3);
+    }
   };
 
   // Registration Status Error Component
@@ -281,21 +296,28 @@ const UserRegisterEvent = () => {
     );
   };
 
+
+
   return (
     <>
       {/* Show registration status error if present */}
-      {/* {registrationStatus?.status === 'error' && <RegistrationStatusError />} */}
-
+      {registrationStatus?.status === "error" && <RegistrationStatusError />}z
       {/* Show normal flow only if no registration status error */}
       {!registrationStatus?.status && eventStep === 1 && (
         <ParticipanLogin
           eventData={eventData}
-          ticketData = {ticketData}
+          ticketData={ticketData}
           loading={loading}
           onRegisterEmail={handleRegisterEmail}
         />
       )}
       {!registrationStatus?.status && eventStep === 2 && (
+        <TicketBooking
+          businessData={ticketData}
+          businessForm={handleBUnessDate}
+        />
+      )}
+      {!registrationStatus?.status && eventStep === 3 && (
         <DynamicParticipantForm
           userEmail={userEmail}
           eventData={eventData}
@@ -309,7 +331,7 @@ const UserRegisterEvent = () => {
           onFormSuccess={handleFormSuccess}
         />
       )}
-      {!registrationStatus?.status && eventStep === 3 && (
+      {!registrationStatus?.status && eventStep === 4 && (
         <QrPage
           eventDetails={qrEventDetails}
           formData={formData}
@@ -317,7 +339,6 @@ const UserRegisterEvent = () => {
           token={"After_Pass_Data"}
         />
       )}
-
       {/* Debug Panel - Only shows in development */}
       {/* <DebugPanel
         formData={formData}

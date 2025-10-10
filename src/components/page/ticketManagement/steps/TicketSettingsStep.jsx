@@ -147,7 +147,7 @@ const TicketSettingsStep = ({
             uploadId="login-banner-upload"
             recommendedSize="Recommended size: 1300 x 900px "
             linkValue={formData.linkLoginBanner}
-            onLinkChange={(value) => handleInputChange('linkLoginBanner  ', value)}
+            onLinkChange={(value) => handleInputChange('linkLoginBanner', value)}
             linkPlaceholder="Enter login page banner URL"
           />
         </div>
