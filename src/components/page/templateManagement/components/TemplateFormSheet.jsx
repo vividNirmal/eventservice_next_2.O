@@ -180,6 +180,9 @@ export const TemplateFormSheet = ({
                       modules={textEditormodule.modules}
                       className="w-full min-h-72 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"
                     />
+                    <p className="text-zinc-600 text-xs leading-normal border border-solid border-zinc-200 bg-zinc-100 p-0.5 px-1.5 rounded-full w-fit mt-1">
+                      Use <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">{"{{fieldName}}"}</code> for dynamic data.
+                    </p>
                   </div>
                   {formik.touched.content && formik.errors.content && (
                     <p className="text-red-500 text-xs">
