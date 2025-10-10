@@ -131,10 +131,13 @@ export const useTicketForm = (editData = null) => {
         
         linkBannerDesktop: editData.linkBannerDesktop || null,
         linkBannerMobile: editData.linkBannerMobile || null,
+        linkLoginBanner : editData.linkLoginBanner || null,
         desktopBannerImage: editData.desktopBannerImage || null,
         desktopBannerImagePreview: editData.desktopBannerImageUrl || editData.desktopBannerImage || null,
         mobileBannerImage: editData.mobileBannerImage || null,
         mobileBannerImagePreview: editData.mobileBannerImageUrl || editData.mobileBannerImage || null,
+        loginBannerImage: editData.loginBannerImage || null,        
+        loginBannerImagePreview: editData.loginBannerImageUrl || editData.loginBannerImageUrl || null,
         advancedSettings: {
           ticketBuyLimitMin: editData.advancedSettings?.ticketBuyLimitMin || 1,
           ticketBuyLimitMax: editData.advancedSettings?.ticketBuyLimitMax || 10,

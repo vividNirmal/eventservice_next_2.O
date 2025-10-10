@@ -138,6 +138,18 @@ const TicketSettingsStep = ({
             onLinkChange={(value) => handleInputChange('linkBannerMobile', value)}
             linkPlaceholder="Enter mobile banner URL"
           />
+
+          <ImageUpload
+            label=" Banner (Login)"
+            preview={formData.loginBannerImagePreview}
+            onUpload={handleImageUpload('loginBannerImage', 'loginBannerImagePreview')}
+            onRemove={removeImage('loginBannerImage', 'loginBannerImagePreview')}
+            uploadId="login-banner-upload"
+            recommendedSize="Recommended size: 1300 x 900px "
+            linkValue={formData.linkLoginBanner}
+            onLinkChange={(value) => handleInputChange('linkLoginBanner  ', value)}
+            linkPlaceholder="Enter login page banner URL"
+          />
         </div>
       </div>
     </div>

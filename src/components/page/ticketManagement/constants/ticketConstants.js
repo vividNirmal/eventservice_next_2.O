@@ -104,7 +104,10 @@ export const INITIAL_FORM_DATA = {
   desktopBannerImage: null,
   desktopBannerImagePreview: null,
   mobileBannerImage: null,
+  loginBannerImage:null,
   mobileBannerImagePreview: null,
+  loginBannerImagePreview:null,
+  loginBannerImagePreview : null,
   ctaSettings: [],
 
   // Step 4 - Advanced Settings

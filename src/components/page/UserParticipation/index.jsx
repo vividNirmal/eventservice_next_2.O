@@ -106,7 +106,7 @@ const UserRegisterEvent = () => {
       const formData = new FormData();
       formData.append("regEmail", userEmail);
       formData.append("ticketId", eventData?.ticketId);
-      formData.append("eventId", eventData?._id);
+      formData.append("eventId", eventData?._id);    
       Object.entries(response).forEach(([key, value]) => {
         if (value instanceof File) {
           formData.append(key, value);

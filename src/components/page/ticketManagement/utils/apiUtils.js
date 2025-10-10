@@ -209,7 +209,9 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     delete submitData.desktopBannerImage;
     delete submitData.desktopBannerImagePreview;
     delete submitData.mobileBannerImage;
+    delete submitData.loginBannerImage;
     delete submitData.mobileBannerImagePreview;
+    delete submitData.loginBannerImagePreview;
     delete submitData.desktopBannerImageUrl;
     delete submitData.mobileBannerImageUrl;
     delete submitData.bannerImageUrl;
@@ -235,9 +237,7 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
 
 export const submitTicketData = async (formData, isEditMode, editData, eventId) => {
   try {
-    const submitData = prepareFormDataForSubmission(formData, isEditMode, eventId);
-
-    console.log(`${isEditMode ? 'Updating' : 'Creating'} ticket data`);
+    const submitData = prepareFormDataForSubmission(formData, isEditMode, eventId);    
 
     const response = isEditMode
       ? await updateRequest(`tickets/${editData._id}`, submitData)
