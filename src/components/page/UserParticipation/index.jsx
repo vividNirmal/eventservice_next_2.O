@@ -8,6 +8,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { usePreventHydrationMismatch } from "@/hooks/usePreventHydrationMismatch";
 import { toast } from "sonner";
 import TicketBooking from "./businessParticipant/BusinessParticipant";
+import FaceScannerFrom from "./FaceScanner/FaceScannerFrom";
 
 const UserRegisterEvent = () => {
   // Prevent hydration mismatch from browser extensions
@@ -15,8 +16,7 @@ const UserRegisterEvent = () => {
 
   const params = useParams();
   const { eventSlug, userSlug } = params;
-  const [eventStep, setEventStep] = useState(1);
-  const [eventErrorSlug, setEventErrorSlug] = useState("");
+  const [eventStep, setEventStep] = useState(1);  
   const [formData, setFormData] = useState({ email: "" });
   const [eventData, setEventData] = useState(null);
   const [ticketData, setTicketData] = useState(null);
@@ -30,9 +30,10 @@ const UserRegisterEvent = () => {
   const [userEmail, setUserEmail] = useState(null);
   const [dynamicForm, setDynamicForm] = useState(null); // New state for dynamic form
   const [formLoading, setFormLoading] = useState(false); // Loading state for form
-  const [resolvedFormId, setResolvedFormId] = useState(null); // For short URL resolved form_id
+  const [resolvedForm, setResolvedForm] = useState(null); // For short URL resolved form_id
   const [registrationStatus, setRegistrationStatus] = useState(null); // For registration status errors
   const [businessForm, setBusinessFrom] = useState(null);
+  const [faceDate, setFaceDate] = useState(null);
 
   useEffect(() => {
     // Handle new slug URL pattern: /[eventSlug]/registration
@@ -139,56 +140,100 @@ const UserRegisterEvent = () => {
           formData.append(key, value);
         }
       });
-      const responce = await userPostRequest("store-register-form", formData);
-      if (responce.status == 1) {
-        
-      }
-      // You need to call your API here, for example:
-      // const responce = await userPostRequest("your-api-endpoint", formData);
-      // For now, let's assume response is already available as a parameter.
 
-      // End of try block
+      if (eventData?.with_face_scanner == 1) {
+        setEventStep(4);
+
+        setResolvedForm(response)
+      } else {
+        const responce = await userPostRequest("store-register-form", formData);
+        if (responce.status == 1) {
+          setEventStep(5);
+        }
+      }
     } catch (err) {
       console.log(err.message);
       return; // Prevent further execution if error occurs
     }
     // Extract participant data from response
-    const participantData =
-      response.message?.EventParticipantData ||
-      response.message?.participantUser;
-    const participantUser = participantData?._id
-      ? participantData
-      : response.message?.participantUser;
+    // const participantData =
+    //   response.message?.EventParticipantData ||
+    //   response.message?.participantUser;
+    // const participantUser = participantData?._id
+    //   ? participantData
+    //   : response.message?.participantUser;
 
-    // Update formData with the response data
-    const updatedFormData = {
-      ...formData,
-      participant_id:
-        participantData?._id || participantData?.participant_user_id,
-      event_id: participantData?.event_id || formData.event_id,
-      email:
-        participantData?.dynamic_form_data?.email ||
-        participantData?.dynamic_form_data?.email_address ||
-        participantUser?.dynamic_fields?.email ||
-        participantUser?.dynamic_fields?.email_address ||
-        formData.email ||
-        userEmail,
-    };
+    // // Update formData with the response data
+    // const updatedFormData = {
+    //   ...formData,
+    //   participant_id:
+    //     participantData?._id || participantData?.participant_user_id,
+    //   event_id: participantData?.event_id || formData.event_id,
+    //   email:
+    //     participantData?.dynamic_form_data?.email ||
+    //     participantData?.dynamic_form_data?.email_address ||
+    //     participantUser?.dynamic_fields?.email ||
+    //     participantUser?.dynamic_fields?.email_address ||
+    //     formData.email ||
+    //     userEmail,
+    // };
 
-    setFormData(updatedFormData);
+    // setFormData(updatedFormData);
 
     // Set the QR event details for Step 3 - ensure eventData and base64Image are included
-    const qrDetails = {
-      participantUser: participantUser || participantData,
-      event: eventData || null,
-      base64Image: response.message?.base64Image, // Directly assign base64Image from response
-      ...participantData, // Include all participant data
-    };
+    // const qrDetails = {
+    //   participantUser: participantUser || participantData,
+    //   event: eventData || null,
+    //   base64Image: response.message?.base64Image, // Directly assign base64Image from response
+    //   ...participantData, // Include all participant data
+    // };
     // Update qrEventDetails
-    setQrEventDetails(qrDetails);
-
-    setEventStep(4);
+    // setQrEventDetails(qrDetails);
   };
+
+  async function handelFaseScanner(faceData) {
+    try {
+      const formData = new FormData();
+      formData.append("email", userEmail);
+      formData.append("ticketId", eventData?.ticketId);
+      formData.append("eventId", eventData?._id);
+      // key Changes 
+      formData.append('resolvedForm',faceData)
+      Object.entries(resolvedForm).forEach(([key, value]) => {
+        if (key === "email") {
+          return;
+        }
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else if (Array.isArray(value)) {
+          // Handle arrays (e.g. multiple IDs, objects, etc.)
+          value.forEach((item, index) => {
+            if (typeof item === "object" && !(item instanceof File)) {
+              Object.entries(item).forEach(([subKey, subVal]) => {
+                formData.append(`${key}[${index}][${subKey}]`, subVal);
+              });
+            } else {
+              formData.append(`${key}[${index}]`, item);
+            }
+          });
+        } else if (typeof value === "object" && value !== null) {
+          // Handle nested objects
+          Object.entries(value).forEach(([subKey, subVal]) => {
+            formData.append(`${key}[${subKey}]`, subVal);
+          });
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, value);
+        }
+      });
+      const responce = await userPostRequest("store-register-form", formData);
+      if (responce.status == 1) {
+        setEventStep(5);
+      }
+    } catch (err) {
+      console.log(err.message);
+      return; // Prevent further execution if error occurs
+    }
+  }
 
   const handleBUnessDate = (data) => {
     if (data) {
@@ -296,8 +341,6 @@ const UserRegisterEvent = () => {
     );
   };
 
-
-
   return (
     <>
       {/* Show registration status error if present */}
@@ -331,7 +374,12 @@ const UserRegisterEvent = () => {
           onFormSuccess={handleFormSuccess}
         />
       )}
-      {!registrationStatus?.status && eventStep === 4 && (
+      {!registrationStatus?.status &&
+        eventStep === 4 &&
+        eventData?.with_face_scanner == 1 && (
+          <FaceScannerFrom faceDate={handelFaseScanner} />
+        )}
+      {!registrationStatus?.status && eventStep === 5 && (
         <QrPage
           eventDetails={qrEventDetails}
           formData={formData}

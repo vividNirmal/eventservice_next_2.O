@@ -125,7 +125,7 @@ const FaceScanner = ({
           });
         });
       } else {
-        throw new Error("Video element not available");
+        console.error("Video element not available")
       }
     } catch (err) {
       console.error("❌ Camera access error:", err);
@@ -286,7 +286,7 @@ const FaceScanner = ({
 
     const image = captureImage(videoRef.current);
     
-    if (image && onManualCapture) {
+    if (image ) {
       onManualCapture({ image });
     } else {
       toast.error("Failed to capture image. Please try again.");
