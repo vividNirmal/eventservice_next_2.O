@@ -228,7 +228,7 @@ export async function userGetRequest(path) {
     });
 }
 
-export async function userPostRequest(path, data) {  
+export async function   userPostRequest(path, data) {  
   const headers = {};  
   if (!(data instanceof FormData)) {
     headers["Content-Type"] = "application/json";
@@ -247,18 +247,22 @@ export async function userPostRequest(path, data) {
           error: result.message?.message || result?.message || result.error || `HTTP ${response.status}: ${response.statusText}`,
           status: response.status,
           code: result.code || 'HTTP_ERROR',
-          success: false
+          success: false,
+          errorJson : result
         };
       }
 
       // Check if the API returned an error in the response body
       if (result.error || result.code === 'INTERNAL_SERVER_ERROR' || (typeof result.message?.message === 'string' && result.message.message.includes('error'))) {
-        return {
+        
+        
+        return {          
           error: result.message?.message || result?.message || result.error || 'Unknown error occurred',
           status: response.status,
           code: result.code || 'API_ERROR',
           success: false,
-          message: result.message || null
+          message: result.message || null,
+        
         };
       }
 

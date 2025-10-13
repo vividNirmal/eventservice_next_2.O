@@ -112,7 +112,7 @@ const UserRegisterEvent = () => {
       // dyanamic FormDate convert
       const formData = new FormData();
       formData.append("email", userEmail);
-      formData.append("ticketId", eventData?.ticketId);
+      formData.append("ticketId", ticketData?._id);
       formData.append("eventId", eventData?._id);
       Object.entries(response).forEach(([key, value]) => {
         if (key === "email") {
@@ -195,7 +195,7 @@ const UserRegisterEvent = () => {
     try {
       const formData = new FormData();
       formData.append("email", userEmail);
-      formData.append("ticketId", eventData?.ticketId);
+      formData.append("ticketId", ticketData?._id);
       formData.append("eventId", eventData?._id);
       // key Changes 
       formData.append('resolvedForm',faceData)
