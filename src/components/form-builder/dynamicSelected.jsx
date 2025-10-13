@@ -168,7 +168,7 @@ export const DynamicSelect = ({ element, value, onChange, onBlur, error, formVal
       search={options.length > 10}
       options={options}
       placeholder={element.placeHolder || "Select an option"}
-      className={error ? "border-red-500" : ""}
+      className={cn("2xl:h-10", error ? "border-red-500" : "")}
     />
   );
 };

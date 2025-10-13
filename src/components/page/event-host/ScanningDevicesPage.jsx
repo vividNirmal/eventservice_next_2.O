@@ -176,8 +176,8 @@ function ScanningDevicesPage() {
 
     return (
         <section>
-            <Card className={"gap-0 py-3"}>
-                <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
+            <Card className={"gap-0"}>
+                <CardHeader className={"flex flex-wrap items-center !px-0 gap-3"}>
                     <div className="flex flex-col gap-1">
                         <CardTitle>Scanning Devices</CardTitle>
                     </div>
@@ -186,17 +186,9 @@ function ScanningDevicesPage() {
                     <div className="flex items-center space-x-3 ml-auto">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <Input
-                                placeholder="Search devices..."
-                                value={searchTerm}
-                                onChange={(e) => handleSearchChange(e.target.value)}
-                                className="pl-10"
-                            />
+                            <Input placeholder="Search devices..." value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} className="pl-10" />
                         </div>
-                        <Select
-                            value={selectedLimit.toString()}
-                            onValueChange={handleLimitChange}
-                        >
+                        <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
                             <SelectTrigger className="w-[100px]">
                                 <SelectValue />
                             </SelectTrigger>

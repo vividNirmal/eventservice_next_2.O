@@ -150,7 +150,7 @@ const formik = useFormik({
   return (
     <>
     <Card className="shadow-none">
-      <CardHeader>
+      <CardHeader className={'!px-0'}>
         <CardTitle>Default Templates</CardTitle>
       </CardHeader>
       <CardContent>

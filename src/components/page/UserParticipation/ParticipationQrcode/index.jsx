@@ -172,17 +172,11 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
         <div className="bg-zinc-100 px-6 py-4 relative rounded-t-xl">
           {/* Safe access to event logo with fallback */}
           {(eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo) && (
-            <img
-              src={eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo}
-              className="mx-auto"
-              alt="logo"
-            />
+            <img src={eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo} className="mx-auto" alt="logo" />
           )}
           {/* Show placeholder if no logo */}
           {!(eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo) && (
-            <div className="mx-auto text-center py-4 text-gray-500">
-              Event Logo
-            </div>
+            <div className="mx-auto text-center py-4 text-gray-500">Event Logo</div>
           )}
         </div>
 
@@ -193,14 +187,11 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
             <div className="flex items-center justify-center w-10 h-10 bg-teal-50 rounded-full">
               <Calendar className="w-5 h-5 text-teal-600" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Date & Time</p>
-              <p className="font-semibold">
-                {eventDetails?.startDate || eventData?.startDate} {eventDetails?.startTime || eventData?.startTime}
-              </p>
-              <p className="text-sm text-slate-500">
-                {eventDetails?.endDate || eventData?.endDate} {eventDetails?.endTime || eventData?.endTime}
-              </p>
+            <div className="flex flex-wrap gap-x-2">
+              <p className="text-base font-medium text-zinc-950 w-full">Date & Time</p>
+              <p className="text-sm text-zinc-500 font-semibold">{eventDetails?.startDate || eventData?.startDate} {eventDetails?.startTime || eventData?.startTime}</p>
+              <p className="text-sm text-zinc-500 font-semibold">to</p>
+              <p className="text-sm text-zinc-500 font-semibold">{eventDetails?.endDate || eventData?.endDate} {eventDetails?.endTime || eventData?.endTime}</p>
             </div>
           </div>
 
@@ -209,9 +200,9 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
             <div className="flex items-center justify-center w-10 h-10 bg-orange-50 rounded-full">
               <MapPin className="w-5 h-5 text-orange-600" />
             </div>
-            <div>
-              <p className="text-sm font-medium text-slate-500">Location</p>
-              <p className="font-semibold capitalize">
+            <div className="flex flex-wrap gap-x-2">
+              <p className="text-base font-medium text-zinc-950 w-full">Location</p>
+              <p className="text-sm text-zinc-500 font-semibold capitalize">
                 {eventDetails?.event?.location ||
                   eventDetails?.location ||
                   eventData?.location ||
@@ -245,12 +236,7 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
           <div className="flex justify-center">
             <div className="bg-white p-2 rounded-xl shadow-inner border-2 border-slate-100">
               {eventDetails?.base64Image && (
-                <Image
-                  height={228}
-                  width={228}
-                  src={eventDetails.base64Image}
-                  alt="QR Code for event access"
-                />
+                <Image height={228} width={228} src={eventDetails.base64Image} alt="QR Code for event access" />
               )}
               {!eventDetails?.base64Image && (
                 <div className="w-[228px] h-[228px] bg-gray-100 flex items-center justify-center rounded-lg">
@@ -272,12 +258,7 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button
-              variant="outline"
-              className="text-base flex-1 h-12 font-semibold border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
-              onClick={handleDownload}
-              disabled={pdfLoading}
-            >
+            <Button variant="outline" className="text-base flex-1 h-12 font-semibold border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300" onClick={handleDownload} disabled={pdfLoading}>
               {pdfLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -290,11 +271,7 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
                 </>
               )}
             </Button>
-            <Button
-              className="text-base flex-1 h-12 font-semibold bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800"
-              onClick={handlePrint}
-              disabled={printLoading}
-            >
+            <Button className="text-base flex-1 h-12 font-semibold !border-none hover:text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800" onClick={handlePrint} disabled={printLoading}>
               {printLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

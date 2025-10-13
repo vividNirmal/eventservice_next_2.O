@@ -64,14 +64,9 @@ const UserSmsTemplateManagement = ({ eventId }) => {
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6">
-            <TabsTrigger value="user-templates" className="px-6">
-              My Templates
-            </TabsTrigger>
-            <TabsTrigger value="default-templates" className="px-6">
-              Default Templates
-            </TabsTrigger>
+            <TabsTrigger value="user-templates" className="px-6">My Templates</TabsTrigger>
+            <TabsTrigger value="default-templates" className="px-6">Default Templates</TabsTrigger>
           </TabsList>
-
           <div className="space-y-4">{activeTabContent}</div>
         </Tabs>
       </CardContent>

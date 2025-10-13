@@ -29,13 +29,7 @@ const TicketSettingsStep = ({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="ticketPerUser">Ticket Per User *</Label>
-          <Input
-            id="ticketPerUser"
-            type="number"
-            min="1"
-            value={formData.ticketPerUser}
-            onChange={(e) => handleInputChange('ticketPerUser', parseInt(e.target.value) || 1)}
-          />
+          <Input id="ticketPerUser" type="number" min="1" value={formData.ticketPerUser} onChange={(e) => handleInputChange('ticketPerUser', parseInt(e.target.value) || 1)} />
         </div>
 
         <div className="space-y-2">
@@ -112,44 +106,11 @@ const TicketSettingsStep = ({
       </div>
 
       <Separator />
-
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-6">
-          <ImageUpload
-            label="Link Banner (Desktop)"
-            preview={formData.desktopBannerImagePreview}
-            onUpload={handleImageUpload('desktopBannerImage', 'desktopBannerImagePreview')}
-            onRemove={removeImage('desktopBannerImage', 'desktopBannerImagePreview')}
-            uploadId="desktop-banner-upload"
-            recommendedSize="Recommended size: 800 x 1000px | 1MB"
-            linkValue={formData.linkBannerDesktop}
-            onLinkChange={(value) => handleInputChange('linkBannerDesktop', value)}
-            linkPlaceholder="Enter desktop banner URL"
-          />
-
-          <ImageUpload
-            label="Link Banner (Mobile)"
-            preview={formData.mobileBannerImagePreview}
-            onUpload={handleImageUpload('mobileBannerImage', 'mobileBannerImagePreview')}
-            onRemove={removeImage('mobileBannerImage', 'mobileBannerImagePreview')}
-            uploadId="mobile-banner-upload"
-            recommendedSize="Recommended size: 1300 x 900px | 1MB"
-            linkValue={formData.linkBannerMobile}
-            onLinkChange={(value) => handleInputChange('linkBannerMobile', value)}
-            linkPlaceholder="Enter mobile banner URL"
-          />
-
-          <ImageUpload
-            label=" Banner (Login)"
-            preview={formData.loginBannerImagePreview}
-            onUpload={handleImageUpload('loginBannerImage', 'loginBannerImagePreview')}
-            onRemove={removeImage('loginBannerImage', 'loginBannerImagePreview')}
-            uploadId="login-banner-upload"
-            recommendedSize="Recommended size: 1300 x 900px "
-            linkValue={formData.linkLoginBanner}
-            onLinkChange={(value) => handleInputChange('linkLoginBanner', value)}
-            linkPlaceholder="Enter login page banner URL"
-          />
+          <ImageUpload label="Link Banner (Desktop)" preview={formData.desktopBannerImagePreview} onUpload={handleImageUpload('desktopBannerImage', 'desktopBannerImagePreview')} onRemove={removeImage('desktopBannerImage', 'desktopBannerImagePreview')} uploadId="desktop-banner-upload" recommendedSize="Recommended size: 800 x 1000px | 1MB" linkValue={formData.linkBannerDesktop} onLinkChange={(value) => handleInputChange('linkBannerDesktop', value)} linkPlaceholder="Enter desktop banner URL" />
+          <ImageUpload label="Link Banner (Mobile)" preview={formData.mobileBannerImagePreview} onUpload={handleImageUpload('mobileBannerImage', 'mobileBannerImagePreview')} onRemove={removeImage('mobileBannerImage', 'mobileBannerImagePreview')} uploadId="mobile-banner-upload" recommendedSize="Recommended size: 1300 x 900px | 1MB" linkValue={formData.linkBannerMobile} onLinkChange={(value) => handleInputChange('linkBannerMobile', value)} linkPlaceholder="Enter mobile banner URL" />
+          <ImageUpload label=" Banner (Login)" preview={formData.loginBannerImagePreview} onUpload={handleImageUpload('loginBannerImage', 'loginBannerImagePreview')} onRemove={removeImage('loginBannerImage', 'loginBannerImagePreview')} uploadId="login-banner-upload" recommendedSize="Recommended size: 1300 x 900px" linkValue={formData.linkLoginBanner} onLinkChange={(value) => handleInputChange('linkLoginBanner', value)} linkPlaceholder="Enter login page banner URL" />
         </div>
       </div>
     </div>

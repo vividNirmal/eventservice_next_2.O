@@ -25,7 +25,7 @@ const ImageUpload = ({
                 <img
                   src={preview}
                   alt={`${label} preview`}
-                  className="max-w-full h-48 object-cover rounded-lg"
+                  className="max-w-full h-48 object-cover rounded-lg mx-auto"
                 />
                 <div className="flex gap-2 justify-center">
                   <Button

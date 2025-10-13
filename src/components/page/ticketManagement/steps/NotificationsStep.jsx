@@ -138,7 +138,7 @@ const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }
   }, []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {CHANNELS.map(({ key, label, type }) => {
         const detail = getDetail(key);
         const tTypes = typesByChannel[type] || [];
@@ -163,7 +163,7 @@ const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }
 
                       return (
                         <div key={tt._id} className="flex flex-col gap-1">
-                          <Label className={'capitalize'}>{tt.typeName || tt.actionType} <Badge variant="secondary" className="bg-zinc-200 px-1.5 text-xs">{tt.actionType ? ` (${tt.actionType})` : ''}</Badge> </Label>
+                          <Label className={'capitalize flex flex-wrap items-center'}>{tt.typeName || tt.actionType} <Badge variant="outline" className="ml-auto text-zinc-600 py-0.5 text-xs">{tt.actionType ? ` (${tt.actionType})` : ''}</Badge></Label>
                           <Select value={selectedVal} onValueChange={handleSelectChange(key, type, tt)}>
                             <SelectTrigger className="w-full">
                               <SelectValue placeholder="Select a template" />

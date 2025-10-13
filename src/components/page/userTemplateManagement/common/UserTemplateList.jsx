@@ -153,7 +153,7 @@ const UserTemplateList = ({ eventId, templateType }) => {
   return (
     <>
       <Card className="shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="!px-0 flex flex-row items-center justify-between">
           <CardTitle>My Templates</CardTitle>
           <Button onClick={handleCreateTemplate}>
             <Plus className="h-4 w-4 mr-2" />

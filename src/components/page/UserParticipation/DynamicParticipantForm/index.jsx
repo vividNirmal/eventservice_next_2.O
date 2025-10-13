@@ -306,6 +306,13 @@ const DynamicParticipantForm = ({
     }
   };
 
+  // const handleNext = () => {
+  //   if (!isLastStep) {
+  //     setCurrentStep(currentStep + 1);
+  //     formik.setTouched({});
+  //   }
+  // };
+
   const handlePrevious = () => {
     if (!isFirstStep) {
       setCurrentStep(currentStep - 1);
@@ -331,234 +338,106 @@ const DynamicParticipantForm = ({
     const renderInput = () => {
       switch (fieldType) {
         case "textarea":
-          return (
-            <Textarea
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder={placeHolder}
-              rows={4}
-              className={error ? "border-red-500" : ""}
-            />
-          );
-
+        return (
+          <Textarea id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={placeHolder} rows={4} className={cn("bg-white", error ? "border-red-500" : "")} />
+        );
         case "select":
-          return (
-            <DynamicSelect
-              element={element}
-              value={value}
-              onChange={(val) => formik.setFieldValue(fieldName, val)}
-              onBlur={() => formik.setFieldTouched(fieldName, true)}
-              error={error}
-              formValues={formik.values}
-            />
-          );
-
+        return (
+          <DynamicSelect element={element} value={value} onChange={(val) => formik.setFieldValue(fieldName, val)} onBlur={() => formik.setFieldTouched(fieldName, true)} error={error} formValues={formik.values} />
+        );
         case "radio":
-          return (
-            <RadioGroup
-              className={"flex flex-wrap"}
-              value={value}
-              onValueChange={(val) => formik.setFieldValue(fieldName, val)}
-            >
-              {fieldOptions?.map((option, idx) => {
-                let parsedOption = option;
-                if (typeof option === "string") {
-                  try {
-                    parsedOption = JSON.parse(option);
-                  } catch (e) {
-                    parsedOption = option;
-                  }
+        return (
+          <RadioGroup className={"flex flex-wrap"} value={value} onValueChange={(val) => formik.setFieldValue(fieldName, val)}>
+            {fieldOptions?.map((option, idx) => {
+              let parsedOption = option;
+              if (typeof option === "string") {
+                try {
+                  parsedOption = JSON.parse(option);
+                } catch (e) {
+                  parsedOption = option;
                 }
+              }
+              const optionValue = parsedOption.value || Object.keys(parsedOption)[0] || parsedOption;
+              const optionLabel = parsedOption.label || Object.values(parsedOption)[0] || parsedOption;
 
-                const optionValue =
-                  parsedOption.value ||
-                  Object.keys(parsedOption)[0] ||
-                  parsedOption;
-                const optionLabel =
-                  parsedOption.label ||
-                  Object.values(parsedOption)[0] ||
-                  parsedOption;
-
-                return (
-                  <div key={idx} className="inline-flex items-center space-x-2">
-                    <RadioGroupItem
-                      className={
-                        "data-[state=checked]:[&>span>svg]:fill-blue-500 data-[state=checked]:[&>span>svg]:text-blue-500"
-                      }
-                      value={optionValue}
-                      id={`${fieldName}-${idx}`}
-                    />
-                    <Label
-                      htmlFor={`${fieldName}-${idx}`}
-                      className="font-normal cursor-pointer mb-0 "
-                    >
-                      {optionLabel}
-                    </Label>
-                  </div>
-                );
-              })}
-            </RadioGroup>
-          );
-
+              return (
+                <div key={idx} className="inline-flex items-center space-x-2">
+                  <RadioGroupItem className={"data-[state=checked]:[&>span>svg]:fill-blue-500 data-[state=checked]:[&>span>svg]:text-blue-500"} value={optionValue} id={`${fieldName}-${idx}`} />
+                  <Label htmlFor={`${fieldName}-${idx}`} className="font-normal cursor-pointer mb-0 ">{optionLabel}</Label>
+                </div>
+              );
+            })}
+          </RadioGroup>
+        );
         case "checkbox":
-          return (
-            <div className={"flex flex-wrap"}>
-              {fieldOptions?.map((option, idx) => {
-                let parsedOption = option;
-                if (typeof option === "string") {
-                  try {
-                    parsedOption = JSON.parse(option);
-                  } catch (e) {
-                    parsedOption = option;
-                  }
-                }
+        return (
+          <div className={"flex flex-wrap"}>
+            {fieldOptions?.map((option, idx) => {
+              let parsedOption = option;
+              if (typeof option === "string") {
+                try { parsedOption = JSON.parse(option); } catch (e) { parsedOption = option;}
+              }
 
-                const optionValue =
-                  parsedOption.value ||
-                  Object.keys(parsedOption)[0] ||
-                  parsedOption;
-                const optionLabel =
-                  parsedOption.label ||
-                  Object.values(parsedOption)[0] ||
-                  parsedOption;
+              const optionValue = parsedOption.value || Object.keys(parsedOption)[0] || parsedOption;
+              const optionLabel = parsedOption.label || Object.values(parsedOption)[0] || parsedOption;
+              const isChecked = Array.isArray(value) ? value.includes(optionValue) : value === optionValue;
 
-                const isChecked = Array.isArray(value)
-                  ? value.includes(optionValue)
-                  : value === optionValue;
-
-                return (
-                  <div key={idx} className="inline-flex items-center gap-4">
-                    <Checkbox
-                      className={
-                        "data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+              return (
+                <div key={idx} className="inline-flex items-center gap-4">
+                  <Checkbox className={"data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"} id={`${fieldName}-${idx}`} checked={isChecked}
+                    onCheckedChange={(checked) => {
+                      let newValue;
+                      if (Array.isArray(value)) {
+                        newValue = checked
+                          ? [...value, optionValue]
+                          : value.filter((v) => v !== optionValue);
+                      } else {
+                        newValue = checked ? [optionValue] : [];
                       }
-                      id={`${fieldName}-${idx}`}
-                      checked={isChecked}
-                      onCheckedChange={(checked) => {
-                        let newValue;
-                        if (Array.isArray(value)) {
-                          newValue = checked
-                            ? [...value, optionValue]
-                            : value.filter((v) => v !== optionValue);
-                        } else {
-                          newValue = checked ? [optionValue] : [];
-                        }
-                        formik.setFieldValue(fieldName, newValue);
-                      }}
-                    />
-                    <Label
-                      htmlFor={`${fieldName}-${idx}`}
-                      className="font-normal cursor-pointer mb-0"
-                    >
-                      {optionLabel}
-                    </Label>
-                  </div>
-                );
-              })}
-            </div>
-          );
-
+                      formik.setFieldValue(fieldName, newValue);
+                    }}
+                  />
+                  <Label htmlFor={`${fieldName}-${idx}`} className="font-normal cursor-pointer mb-0">{optionLabel}</Label>
+                </div>
+              );
+            })}
+          </div>
+        );
         case "file":
-          return (
-            <div>
-              <Input
-                type="file"
-                id={fieldName}
-                accept={
-                  fileType
-                    ? fileType.map((type) => `.${type}`).join(",")
-                    : undefined
-                }
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  formik.setFieldValue(fieldName, file);
-                  formik.setFieldTouched(fieldName, true);
-                }}
-                onBlur={formik.handleBlur}
-                className={error ? "border-red-500" : ""}
-              />
-              {(fileType || fileSize) && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  {fileType && `Allowed: ${fileType.join(", ")}`}
-                  {fileType && fileSize && " | "}
-                  {fileSize && `Max size: ${fileSize}`}
-                </p>
-              )}
-            </div>
-          );
-
+        return (
+          <div>
+            <Input type="file" id={fieldName} accept={fileType ? fileType.map((type) => `.${type}`).join(",") : undefined} onChange={(e) => {const file = e.target.files[0]; formik.setFieldValue(fieldName, file); formik.setFieldTouched(fieldName, true);}} onBlur={formik.handleBlur} className={cn("bg-white !py-1", error ? "border-red-500" : "")} />
+            {(fileType || fileSize) && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {fileType && `Allowed: ${fileType.join(", ")}`}
+                {fileType && fileSize && " | "}
+                {fileSize && `Max size: ${fileSize}`}
+              </p>
+            )}
+          </div>
+        );
         case "html":
-          return (
-            <>
-              <ReactQuill
-                value={value}
-                onChange={(content) => formik.setFieldValue(fieldName, content)}
-                onBlur={() => formik.setFieldTouched(fieldName, true)}
-                placeholder={placeHolder}
-                theme="snow"
-                className={
-                  error
-                    ? "border-red-500"
-                    : "w-full min-h-72 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"
-                }
-              />
-            </>
-          );
-
+        return (
+          <>
+            <ReactQuill value={value} onChange={(content) => formik.setFieldValue(fieldName, content)} onBlur={() => formik.setFieldTouched(fieldName, true)} placeholder={placeHolder} theme="snow" className={error ? "border-red-500" : "[&>div]:bg-white w-full min-h-52 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"} />
+          </>
+        );
         case "hidden":
-          return (
-            <Input
-              type="hidden"
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-            />
-          );
-
+        return (
+          <Input type="hidden" id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} />
+        );
         case "date":
-          return (
-            <Input
-              type="date"
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className={error ? "border-red-500" : ""}
-            />
-          );
-
+        return (
+          <Input type="date" id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} className={cn("bg-white", error ? "border-red-500" : "")} />
+        );
         case "password":
-          return (
-            <Input
-              type="password"
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder={placeHolder}
-              className={error ? "border-red-500" : ""}
-            />
-          );
-
+        return (
+          <Input type="password" id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={placeHolder} className={cn("bg-white", error ? "border-red-500" : "")} />
+        );
         default:
-          return (
-            <Input
-              type={fieldType}
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder={placeHolder}
-              className={error ? "border-red-500" : ""}
-            />
-          );
+        return (
+          <Input type={fieldType} id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={placeHolder} className={cn("bg-white", error ? "border-red-500" : "")} />
+        );
       }
     };
 
@@ -567,7 +446,7 @@ const DynamicParticipantForm = ({
     }
 
     return (
-      <div key={_id} className="flex flex-col gap-1.5">
+      <div key={_id} className={cn("flex flex-col gap-1 grow", (fieldType === "textarea" || fieldType === "html") ? "w-full" : "w-full lg:w-5/12")}>
         <div className="flex flex-wrap justify-between">
           <Label className={"mb-0"} htmlFor={fieldName}>
             {fieldTitle || fieldName}{" "}
@@ -580,9 +459,7 @@ const DynamicParticipantForm = ({
         <div className="relative pb-3.5">
           {renderInput()}
           {error && (
-            <p className="capitalize text-xs text-red-500 absolute left-0 -bottom-1">
-              {error}
-            </p>
+            <p className="capitalize text-xs text-red-500 absolute left-0 -bottom-1">{error}</p>
           )}
         </div>
       </div>
@@ -601,33 +478,29 @@ const DynamicParticipantForm = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-y-5 p-4 bg-[#f7f9fc]">
+    <div className="h-svh flex flex-wrap gap-y-5 p-4 bg-[#f7f9fc]">
       <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
         <img src="/assets/images/login-img.webp" className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" />
-        <div className="absolute bottom-0 left-0 right-0 p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
-          <p className="z-1 text-white text-base 2xl:text-lg font-normal leading-normal">Lorem ipsum dolor sit amet, consectetur adipisicing elit it amet, consectetur adipisicing eli. Laboriosam veritatis nihil repudiandae.</p>
+        <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
+          <p className="z-1 text-white text-sm xl:text-base 2xl:text-lg font-normal leading-normal">Lorem ipsum dolor sit amet, consectetur adipisicing elit it amet, consectetur adipisicing eli. Laboriosam veritatis nihil repudiandae.</p>
         </div>
       </div>
-      <div className="w-2/5 grow px-9 max-h-svh flex flex-col">
+      <div className="w-2/5 grow lg:px-5 2xl:px-9 max-h-svh flex flex-col">
         {form.pages.length > 1 && (
           <div className="relative py-4">
-            <Progress value={progress} className="h-1 absolute top-8 bg-[repeating-linear-gradient(_90deg,_#dddddd_0px,_#dddddd_5px,_#FFFFFF_5px,_#FFFFFF_10px)] [&>div]:bg-[repeating-linear-gradient(_90deg,_#3853ff_0px,_#3853ff_6px,_#FFFFFF_6px,_#FFFFFF_12px)]" />
+            <Progress value={progress} className="h-1 absolute top-9 bg-muted [&>div]:bg-[#3853ff]" />
             <ul className="flex items-center justify-between">
               {form.pages.map((page, index) => (
-                <li key={index} className="flex flex-col items-center gap-2.5 basis-0 flex-1 text-center relative z-10">
-                  <div className={cn("flex items-center justify-center size-9 2xl:size-10 rounded-xl font-semibold border border-solid shadow-[0_0_0_10px_#f7f9fc] transition-all", index < currentStep ? "bg-[#3853ff] text-white" : index === currentStep ? "bg-[#3853ff] border-[#3853ff] text-white" : "bg-muted border-zinc-200 text-muted-foreground")}>
-                    {index < currentStep ? (<Check className="h-5 w-5" />) : (index + 1)}
-                  </div>
-                  <div className={cn("capitalize font-medium text-sm 2xl:text-base", index === currentStep ? "text-foreground" : "text-muted-foreground")}>
-                    {page.name}
-                  </div>
+                <li key={index} className="flex flex-col items-center gap-1.5 md:gap-2.5 basis-0 w-fit md:flex-1 text-center relative z-10">
+                  <div className={cn("flex items-center justify-center text-sm md:text-base size-8 md:size-9 2xl:size-10 rounded-lg md:rounded-xl font-semibold border border-solid shadow-[0_0_0_10px_#f7f9fc] transition-all", index < currentStep ? "bg-[#3853ff] text-white" : index === currentStep ? "bg-[#3853ff] border-[#3853ff] text-white" : "bg-muted border-zinc-200 text-muted-foreground")}>{index < currentStep ? (<Check className="h-5 w-5" />) : (index + 1)}</div>
+                  <div className={cn("capitalize font-medium text-xs sm:text-sm 2xl:text-base whitespace-nowrap", index === currentStep ? "text-foreground" : "text-muted-foreground")}>{page.name}</div>
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        <div className="overflow-auto h-96 grow">
+        <div className="overflow-auto h-96 grow pr-1">
           <Card className={"rouneded-none border-0 shadow-none !p-1 bg-transparent"}>
             <CardHeader className={"!px-0"}>
               <CardTitle>{currentPage.name}</CardTitle>
@@ -637,27 +510,18 @@ const DynamicParticipantForm = ({
               {currentPage.elements.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Eye className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                  <p className="text-lg font-medium">
-                    No elements on this page
-                  </p>
+                  <p className="text-lg font-medium">No elements on this page</p>
                   <p className="text-sm">Add fields to see them here</p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {currentPage.elements.map((element) => renderField(element))}
-                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-2">{currentPage.elements.map((element) => renderField(element))}</div>
               )}
             </CardContent>
           </Card>
         </div>
 
         <div className="shrink-0 flex items-center justify-between pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={isFirstStep}
-          >
+          <Button type="button" variant="outline" onClick={handlePrevious} disabled={isFirstStep}>
             <ChevronLeft className="h-4 w-4 mr-2" />
             Previous
           </Button>
