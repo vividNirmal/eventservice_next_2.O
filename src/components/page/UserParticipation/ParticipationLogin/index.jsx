@@ -140,17 +140,9 @@ const ParticipanLogin = ({
 
   return (
     <>
-      <section className="min-h-screen bg-white flex flex-col md:flex-row overflow-auto">
-        {/* Left Image and Info */}
-        <div className="w-full md:w-2/4 grow relative before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
-          <SafeImage
-            src={ticketData?.loginBannerImageUrl}
-            placeholderSrc="/assets/images/login-img.webp"
-            alt="Plastics Recycling Show"
-            width={1200}
-            height={600}
-            className="w-full h-48 md:h-full object-cover object-center"
-          />
+      <section className="flex flex-wrap gap-5 bg-[#f7f9fc] h-svh overflow-auto lg:overflow-hidden">
+        <div className="w-full md:w-2/4 grow relative after:block after:pt-[56.25%] lg:after:pt-[100%] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
+          <SafeImage src={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
           {/* <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
             <img
               src={eventData?.event_image}
@@ -164,19 +156,17 @@ const ParticipanLogin = ({
         </div>
 
         {/* Form Right Side */}
-        <div className="w-full md:w-1/3 px-6 md:pl-0 md:py-14 xl:pt-24 xl:pb-20 md:pr-8 xl:pr-20 bg-no-repeat bg-right-top ln-plasticsRe-bg flex flex-col justify-center">
-          <h2 className="pl-2 md:pl-6 lg:pl-8 mb-4 md:mb-6 font-semibold text-[18px] md:text-3xl xl:text-[40px] text-[#1E3238] capitalize">
-            Login
-          </h2>
+        <div className="shrink-0 w-full lg:w-5/12 xl:w-1/3 px-6 lg:pl-0 md:pr-8 xl:pr-20 py-5 bg-no-repeat bg-right-top ln-plasticsRe-bg flex flex-col self-stretch justify-center lg:justify-normal 2xl:justify-center">
+          <h2 className="pl-2 md:pl-6 2xl:pl-8 mb-4 md:mb-6 font-semibold text-[18px] md:text-3xl 2xl:text-[40px] text-[#1E3238] capitalize">Login</h2>
 
-          <div className="bg-[#F8F8F8] shadow-[0px_4px_6px_0px_#0000000D] mb-4 md:mb-8 lg:mb-12 py-4 md:py-6 px-2 md:px-6 lg:px-8 lg:rounded-r-3xl relative lg:before:absolute before:top-2/4 before:-translate-y-2/4 before:left-0 before:w-1.5 before:h-[calc(100%_-_48px)] before:block before:bg-[#005153] before:rounded-r-3xl">
+          <div className="bg-[#F8F8F8] shadow-[0px_4px_6px_0px_#0000000D] mb-4 md:mb-8 lg:mb-12 py-4 md:py-6 px-2 md:px-6 2xl:px-8 lg:rounded-r-3xl relative lg:before:absolute before:top-2/4 before:-translate-y-2/4 before:left-0 before:w-1.5 before:h-[calc(100%_-_48px)] before:block before:bg-[#005153] before:rounded-r-3xl">
             <p className="text-[#1E3238] font-normal text-sm lg:text-base capitalize">
               {eventData?.eventName || eventData?.event_title}
             </p>
           </div>
 
           {/* Email Form */}
-          <div className="border border-solid bg-white ml-0 md:ml-6 lg:ml-8 rounded-3xl shadow-[0px_0px_0px_4px_rgba(0,81,83,0.14)] border-[#F3F3F3] p-5 md:p-6 lg:py-8 lg:px-6">
+          <div className="border border-solid bg-white ml-0 2xl:ml-8 rounded-3xl shadow-[0px_0px_0px_4px_rgba(0,81,83,0.14)] border-[#F3F3F3] p-5 md:p-6 lg:py-8 lg:px-6">
             <form onSubmit={formik.handleSubmit}>
               <div>
                 <Input

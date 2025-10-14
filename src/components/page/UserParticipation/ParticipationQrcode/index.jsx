@@ -169,9 +169,9 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
         {/* Header */}
         <div className="bg-zinc-100 px-6 py-4 relative rounded-t-xl">
           {/* Safe access to event logo with fallback */}
-          {(eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo) && (
+          {/* {(eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo) && (
             <img src={eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo} className="mx-auto" alt="logo" />
-          )}
+          )} */}
           {/* Show placeholder if no logo */}
           {!(eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo) && (
             <div className="mx-auto text-center py-4 text-gray-500">Event Logo</div>

@@ -27,6 +27,7 @@ import { useParams, useRouter } from "next/navigation";
 import { getRequest } from "@/service/viewService";
 import { cn } from "@/lib/utils";
 import { DynamicSelect } from "@/components/form-builder/dynamicSelected";
+import { SafeImage } from "@/components/common/SafeImage";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
 const DynamicParticipantForm = ({
@@ -348,7 +349,7 @@ const DynamicParticipantForm = ({
         );
         case "radio":
         return (
-          <RadioGroup className={"flex flex-wrap"} value={value} onValueChange={(val) => formik.setFieldValue(fieldName, val)}>
+          <RadioGroup className={"flex flex-col mt-2"} value={value} onValueChange={(val) => formik.setFieldValue(fieldName, val)}>
             {fieldOptions?.map((option, idx) => {
               let parsedOption = option;
               if (typeof option === "string") {
@@ -447,7 +448,7 @@ const DynamicParticipantForm = ({
     }
 
     return (
-      <div key={_id} className={cn("flex flex-col gap-1 grow", (fieldType === "textarea" || fieldType === "html") ? "w-full" : "w-full lg:w-5/12")}>
+      <div key={_id} className={cn("flex flex-col gap-1 grow", (fieldType === "textarea" || fieldType === "html" || fieldType === "radio" || fieldType === "checkbox") ? "w-full" : "w-full lg:w-5/12")}>
         <div className="flex flex-wrap justify-between">
           <Label className={"mb-0"} htmlFor={fieldName}>
             {fieldTitle || fieldName}{" "}
@@ -479,9 +480,10 @@ const DynamicParticipantForm = ({
   }
 
   return (
-    <div className="h-svh flex flex-wrap gap-y-5 p-4 bg-[#f7f9fc]">
+    <div className="h-svh flex flex-wrap gap-5 p-4 bg-[#f7f9fc]">
       <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
-        <img src={ticketData?.desktopBannerImageUrl || "/assets/images/login-img.webp"} className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" />
+        <SafeImage src={ticketData?.desktopBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
+
         {
           eventData?.event_description && (
           <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
@@ -490,7 +492,7 @@ const DynamicParticipantForm = ({
           )
         }
       </div>
-      <div className="w-2/5 grow lg:px-5 2xl:px-9 max-h-svh flex flex-col">
+      <div className="w-2/5 grow max-h-svh flex flex-col p-5 border border-solid border-zinc-200 rounded-xl bg-white">
         {form.pages.length > 1 && (
           <div className="relative py-4">
             <Progress value={progress} className="h-1 absolute top-9 bg-muted [&>div]:bg-[#3853ff]" />
