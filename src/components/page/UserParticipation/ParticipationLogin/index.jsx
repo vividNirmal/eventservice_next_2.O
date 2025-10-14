@@ -147,7 +147,7 @@ const ParticipanLogin = ({
             className="w-full h-48 md:h-full object-cover object-center"
             alt="Plastics Recycling Show"
           />
-          <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
+          {/* <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
             <img
               src={eventData?.event_image}
               className="max-w-[65%] lg:max-w-[240px] w-full block mb-8"
@@ -156,18 +156,18 @@ const ParticipanLogin = ({
             <h1 className="text-white font-light uppercase text-2xl md:text-3xl xl:text-5xl max-w-[90%] xl:max-w-full">
               {eventData?.eventName || eventData?.event_title}
             </h1>
-          </div>
+          </div> */}
         </div>
 
         {/* Form Right Side */}
         <div className="w-full md:w-1/3 px-6 md:pl-0 md:py-14 xl:pt-24 xl:pb-20 md:pr-8 xl:pr-20 bg-no-repeat bg-right-top ln-plasticsRe-bg flex flex-col justify-center">
           <h2 className="pl-2 md:pl-6 lg:pl-8 mb-4 md:mb-6 font-semibold text-[18px] md:text-3xl xl:text-[40px] text-[#1E3238] capitalize">
-            {eventData?.eventName || eventData?.event_title}
+            Login
           </h2>
 
           <div className="bg-[#F8F8F8] shadow-[0px_4px_6px_0px_#0000000D] mb-4 md:mb-8 lg:mb-12 py-4 md:py-6 px-2 md:px-6 lg:px-8 lg:rounded-r-3xl relative lg:before:absolute before:top-2/4 before:-translate-y-2/4 before:left-0 before:w-1.5 before:h-[calc(100%_-_48px)] before:block before:bg-[#005153] before:rounded-r-3xl">
             <p className="text-[#1E3238] font-normal text-sm lg:text-base capitalize">
-              {eventData?.event_description}
+              {eventData?.eventName || eventData?.event_title}
             </p>
           </div>
 
