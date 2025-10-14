@@ -150,11 +150,11 @@ export default function FaceScannerFrom({faceDate, ticketData, eventData}) {
             Face Verification
           </h4>
           <div className="flex flex-wrap items-center justify-center gap-4 lg:mb-5">
-            <Button type="button" onClick={() => setFaceScannerPopup(true)} className="!size-48 xl:text-lg cursor-pointer flex flex-col px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 !text-white rounded-md shadow-lg hover:shadow-xl transition-all duration-300 transform">
+            <Button type="button" onClick={() => setFaceScannerPopup(true)} className="lg:!size-48 xl:text-lg h-16 cursor-pointer flex flex-col px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 !text-white rounded-md shadow-lg hover:shadow-xl transition-all duration-300 transform">
               <Camera className="size-5 xl:size-8 mr-2" />
               Capture Face
             </Button>
-            <Label htmlFor="event_image" type="button" className="size-48 xl:text-lg cursor-pointer flex flex-col items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-md relative shadow-lg hover:shadow-xl transition-all duration-300 transform">
+            <Label htmlFor="event_image" type="button" className="lg:size-48 xl:text-lg cursor-pointer flex flex-col items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-md relative shadow-lg hover:shadow-xl transition-all duration-300 transform">
               <UploadIcon className="size-5 xl:size-8" />
               Upload Image
               <input type="file" id="event_image" className="opacity-0 absolute left-0 top-0 w-full h-full cursor-pointer" accept=".jpg, .jpeg, .png" onChange={onEventImageSelected} />
@@ -162,14 +162,14 @@ export default function FaceScannerFrom({faceDate, ticketData, eventData}) {
           </div>
           {capturedImage && stopScanner && (
             <div className="my-4 p-4 bg-white rounded-xl border border-[]">
-              <img src={capturedImage} alt="Captured" className="rounded-lg shadow-lg" />
-              <p className="text-base font-medium text-green-600 mt-4 flex items-center gap-2">
+              <img src={capturedImage} alt="Captured" className="rounded-lg shadow-lg h-72 mx-auto" />
+              <p className="text-base font-medium text-green-600 mt-4 flex items-center justify-center gap-2">
                 <CheckCircle2 className="size-5" />
                 Image captured successfully
               </p>
             </div>
           )}
-          <Button type="button" variant={"formBtn"} className={'ml-auto w-20'} onClick={handleNextScanner}>Next</Button>
+          <Button type="button" variant={"formBtn"} className={'mx-auto w-20 mt-5'} onClick={handleNextScanner}>Next</Button>
         </div>
         <Dialog open={faceScannerPopup} onOpenChange={() => setFaceScannerPopup(false)}>
           <DialogTitle className={'sr-only'}>Face Scanner</DialogTitle>
