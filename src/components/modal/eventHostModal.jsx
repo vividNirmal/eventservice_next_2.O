@@ -480,7 +480,7 @@ const EventModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl 2xl:max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="relative">
           <DialogTitle className="text-2xl font-bold text-center">
             {editMode ? "Edit Event" : "Welcome, Your Event Journey Begins Now!"}
@@ -503,7 +503,7 @@ const EventModal = ({
                 <div key={step.number} className="flex items-center flex-1">
                   {/* Step number and label in a single row */}
                   <div onClick={() => handleStepClick(step.number)} className={cn("flex items-center space-x-2 cursor-pointer transition-all", step.number <= currentStep ? 'text-blue-600' : 'text-gray-500 opacity-70')}>
-                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all hover:shadow-md",step.number <= currentStep ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300')}>{step.number}</div>
+                    <div className={cn("size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-medium transition-all hover:shadow-md",step.number <= currentStep ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300')}>{step.number}</div>
                     <span className="text-sm font-medium">{step.label}</span>
                   </div>
 
