@@ -12,6 +12,7 @@ import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import * as Yup from "yup";
+import { SafeImage } from "@/components/common/SafeImage";
 
 const ParticipanLogin = ({
   eventData,
@@ -142,10 +143,13 @@ const ParticipanLogin = ({
       <section className="min-h-screen bg-white flex flex-col md:flex-row overflow-auto">
         {/* Left Image and Info */}
         <div className="w-full md:w-2/4 grow relative before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
-          <img
-            src={ticketData?.loginBannerImageUrl || "/assets/images/login-img.webp"}
-            className="w-full h-48 md:h-full object-cover object-center"
+          <SafeImage
+            src={ticketData?.loginBannerImageUrl}
+            placeholderSrc="/assets/images/login-img.webp"
             alt="Plastics Recycling Show"
+            width={1200}
+            height={600}
+            className="w-full h-48 md:h-full object-cover object-center"
           />
           {/* <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
             <img
