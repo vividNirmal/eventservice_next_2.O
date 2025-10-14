@@ -36,6 +36,7 @@ const UserRegisterEvent = () => {
   const [registrationStatus, setRegistrationStatus] = useState(null); // For registration status errors
   const [businessForm, setBusinessFrom] = useState(null);
   const [faceDate, setFaceDate] = useState(null);
+  const [registerFormDataId, setRegisterFormDataId] = useState(null)
 
   useEffect(() => {
     // Handle new slug URL pattern: /[eventSlug]/registration
@@ -82,6 +83,7 @@ const UserRegisterEvent = () => {
       if(evetRegsterUserData?.alreadyRegistered && evetRegsterUserData?.formRegistration){
         
         setQrEventDetails(evetRegsterUserData?.formRegistration.qrImage)  
+        setRegisterFormDataId(evetRegsterUserData?.formRegistration?._id)
         setEventStep(5);
       }
       setFormData((prev) => ({
@@ -161,7 +163,8 @@ const UserRegisterEvent = () => {
       } else {
         const responce = await userPostRequest("store-register-form", formData);
         if (responce.status == 1) {
-          setQrEventDetails(responce.data?.qrImageUrl)
+          setQrEventDetails(responce.data?.qrImageUrl);
+          setRegisterFormDataId(responce?.data?.registrationId);
           setEventStep(5);
         }
       }
@@ -247,6 +250,7 @@ const UserRegisterEvent = () => {
       const responce = await userPostRequest("store-register-form", formData);
       if (responce.status == 1) {
         setQrEventDetails(responce.data?.qrImageUrl)
+        setRegisterFormDataId(responce?.data?.registrationId);
         setEventStep(5);
       }
     } catch (err) {
@@ -418,6 +422,7 @@ const UserRegisterEvent = () => {
           eventData={eventData}
           token={"After_Pass_Data"}
           eventQr = {qrEventDetails}
+          registerFormDataId={registerFormDataId}
         />
       )}
       {/* Debug Panel - Only shows in development */}

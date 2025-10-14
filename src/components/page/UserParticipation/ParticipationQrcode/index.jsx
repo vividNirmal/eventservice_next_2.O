@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { pdfgenrate } from "@/service/viewService";
 
-const QrPage = ({ eventDetails, eventData, formData,eventQr }) => {
+const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId }) => {
   const [eventTime, setEventTime] = useState([]);
   const [eventDate, setEventDate] = useState();
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -119,10 +119,9 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr }) => {
       setPdfLoading(true);
 
       const Adddata = new FormData();
-      Adddata.append("event_slug", eventDetails?.slug || eventData?.event_slug);
-      Adddata.append("user_token", eventDetails?.user_token || formData?.user_token);
+      Adddata.append("formRegistrationId", registerFormDataId);
 
-      const blob = await pdfgenrate("generate-event-pdf-scanner", Adddata);
+      const blob = await pdfgenrate("generate-pdf-scanner", Adddata);
 
       // The response is already a Blob, create a URL from it directly
       const url = window.URL.createObjectURL(blob);
@@ -146,9 +145,8 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr }) => {
     setPrintLoading(true);
     try {
       const Adddata = new FormData();
-      Adddata.append("event_slug", eventDetails?.slug || eventData?.event_slug);
-      Adddata.append("user_token", eventDetails?.user_token || formData?.user_token);
-      const blob = await pdfgenrate("generate-event-pdf-scanner", Adddata);
+      Adddata.append("formRegistrationId", registerFormDataId);
+      const blob = await pdfgenrate("generate-pdf-scanner", Adddata);
       const url = URL.createObjectURL(blob);
       const iframe = document.createElement("iframe");
       iframe.style.display = "none";
