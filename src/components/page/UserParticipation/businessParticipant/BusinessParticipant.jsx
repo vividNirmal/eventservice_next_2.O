@@ -45,11 +45,10 @@ const TicketBooking = ({businessData,businessForm}) => {
     const bookingData = {
       category: selectedCategory,
       amount: selectedItem.amount,
-      currency: ticketData.currency,
-      bookingDateTime: currentDateTime.toISOString()
+      currency: ticketData.currency,      
     };
     businessForm(bookingData);
-    console.log('Booking Details:', bookingData);    
+
   };
 
   const formatCurrency = (amount) => {

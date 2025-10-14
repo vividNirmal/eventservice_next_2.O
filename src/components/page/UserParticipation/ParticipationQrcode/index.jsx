@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { pdfgenrate } from "@/service/viewService";
 
-const QrPage = ({ eventDetails, eventData, formData }) => {
+const QrPage = ({ eventDetails, eventData, formData,eventQr }) => {
   const [eventTime, setEventTime] = useState([]);
   const [eventDate, setEventDate] = useState();
   const [pdfLoading, setPdfLoading] = useState(false);
@@ -235,10 +235,15 @@ const QrPage = ({ eventDetails, eventData, formData }) => {
           {/* QR Code */}
           <div className="flex justify-center">
             <div className="bg-white p-2 rounded-xl shadow-inner border-2 border-slate-100">
-              {eventDetails?.base64Image && (
-                <Image height={228} width={228} src={eventDetails.base64Image} alt="QR Code for event access" />
+              {eventQr && (
+                <Image
+                  height={228}
+                  width={228}
+                  src={eventQr}
+                  alt="QR Code for event access"
+                />
               )}
-              {!eventDetails?.base64Image && (
+              {!eventQr && (
                 <div className="w-[228px] h-[228px] bg-gray-100 flex items-center justify-center rounded-lg">
                   <div className="text-center space-y-2">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600" />

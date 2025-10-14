@@ -143,7 +143,7 @@ const ParticipanLogin = ({
         {/* Left Image and Info */}
         <div className="w-full md:w-2/4 grow relative before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
           <img
-            src={eventData?.event_logo}
+            src={ticketData?.loginBannerImageUrl || "/assets/images/login-img.webp"}
             className="w-full h-48 md:h-full object-cover object-center"
             alt="Plastics Recycling Show"
           />

@@ -16,7 +16,7 @@ import FaceScanner from '../page/scanner/mediabutton/faceScanner/FaceScanner';
  * Renders a complete form for end users to fill out
  */
 export function FormRenderer({ 
-  form, 
+  form ={}, 
   onSubmit, 
   loading = false, 
   faceScannerPermission = false,
@@ -136,11 +136,11 @@ export function FormRenderer({
     }
   };
 
-  const inputElements = form.elements.filter(
+  const inputElements = form.elements?.filter(
     el => !['divider', 'heading', 'paragraph'].includes(el.type)
   );
 
-  const hasRequiredFields = inputElements.some(el => el.required);
+  const hasRequiredFields = inputElements?.some(el => el.required);
 
   return (
     <>
@@ -159,7 +159,7 @@ export function FormRenderer({
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {form.elements
-              .sort((a, b) => a.position - b.position)
+              ?.sort((a, b) => a.position - b.position)
               .map((element) => (
                 <div key={element.id}>
                   <FormElementRenderer

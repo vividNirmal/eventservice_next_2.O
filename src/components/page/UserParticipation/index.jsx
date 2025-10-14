@@ -9,6 +9,8 @@ import { usePreventHydrationMismatch } from "@/hooks/usePreventHydrationMismatch
 import { toast } from "sonner";
 import TicketBooking from "./businessParticipant/BusinessParticipant";
 import FaceScannerFrom from "./FaceScanner/FaceScannerFrom";
+import { FormRenderer } from "@/components/form-renderer/form-renderer";
+import ParticipantForm from "./StaticParticipationForm_LEGACY";
 
 const UserRegisterEvent = () => {
   // Prevent hydration mismatch from browser extensions
@@ -16,7 +18,7 @@ const UserRegisterEvent = () => {
 
   const params = useParams();
   const { eventSlug, userSlug } = params;
-  const [eventStep, setEventStep] = useState(1);  
+  const [eventStep, setEventStep] = useState(1);
   const [formData, setFormData] = useState({ email: "" });
   const [eventData, setEventData] = useState(null);
   const [ticketData, setTicketData] = useState(null);
@@ -64,14 +66,23 @@ const UserRegisterEvent = () => {
     }
   }
 
-  const handleRegisterEmail = (emailData) => {
+  const handleRegisterEmail = (emailData) => {    
+    
     if (emailData) {
       setUserEmail(emailData.email);
       setFaceScanner(emailData.face_scanner);
+
       if (ticketData?.ticketAmount?.type == "businessSlab") {
         setEventStep(2);
       } else {
         setEventStep(3);
+      }
+      const evetRegsterUserData = emailData?.data
+      
+      if(evetRegsterUserData?.alreadyRegistered && evetRegsterUserData?.formRegistration){
+        
+        setQrEventDetails(evetRegsterUserData?.formRegistration.qrImage)  
+        setEventStep(5);
       }
       setFormData((prev) => ({
         ...prev,
@@ -140,17 +151,21 @@ const UserRegisterEvent = () => {
           formData.append(key, value);
         }
       });
-
+       if(businessForm){
+        formData.append("businessData[category]", businessForm?.category);
+        formData.append("businessData[amount]", businessForm?.amount);
+      }
       if (eventData?.with_face_scanner == 1) {
         setEventStep(4);
-
-        setResolvedForm(response)
+        setResolvedForm(response);
       } else {
         const responce = await userPostRequest("store-register-form", formData);
         if (responce.status == 1) {
+          setQrEventDetails(responce.data?.qrImageUrl)
           setEventStep(5);
         }
       }
+     
     } catch (err) {
       console.log(err.message);
       return; // Prevent further execution if error occurs
@@ -197,8 +212,8 @@ const UserRegisterEvent = () => {
       formData.append("email", userEmail);
       formData.append("ticketId", ticketData?._id);
       formData.append("eventId", eventData?._id);
-      // key Changes 
-      formData.append('resolvedForm',faceData)
+      // key Changes
+      formData.append("faceScan", faceData);
       Object.entries(resolvedForm).forEach(([key, value]) => {
         if (key === "email") {
           return;
@@ -225,8 +240,13 @@ const UserRegisterEvent = () => {
           formData.append(key, value);
         }
       });
+      if(businessForm){
+        formData.append("businessData[category]", businessForm?.category);
+        formData.append("businessData[amount]", businessForm?.amount);
+      }
       const responce = await userPostRequest("store-register-form", formData);
       if (responce.status == 1) {
+        setQrEventDetails(responce.data?.qrImageUrl)
         setEventStep(5);
       }
     } catch (err) {
@@ -346,7 +366,7 @@ const UserRegisterEvent = () => {
       {/* Show registration status error if present */}
       {registrationStatus?.status === "error" && <RegistrationStatusError />}
       {/* Show normal flow only if no registration status error */}
-      {!registrationStatus?.status && eventStep === 1 && (
+      {!registrationStatus?.status && eventStep === 1 && (        
         <ParticipanLogin
           eventData={eventData}
           ticketData={ticketData}
@@ -373,6 +393,16 @@ const UserRegisterEvent = () => {
           formLoading={formLoading}
           onFormSuccess={handleFormSuccess}
         />
+        // <ParticipantForm
+        //   userEmail={userEmail}
+        //   eventData={eventData}
+        //   formData={formData}
+        //   faceScannerPermission={faceScanner}
+        //   eventHasFacePermission={eventHasFacePermission}
+        //   visitReason={visitReason}
+        //   companyVisit={companyVisit}
+        //   dynamicForm={dynamicForm}
+        // />
       )}
       {!registrationStatus?.status &&
         eventStep === 4 &&
@@ -381,10 +411,11 @@ const UserRegisterEvent = () => {
         )}
       {!registrationStatus?.status && eventStep === 5 && (
         <QrPage
-          eventDetails={qrEventDetails}
+          eventDetails={eventData}
           formData={formData}
           eventData={eventData}
           token={"After_Pass_Data"}
+          eventQr = {qrEventDetails}
         />
       )}
       {/* Debug Panel - Only shows in development */}

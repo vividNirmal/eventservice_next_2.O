@@ -4,7 +4,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**', // Match all domains
+        hostname: '**', // Match all HTTPS domains
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost', // Allow localhost HTTP
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1', // Also allow 127.0.0.1
       },
     ],
   },

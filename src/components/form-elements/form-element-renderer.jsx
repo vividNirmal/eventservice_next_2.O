@@ -29,8 +29,100 @@ export function FormElementRenderer({
   onChange,
   error,
 }) {
-  const { type, label, name, placeholder, required, options, description } =
-    element;
+  const { type, label, name, placeholder, required, options, description } =[
+  {
+    type: 'heading',
+    content: 'Event Registration Form',
+    headingLevel: 'h1',
+    label: 'Event Registration Form'
+  },
+  {
+    type: 'paragraph',
+    content: 'Please fill out this form to register for our upcoming event. All fields marked with an asterisk (*) are required.'
+  },
+  {
+    type: 'divider'
+  },
+  {
+    type: 'text',
+    name: 'fullName',
+    label: 'Full Name',
+    placeholder: 'Enter your full name',
+    required: true,
+    description: 'Please provide your first and last name'
+  },
+  {
+    type: 'email',
+    name: 'email',
+    label: 'Email Address',
+    placeholder: 'you@example.com',
+    required: true,
+    description: 'We\'ll send your confirmation here'
+  },
+  {
+    type: 'phone',
+    name: 'phone',
+    label: 'Phone Number',
+    placeholder: '+1 (555) 000-0000',
+    required: false,
+    description: 'Optional - for event updates'
+  },
+  {
+    type: 'company',
+    name: 'company',
+    label: 'Company',
+    placeholder: 'Your company name',
+    required: false
+  },
+  {
+    type: 'select',
+    name: 'registrationType',
+    label: 'Registration Type',
+    placeholder: 'Select registration type',
+    required: true,
+    options: [
+      { value: 'standard', label: 'Standard Pass' },
+      { value: 'vip', label: 'VIP Pass' },
+      { value: 'student', label: 'Student Pass' }
+    ]
+  },
+  {
+    type: 'radio',
+    name: 'attendance',
+    label: 'Attendance Preference',
+    required: true,
+    options: [
+      { value: 'in-person', label: 'In-Person' },
+      { value: 'virtual', label: 'Virtual' },
+      { value: 'hybrid', label: 'Hybrid (Both Days)' }
+    ]
+  },
+  {
+    type: 'checkbox',
+    name: 'interests',
+    label: 'Session Interests',
+    description: 'Select all topics that interest you',
+    options: [
+      { value: 'tech', label: 'Technology & Innovation' },
+      { value: 'business', label: 'Business Strategy' },
+      { value: 'design', label: 'Design & UX' },
+      { value: 'marketing', label: 'Marketing & Growth' }
+    ]
+  },
+  {
+    type: 'textarea',
+    name: 'comments',
+    label: 'Additional Comments',
+    placeholder: 'Any special requirements or questions?',
+    description: 'Share any dietary restrictions, accessibility needs, or questions'
+  },
+  {
+    type: 'date',
+    name: 'arrivalDate',
+    label: 'Expected Arrival Date',
+    required: false
+  }
+];
   // For preview mode, we don't need actual functionality
   const handleChange = (newValue) => {
     if (onChange && !preview) {
