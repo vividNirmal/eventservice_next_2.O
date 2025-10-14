@@ -88,7 +88,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
       <CardContent>
         {/* Header Controls */}
         <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 ml-auto mr-3">
             <span className="text-sm text-gray-600 dark:text-gray-400">
               Show:
             </span>
