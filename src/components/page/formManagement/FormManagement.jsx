@@ -249,7 +249,7 @@ const FormManagement = ({ eventId }) => {
     setFormToEdit(form);
     setEditForm({
       formName: form.formName,
-      userType: form.userType
+      userType: form.userType?._id || ''
     });
     setIsEditModalOpen(true);
   };
