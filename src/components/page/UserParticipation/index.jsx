@@ -378,6 +378,7 @@ const UserRegisterEvent = () => {
         <TicketBooking
           businessData={ticketData}
           businessForm={handleBUnessDate}
+          eventData={eventData}
         />
       )}
       {!registrationStatus?.status && eventStep === 3 && (
@@ -392,6 +393,7 @@ const UserRegisterEvent = () => {
           dynamicForm={dynamicForm}
           formLoading={formLoading}
           onFormSuccess={handleFormSuccess}
+          ticketData={ticketData}
         />
         // <ParticipantForm
         //   userEmail={userEmail}
@@ -407,7 +409,7 @@ const UserRegisterEvent = () => {
       {!registrationStatus?.status &&
         eventStep === 4 &&
         eventData?.with_face_scanner == 1 && (
-          <FaceScannerFrom faceDate={handelFaseScanner} />
+          <FaceScannerFrom faceDate={handelFaseScanner} ticketData={ticketData} eventData={eventData} />
         )}
       {!registrationStatus?.status && eventStep === 5 && (
         <QrPage

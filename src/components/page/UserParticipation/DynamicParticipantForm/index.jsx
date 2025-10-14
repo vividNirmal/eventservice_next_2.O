@@ -38,6 +38,7 @@ const DynamicParticipantForm = ({
   dynamicForm,
   formLoading = false,
   onFormSuccess,
+  ticketData
 }) => {
   const [loading, setLoading] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
@@ -480,10 +481,14 @@ const DynamicParticipantForm = ({
   return (
     <div className="h-svh flex flex-wrap gap-y-5 p-4 bg-[#f7f9fc]">
       <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
-        <img src="/assets/images/login-img.webp" className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" />
-        <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
-          <p className="z-1 text-white text-sm xl:text-base 2xl:text-lg font-normal leading-normal">Lorem ipsum dolor sit amet, consectetur adipisicing elit it amet, consectetur adipisicing eli. Laboriosam veritatis nihil repudiandae.</p>
-        </div>
+        <img src={ticketData?.desktopBannerImageUrl || "/assets/images/login-img.webp"} className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" />
+        {
+          eventData?.event_description && (
+          <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
+            <p className="z-1 text-white text-sm xl:text-base 2xl:text-lg font-normal leading-normal">{eventData?.event_description}</p>
+          </div>
+          )
+        }
       </div>
       <div className="w-2/5 grow lg:px-5 2xl:px-9 max-h-svh flex flex-col">
         {form.pages.length > 1 && (
