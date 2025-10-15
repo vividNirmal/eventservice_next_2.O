@@ -53,7 +53,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
       if (response.status === 1) {
         setRegistrations(response.data.registrations || []);
         setTotalPages(response.data.pagination?.totalPages || 1);
-        setTotalCount(response.data.pagination?.totalCount || 0);
+        setTotalCount(response.data.pagination?.totalData || 0);
       }
     } catch (error) {
       console.error("Error fetching registrations:", error);
@@ -83,6 +83,25 @@ const RegistrationList = ({ eventId, userTypeId }) => {
     }
   };
 
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleLimitChange = (newLimit) => {
+    const newSize = Number(newLimit);
+    if (newSize !== limit) {
+      setLimit(newSize);
+      setCurrentPage(1);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    if (page !== currentPage && page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
     <Card>
       <CardContent>
@@ -94,7 +113,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
             </span>
             <Select
               value={limit.toString()}
-              onValueChange={(v) => setLimit(Number(v))}
+              onValueChange={handleLimitChange}
             >
               <SelectTrigger className="w-20">
                 <SelectValue />
@@ -113,7 +132,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
             <Input
               placeholder="Search user..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearch}
               className="pl-10 w-64"
             />
           </div>
@@ -196,9 +215,9 @@ const RegistrationList = ({ eventId, userTypeId }) => {
           <CustomPagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalCount={totalCount}
-            itemsPerPage={limit}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
+            pageSize={limit}
+            totalEntries={totalCount}
           />
         )}
       </CardContent>

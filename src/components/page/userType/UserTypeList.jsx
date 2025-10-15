@@ -405,9 +405,9 @@ const UserTypeList = () => {
             <CustomPagination
               currentPage={currentPage}
               totalPages={totalPages}
-              totalCount={totalCount}
-              itemsPerPage={selectedLimit}
               onPageChange={handlePageChange}
+              pageSize={selectedLimit}
+              totalEntries={totalCount}
             />
           )}
         </CardContent>
