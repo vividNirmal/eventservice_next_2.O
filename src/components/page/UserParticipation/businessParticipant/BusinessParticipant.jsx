@@ -63,8 +63,10 @@ const TicketBooking = ({businessData,businessForm, eventData}) => {
   return (
     <div className="flex flex-wrap gap-5 p-4 bg-[#f7f9fc] h-svh overflow-auto lg:overflow-hidden">
       <div className="shrink-0 w-full lg:w-5/12 xl:w-1/3 relative rounded-2xl lg:max-h-[calc(100svh_-_32px)] lg:h-full overflow-hidden block after:pt-[56.25%] lg:after:pt-[100%] after:block">
-        <SafeImage src={businessData?.desktopBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
-        
+        <SafeImage src={businessData?.desktopBannerImageUrl} mobileSrc={businessData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
+        {/* <p className="text-white font-light uppercase text-2xl md:text-3xl xl:text-5xl max-w-[90%] xl:max-w-full">
+          {eventData?.eventName || "T"}
+        </p> */}
         {eventData?.event_description && (
           <div className="w-[calc(100%_-_32px)] md:w-96 lg:w-auto absolute top-0 sm:top-1/3 left-0 sm:left-2/4 sm:-translate-x-2/4 lg:translate-none lg:top-auto lg:bottom-0 lg:left-0 lg:right-0 p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
             <p className="z-1 text-white text-base 2xl:text-lg font-normal leading-normal">{eventData.event_description}</p>

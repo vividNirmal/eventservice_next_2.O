@@ -142,7 +142,7 @@ const ParticipanLogin = ({
     <>
       <section className="flex flex-wrap lg:items-center gap-5 bg-[#f7f9fc] h-svh overflow-auto lg:overflow-hidden">
         <div className="w-full md:w-2/4 grow relative after:block after:pt-[56.25%] lg:after:pt-[100svh] before:w-full before:h-full before:absolute before:top-0 before:left-0 before:bg-[linear-gradient(201.77deg,_rgba(0,0,0,0)_1.08%,_#000000_101.42%)]">
-          <SafeImage src={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
+          <SafeImage src={ticketData?.loginBannerImageUrl} mobileSrc={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
           {/* <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
             <img
               src={eventData?.event_image}

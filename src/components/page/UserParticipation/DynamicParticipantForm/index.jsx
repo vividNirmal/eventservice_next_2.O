@@ -482,7 +482,7 @@ const DynamicParticipantForm = ({
   return (
     <div className="h-svh flex flex-wrap gap-5 p-4 bg-[#f7f9fc]">
       <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
-        <SafeImage src={ticketData?.desktopBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
+        <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
 
         {
           eventData?.event_description && (
