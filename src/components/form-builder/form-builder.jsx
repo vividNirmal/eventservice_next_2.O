@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { DndFormBuilder } from "./dnd-context";
 import { ElementSidebar } from "./element-sidebar";
 import { FormCanvas } from "./form-canvas";
@@ -37,13 +37,14 @@ import { useRouter } from "next/navigation";
 /**
  * Main Form Builder Component
  */
-export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPageIndex }) {
+export function FormBuilder({ form, onFormChange }) {
   const [selectedElementId, setSelectedElementId] = useState(null);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
+  
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -92,7 +93,7 @@ export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPa
 
       setSelectedElementId(newElement._id);
     },
-    [form, currentPageIndex, onFormChange, setCurrentPageIndex]
+    [form, currentPageIndex, onFormChange]
   );
 
   const handleElementEdit = useCallback((element) => {
@@ -201,15 +202,26 @@ export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPa
       ...form,
       pages: [...form.pages, newPage],
     });
-
-    // Switch to the newly created page
-    setCurrentPageIndex(form.pages.length);
-    
     toast.success("Page added successfully");
     setOpenPageModal(false);
     setPageName("");
     setPageDescription("");
-  }, [pageName, pageDescription, form, onFormChange, setCurrentPageIndex]);
+    // Switch to the newly created page
+    setCurrentPageIndex(form.pages.length);
+  }, [pageName, pageDescription, form, onFormChange]);
+
+  const scrollContainerRef = useRef(null);
+
+  const handlePageNavigation = useCallback((pageIndex) => {
+    setCurrentPageIndex(pageIndex);
+    const pageElement = document.getElementById(`page-${pageIndex}`);
+    if (pageElement && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: pageElement.offsetTop,
+        behavior: "smooth",
+      });
+    }
+  }, []);
 
   const handleExportForm = async () => {
     try {
@@ -243,9 +255,6 @@ export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPa
     [form, onFormChange]
   );
 
-  // Get current page or show empty state
-  const currentPage = form.pages[currentPageIndex];
-
   return (
     <div className="flex flex-col bg-gray-100 h-16 grow">
       <DndFormBuilder
@@ -266,15 +275,15 @@ export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPa
                 {/* Page Selector Dropdown - Only show if pages exist */}
                 {form.pages && form.pages.length > 0 && (
                   <Select
-                    value={currentPageIndex.toString()}
-                    onValueChange={(value) => setCurrentPageIndex(parseInt(value))}
+                    value={String(currentPageIndex)}
+                    onValueChange={(val) => handlePageNavigation(Number(val))}
                   >
                     <SelectTrigger className="w-[200px]">
                       <SelectValue placeholder="Select a page" />
                     </SelectTrigger>
                     <SelectContent>
                       {form.pages.map((page, index) => (
-                        <SelectItem key={page._id || index} value={index.toString()}>
+                        <SelectItem key={page._id || `page-${index}`} value={String(index)}>
                           {page.name || `Page ${index + 1}`}
                         </SelectItem>
                       ))}
@@ -306,34 +315,26 @@ export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPa
                   Import
                 </Button>
               </div>
-
-              {/* Show only the current page */}
-              {currentPage ? (
-                <FormCanvas
-                  key={`page-${currentPageIndex}`}
-                  pageuniqid={currentPageIndex}
-                  title={currentPage.name}
-                  description={currentPage.description}
-                  elements={currentPage.elements || []}
-                  onElementEdit={handleElementEdit}
-                  onElementDelete={handleElementDelete}
-                  selectedElementId={selectedElementId}
-                  onElementSelect={handleElementSelect}
-                  onPagetitleUpdate={pageDateUpdate}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-96 bg-white rounded-xl shadow-lg border border-solid border-zinc-200">
-                  <div className="text-center">
-                    <PackagePlusIcon className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                    <p className="text-lg font-medium text-gray-600 mb-2">No pages yet</p>
-                    <p className="text-sm text-gray-400 mb-4">Create your first page to get started</p>
-                    {/* <Button onClick={() => setOpenPageModal(true)}>
-                      <PackagePlusIcon className="h-4 w-4 mr-2" />
-                      Create Page
-                    </Button> */}
+              <div
+                className="overflow-auto gap-4 flex flex-col h-20 grow pr-4"
+                ref={scrollContainerRef}
+              >
+                {form.pages.map((page, pageIndex) => (
+                  <div key={page._id || `page-${pageIndex}`} id={`page-${pageIndex}`}>
+                    <FormCanvas
+                      pageuniqid={pageIndex}
+                      title={page.name}
+                      description={page.description}
+                      elements={page.elements || []}
+                      onElementEdit={handleElementEdit}
+                      onElementDelete={handleElementDelete}
+                      selectedElementId={selectedElementId}
+                      onElementSelect={handleElementSelect}
+                      onPagetitleUpdate={pageDateUpdate}
+                    />
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
             {/* <div className='flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg'>
               <Button>Save</Button>

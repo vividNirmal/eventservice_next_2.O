@@ -62,7 +62,6 @@ export default function FormBuilderPage() {
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   // Auto-save debounce timer
   const [autoSaveTimer, setAutoSaveTimer] = useState(null);
@@ -326,8 +325,6 @@ export default function FormBuilderPage() {
         <FormBuilder 
           form={form} 
           onFormChange={handleFormChange}
-          currentPageIndex={currentPageIndex}
-          setCurrentPageIndex={setCurrentPageIndex}
         />
       </div>
 
