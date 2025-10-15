@@ -22,7 +22,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Save } from 'lucide-react';
 
 // Import hooks
 import { useTicketForm } from './hooks/useTicketForm';
@@ -201,6 +201,35 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
     }
   };
 
+  // Save and close function for edit mode (steps 1-4)
+  const handleSaveAndClose = async () => {
+    // Validate current step before saving
+    if (!validateCurrentStep()) {
+      toast.error('Please complete all required fields in the current step');
+      return;
+    }
+
+    // Validate all previous steps as well
+    for (let step = 1; step <= currentStep; step++) {
+      const stepErrors = validateStep(step, formData);
+      if (Object.keys(stepErrors).length > 0) {
+        toast.error(`Please complete required fields in step ${step}`);
+        setCurrentStep(step);
+        setErrors(stepErrors);
+        return;
+      }
+    }
+
+    setLoading(true);
+    const result = await submitTicketData(formData, isEditMode, editData, eventId);
+    setLoading(false);
+
+    if (result.success) {
+      onSuccess();
+      handleClose();
+    }
+  };
+
   const handleClose = () => {
     resetForm();
     setCurrentStep(1);
@@ -292,6 +321,27 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
+
+            {/* Save button for edit mode in steps 1-4 */}
+            {isEditMode && currentStep < 5 && (
+              <Button 
+                onClick={handleSaveAndClose} 
+                disabled={loading}
+                variant="default"
+              >
+                {loading ? (
+                  <>
+                    <Save className="h-4 w-4 mr-1" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-1" />
+                    Save
+                  </>
+                )}
+              </Button>
+            )}
 
             {currentStep < 5 ? (
               <Button onClick={nextStep}>
