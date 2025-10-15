@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { DndFormBuilder } from "./dnd-context";
 import { ElementSidebar } from "./element-sidebar";
 import { FormCanvas } from "./form-canvas";
@@ -45,6 +45,88 @@ export function FormBuilder({ form, onFormChange }) {
   const [pageDescription, setPageDescription] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   
+  const scrollContainerRef = useRef(null);
+  const pageRefs = useRef({});
+
+  // Store refs for each page
+  const setPageRef = useCallback((pageIndex, element) => {
+    if (element) {
+      pageRefs.current[pageIndex] = element;
+    }
+  }, []);
+
+  // Improved page navigation with IntersectionObserver
+  const handlePageNavigation = useCallback((pageIndex) => {
+    setCurrentPageIndex(pageIndex);
+    
+    const pageElement = pageRefs.current[pageIndex];
+    const container = scrollContainerRef.current;
+    
+    if (pageElement && container) {
+      // Calculate the exact scroll position
+      const containerRect = container.getBoundingClientRect();
+      const pageRect = pageElement.getBoundingClientRect();
+      
+      const scrollTop = container.scrollTop + pageRect.top - containerRect.top;
+      
+      container.scrollTo({
+        top: scrollTop,
+        behavior: "smooth",
+      });
+    }
+  }, []);
+
+  // Sync current page based on scroll position (optional - for automatic highlighting)
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const containerRect = container.getBoundingClientRect();
+      const containerCenter = containerRect.top + containerRect.height / 2;
+
+      // Find which page is closest to center
+      let closestPageIndex = currentPageIndex;
+      let closestDistance = Infinity;
+
+      Object.entries(pageRefs.current).forEach(([index, element]) => {
+        const pageRect = element.getBoundingClientRect();
+        const pageCenter = pageRect.top + pageRect.height / 2;
+        const distance = Math.abs(pageCenter - containerCenter);
+
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestPageIndex = parseInt(index);
+        }
+      });
+
+      if (closestPageIndex !== currentPageIndex) {
+        setCurrentPageIndex(closestPageIndex);
+      }
+    };
+
+    // Debounce scroll handler
+    let scrollTimeout;
+    const debouncedHandleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(handleScroll, 100);
+    };
+
+    container.addEventListener("scroll", debouncedHandleScroll);
+    
+    return () => {
+      container.removeEventListener("scroll", debouncedHandleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [currentPageIndex]);
+
+  // Auto-scroll to current page when it changes externally
+  useEffect(() => {
+    if (form.pages.length > 0) {
+      handlePageNavigation(currentPageIndex);
+    }
+  }, [form.pages.length]);
+
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -210,19 +292,6 @@ export function FormBuilder({ form, onFormChange }) {
     setCurrentPageIndex(form.pages.length);
   }, [pageName, pageDescription, form, onFormChange]);
 
-  const scrollContainerRef = useRef(null);
-
-  const handlePageNavigation = useCallback((pageIndex) => {
-    setCurrentPageIndex(pageIndex);
-    const pageElement = document.getElementById(`page-${pageIndex}`);
-    if (pageElement && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: pageElement.offsetTop,
-        behavior: "smooth",
-      });
-    }
-  }, []);
-
   const handleExportForm = async () => {
     try {
       const res = await fileDownloadRequest("GET", `/form/export/${form?.id}`);
@@ -316,7 +385,7 @@ export function FormBuilder({ form, onFormChange }) {
                 </Button>
               </div>
               <div
-                className="overflow-auto gap-4 flex flex-col h-20 grow pr-4"
+                className="overflow-auto gap-4 flex flex-col h-20 grow pr-4 scroll-smooth"
                 ref={scrollContainerRef}
               >
                 {form.pages.map((page, pageIndex) => (
