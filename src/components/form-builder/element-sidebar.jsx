@@ -247,7 +247,7 @@ export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
               placeholder="Search elements..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-9 2xl:h-11 2xl:text-base"
+              className="!pl-10 h-9 2xl:h-11 2xl:text-base"
             />
           </div>
         </CardHeader>

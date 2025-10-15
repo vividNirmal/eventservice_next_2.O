@@ -20,6 +20,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "../ui/textarea";
 import { createRandom5CharAlphanum, generateId } from "@/lib/form-utils";
 import { toast } from "sonner";
@@ -30,13 +37,13 @@ import { useRouter } from "next/navigation";
 /**
  * Main Form Builder Component
  */
-export function FormBuilder({ form, onFormChange }) {
+export function FormBuilder({ form, onFormChange, currentPageIndex, setCurrentPageIndex }) {
   const [selectedElementId, setSelectedElementId] = useState(null);
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);  
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
   const selectedElement = selectedElementId
     ? form.pages
         .flatMap((page) => page.elements)
@@ -85,7 +92,7 @@ export function FormBuilder({ form, onFormChange }) {
 
       setSelectedElementId(newElement._id);
     },
-    [form, currentPageIndex, onFormChange]
+    [form, currentPageIndex, onFormChange, setCurrentPageIndex]
   );
 
   const handleElementEdit = useCallback((element) => {
@@ -124,7 +131,7 @@ export function FormBuilder({ form, onFormChange }) {
         elements: page.elements.map((el) =>
           el._id === updatedElement._id ? updatedElement : el
         ),
-      }));            
+      }));
       onFormChange({
         ...form,
         pages: updatedPages,
@@ -143,7 +150,7 @@ export function FormBuilder({ form, onFormChange }) {
   const currentPageElements = form?.pages[currentPageIndex]?.elements || [];
 
   const createElement = (inputType) => {
-    const createNewlement = {
+    const createNewElement = {
       fieldTitle: createRandom5CharAlphanum(),
       fieldName: "",
       fieldOptions: [],
@@ -154,8 +161,9 @@ export function FormBuilder({ form, onFormChange }) {
       specialCharactor: false,
       _id: generateId(),
     };
-    handleAddElement(createNewlement, currentPageIndex);
+    handleAddElement(createNewElement, currentPageIndex);
   };
+
   const pageDateUpdate = useCallback(
     ({ pageTitle, pageDescription, pageindex }) => {
       const updatedPages = form.pages.map((page, idx) =>
@@ -194,11 +202,14 @@ export function FormBuilder({ form, onFormChange }) {
       pages: [...form.pages, newPage],
     });
 
+    // Switch to the newly created page
+    setCurrentPageIndex(form.pages.length);
+    
     toast.success("Page added successfully");
     setOpenPageModal(false);
     setPageName("");
     setPageDescription("");
-  }, [pageName, pageDescription, form, onFormChange]);
+  }, [pageName, pageDescription, form, onFormChange, setCurrentPageIndex]);
 
   const handleExportForm = async () => {
     try {
@@ -232,6 +243,9 @@ export function FormBuilder({ form, onFormChange }) {
     [form, onFormChange]
   );
 
+  // Get current page or show empty state
+  const currentPage = form.pages[currentPageIndex];
+
   return (
     <div className="flex flex-col bg-gray-100 h-16 grow">
       <DndFormBuilder
@@ -249,6 +263,24 @@ export function FormBuilder({ form, onFormChange }) {
           <div className="w-1/3 grow flex flex-col gap-4 p-4 sticky top-0">
             <div className="overflow-auto gap-4 flex flex-col h-20 grow pr-4">
               <div className="flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg border border-solid border-zinc-200">
+                {/* Page Selector Dropdown - Only show if pages exist */}
+                {form.pages && form.pages.length > 0 && (
+                  <Select
+                    value={currentPageIndex.toString()}
+                    onValueChange={(value) => setCurrentPageIndex(parseInt(value))}
+                  >
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Select a page" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {form.pages.map((page, index) => (
+                        <SelectItem key={page._id || index} value={index.toString()}>
+                          {page.name || `Page ${index + 1}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 <Button onClick={() => setOpenPageModal(true)}>
                   <PackagePlusIcon className="h-4 w-4 mr-2" />
                   Page
@@ -274,20 +306,34 @@ export function FormBuilder({ form, onFormChange }) {
                   Import
                 </Button>
               </div>
-              {form.pages.map((page, pageIndex) => (
+
+              {/* Show only the current page */}
+              {currentPage ? (
                 <FormCanvas
-                  key={`page-${pageIndex}`}
-                  pageuniqid={pageIndex}
-                  title={page.name}
-                  description={page.description}
-                  elements={page.elements || []}
+                  key={`page-${currentPageIndex}`}
+                  pageuniqid={currentPageIndex}
+                  title={currentPage.name}
+                  description={currentPage.description}
+                  elements={currentPage.elements || []}
                   onElementEdit={handleElementEdit}
                   onElementDelete={handleElementDelete}
                   selectedElementId={selectedElementId}
                   onElementSelect={handleElementSelect}
                   onPagetitleUpdate={pageDateUpdate}
                 />
-              ))}
+              ) : (
+                <div className="flex items-center justify-center h-96 bg-white rounded-xl shadow-lg border border-solid border-zinc-200">
+                  <div className="text-center">
+                    <PackagePlusIcon className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                    <p className="text-lg font-medium text-gray-600 mb-2">No pages yet</p>
+                    <p className="text-sm text-gray-400 mb-4">Create your first page to get started</p>
+                    {/* <Button onClick={() => setOpenPageModal(true)}>
+                      <PackagePlusIcon className="h-4 w-4 mr-2" />
+                      Create Page
+                    </Button> */}
+                  </div>
+                </div>
+              )}
             </div>
             {/* <div className='flex flex-wrap justify-end gap-4 bg-white p-4 rounded-xl shadow-lg'>
               <Button>Save</Button>
@@ -304,7 +350,7 @@ export function FormBuilder({ form, onFormChange }) {
         </div>
       </DndFormBuilder>
 
-      {/* create page  */}
+      {/* create page */}
       <Dialog open={openPageModal} onOpenChange={setOpenPageModal}>
         <DialogContent>
           <DialogHeader>
@@ -341,6 +387,7 @@ export function FormBuilder({ form, onFormChange }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       {/* json File Import */}
       <ProductImportModal
         isOpen={isImportModalOpen}

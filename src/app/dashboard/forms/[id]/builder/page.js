@@ -62,6 +62,7 @@ export default function FormBuilderPage() {
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
 
   // Auto-save debounce timer
   const [autoSaveTimer, setAutoSaveTimer] = useState(null);
@@ -113,7 +114,6 @@ export default function FormBuilderPage() {
         };
 
         setForm(newFormState);
-
         setOriginalForm(formData);
       } else {
         console.log("❌ API Response error or no data:", response);
@@ -212,6 +212,7 @@ export default function FormBuilderPage() {
     // it should go back to the route where the user came from
     router.back();
   };
+
   const handleCreatePage = async () => {
     if (!pageName.trim()) {
       toast.error("Please enter a page name");
@@ -234,7 +235,7 @@ export default function FormBuilderPage() {
   };
 
   if (loading) {
-    console.log("⏳ Loading state is true, showing loading screen");
+    // console.log("⏳ Loading state is true, showing loading screen");
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -261,9 +262,9 @@ export default function FormBuilderPage() {
               <ArrowLeft className="size-full text-gray-600 group-hover:text-white transition-all duration-200 ease-in" />
               {/* Back to Forms */}
             </Button>
-            <div className="pl-3 border-l border-solid border-gray-300 text-sm text-gray-600 flex items-center">
+            <div className="pl-3 border-l border-solid border-gray-300 text-sm text-gray-600 flex items-center gap-3">
               {/* <h1 className="text-base 2xl:text-lg font-semibold text-gray-900">Form Builder</h1> */}
-              {form.formName || originalForm?.formName || "New Form"}
+              <span>{form.formName || originalForm?.formName || "New Form"}</span>
               {/* {autoSaving && (
                 <span className="ml-2 text-blue-600 text-xs">
                   • Auto-saving...
@@ -322,8 +323,14 @@ export default function FormBuilderPage() {
 
       {/* Form Builder */}
       <div className="flex-1 h-20 grow flex flex-col">
-        <FormBuilder form={form} onFormChange={handleFormChange} />
+        <FormBuilder 
+          form={form} 
+          onFormChange={handleFormChange}
+          currentPageIndex={currentPageIndex}
+          setCurrentPageIndex={setCurrentPageIndex}
+        />
       </div>
+
       <Dialog open={openPageModal} onOpenChange={setOpenPageModal}>
         <DialogContent>
           <DialogHeader>
@@ -363,3 +370,4 @@ export default function FormBuilderPage() {
     </div>
   );
 }
+
