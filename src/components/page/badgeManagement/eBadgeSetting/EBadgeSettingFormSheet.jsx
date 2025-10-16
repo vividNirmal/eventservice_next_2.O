@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Tickets } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getRequest } from "@/service/viewService";
 import { toast } from "sonner";
@@ -155,33 +155,21 @@ export const EBadgeSettingFormSheet = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={handleClose}>
-      <SheetContent className="sm:max-w-md flex flex-col overflow-hidden">
+      <SheetContent className="sm:max-w-xl flex flex-col overflow-hidden">
         <SheetHeader className="border-b border-gray-200 pb-4">
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>{description}</SheetDescription>
         </SheetHeader>
 
         <form onSubmit={formik.handleSubmit} className="flex flex-col h-full">
-          <div className="p-6 flex flex-col gap-4 grow overflow-y-auto">
+          <div className="p-6 pt-0 flex flex-col gap-4 grow overflow-y-auto">
             {/* Setting Name */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="name">Setting Name *</Label>
-              <div className="relative">
-                <Input
-                  id="name"
-                  name="name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  placeholder="Enter setting name"
-                  className={cn(
-                    formik.touched.name && formik.errors.name
-                      ? "border-red-500"
-                      : ""
-                  )}
-                />
+            <div className="flex flex-col gap-1">
+              <Label htmlFor="name" className={'mb-0'}>Setting Name *</Label>
+              <div className="relative pb-3.5">
+                <Input id="name" name="name" value={formik.values.name}onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder="Enter setting name" className={cn(formik.touched.name && formik.errors.name ? "border-red-500" : "")} />
                 {formik.touched.name && formik.errors.name && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className="text-red-500 text-xs mt-1 absolute -bottom-1 left-0">
                     {formik.errors.name}
                   </p>
                 )}
@@ -220,21 +208,21 @@ export const EBadgeSettingFormSheet = ({
             </div> */}
 
             {/* Tickets Selection */}
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="tickets">Tickets</Label>
+            <div className="flex flex-col gap-1 h-20 grow">
+              <Label htmlFor="tickets" className={'mb-0'}>Tickets</Label>
               {loading ? (
                 <div className="flex items-center justify-center py-4">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   Loading tickets...
                 </div>
               ) : (
-                <div className="border rounded-md p-4 max-h-60 overflow-y-auto">
+                <div className="border rounded-lg p-3 h-60 grow overflow-y-auto">
                   {tickets.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-4">
                       No tickets available for this event
                     </p>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-2">
                       {tickets.map((ticket) => {
                         const status = getTicketStatus(ticket);
                         const isSelected = formik.values.ticketIds.includes(
@@ -242,33 +230,11 @@ export const EBadgeSettingFormSheet = ({
                         );
 
                         return (
-                          <div
-                            key={ticket._id}
-                            className={cn(
-                              "flex items-center space-x-2 p-2 rounded-md",
-                              status.disabled && "bg-gray-100 opacity-60",
-                              isSelected && "bg-blue-50 border border-blue-200"
-                            )}
-                            title={status.tooltip}
-                          >
-                            <Checkbox
-                              id={`ticket-${ticket._id}`}
-                              checked={isSelected}
-                              onCheckedChange={() =>
-                                handleTicketToggle(ticket._id)
-                              }
-                              disabled={status.disabled}
-                            />
-                            <Label
-                              htmlFor={`ticket-${ticket._id}`}
-                              className={cn(
-                                "flex-1 text-sm font-normal cursor-pointer",
-                                status.disabled && "text-gray-500"
-                              )}
-                            >
-                              <div className="flex items-center justify-between">
-                                <span>{ticket.ticketName}</span>
-                              </div>
+                          <div key={ticket._id} className={cn("flex items-center space-x-2 p-2 rounded-md", status.disabled && "bg-gray-100 opacity-60", isSelected && "bg-blue-50 border border-blue-200")} title={status.tooltip}>
+                            <Checkbox id={`ticket-${ticket._id}`} checked={isSelected} onCheckedChange={() => handleTicketToggle(ticket._id)} disabled={status.disabled} />
+                            <Label htmlFor={`ticket-${ticket._id}`} className={cn("flex-1 flex flex-row gap-2 items-center text-sm font-normal cursor-pointer mb-0", status.disabled && "text-gray-500")}>
+                              <Tickets className="size-4" />
+                              {ticket.ticketName}
                             </Label>
                           </div>
                         );
@@ -283,12 +249,8 @@ export const EBadgeSettingFormSheet = ({
                 </p>
               )}
             </div>
+            <p className="text-zinc-600 text-xs rounded-lg p-2 bg-zinc-100 border border-solid border-zinc-200">"Tickets that are already linked to other e-badge settings are disabled and cannot be selected."</p>
           </div>
-
-          <p className="text-amber-800 text-xs">
-            Tickets wich are disabled already attached to other e-badge settings
-            and cannot be selected.
-          </p>
 
           <SheetFooter className="flex flex-row justify-end space-x-2 p-6 py-3 bg-white border-t border-gray-200">
             <Button
