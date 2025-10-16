@@ -294,69 +294,67 @@ const TicketWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) 
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="!max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? 'Edit Ticket' : 'Add Ticket'}
-          </DialogTitle>
+      <DialogContent className="!max-w-[96%] xl:!max-w-6xl max-h-[80vh] sm:max-h-[70vh] h-full gap-0 p-0">
+        <DialogHeader className={'p-0 hidden'}>
+          <DialogTitle></DialogTitle>
         </DialogHeader>
 
-        <StepIndicator currentStep={currentStep} setCurrentStep={setCurrentStep} validateStepBeforeChange={validateCurrentStep} />
+        <div className='flex flex-col sm:flex-row'>
+          <div className='bg-zinc-50 border-r border-solid border-zinc-200 p-4 sm:p-6 lg:p-9 w-full sm:w-52 lg:w-64 rounded-t-lg sm:rounded-l-lg'>
+            <StepIndicator currentStep={currentStep} setCurrentStep={setCurrentStep} validateStepBeforeChange={validateCurrentStep} />
+          </div>
+          <div className="min-h-[300px] sm:w-2/4 grow p-4 sm:p-6 flex flex-col gap-4">
+            <div className='w-full bg-white pb-2'>
+              <h3 className='text-base md:text-lg xl:text-xl font-bold mb-0 text-blue-600'>{isEditMode ? 'Edit Ticket' : 'Add Ticket'}</h3>
+            </div>
+            {renderStepContent()}
+            <div className='flex flex-wrap justify-end gap-2'>
+              <div className="flex space-x-2">
+                {currentStep > 1 && (
+                  <Button variant="outline" onClick={prevStep}>
+                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    Back
+                  </Button>
+                )}
+              </div>
+              <div className="flex space-x-2">
+                <Button variant="outline" onClick={handleClose}>Cancel</Button>
 
-        <div className="min-h-[300px]">
-          {renderStepContent()}
+                {/* Save button for edit mode in steps 1-4 */}
+                {isEditMode && currentStep < 5 && (
+                  <Button 
+                    onClick={handleSaveAndClose} 
+                    disabled={loading}
+                    variant="default"
+                  >
+                    {loading ? (
+                      <>
+                        <Save className="h-4 w-4 mr-1" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4 mr-1" />
+                        Save
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {currentStep < 5 ? (
+                  <Button onClick={nextStep}>
+                    Next
+                    <ChevronRight className="size-4" />
+                  </Button>
+                ) : (
+                  <Button onClick={handleSubmit} disabled={loading}>{loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Ticket' : 'Create Ticket')}</Button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <DialogFooter className="flex justify-between">
-          <div className="flex space-x-2">
-            {currentStep > 1 && (
-              <Button variant="outline" onClick={prevStep}>
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Back
-              </Button>
-            )}
-          </div>
-
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
-
-            {/* Save button for edit mode in steps 1-4 */}
-            {isEditMode && currentStep < 5 && (
-              <Button 
-                onClick={handleSaveAndClose} 
-                disabled={loading}
-                variant="default"
-              >
-                {loading ? (
-                  <>
-                    <Save className="h-4 w-4 mr-1" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-1" />
-                    Save
-                  </>
-                )}
-              </Button>
-            )}
-
-            {currentStep < 5 ? (
-              <Button onClick={nextStep}>
-                Next
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            ) : (
-              <Button onClick={handleSubmit} disabled={loading}>
-                {loading
-                  ? (isEditMode ? 'Updating...' : 'Creating...')
-                  : (isEditMode ? 'Update Ticket' : 'Create Ticket')
-                }
-              </Button>
-            )}
-          </div>
+        <DialogFooter className="hidden justify-between">
         </DialogFooter>
       </DialogContent>
     </Dialog>

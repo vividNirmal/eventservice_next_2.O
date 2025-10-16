@@ -20,7 +20,7 @@ const AdvancedSettingsStep = ({
   handleCrossRegisterCategoryToggle 
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 overflow-y-auto custom-scroll h-20 grow pb-2 pr-2">
       <div className='flex flex-col gap-1.5'>
         <div className="grid md:grid-cols-2 gap-4">
           <Label className="text-base font-medium col-span-full">Ticket Buy Limit Per User</Label>
@@ -39,7 +39,7 @@ const AdvancedSettingsStep = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Badge Category</Label>
           <Select value={formData.advancedSettings.badgeCategory} onValueChange={(value) => handleInputChange('advancedSettings.badgeCategory', value)}>

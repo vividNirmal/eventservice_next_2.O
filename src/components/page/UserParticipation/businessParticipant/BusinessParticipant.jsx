@@ -69,7 +69,8 @@ const TicketBooking = ({businessData,businessForm, eventData}) => {
         </p> */}
         {eventData?.event_description && (
           <div className="w-[calc(100%_-_32px)] md:w-96 lg:w-auto absolute top-0 sm:top-1/3 left-0 sm:left-2/4 sm:-translate-x-2/4 lg:translate-none lg:top-auto lg:bottom-0 lg:left-0 lg:right-0 p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
-            <p className="z-1 text-white text-base 2xl:text-lg font-normal leading-normal">{eventData.event_description}</p>
+            <h3 className='text-white font-bold text-lg lg:text-xl 2xl:text-2xl mb-3'>Lorem ipsum dolor sit amet.</h3>
+            <p className="z-1 text-white text-sm 2xl:text-base font-normal leading-normal">{eventData.event_description}</p>
           </div>
           )
         }

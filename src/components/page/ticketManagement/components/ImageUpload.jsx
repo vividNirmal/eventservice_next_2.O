@@ -16,9 +16,9 @@ const ImageUpload = ({
 }) => {
   return (
     <div className="space-y-4">
-      <div className="text-center space-y-2">
+      <div className="text-left flex flex-col gap-1">
         <Label>{label}</Label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50">
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-gray-50 text-center">
           <div className="text-blue-500 mb-2">
             {preview ? (
               <div className="space-y-2">

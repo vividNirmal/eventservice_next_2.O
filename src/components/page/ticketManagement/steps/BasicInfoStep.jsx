@@ -9,7 +9,7 @@ import { USER_TYPE_OPTIONS, TICKET_CATEGORY_OPTIONS } from '../constants/ticketC
 
 const ErrorMessage = ({ error }) => {
   if (!error) return null;
-  return <div className="text-red-500 text-sm mt-1">{error}</div>;
+  return <div className="text-red-500 text-xs absolute -bottom-1 left-0">{error}</div>;
 };
 
 const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms, userTypes }) => {
@@ -35,91 +35,84 @@ const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms, us
 
   return (
     <TooltipProvider>
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+    <div className="space-y-4 sm:space-y-6 overflow-y-auto custom-scroll h-20 grow pb-2 pr-2">
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1">
           <Label htmlFor="ticketName">Ticket Name *</Label>
-          <Input
-            id="ticketName"
-            value={formData.ticketName}
-            onChange={(e) => handleInputChange('ticketName', e.target.value)}
-            placeholder="Enter ticket name"
-            className={errors.ticketName ? 'border-red-500' : null}
-          />
-          <ErrorMessage error={errors.ticketName} />
+          <div className='relative pb-3.5'>
+            <Input
+              id="ticketName"
+              value={formData.ticketName}
+              onChange={(e) => handleInputChange('ticketName', e.target.value)}
+              placeholder="Enter ticket name"
+              className={errors.ticketName ? 'border-red-500' : null}
+            />
+            <ErrorMessage error={errors.ticketName} />
+          </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-1">
           <Label htmlFor="userType">User Type *</Label>
-          <Select
-            value={formData.userType}
-            onValueChange={(value) => handleInputChange('userType', value)}
-          >
-            <SelectTrigger className={`w-full ${errors.userType ? 'border-red-500' : null}`}>
-              <SelectValue placeholder="Select user type" />
-            </SelectTrigger>
-            <SelectContent className="w-full">
-              {Array.isArray(userTypes) && userTypes.length > 0 ? (
-                userTypes.map((type) => (
-                  <SelectItem key={type._id} value={type._id}>
-                    {type.typeName}
-                  </SelectItem>
-                ))
-              ) : (
-                <SelectItem disabled>No user types found</SelectItem>
-              )}
-            </SelectContent>
-          </Select>
-          <ErrorMessage error={errors.userType} />
+          <div className='relative pb-3.5'>
+            <Select value={formData.userType} onValueChange={(value) => handleInputChange('userType', value)}>
+              <SelectTrigger className={`w-full ${errors.userType ? 'border-red-500' : null}`}>
+                <SelectValue placeholder="Select user type" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                {Array.isArray(userTypes) && userTypes.length > 0 ? (
+                  userTypes.map((type) => (
+                    <SelectItem key={type._id} value={type._id}>{type.typeName}</SelectItem>
+                  ))
+                ) : (
+                  <SelectItem disabled>No user types found</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            <ErrorMessage error={errors.userType} />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="registrationForm">Registration Form *</Label>
-          <Select
-            value={formData.registrationFormId}
-            onValueChange={(value) => handleInputChange('registrationFormId', value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select registration form" />
-            </SelectTrigger>
-            <SelectContent className="w-full">
-              {availableForms.map(form => (
-                <SelectItem key={form._id} value={form._id}>
-                  {form.formName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <ErrorMessage error={errors.registrationFormId} />
+          <div className='relative pb-3.5'>
+            <Select value={formData.registrationFormId} onValueChange={(value) => handleInputChange('registrationFormId', value)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select registration form" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                {availableForms.map(form => (
+                  <SelectItem key={form._id} value={form._id}>{form.formName}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <ErrorMessage error={errors.registrationFormId} />
+          </div>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="ticketCategory">Ticket Category *</Label>
-          <Select
-            value={formData.ticketCategory}
-            onValueChange={(value) => handleInputChange('ticketCategory', value)}
-          >
-            <SelectTrigger className={`w-full ${errors.ticketCategory ? 'border-red-500' : null}`}>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent className="w-full">
-              {TICKET_CATEGORY_OPTIONS.map(option => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <ErrorMessage error={errors.ticketCategory} />
+          <div className='relative pb-3.5'>
+            <Select value={formData.ticketCategory} onValueChange={(value) => handleInputChange('ticketCategory', value)}>
+              <SelectTrigger className={`w-full ${errors.ticketCategory ? 'border-red-500' : null}`}>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                {TICKET_CATEGORY_OPTIONS.map(option => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <ErrorMessage error={errors.ticketCategory} />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Label htmlFor="serialNoPrefix">Serial No Prefix *</Label>
+            <Label htmlFor="serialNoPrefix" className={'mb-0'}>Serial No Prefix *</Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
@@ -145,24 +138,18 @@ const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms, us
               </TooltipContent>
             </Tooltip>
           </div>
-          <div className="relative">
-            <Input
-              id="serialNoPrefix"
-              value={formData.serialNoPrefix}
-              onChange={(e) => handleInputChange('serialNoPrefix', e.target.value)}
-              placeholder="e.g., PVR"
-              className={errors.serialNoPrefix ? 'border-red-500' : null}
-            />
+          <div className="relative pb-3.5">
+            <Input id="serialNoPrefix" value={formData.serialNoPrefix} onChange={(e) => handleInputChange('serialNoPrefix', e.target.value)} placeholder="e.g., PVR" className={errors.serialNoPrefix ? 'border-red-500' : null} />
             {validateSerialPrefix(formData.serialNoPrefix) && (
               <CheckCircle2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-500" />
             )}
+            <ErrorMessage error={errors.serialNoPrefix} />
           </div>
-          <ErrorMessage error={errors.serialNoPrefix} />
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Label htmlFor="startCount">Start Count</Label>
+            <Label htmlFor="startCount" className={'mb-0'}>Start Count</Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />

@@ -499,7 +499,7 @@ const DynamicParticipantForm = ({
             <ul className="flex items-center justify-between">
               {form.pages.map((page, index) => (
                 <li key={index} className="flex flex-col items-center gap-1.5 md:gap-2.5 basis-0 w-fit md:flex-1 text-center relative z-10">
-                  <div className={cn("flex items-center justify-center text-sm md:text-base size-8 md:size-9 2xl:size-10 rounded-lg md:rounded-xl font-semibold border border-solid shadow-[0_0_0_10px_#f7f9fc] transition-all", index < currentStep ? "bg-[#3853ff] text-white" : index === currentStep ? "bg-[#3853ff] border-[#3853ff] text-white" : "bg-muted border-zinc-200 text-muted-foreground")}>{index < currentStep ? (<Check className="h-5 w-5" />) : (index + 1)}</div>
+                  <div className={cn("flex items-center justify-center text-sm md:text-base size-8 md:size-9 2xl:size-10 rounded-lg md:rounded-xl font-semibold border border-solid shadow-[0_0_0_10px_#ffffff] transition-all", index < currentStep ? "bg-[#3853ff] text-white" : index === currentStep ? "bg-[#3853ff] border-[#3853ff] text-white" : "bg-muted border-zinc-200 text-muted-foreground")}>{index < currentStep ? (<Check className="h-5 w-5" />) : (index + 1)}</div>
                   <div className={cn("capitalize font-medium text-xs sm:text-sm 2xl:text-base whitespace-nowrap", index === currentStep ? "text-foreground" : "text-muted-foreground")}>{page.name}</div>
                 </li>
               ))}

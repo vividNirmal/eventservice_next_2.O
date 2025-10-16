@@ -116,7 +116,7 @@ export default function Header() {
                   className="w-8 h-8 md:w-9 md:h-9 2xl:w-10 2xl:h-10 object-cover rounded-full"
                 />
               ) : (
-                <span className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 2xl:w-10 2xl:h-10 bg-gray-400 text-white font-semibold text-xs md:text-sm uppercase rounded-full">
+                <span className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 2xl:w-10 2xl:h-10 bg-blue-600 text-white font-semibold text-xs md:text-sm uppercase rounded-full">
                   {loginUser?.name?.[0] || ""}
                 </span>
               )}
@@ -126,10 +126,10 @@ export default function Header() {
           {open && (
             <div className="absolute right-0 mt-2 w-64 p-3 bg-white border rounded shadow-lg z-10">
               <div className="p-2">
-                <span className="block font-medium text-gray-700 text-xs">
+                <span className="block font-bold text-black text-sm">
                   {loginUser?.name || "Unknown User"}
                 </span>
-                <span className="mt-0.5 block text-xs text-gray-500">
+                <span className="mt-0.5 block text-xs text-zinc-500">
                   {loginUser?.email || "No email available"}
                 </span>
               </div>
@@ -139,7 +139,7 @@ export default function Header() {
               <button
                 onClick={handleLogout}
                 type="button"
-                className="w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-purple-600 focus:outline-none border-0 shadow-none"
+                className="cursor-pointer w-full flex items-center gap-3 px-3 py-2 text-xs font-medium text-gray-700 rounded-lg hover:bg-gray-100 hover:text-purple-600 focus:outline-none border-0 shadow-none"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

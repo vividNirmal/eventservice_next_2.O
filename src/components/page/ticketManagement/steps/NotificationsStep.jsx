@@ -138,7 +138,7 @@ const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 sm:space-y-6 overflow-y-auto custom-scroll h-20 grow pb-2 pr-2">
       {CHANNELS.map(({ key, label, type }) => {
         const detail = getDetail(key);
         const tTypes = typesByChannel[type] || [];

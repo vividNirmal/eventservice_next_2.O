@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 const StepIndicator = ({ currentStep, setCurrentStep, validateStepBeforeChange }) => {
  return (
-    <div className="flex items-center mb-6">
+    <ul className="flex flex-row sm:flex-col gap-4 sm:gap-0">
       {STEP_TITLES.map((title, index) => {
         const stepNumber = index + 1;
         const isActive = stepNumber === currentStep;
@@ -25,16 +25,13 @@ const StepIndicator = ({ currentStep, setCurrentStep, validateStepBeforeChange }
         };
 
         return (
-          <div key={stepNumber} className="flex items-center">
-            <div onClick={handleClick} className={cn("shrink-0 cursor-pointer flex items-center justify-center size-8 rounded-full text-sm font-medium", isActive ? 'bg-blue-600 text-white' : isCompleted ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600')}>{stepNumber}</div>
-            <span onClick={handleClick} className={cn("ml-2 text-sm leading-normal cursor-pointer", isActive ? 'font-medium' : 'text-gray-600')}>{title}</span>
-            {stepNumber < STEP_TITLES.length && (
-              <div className="w-8 h-px bg-gray-300 ml-2" />
-            )}
-          </div>
+          <li key={stepNumber} className={cn("flex items-center sm:items-start flex-col sm:flex-row gap-1 last:pb-0 sm:pb-8 last:mb-0 last:after:hidden relative after:w-full sm:after:w-px after:h-px sm:after:h-full after:absolute after:left-8 sm:after:left-4 after:top-4 sm:after:top-0", isActive ? 'after:bg-gradient-to-t after:from-blue-100 after:to-blue-600' : isCompleted ? 'after:bg-blue-600' : 'after:bg-zinc-300')}>
+            <div onClick={handleClick} className={cn("relative z-1 shrink-0 cursor-pointer flex items-center justify-center size-8 rounded-full text-sm font-medium", isActive ? 'bg-blue-600 text-white' : isCompleted ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-600')}>{stepNumber}</div>
+            <span onClick={handleClick} className={cn("select-none sm:min-h-8 flex items-center w-full sm:w-2/4 sm:grow sm:ml-3 text-center sm:text-left text-xs lg:text-sm leading-tight sm:leading-normal cursor-pointer", isActive ? 'font-medium' : isCompleted ? 'text-blue-700 font-semibold' : ' text-zinc-600')}>{title}</span>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 };
 

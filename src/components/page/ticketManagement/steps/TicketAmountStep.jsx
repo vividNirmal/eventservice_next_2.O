@@ -54,7 +54,7 @@ const TicketAmountStep = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 overflow-y-auto custom-scroll h-20 grow pb-2 pr-2">
       {/* Ticket Amount Type Selection - Changed to Select Input */}
       <div className="space-y-2">
         <Label htmlFor="ticketAmountType">Ticket Type *</Label>
