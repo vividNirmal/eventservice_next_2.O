@@ -168,7 +168,7 @@ const UserTemplateList = ({ eventId, templateType }) => {
                 placeholder="Search templates..."
                 value={searchTerm}
                 onChange={handleSearch}
-                className="pl-10"
+                className="!pl-10"
               />
             </div>
             <Select

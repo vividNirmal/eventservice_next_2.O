@@ -566,7 +566,7 @@ const EventHostDetailsPage = ({ eventId }) => {
                         ? "border-blue-300 bg-blue-50"
                         : "border-gray-300 bg-gray-50"
                   )}>
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 px-0">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-sm font-medium">
                           Range {index + 1}
@@ -587,15 +587,11 @@ const EventHostDetailsPage = ({ eventId }) => {
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-gray-500" />
-                          <span>
-                            {isSameDay ? rangeStartDate : `${rangeStartDate} to ${rangeEndDate}`}
-                          </span>
+                          <span>{isSameDay ? rangeStartDate : `${rangeStartDate} to ${rangeEndDate}`}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-gray-500" />
-                          <span>
-                            {range.startTime} - {range.endTime}
-                          </span>
+                          <span>{range.startTime} - {range.endTime}</span>
                         </div>
                       </div>
                     </CardContent>

@@ -54,48 +54,25 @@ export function CustomPagination({ currentPage, totalPages, onPageChange, pageSi
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div className="w-2/4 text-sm text-zinc-700">
-            Showing {(currentPage - 1) * pageSize + 1} to{" "}
-          {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries
-      </div>
-    <Pagination className={'mx-0 justify-end'}>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href="#"
-            onClick={() => onPageChange(currentPage - 1)}
-            aria-disabled={currentPage === 1}
-            className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
-          />
-        </PaginationItem>
-
-        {pages.map((page, index) => (
-          <PaginationItem key={index}>
-            {page === "ellipsis" ? (
-              <PaginationEllipsis />
-            ) : (
-              <PaginationLink
-                href="#"
-                isActive={currentPage === page}
-                onClick={() => onPageChange(page)}
-              >
-                {page}
-              </PaginationLink>
-            )}
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+      <div className="w-2/4 text-sm text-zinc-700">Showing {(currentPage - 1) * pageSize + 1} to{" "} {Math.min(currentPage * pageSize, totalEntries)} of {totalEntries} entries</div>
+      <Pagination className={'mx-0 justify-end'}>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="#" onClick={() => onPageChange(currentPage - 1)} aria-disabled={currentPage === 1} className={currentPage === 1 ? "pointer-events-none opacity-50" : ""} />
           </PaginationItem>
-        ))}
 
-        <PaginationItem>
-          <PaginationNext
-            href="#"
-            onClick={() => onPageChange(currentPage + 1)}
-            aria-disabled={currentPage === totalPages}
-            className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+          {pages.map((page, index) => (
+            <PaginationItem key={index}>
+              {page === "ellipsis" ? (<PaginationEllipsis />) : (<PaginationLink href="#" isActive={currentPage === page} onClick={() => onPageChange(page)}>{page}</PaginationLink>)}
+            </PaginationItem>
+          ))}
+
+          <PaginationItem>
+            <PaginationNext href="#" onClick={() => onPageChange(currentPage + 1)} aria-disabled={currentPage === totalPages} className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""} />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

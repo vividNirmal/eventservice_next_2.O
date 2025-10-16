@@ -278,22 +278,16 @@ const ParticipantUserListPage = ({ id, eventId }) => {
   return (
     <section>
       <Card className={"gap-0 py-3"}>
-        <CardHeader className={"flex flex-wrap items-center px-3 gap-3"}>
+        <CardHeader className={"flex flex-wrap items-center px-0 gap-3"}>
           <div className="flex flex-col gap-1">
             <CardTitle>Participant User List</CardTitle>
             {participants.length > 0 && (
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span>Total: {totalParticipants}</span>
-                <span className="text-green-600">
-                  Active: {participants.filter(p => !p.dynamic_fields?.isBlocked).length}
-                </span>
-                <span className="text-red-600">
-                  Blocked: {participants.filter(p => p.dynamic_fields?.isBlocked).length}
-                </span>
+                <span className="text-green-600">Active: {participants.filter(p => !p.dynamic_fields?.isBlocked).length}</span>
+                <span className="text-red-600">Blocked: {participants.filter(p => p.dynamic_fields?.isBlocked).length}</span>
                 {statusFilter !== "all" && (
-                  <span className="text-blue-600">
-                    Showing: {filteredParticipants.length}
-                  </span>
+                  <span className="text-blue-600">Showing: {filteredParticipants.length}</span>
                 )}
               </div>
             )}
@@ -333,7 +327,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
                 placeholder="Search participants"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+                className="!pl-10"
               />
             </div>
             <Select

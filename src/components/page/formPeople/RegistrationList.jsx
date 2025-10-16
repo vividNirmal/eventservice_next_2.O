@@ -133,7 +133,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
               placeholder="Search user..."
               value={search}
               onChange={handleSearch}
-              className="pl-10 w-64"
+              className="!pl-10 w-64"
             />
           </div>
         </div>

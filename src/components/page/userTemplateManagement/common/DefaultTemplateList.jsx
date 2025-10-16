@@ -161,7 +161,7 @@ const formik = useFormik({
               placeholder="Search default templates..."
               value={searchTerm}
               onChange={handleSearch}
-              className="pl-10"
+              className="!pl-10"
             />
           </div>
           <Select
