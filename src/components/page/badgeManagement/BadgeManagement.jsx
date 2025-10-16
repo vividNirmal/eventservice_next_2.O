@@ -10,7 +10,7 @@ const EBadgeTemplateList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplate
   loading: () => <div className="flex justify-center items-center h-64">Loading e-badge templates..</div>
 });
 
-const EBadgeSettingList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplateList'), {
+const EBadgeSettingList = dynamic(() => import('./eBadgeSetting/EBadgeSettingList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading e-badge settings...</div>
 });
