@@ -14,7 +14,8 @@ import {
   MessageCircleMore,
   LayoutTemplate,
   Phone,
-  ShieldUser
+  ShieldUser,
+  FileBadge
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -105,6 +106,14 @@ const StaticNavigation = ({ eventId = null }) => {
           url: actualEventId ? `/dashboard/event-host/${actualEventId}/people` : '/dashboard/people',
           description: 'Manage event participants',
           isActive: activeSection === 'people',
+        },
+        {
+          id: 'badge',
+          label: 'Badge',
+          icon: FileBadge,
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/badge-management` : '/dashboard/badge',
+          description: 'Manage event badges',
+          isActive: activeSection === 'badge',
         }
       ]
     },
