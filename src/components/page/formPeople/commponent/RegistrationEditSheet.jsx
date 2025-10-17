@@ -94,9 +94,20 @@ const RegistrationEditSheet = ({
     try {
       const formData = new FormData();
 
-      // Add all edited form data
+      // Get all file field keys from formFields
+      const fileFieldKeys = formFields
+        .filter(field => field.fieldType === 'file')
+        .map(field => getFieldKey(field));
+
+      // Add all edited form data, EXCLUDING file fields that haven't changed
       Object.keys(editedData).forEach((key) => {
         const value = editedData[key];
+        
+        // Skip file fields that haven't been updated with new files
+        if (fileFieldKeys.includes(key) && !fileUploads[key]) {
+          return; // Don't send the old file path as string
+        }
+        
         if (value !== null && value !== undefined) {
           if (Array.isArray(value)) {
             value.forEach((item, index) => {
@@ -108,7 +119,7 @@ const RegistrationEditSheet = ({
         }
       });
 
-      // Add file uploads
+      // Add file uploads (new files)
       Object.keys(fileUploads).forEach((fieldName) => {
         const file = fileUploads[fieldName];
         if (file instanceof File) {

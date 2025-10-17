@@ -336,16 +336,10 @@ export async function pdfgenrate(path, body) {
     .catch((error) => console.error(error));
 }
 
-export async function SacnnerPost(path, body) {
-  const token = getToken("scannerloginToken");
-  if (!token) {
-    throw new Error("No token found");
-  }
+export async function SacnnerPost(path, body) {  
+  
   return fetch(`${baseURL}/${path}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    method: "POST",  
     body: body,
   })
     .then((response) => response.blob())

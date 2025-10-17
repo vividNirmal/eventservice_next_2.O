@@ -873,7 +873,7 @@ const EventModal = ({
                     onSubmit={handleEventDetailsSubmit}
                     initialData={initialData}
                     submitButtonText={editMode ? "Update Event" : "Create Event"}
-                    showSubmitButton={true}
+                    showSubmitButton={false}  // Changed from true to false
                     formRef={eventDetailsFormRef}
                   />
                 </div>
@@ -893,7 +893,7 @@ const EventModal = ({
                 Previous
               </Button>
 
-              {currentStep !== 5 && (
+              {currentStep !== 5 ? (
                 <Button
                   type="button"
                   onClick={handleNext}
@@ -911,6 +911,30 @@ const EventModal = ({
                   {!submitting && (
                     <ChevronRight className="h-4 w-4" />
                   )}
+                </Button>
+              ) : (
+                // Submit button for step 5
+                <Button
+                  type="button"
+                  onClick={() => {
+                    // Trigger the EventDetailsForm submission
+                    if (eventDetailsFormRef.current) {
+                      const submitButton = eventDetailsFormRef.current.querySelector('button[type="submit"]');
+                      if (submitButton) {
+                        submitButton.click();
+                      } else {
+                        // Fallback: dispatch submit event
+                        eventDetailsFormRef.current.dispatchEvent(
+                          new Event('submit', { cancelable: true, bubbles: true })
+                        );
+                      }
+                    }
+                  }}
+                  disabled={submitting}
+                  className="flex items-center gap-2 !scale-100"
+                >
+                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                  {editMode ? "Update Event" : "Create Event"}
                 </Button>
               )}
             </div>
