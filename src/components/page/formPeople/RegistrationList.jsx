@@ -383,7 +383,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                           </div>
                           <div className="flex items-center space-x-2">
                             <Phone className="w-4 h-4 text-gray-500" />
-                            <span>{reg.contactNo || "N/A"}</span>
+                            <span>{reg.contact || "N/A"}</span>
                           </div>
                         </div>
                       </TableCell>
