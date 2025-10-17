@@ -47,7 +47,7 @@ const RegistrationManagement = ({ eventId }) => {
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6 flex flex-wrap">
+          <TabsList className="mb-2 flex flex-wrap">
             {userTypes.map((type) => (
               <TabsTrigger key={type._id} value={type._id} className="px-6">
                 {type.typeName}

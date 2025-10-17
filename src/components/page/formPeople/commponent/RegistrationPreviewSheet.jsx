@@ -112,12 +112,12 @@ const RegistrationPreviewSheet = ({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-3xl overflow-hidden">
         <SheetHeader>
-          <SheetTitle>Registration Form Details</SheetTitle>
+          <SheetTitle className={'text-base md:text-lg xl:text-xl font-bold mb-0'}>Registration Form Details</SheetTitle>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-120px)] mt-4 pr-4">
+        <div className="h-20 grow">
           {/* Header Info */}
-          <div className="bg-muted/30 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="bg-muted mx-4 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
               <h2 className="text-lg font-semibold">
                 {registration.name || "Unnamed"}
@@ -127,22 +127,16 @@ const RegistrationPreviewSheet = ({
                 {registration.email || "N/A"}
               </p>
               <div className="flex gap-2 mt-2">
-                <Badge
-                  variant={
-                    registration.approved ? "default" : "destructive"
-                  }
-                >
-                  {registration.approved ? "Approved" : "Not Approved"}
-                </Badge>
+                <span className="text-sm text-gray-500 font-normal">{registration.approved ? "Approved" : "Not Approved"}</span>
                 {registration.badgeNo && (
-                  <Badge variant="outline">{registration.badgeNo}</Badge>
+                  <span className="text-sm text-gray-800 font-normal">{registration.badgeNo}</span>
                 )}
               </div>
             </div>
           </div>
 
           {/* Approve / Disapprove Buttons */}
-          <div className="flex justify-end gap-2 mt-3">
+          <div className="flex justify-end gap-2 px-4 pt-4">
             <Button
               size="sm"
               variant="default"
@@ -164,14 +158,11 @@ const RegistrationPreviewSheet = ({
                 : "Disapprove"}
             </Button>
           </div>
-
-          <Separator className="my-4" />
-
           {/* Unified Dynamic Key-Value Details */}
-          <div className="space-y-5">
+          <div className="rounded-xl mx-4 border border-solid border-zinc-200 mt-4">
             {/* Email Field (Static) */}
-            <div className="grid grid-cols-2 gap-3 text-sm border-b pb-2">
-              <p className="text-muted-foreground font-medium">Email</p>
+            <div className="grid grid-cols-2 gap-3 text-sm p-3">
+              <p className="text-zinc-950 font-medium">Email</p>
               <p>{registration.email || "N/A"}</p>
             </div>
 
@@ -183,21 +174,14 @@ const RegistrationPreviewSheet = ({
                 return null;
 
               return (
-                <div
-                  key={field._id}
-                  className="grid grid-cols-2 gap-3 text-sm border-b pb-2"
-                >
-                  <p className="text-muted-foreground font-medium">
-                    {field.fieldTitle || fieldKey}
-                  </p>
+                <div key={field._id} className="grid grid-cols-2 gap-3 text-sm border-t border-solid border-zinc-200 p-3 even:bg-zinc-100">
+                  <p className="text-zinc-950 font-medium">{field.fieldTitle || fieldKey}</p>
                   <div>{renderFieldValue(field, value)}</div>
                 </div>
               );
             })}
           </div>
-
-          <Separator className="my-6" />
-        </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );

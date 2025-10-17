@@ -256,8 +256,8 @@ const RegistrationList = ({ eventId, userTypeId }) => {
             {/* First Row: Date Range, Ticket Filter, Search */}
             <div className="flex flex-wrap gap-3 items-center">
               {/* Search Bar */}
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <div className="relative grow w-20">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-4" />
                 <Input
                   placeholder="Search by email or badge..."
                   value={search}
@@ -267,7 +267,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
               </div>
               {/* Date Range Filter */}
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
+                <Calendar className="size-5 text-gray-500" />
                 <Select value={dateRange} onValueChange={handleDateRangeChange}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Date Range" />
@@ -408,7 +408,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                         })}
                       </TableCell>
                       <TableCell className="">
-                        <div className="flex justify-center gap-2">
+                        <div>
                           {reg.approved ? (
                             <Button
                               size="sm"

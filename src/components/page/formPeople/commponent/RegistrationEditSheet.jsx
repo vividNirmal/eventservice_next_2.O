@@ -361,7 +361,13 @@ const RegistrationEditSheet = ({
               onChange={(content) => handleFieldChange(fieldKey, content)}
               placeholder={placeHolder}
               theme="snow"
-              className="bg-white"
+              className="w-full min-h-64 flex flex-col 
+              [&>.ql-container.ql-snow]:flex 
+              [&>.ql-container.ql-snow]:flex-col 
+              [&>.ql-container>.ql-editor]:grow 
+              [&>.ql-toolbar.ql-snow]:rounded-t-md 
+              [&>.ql-container.ql-snow]:rounded-b-md 
+              [&>.ql-container.ql-snow]:flex-grow"
             />
           </div>
         );
@@ -440,103 +446,91 @@ const RegistrationEditSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl">
-        <SheetHeader>
-          <SheetTitle>Edit Registration</SheetTitle>
-          <SheetDescription>
-            Update registration information and status
+      <SheetContent className="w-full sm:max-w-2xl pr-2">
+        <SheetHeader className={'pb-0 gap-0'}>
+          <SheetTitle className={"text-base md:text-lg xl:text-xl font-bold mb-0"}>Edit Registration</SheetTitle>
+          <SheetDescription >
+            Update registration information
           </SheetDescription>
         </SheetHeader>
+        <div className="space-y-6 p-4 pt-0 h-20 grow overflow-auto custom-scroll">
+          {/* Basic Information */}
 
-        <ScrollArea className="h-[calc(100vh-200px)] mt-6">
-          <div className="space-y-6 pr-4">
-            {/* Basic Information */}
-
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>
-                  Email <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  type="email"
-                  value={registration.email || ""}
-                  // onChange={(e) => handleFieldChange("email", e.target.value)}
-                  disabled
-                  className="bg-white"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Badge Number</Label>
-                <Input
-                  value={registration.badgeNo || ""}
-                  disabled
-                  className="bg-gray-50"
-                />
-              </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>
+                Email <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                type="email"
+                value={registration.email || ""}
+                // onChange={(e) => handleFieldChange("email", e.target.value)}
+                disabled
+                className="bg-white"
+              />
             </div>
 
-            {/* Dynamic Form Fields */}
-            {formFields.length > 0 && (
-              <div className="space-y-4">
-                <div className="space-y-4">
-                  {formFields.map((field) => (
-                    <div key={field._id}>{renderEditField(field)}</div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Face Image */}
-            {registration.faceImageUrl && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Face Image</h3>
-
-                <div className="space-y-4">
-                  {fileUploads.faceImage && (
-                    <div className="text-sm text-green-600">
-                      New image selected: {fileUploads.faceImage.name}
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="faceImage" className="cursor-pointer">
-                      <div className="flex items-center space-x-2 px-4 py-2 border rounded-md hover:bg-gray-50 w-fit">
-                        <Upload className="h-4 w-4" />
-                        <span>Upload New Face Image</span>
-                      </div>
-                      <input
-                        id="faceImage"
-                        type="file"
-                        accept="image/png, image/jpeg, image/jpg"
-                        onChange={handleFaceImageUpload}
-                        className="hidden"
-                      />
-                    </Label>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Label>Badge Number</Label>
+              <Input
+                value={registration.badgeNo || ""}
+                disabled
+                className="bg-gray-50"
+              />
+            </div>
           </div>
-        </ScrollArea>
 
-        <SheetFooter className="mt-6">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={updating}
-          >
-            Cancel
-          </Button>
+          {/* Dynamic Form Fields */}
+          {formFields.length > 0 && (
+            <div className="space-y-4">
+              <div className="space-y-4">
+                {formFields.map((field) => (
+                  <div key={field._id}>{renderEditField(field)}</div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Face Image */}
+          {registration.faceImageUrl && (
+            <div className="space-y-4">
+              <Label className={'mb-0'}>Face Image</Label>
+
+              <div className="space-y-4">
+                {fileUploads.faceImage && (
+                  <div className="text-sm text-green-600">
+                    New image selected: {fileUploads.faceImage.name}
+                  </div>
+                )}
+
+                <div>
+                  <Label htmlFor="faceImage" className="cursor-pointer">
+                    <div className="flex items-center space-x-2 px-4 py-2 border rounded-md hover:bg-gray-50 w-fit">
+                      <Upload className="h-4 w-4" />
+                      <span>Upload New Face Image</span>
+                    </div>
+                    <input
+                      id="faceImage"
+                      type="file"
+                      accept="image/png, image/jpeg, image/jpg"
+                      onChange={handleFaceImageUpload}
+                      className="hidden"
+                    />
+                  </Label>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+        <SheetFooter className="flex flex-row justify-end gap-3 shadow-[0_-4px_4px_0_rgba(0,0,0,0.12)]">
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={updating}>Cancel</Button>
           <Button onClick={handleSave} disabled={updating}>
             {updating ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Saving...
               </>
-            ) : (
-              "Save Changes"
-            )}
+            ) : ("Save Changes")}
           </Button>
         </SheetFooter>
       </SheetContent>
