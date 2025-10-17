@@ -44,7 +44,6 @@ const RegistrationManagement = ({ eventId }) => {
     <Card>
       <CardHeader className="px-0">
         <CardTitle>Registration Management</CardTitle>
-        <CardDescription>Manage and approve registrations for your event</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
