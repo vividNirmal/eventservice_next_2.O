@@ -259,7 +259,7 @@ const StaticNavigation = ({ eventId = null }) => {
                         {isOpen && (
                           <>
                             <div className="flex-1 min-w-0">
-                              <div className="font-small text-sm truncate">{item.label}</div>
+                              <div className="font-small text-xs font-medium truncate">{item.label}</div>
                             </div>
                             {item.isExpanded ? (
                               <ChevronUp className="h-4 w-4 text-gray-500" />
@@ -282,7 +282,7 @@ const StaticNavigation = ({ eventId = null }) => {
                                 <button onClick={() => handleSubItemClick(subItem, item.id)} className={cn("w-full flex items-center gap-3 px-3 py-1.5 rounded-lg transition-all duration-200 text-left border-r-2 border-solid hover:scale-105", isSubActive ? 'bg-blue-50 text-blue-700 border-blue-700' : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900')} title={subItem.label}>
                                   <SubIconComponent className={cn("h-3 w-3 flex-shrink-0", isSubActive ? 'text-blue-700' : 'text-gray-400')} />
                                   <div className="flex-1 min-w-0">
-                                    <div className="font-small text-sm truncate">{subItem.label}</div>
+                                    <div className="font-small text-xs font-medium truncate">{subItem.label}</div>
                                   </div>
                                 </button>
                               </li>
@@ -297,7 +297,7 @@ const StaticNavigation = ({ eventId = null }) => {
                       <IconComponent className={cn("h-4 w-4 flex-shrink-0", isActive ? 'text-blue-700' : 'text-gray-500')} />
                       {isOpen && (
                         <div className="flex-1 min-w-0">
-                          <div className="font-small text-sm truncate">{item.label}</div>
+                          <div className="font-small text-xs font-medium truncate">{item.label}</div>
                         </div>
                       )}
                     </button>

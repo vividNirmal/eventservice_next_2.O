@@ -55,15 +55,13 @@ const UserSmsTemplateManagement = ({ eventId }) => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className={'px-0'}>
         <CardTitle>WhatsApp Template Management</CardTitle>
-        <CardDescription>
-          Manage your custom WhatsApp templates and view default templates
-        </CardDescription>
+        {/* <CardDescription>Manage your custom WhatsApp templates and view default templates</CardDescription> */}
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6">
+          <TabsList className="mb-2">
             <TabsTrigger value="user-templates" className="px-6">My Templates</TabsTrigger>
             <TabsTrigger value="default-templates" className="px-6">Default Templates</TabsTrigger>
           </TabsList>

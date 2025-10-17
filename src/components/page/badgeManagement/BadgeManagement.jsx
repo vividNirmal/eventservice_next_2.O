@@ -42,11 +42,11 @@ const BadgeManagement = ({ eventId }) => {
       <Card>
         <CardHeader className={'px-0'}>
           <CardTitle>Badge Management</CardTitle>
-          <CardDescription>Manage badges for your event</CardDescription>
+          {/* <CardDescription>Manage badges for your event</CardDescription> */}
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-6">
+            <TabsList className="mb-2">
               <TabsTrigger value="e-badge" className="px-6">E-Badge Template</TabsTrigger>
               <TabsTrigger value="e-badge-setting" className="px-6">E-Badge Setting</TabsTrigger>
               <TabsTrigger value="badge-category" className="px-6">Badge Category</TabsTrigger>

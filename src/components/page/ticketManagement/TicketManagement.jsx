@@ -43,11 +43,11 @@ const TicketManagement = ({ eventId }) => {
       <Card>
         <CardHeader className={'px-0'}>
           <CardTitle>Ticket Management</CardTitle>
-          <CardDescription>Manage forms and tickets for your events</CardDescription>
+          {/* <CardDescription>Manage forms and tickets for your events</CardDescription> */}
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="mb-6">
+            <TabsList className="mb-2">
               <TabsTrigger value="forms" className="px-6">
                 Forms
               </TabsTrigger>

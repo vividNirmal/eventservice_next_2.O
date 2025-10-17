@@ -621,7 +621,7 @@ const EventHostDetailsPage = ({ eventId }) => {
         {/* Date Ranges Details - Show only for multiple ranges */}
         {eventDateInfo.isMultiRange && (
           <Card>
-            <CardHeader>
+            <CardHeader className={'px-0'}>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 Event Date & Time Ranges
@@ -675,7 +675,7 @@ const EventHostDetailsPage = ({ eventId }) => {
                           : "border-gray-300 bg-gray-50"
                       )}
                     >
-                      <CardHeader className="pb-2">
+                      <CardHeader className="pb-2 px-0">
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-sm font-medium">
                             Range {index + 1}
@@ -723,7 +723,7 @@ const EventHostDetailsPage = ({ eventId }) => {
 
         {/* Action Buttons */}
         <Card>
-          <CardHeader>
+          <CardHeader className={'px-0'}>
             <CardTitle className="flex items-center gap-2">
               <Link className="h-5 w-5" />
               Event URLs & Actions
@@ -763,11 +763,9 @@ const EventHostDetailsPage = ({ eventId }) => {
                         ? "border-blue-300 bg-blue-50"
                         : "border-gray-300 bg-gray-50"
                   )}>
-                    <CardHeader className="pb-2 px-0">
+                    <CardHeader className="px-0">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm font-medium">
-                          Range {index + 1}
-                        </CardTitle>
+                        <CardTitle className="text-sm font-medium">Range {index + 1}</CardTitle>
                         <Badge variant="outline" className={cn(
                           "text-xs",
                           rangeStatus === "Ongoing" 
