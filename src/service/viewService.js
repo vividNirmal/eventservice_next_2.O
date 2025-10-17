@@ -352,16 +352,8 @@ export async function SacnnerPost(path, body) {
     .catch((error) => console.error(error));
 }
 
-export async function SacnnerGet(path) {
-  const token = JSON.parse( getToken("scannerloginToken"));
-  if (!token) {
-    throw new Error("No token found");
-  }
-  return fetch(`${baseURL}/${path}`, {
-    headers: {
-      Authorization: `Bearer ${token.token}`,
-    },
-  })
+export async function SacnnerGet(path) {  
+  return fetch(`${baseURL}/${path}`)
     .then((response) => {      
       
       if (response.ok) {

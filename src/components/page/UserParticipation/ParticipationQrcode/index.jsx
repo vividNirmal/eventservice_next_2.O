@@ -12,12 +12,6 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
   const [pdfLoading, setPdfLoading] = useState(false);
   const [printLoading, setPrintLoading] = useState(false);
 
-  console.log('📱 QR Page - Component mounted with props:', {
-    eventDetails: eventDetails,
-    eventData: eventData,
-    formData: formData
-  });
-
   // Early return if essential data is missing
   if (!eventDetails && !eventData) {
     console.log('⚠️ QR Page - Missing essential data, showing loading state');
@@ -34,27 +28,21 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
     );
   }
 
-  useEffect(() => {
-    console.log('🗓️ QR Page - Processing event details for dates:', eventDetails);
-    console.log('🎪 QR Page - Event data:', eventData);
+  useEffect(() => {    
 
     // Handle different event details structures and prioritize available data
     let eventInfo = null;
 
     // Try to get event info from multiple sources
     if (eventDetails?.event) {
-      eventInfo = eventDetails.event;
-      console.log('📅 Using eventDetails.event as event info');
+      eventInfo = eventDetails.event;      
     } else if (eventData) {
-      eventInfo = eventData;
-      console.log('📅 Using eventData as event info');
+      eventInfo = eventData;      
     } else if (eventDetails && !eventDetails.event) {
       // Sometimes the event data might be directly in eventDetails
-      eventInfo = eventDetails;
-      console.log('📅 Using eventDetails directly as event info');
+      eventInfo = eventDetails;      
     }
 
-    console.log('📅 Final event info extracted:', eventInfo);
 
     if (!eventInfo) {
       console.log('⚠️ No event information available for date processing');
@@ -72,9 +60,7 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
       (eventInfo.event?.end_date) ||
       (eventInfo.event?.event_end_date) ||
       [];
-
-    console.log('📅 Start dates found:', startDates);
-    console.log('📅 End dates found:', endDates);
+  
 
     if (startDates?.length && endDates?.length) {
       const times = startDates.map((start, idx) => {
@@ -86,14 +72,10 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
 
         const formattedDate = startMoment.format("Do MMMM YYYY");
         setEventDate(formattedDate);
-        console.log(`📅 Formatted date (IST): ${formattedDate}`);
-
-        const timeRange = `${startMoment.format("hh:mm A")} to ${endMoment.format("hh:mm A")} IST`;
-        console.log(`⏰ Time range (IST): ${timeRange}`);
+        const timeRange = `${startMoment.format("hh:mm A")} to ${endMoment.format("hh:mm A")} IST`;        
         return timeRange;
       });
-      setEventTime(times);
-      console.log('⏰ All event times set (IST):', times);
+      setEventTime(times);      
     } else {
       console.log('⚠️ No valid start/end dates found in event data');
       // Try to extract from event start/end time if dates are not arrays
@@ -106,10 +88,9 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
           setEventTime([`${eventInfo.event_start_time} to ${eventInfo.event_end_time} IST`]);
         } else {
           setEventTime([`${startDate.format("hh:mm A")} to ${endDate.format("hh:mm A")} IST`]);
-        }
-        console.log('⏰ Set date/time from single event start/end dates (IST)');
+        }        
       } else {
-        console.log('❌ No date information found in any expected format');
+        console.error('❌ No date information found in any expected format');
       }
     }
   }, [eventDetails, eventData]);
@@ -130,7 +111,6 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
       link.download = `${eventDetails?.slug || eventData?.event_slug || 'event'}.pdf`;
       document.body.appendChild(link);
       link.click();
-
       // Cleanup
       link.remove();
       window.URL.revokeObjectURL(url);

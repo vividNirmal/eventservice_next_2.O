@@ -16,17 +16,18 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
   const [loader, setLoader] = useState(false);
   const [faceError, setFaceError] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
-  const scannerInputRef = useRef(null);
-  const scannerToken = JSON.parse(
-    localStorage.getItem("scannerloginToken") || "{}"
-  );
-
+  const [scannerType, setScannerType] =useState(null)
+  const scannerInputRef = useRef(null);  
   useEffect(() => {
     console.log(eventData);
     setStepInner(1);
     setTimeout(() => {
       scannerInputRef.current?.focus();
     }, 500);
+    const scanner_data = JSON.parse( sessionStorage.getItem("scannerloginToken"))
+    if (scanner_data){
+      setScannerType(scanner_data?.type)
+    }
   }, []);
 
   useEffect(() => {
@@ -111,7 +112,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
       const formData = new FormData();
       formData.append("event_id", eventData._id);
       formData.append("file", faceImageFile);
-      formData.append("scanner_type", scannerToken.type);
+      formData.append("scanner_type", scannerType);
 
       const response = await userPostRequest("scan-participant-face", formData);
 
@@ -218,7 +219,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
       const formData = new FormData();
       formData.append("event_id", eventData._id);
       formData.append("file", faceImageFile);
-      formData.append("scanner_type", scannerToken.type);
+      formData.append("scanner_type", scannerType);
 
       const response = await postRequest("scan-participant-face", formData);
 
@@ -290,8 +291,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
       scannerInputRef.current.focus();
     }
   };
-
-  console.log("🔄 Render - stepInner:", stepInner, "faceData:", faceData);
+  
   
   return (
     <>
@@ -302,8 +302,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
             onCameraError={handleCameraError}
             onFaceDetected={faceScannerData}
             onManualCapture={faceScannerData}
-            faceNotmatch={faceError}
-            scannerType={scannerToken.type}
+            faceNotmatch={faceError}            
           />
 
           {/* {faceLoader && (

@@ -16,15 +16,13 @@ function ScannerLayout() {
   const { event_slug, domain } = useParams();
   const router = useRouter();
 
+
   // Fix window undefined error by checking if we're on client side
   const getSubdomain = () => {
     if (typeof window !== 'undefined') {
-      const host = window.location.hostname;
-      console.log("host", host);
-      const parts = host.split(".");
-      console.log("parts", parts);
-      const currentSubdomain = parts.length > 1 ? parts[0] : "";
-      console.log("currentSubdomain", currentSubdomain);
+      const host = window.location.hostname;      
+      const parts = host.split(".");      
+      const currentSubdomain = parts.length > 1 ? parts[0] : "";      
       return currentSubdomain;
     }
     return "";
@@ -55,7 +53,7 @@ function ScannerLayout() {
   };
 
   useEffect(() => {
-    const token = sessionStorage.getItem("scannerloginToken");
+    const token = JSON.parse( sessionStorage.getItem("scannerloginToken"));        
     if (token) {
       setStep(2);
     } else {
@@ -75,9 +73,7 @@ function ScannerLayout() {
       const formData = new FormData();
       formData.append("event_slug", event_slug);
       formData.append("sub_domain", currentSubdomain);
-      const responce = await postRequest("get-event-details-slug", formData);
-      console.log("get-event-details-slug responce", responce);
-      
+      const responce = await postRequest("get-event-details-slug", formData);      
       // Check if response is successful
       if (responce && responce.status === 1) {
         setScannerList(responce?.data?.scanner_machine_list || []);

@@ -28,12 +28,17 @@ const MediaButton = ({ eventData, event_slug }) => {
   const deviceKey = process.env.NEXT_PUBLIC_ATTENDENCE_KEY;
   const [imageOfQr, setImageOfQr] = useState("");
   const [scannerUniqueId, setScannerUniqueId] = useState("");
+  const [scannerData, setScannerData] = useState(null)
   const router = useRouter();
 
   useEffect(() => {
     fetchButtonList();
     downloadQR();
     getScannerUniqueId();
+     const scanner_data = JSON.parse( sessionStorage.getItem("scannerloginToken"))
+    if (scanner_data){
+      setScannerData(scanner_data)
+    }
   }, []);
 
   function getScannerUniqueId() {
@@ -48,7 +53,7 @@ const MediaButton = ({ eventData, event_slug }) => {
     }
   }
 
-  async function fetchButtonList() {
+  async function fetchButtonList() {        
     try {
       const response = await SacnnerGet("scanner-page");
       if (response.status == 403) {
@@ -60,7 +65,7 @@ const MediaButton = ({ eventData, event_slug }) => {
       console.error("Error fetching button list:", error);
     }
   }
-  const backButton = () => {
+  const backButton = () => {        
     setPageRedirect(1);
   };
 
@@ -131,7 +136,7 @@ const MediaButton = ({ eventData, event_slug }) => {
   return (
     <div className="flex md:flex-row pb-24 p-4 flex-col md:flex-wrap items-center justify-center h-full min-h-svh gap-4 relative bg-cover bg-no-repeat bg-center bg-[url('/assets/images/scanner-bg.webp')]">
       <div className="w-full flex md:flex-row flex-col md:flex-wrap gap-3 md:gap-5 justify-center xl:min-h-60 px-4">
-        {pageRedirect !== 1 && pageRedirect !== 0 && (
+        {true && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -142,7 +147,7 @@ const MediaButton = ({ eventData, event_slug }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>{deviceKey}</DropdownMenuItem>
+              <DropdownMenuItem>{scannerData && scannerData.type == 0 ?"Check In" : "Check Out" } {scannerUniqueId ? `(${scannerUniqueId})` : ""}</DropdownMenuItem>
               <DropdownMenuItem
                 onClick={backButton}
                 className="cursor-pointer"
@@ -153,7 +158,7 @@ const MediaButton = ({ eventData, event_slug }) => {
                 onClick={handleLogout}
                 className="cursor-pointer"
               >
-                Logout {scannerUniqueId ? `(${scannerUniqueId})` : ""}
+                Logout 
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -225,7 +230,7 @@ const MediaButton = ({ eventData, event_slug }) => {
                     <ButtonContent />
                   </button>
                 );
-              })
+              })              
             ) : (
               <div className="fixed inset-0 grid place-items-center">
                 <div className="three-body">
@@ -243,6 +248,7 @@ const MediaButton = ({ eventData, event_slug }) => {
         )}
 
         {pageRedirect == 3 && (
+          
           <FaceComponent eventData={eventData} onCameraError={cameraError} />
         )}
 
