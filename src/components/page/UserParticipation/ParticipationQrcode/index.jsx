@@ -10,8 +10,8 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
   const [eventTime, setEventTime] = useState([]);
   const [eventDate, setEventDate] = useState();
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [printLoading, setPrintLoading] = useState(false);
-
+  const [printLoading, setPrintLoading] = useState(false);  
+  
   // Early return if essential data is missing
   if (!eventDetails && !eventData) {
     console.log('⚠️ QR Page - Missing essential data, showing loading state');
@@ -144,7 +144,7 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
   };
 
   return (
-    <section className="h-screen bg-white px-4 py-5 md:py-10 lg:py-20 overflow-auto">
+    <section className="h-screen  px-4 py-5 md:py-10 lg:py-20 overflow-auto">
       <Card className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl overflow-hidden border-0 mx-auto relative">
         {/* Header */}
         <div className="bg-zinc-100 px-6 py-4 relative rounded-t-xl">
