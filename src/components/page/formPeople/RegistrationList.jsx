@@ -395,11 +395,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            reg.approved
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
+                          className={`px-3 py-1 rounded-full text-xs font-medium text-gray-700`}
                         >
                           {reg.approved === true ? "Approved" : "Not Approved"}
                         </span>
@@ -493,6 +489,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
         onOpenChange={setPreviewSheetOpen}
         registration={selectedRegistration}
         formFields={formFields}
+        onStatusChange={fetchRegistrations}
       />
 
       {/* Edit Sheet */}

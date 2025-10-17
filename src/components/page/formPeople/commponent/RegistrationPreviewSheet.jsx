@@ -1,17 +1,18 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
+import { toast } from "sonner";
+import { updateRequest } from "@/service/viewService";
 import { getFieldKey } from "./fieldUtils";
 
 const RegistrationPreviewSheet = ({
@@ -19,8 +20,39 @@ const RegistrationPreviewSheet = ({
   onOpenChange,
   registration,
   formFields,
+  onStatusChange, // refresh list
 }) => {
+  const [loading, setLoading] = useState(false);
+
   if (!registration) return null;
+
+  // ✅ Reusable function to call status change API
+  const handleStatusUpdate = async (newStatus) => {
+    if (!registration?._id) return;
+
+    setLoading(true);
+    try {
+      const response = await updateRequest(
+        `form-registration-status-change/${registration._id}`,
+        { approved: newStatus }
+      );
+
+      if (response.status === 1) {
+        toast.success(
+          `Registration ${newStatus ? "approved" : "disapproved"} successfully`
+        );
+        if (onStatusChange) onStatusChange(); // ✅ trigger refresh
+        onOpenChange(false); // close sheet
+      } else {
+        toast.error(response.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderFieldValue = (field, value) => {
     if (value === null || value === undefined || value === "") return "N/A";
@@ -109,13 +141,27 @@ const RegistrationPreviewSheet = ({
             </div>
           </div>
 
-          {/* Optional Action Buttons */}
+          {/* Approve / Disapprove Buttons */}
           <div className="flex justify-end gap-2 mt-3">
-            <Button size="sm" variant="default">
-              Approve
+            <Button
+              size="sm"
+              variant="default"
+              disabled={loading || registration.approved}
+              onClick={() => handleStatusUpdate(true)}
+            >
+              {loading && registration.approved === false
+                ? "Approving..."
+                : "Approve"}
             </Button>
-            <Button size="sm" variant="destructive">
-              Disapprove
+            <Button
+              size="sm"
+              variant="destructive"
+              disabled={loading || !registration.approved}
+              onClick={() => handleStatusUpdate(false)}
+            >
+              {loading && registration.approved === true
+                ? "Disapproving..."
+                : "Disapprove"}
             </Button>
           </div>
 
@@ -133,9 +179,8 @@ const RegistrationPreviewSheet = ({
             {formFields?.map((field) => {
               const fieldKey = getFieldKey(field);
               const value = registration.formData?.[fieldKey];
-
-              // Skip if value is missing
-              if (value === null || value === undefined || value === "") return null;
+              if (value === null || value === undefined || value === "")
+                return null;
 
               return (
                 <div
