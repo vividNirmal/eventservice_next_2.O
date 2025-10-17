@@ -648,7 +648,7 @@ const NewDynamicParticipantForm = ({
         <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Event" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
         {eventData?.event_description && (
           <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
-            <h2 className="text-white text-xl 2xl:text-2xl mb-3 font-bold">Event Name</h2>
+            <h2 className="text-white text-xl 2xl:text-2xl mb-3 font-bold">{eventData?.eventName}</h2>
             <span className="h-px w-full block bg-linear-to-r from-white to-white/0 my-3"></span>
             <p className="z-1 text-white text-sm 2xl:text-lg font-normal leading-normal">{eventData?.event_description}</p>
           </div>
