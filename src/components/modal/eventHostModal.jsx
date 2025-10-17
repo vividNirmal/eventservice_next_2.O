@@ -480,19 +480,14 @@ const EventModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl 2xl:max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader className="relative">
-          <DialogTitle className="text-2xl font-bold text-center">
-            {editMode ? "Edit Event" : "Welcome, Your Event Journey Begins Now!"}
-          </DialogTitle>
-          {!editMode && currentStep === 1 && (
-            <p className="text-center text-gray-600 mt-2">An amazing event starts with one click! Choose your event type and let's roll.</p>
-          )}
+      <DialogContent className="sm:max-w-[96%] xl:!max-w-6xl sm:max-h-[70vh] h-full p-0">
+        <DialogHeader className="relative hidden">
+          <DialogTitle className="text-2xl font-bold text-center"></DialogTitle>
         </DialogHeader>
 
-        {/* Step Progress Indicator */}
-        <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col sm:flex-row">
+          <div className="bg-zinc-50 border-r border-solid border-zinc-200 p-4 sm:p-6 lg:p-9 w-full sm:w-52 lg:w-64 shrink-0 rounded-t-lg sm:rounded-l-lg">
+            <ul className="flex flex-row sm:flex-col gap-4 sm:gap-0">
               {[
                 { number: 1, label: "Type" },
                 { number: 2, label: "Format & Category" },
@@ -500,433 +495,425 @@ const EventModal = ({
                 { number: 4, label: "Location" },
                 { number: 5, label: "Extra Details" }
               ].map((step, index) => (
-                <div key={step.number} className="flex items-center flex-1">
-                  {/* Step number and label in a single row */}
-                  <div onClick={() => handleStepClick(step.number)} className={cn("flex items-center space-x-2 cursor-pointer transition-all", step.number <= currentStep ? 'text-blue-600' : 'text-gray-500 opacity-70')}>
-                    <div className={cn("size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-medium transition-all hover:shadow-md",step.number <= currentStep ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md' : 'bg-gray-200 text-gray-600 hover:bg-gray-300')}>{step.number}</div>
-                    <span className="text-sm font-medium">{step.label}</span>
-                  </div>
-
-                  {/* Connector line between steps */}
-                  {index < 4 && (
-                    <div className="flex-1 mx-3">
-                      <div
-                        className={`h-1 rounded-full transition-all ${step.number < currentStep ? 'bg-blue-600' : 'bg-gray-200'
-                          }`}
-                      />
-                    </div>
-                  )}
-                </div>
+                <li key={step.number} onClick={() => handleStepClick(step.number)} className={cn("flex items-center sm:items-start flex-col sm:flex-row gap-1 last:pb-0 sm:pb-8 last:mb-0 last:after:hidden relative after:w-full sm:after:w-px after:h-px sm:after:h-full after:absolute after:left-8 sm:after:left-4 after:top-4 sm:after:top-0", step.number <= currentStep ? 'after:bg-gradient-to-t after:from-blue-100 after:to-blue-600' : 'after:bg-zinc-300')}>
+                  <div className={cn("relative z-1 shrink-0 cursor-pointer flex items-center justify-center size-8 rounded-full text-sm font-medium", step.number <= currentStep ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-600')}>{step.number}</div>
+                  <span className={cn("select-none sm:min-h-8 flex items-center w-full sm:w-2/4 sm:grow sm:ml-3 text-center sm:text-left text-xs lg:text-sm leading-tight sm:leading-normal cursor-pointer", step.number <= currentStep ? 'text-blue-700 font-semibold' : 'text-zinc-600')}>{step.label}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-              <div>
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-4">
-          {/* Step 1: Event Type Selection */}
-          {currentStep === 1 && (
-            <div className="space-y-6 min-h-90">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {eventTypes.map((type) => (
-                  <div
-                    key={type.id}
-                    onClick={() => handleEventTypeSelect(type.id)}
-                    className={`p-6 border rounded-lg cursor-pointer transition-all hover:shadow-lg ${selectedEventType === type.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
-                      }`}
-                  >
-                    <div className="text-center">
-                      <div className="mb-4 flex justify-center">{type.icon}</div>
-                      <h3 className="font-semibold text-lg mb-2">{type.title}</h3>
-                      <p className="text-sm text-gray-600">{type.description}</p>
-                    </div>
+          <div className="flex flex-col p-5 w-2/4 grow">
+            <h3 className="text-base md:text-lg xl:text-xl font-bold mb-0 text-blue-600">{editMode ? "Edit Event" : "Welcome, Your Event Journey Begins Now!"}</h3>
+            {!editMode && currentStep === 1 && (
+              <p className="text-center text-gray-600 mt-2">An amazing event starts with one click! Choose your event type and let's roll.</p>
+            )}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
+                <div className="flex">
+                  <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                  <div>
+                    <h3 className="text-sm font-medium text-red-800">Error</h3>
+                    <p className="text-sm text-red-700 mt-1">{error}</p>
                   </div>
-                ))}
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Step 2: Event Format and Category Selection */}
-          {currentStep === 2 && (
-            <div className="space-y-6 min-h-90">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Select Event Format</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {eventFormats.map((format) => (
+            )}
+            <div className="mt-4 h-20 grow overflow-y-auto flex flex-col">
+              {/* Step 1: Event Type Selection */}
+              {currentStep === 1 && (
+                <div className="space-y-6 h-20 grow flex flex-col justify-center">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {eventTypes.map((type) => (
                       <div
-                        key={format}
-                        onClick={() => handleEventFormatSelect(format)}
-                        className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${selectedEventFormat === format
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        key={type.id}
+                        onClick={() => handleEventTypeSelect(type.id)}
+                        className={`p-6 border rounded-lg cursor-pointer transition-all hover:shadow-lg ${selectedEventType === type.id
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-gray-300"
                           }`}
                       >
-                        {format}
+                        <div className="text-center">
+                          <div className="mb-4 flex justify-center">{type.icon}</div>
+                          <h3 className="font-semibold text-lg mb-2">{type.title}</h3>
+                          <p className="text-sm text-gray-600">{type.description}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </div>
+              )}
 
-                {selectedEventFormat && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-4">Select Event Categories</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
-                      {eventCategories.map((category) => (
-                        <div
-                          key={category}
-                          onClick={() => handleCategoryToggle(category)}
-                          className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${selectedCategories.includes(category)
-                              ? "border-blue-500 bg-blue-50 text-blue-700"
-                              : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                            }`}
+              {/* Step 2: Event Format and Category Selection */}
+              {currentStep === 2 && (
+                <div className="space-y-6 min-h-90">
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Select Event Format</h3>
+                      <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
+                        {eventFormats.map((format) => (
+                          <div
+                            key={format}
+                            onClick={() => handleEventFormatSelect(format)}
+                            className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${selectedEventFormat === format
+                                ? "border-blue-500 bg-blue-50 text-blue-700"
+                                : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                              }`}
+                          >
+                            {format}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {selectedEventFormat && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Select Event Categories</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
+                          {eventCategories.map((category) => (
+                            <div
+                              key={category}
+                              onClick={() => handleCategoryToggle(category)}
+                              className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${selectedCategories.includes(category)
+                                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                                }`}
+                            >
+                              {category}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 3: Event Details */}
+              {currentStep === 3 && (
+                <div className="space-y-4 min-h-90">
+                  <h3 className="text-lg font-semibold">
+                    Basic Details of Event
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="eventName" className="text-sm font-medium">
+                        Event Name *
+                      </Label>
+                      <Input
+                        id="eventName"
+                        name="eventName"
+                        value={eventDetailsForm.values.eventName}
+                        onChange={eventDetailsForm.handleChange}
+                        onBlur={eventDetailsForm.handleBlur}
+                        placeholder="Enter event name"
+                        className="mt-1"
+                      />
+                      {eventDetailsForm.touched.eventName &&
+                        eventDetailsForm.errors.eventName && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {eventDetailsForm.errors.eventName}
+                          </p>
+                        )}
+                    </div>
+
+                    <div>
+                      <Label
+                        htmlFor="eventShortName"
+                        className="text-sm font-medium"
+                      >
+                        Event Short Name *
+                      </Label>
+                      <Input
+                        id="eventShortName"
+                        name="eventShortName"
+                        value={eventDetailsForm.values.eventShortName}
+                        onChange={eventDetailsForm.handleChange}
+                        onBlur={eventDetailsForm.handleBlur}
+                        placeholder="Enter short name"
+                        className="mt-1"
+                      />
+                      {eventDetailsForm.touched.eventShortName &&
+                        eventDetailsForm.errors.eventShortName && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {eventDetailsForm.errors.eventShortName}
+                          </p>
+                        )}
+                    </div>
+
+                    <div>
+                      <Label
+                        htmlFor="eventTimeZone"
+                        className="text-sm font-medium"
+                      >
+                        Event Time Zone *
+                      </Label>
+                      <Select
+                        value={eventDetailsForm.values.eventTimeZone}
+                        onValueChange={(value) =>
+                          eventDetailsForm.setFieldValue("eventTimeZone", value)
+                        }
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Select timezone" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="UTC">UTC</SelectItem>
+                          <SelectItem value="EST">EST (Eastern)</SelectItem>
+                          <SelectItem value="PST">PST (Pacific)</SelectItem>
+                          <SelectItem value="CST">CST (Central)</SelectItem>
+                          <SelectItem value="IST">IST (India)</SelectItem>
+                          <SelectItem value="GMT">GMT (London)</SelectItem>
+                          <SelectItem value="CET">CET (Central Europe)</SelectItem>
+                          <SelectItem value="AEST">AEST (Sydney)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {eventDetailsForm.touched.eventTimeZone &&
+                        eventDetailsForm.errors.eventTimeZone && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {eventDetailsForm.errors.eventTimeZone}
+                          </p>
+                        )}
+                    </div>
+
+                    {/* Multiple Date Ranges */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">
+                          Event Date & Time *
+                        </Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const currentRanges = eventDetailsForm.values.dateRanges;
+                            eventDetailsForm.setFieldValue("dateRanges", [
+                              ...currentRanges,
+                              {
+                                startDate: "",
+                                startTime: "",
+                                endDate: "",
+                                endTime: ""
+                              }
+                            ]);
+                          }}
+                          className="text-xs"
                         >
-                          {category}
+                          + Add Date Range
+                        </Button>
+                      </div>
+
+                      {eventDetailsForm.values.dateRanges.map((range, index) => (
+                        <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-sm font-medium">
+                              Date Range {index + 1}
+                            </h4>
+                            {eventDetailsForm.values.dateRanges.length > 1 && (
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  const updatedRanges = eventDetailsForm.values.dateRanges.filter(
+                                    (_, i) => i !== index
+                                  );
+                                  eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
+                                }}
+                                className="text-red-600 hover:text-red-700 text-xs"
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-xs font-medium">
+                                Start Date & Time
+                              </Label>
+                              <div className="grid grid-cols-2 gap-2 mt-1">
+                                <div className="relative">
+                                  <Input
+                                    type="date"
+                                    value={range.startDate}
+                                    onChange={(e) => {
+                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
+                                      updatedRanges[index].startDate = e.target.value;
+                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
+                                    }}
+                                    className="text-xs"
+                                  />
+                                </div>
+                                <div className="relative">
+                                  <Input
+                                    type="time"
+                                    value={range.startTime}
+                                    onChange={(e) => {
+                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
+                                      updatedRanges[index].startTime = e.target.value;
+                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
+                                    }}
+                                    className="text-xs"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div>
+                              <Label className="text-xs font-medium">
+                                End Date & Time
+                              </Label>
+                              <div className="grid grid-cols-2 gap-2 mt-1">
+                                <div className="relative">
+                                  <Input
+                                    type="date"
+                                    value={range.endDate}
+                                    onChange={(e) => {
+                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
+                                      updatedRanges[index].endDate = e.target.value;
+                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
+                                    }}
+                                    className="text-xs"
+                                  />
+                                </div>
+                                <div className="relative">
+                                  <Input
+                                    type="time"
+                                    value={range.endTime}
+                                    onChange={(e) => {
+                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
+                                      updatedRanges[index].endTime = e.target.value;
+                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
+                                    }}
+                                    className="text-xs"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Show validation errors for this specific range */}
+                          {eventDetailsForm.errors.dateRanges && 
+                          eventDetailsForm.errors.dateRanges[index] && (
+                            <div className="mt-2 text-xs text-red-500">
+                              {typeof eventDetailsForm.errors.dateRanges[index] === 'string' ? 
+                                eventDetailsForm.errors.dateRanges[index] : 
+                                Object.values(eventDetailsForm.errors.dateRanges[index] || {}).join(', ')
+                              }
+                            </div>
+                          )}
                         </div>
                       ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* Step 3: Event Details */}
-          {currentStep === 3 && (
-            <div className="space-y-4 min-h-90">
-              <h3 className="text-lg font-semibold">
-                Basic Details of Event
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="eventName" className="text-sm font-medium">
-                    Event Name *
-                  </Label>
-                  <Input
-                    id="eventName"
-                    name="eventName"
-                    value={eventDetailsForm.values.eventName}
-                    onChange={eventDetailsForm.handleChange}
-                    onBlur={eventDetailsForm.handleBlur}
-                    placeholder="Enter event name"
-                    className="mt-1"
-                  />
-                  {eventDetailsForm.touched.eventName &&
-                    eventDetailsForm.errors.eventName && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {eventDetailsForm.errors.eventName}
-                      </p>
-                    )}
-                </div>
-
-                <div>
-                  <Label
-                    htmlFor="eventShortName"
-                    className="text-sm font-medium"
-                  >
-                    Event Short Name *
-                  </Label>
-                  <Input
-                    id="eventShortName"
-                    name="eventShortName"
-                    value={eventDetailsForm.values.eventShortName}
-                    onChange={eventDetailsForm.handleChange}
-                    onBlur={eventDetailsForm.handleBlur}
-                    placeholder="Enter short name"
-                    className="mt-1"
-                  />
-                  {eventDetailsForm.touched.eventShortName &&
-                    eventDetailsForm.errors.eventShortName && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {eventDetailsForm.errors.eventShortName}
-                      </p>
-                    )}
-                </div>
-
-                <div>
-                  <Label
-                    htmlFor="eventTimeZone"
-                    className="text-sm font-medium"
-                  >
-                    Event Time Zone *
-                  </Label>
-                  <Select
-                    value={eventDetailsForm.values.eventTimeZone}
-                    onValueChange={(value) =>
-                      eventDetailsForm.setFieldValue("eventTimeZone", value)
-                    }
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select timezone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="UTC">UTC</SelectItem>
-                      <SelectItem value="EST">EST (Eastern)</SelectItem>
-                      <SelectItem value="PST">PST (Pacific)</SelectItem>
-                      <SelectItem value="CST">CST (Central)</SelectItem>
-                      <SelectItem value="IST">IST (India)</SelectItem>
-                      <SelectItem value="GMT">GMT (London)</SelectItem>
-                      <SelectItem value="CET">CET (Central Europe)</SelectItem>
-                      <SelectItem value="AEST">AEST (Sydney)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {eventDetailsForm.touched.eventTimeZone &&
-                    eventDetailsForm.errors.eventTimeZone && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {eventDetailsForm.errors.eventTimeZone}
-                      </p>
-                    )}
-                </div>
-
-                {/* Multiple Date Ranges */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-medium">
-                      Event Date & Time *
-                    </Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const currentRanges = eventDetailsForm.values.dateRanges;
-                        eventDetailsForm.setFieldValue("dateRanges", [
-                          ...currentRanges,
-                          {
-                            startDate: "",
-                            startTime: "",
-                            endDate: "",
-                            endTime: ""
-                          }
-                        ]);
-                      }}
-                      className="text-xs"
-                    >
-                      + Add Date Range
-                    </Button>
-                  </div>
-
-                  {eventDetailsForm.values.dateRanges.map((range, index) => (
-                    <div key={index} className="border rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-medium">
-                          Date Range {index + 1}
-                        </h4>
-                        {eventDetailsForm.values.dateRanges.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              const updatedRanges = eventDetailsForm.values.dateRanges.filter(
-                                (_, i) => i !== index
-                              );
-                              eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                            }}
-                            className="text-red-600 hover:text-red-700 text-xs"
-                          >
-                            Remove
-                          </Button>
+                      {/* General dateRanges validation errors */}
+                      {eventDetailsForm.touched.dateRanges &&
+                        eventDetailsForm.errors.dateRanges &&
+                        typeof eventDetailsForm.errors.dateRanges === 'string' && (
+                          <p className="text-red-500 text-xs">
+                            {eventDetailsForm.errors.dateRanges}
+                          </p>
                         )}
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-xs font-medium">
-                            Start Date & Time
-                          </Label>
-                          <div className="grid grid-cols-2 gap-2 mt-1">
-                            <div className="relative">
-                              <Input
-                                type="date"
-                                value={range.startDate}
-                                onChange={(e) => {
-                                  const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                  updatedRanges[index].startDate = e.target.value;
-                                  eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                }}
-                                className="text-xs"
-                              />
-                            </div>
-                            <div className="relative">
-                              <Input
-                                type="time"
-                                value={range.startTime}
-                                onChange={(e) => {
-                                  const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                  updatedRanges[index].startTime = e.target.value;
-                                  eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                }}
-                                className="text-xs"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className="text-xs font-medium">
-                            End Date & Time
-                          </Label>
-                          <div className="grid grid-cols-2 gap-2 mt-1">
-                            <div className="relative">
-                              <Input
-                                type="date"
-                                value={range.endDate}
-                                onChange={(e) => {
-                                  const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                  updatedRanges[index].endDate = e.target.value;
-                                  eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                }}
-                                className="text-xs"
-                              />
-                            </div>
-                            <div className="relative">
-                              <Input
-                                type="time"
-                                value={range.endTime}
-                                onChange={(e) => {
-                                  const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                  updatedRanges[index].endTime = e.target.value;
-                                  eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                }}
-                                className="text-xs"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Show validation errors for this specific range */}
-                      {eventDetailsForm.errors.dateRanges && 
-                       eventDetailsForm.errors.dateRanges[index] && (
-                        <div className="mt-2 text-xs text-red-500">
-                          {typeof eventDetailsForm.errors.dateRanges[index] === 'string' ? 
-                            eventDetailsForm.errors.dateRanges[index] : 
-                            Object.values(eventDetailsForm.errors.dateRanges[index] || {}).join(', ')
-                          }
-                        </div>
-                      )}
                     </div>
-                  ))}
 
-                  {/* General dateRanges validation errors */}
-                  {eventDetailsForm.touched.dateRanges &&
-                    eventDetailsForm.errors.dateRanges &&
-                    typeof eventDetailsForm.errors.dateRanges === 'string' && (
-                      <p className="text-red-500 text-xs">
-                        {eventDetailsForm.errors.dateRanges}
-                      </p>
-                    )}
-                </div>
-
-                {/* Validation error for date range */}
-                {eventDetailsForm.errors && eventDetailsForm.errors.endDate && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {eventDetailsForm.errors.endDate}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Location */}
-          {currentStep === 4 && (
-            <div className="space-y-6 min-h-90">
-              <h3 className="text-lg font-semibold">
-                Location of Event
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="location" className="text-sm font-medium">
-                    Location *
-                  </Label>
-                  <div className="relative mt-1">
-                    <Input
-                      id="location"
-                      name="location"
-                      value={locationForm.values.location}
-                      onChange={locationForm.handleChange}
-                      onBlur={locationForm.handleBlur}
-                      placeholder="Choose Location"
-                      className="pl-10"
-                    />
-                    <MapPin className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  </div>
-                  {locationForm.touched.location &&
-                    locationForm.errors.location && (
+                    {/* Validation error for date range */}
+                    {eventDetailsForm.errors && eventDetailsForm.errors.endDate && (
                       <p className="text-red-500 text-xs mt-1">
-                        {locationForm.errors.location}
+                        {eventDetailsForm.errors.endDate}
                       </p>
                     )}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Step 4: Location */}
+              {currentStep === 4 && (
+                <div className="space-y-6 min-h-90">
+                  <h3 className="text-lg font-semibold">
+                    Location of Event
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="location" className="text-sm font-medium">
+                        Location *
+                      </Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="location"
+                          name="location"
+                          value={locationForm.values.location}
+                          onChange={locationForm.handleChange}
+                          onBlur={locationForm.handleBlur}
+                          placeholder="Choose Location"
+                          className="!pl-10"
+                        />
+                        <MapPin className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      </div>
+                      {locationForm.touched.location &&
+                        locationForm.errors.location && (
+                          <p className="text-red-500 text-xs mt-1">
+                            {locationForm.errors.location}
+                          </p>
+                        )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Additional Event Details Form (Required) */}
+              {currentStep === 5 && (
+                <div className="space-y-3 min-h-90">
+                  <h6 className="text-md font-semibold">
+                    Additional Event Details *
+                  </h6>
+                  <p className="text-sm text-gray-600">
+                    Please complete all required fields to create your event.
+                  </p>
+                  <EventDetailsForm
+                    onSubmit={handleEventDetailsSubmit}
+                    initialData={initialData}
+                    submitButtonText={editMode ? "Update Event" : "Create Event"}
+                    showSubmitButton={true}
+                    formRef={eventDetailsFormRef}
+                  />
+                </div>
+              )}
+
             </div>
-          )}
-
-          {/* Step 5: Additional Event Details Form (Required) */}
-          {currentStep === 5 && (
-            <div className="space-y-3 min-h-90">
-              <h6 className="text-md font-semibold">
-                Additional Event Details *
-              </h6>
-              <p className="text-sm text-gray-600">
-                Please complete all required fields to create your event.
-              </p>
-              <EventDetailsForm
-                onSubmit={handleEventDetailsSubmit}
-                initialData={initialData}
-                submitButtonText={editMode ? "Update Event" : "Create Event"}
-                showSubmitButton={true}
-                formRef={eventDetailsFormRef}
-              />
-            </div>
-          )}
-
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 1 || submitting}
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-
-            {currentStep !== 5 && (
+            {/* Navigation Buttons */}
+            <div className="flex justify-between mt-auto w-full pt-4">
               <Button
                 type="button"
-                onClick={handleNext}
-                disabled={
-                  submitting ||
-                  (currentStep === 1 && !selectedEventType) ||
-                  (currentStep === 2 && (!selectedEventFormat || selectedCategories.length === 0)) ||
-                  (currentStep === 3 && !eventDetailsForm.isValid) ||
-                  (currentStep === 4 && !locationForm.isValid)
-                }
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 1 || submitting}
                 className="flex items-center gap-2"
               >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Next
-                {!submitting && (
-                  <ChevronRight className="h-4 w-4" />
-                )}
+                <ChevronLeft className="h-4 w-4" />
+                Previous
               </Button>
-            )}
+
+              {currentStep !== 5 && (
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={
+                    submitting ||
+                    (currentStep === 1 && !selectedEventType) ||
+                    (currentStep === 2 && (!selectedEventFormat || selectedCategories.length === 0)) ||
+                    (currentStep === 3 && !eventDetailsForm.isValid) ||
+                    (currentStep === 4 && !locationForm.isValid)
+                  }
+                  className="flex items-center gap-2 !scale-100"
+                >
+                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                  Next
+                  {!submitting && (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -318,10 +318,7 @@ const UserRegisterEvent = () => {
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            {isNotStarted ? "Registration Not Started" : "Registration Closed"}
-          </h1>
-
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{isNotStarted ? "Registration Not Started" : "Registration Closed"}</h1>
           <p className="text-gray-600 mb-6">{message}</p>
 
           {data.registrationFilterDate && isNotStarted && (
@@ -358,12 +355,7 @@ const UserRegisterEvent = () => {
             </div>
           )}
 
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
-          >
-            Refresh Page
-          </button>
+          <button onClick={() => window.location.reload()} className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Refresh Page</button>
         </div>
       </div>
     );

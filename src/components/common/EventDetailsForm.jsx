@@ -178,12 +178,7 @@ export default function EventDetailsForm({
 
   return (
     <div className="space-y-6">
-      <form 
-        id="event-details-form"
-        ref={formRef}
-        onSubmit={formik.handleSubmit} 
-        className="space-y-6"
-      >
+      <form id="event-details-form" ref={formRef} onSubmit={formik.handleSubmit} className="space-y-6">
         {/* Company Information */}
         <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
           <div>
@@ -340,24 +335,14 @@ export default function EventDetailsForm({
 
         {/* Face Scanner Option */}
         <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="with_face_scanner"
-            checked={faceScannerEnabled}
-            onChange={(e) => setFaceScannerEnabled(e.target.checked)}
-            className="rounded"
-          />
-          <Label htmlFor="with_face_scanner">Enable Face Scanner</Label>
+          <input type="checkbox" id="with_face_scanner" checked={faceScannerEnabled} onChange={(e) => setFaceScannerEnabled(e.target.checked)} className="rounded" />
+          <Label htmlFor="with_face_scanner" className={'mb-0'}>Enable Face Scanner</Label>
         </div>
 
         {/* Submit Button */}
         {showSubmitButton && (
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={formik.isSubmitting || !formik.isValid}
-              className="flex items-center gap-2"
-            >
+            <Button type="submit" disabled={formik.isSubmitting || !formik.isValid} className="flex items-center gap-2 !scale-100">
               {formik.isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {submitButtonText}
             </Button>
