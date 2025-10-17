@@ -14,7 +14,7 @@ function Label({
     (<LabelPrimitive.Root
     htmlFor={htmlFor && htmlFor}
       data-slot="label"
-      className={cn("text-xs 2xl:text-sm text-zinc-700 leading-none font-normal select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 mb-1", className)}
+      className={cn("text-xs 2xl:text-sm text-zinc-700 leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 mb-1", className)}
       {...props} />)
   );
 }
