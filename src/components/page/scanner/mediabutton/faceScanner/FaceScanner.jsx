@@ -30,7 +30,7 @@ preloadModels();
 
 const FaceScanner = ({
   allowScan = true,
-  onCameraError = () => { },
+  onCameraError,
   onFaceDetected,
   faceNotmatch = false,
   onManualCapture,
@@ -44,9 +44,6 @@ const FaceScanner = ({
   const [hasCamera, setHasCamera] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
   const [debugInfo, setDebugInfo] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [faceStabilityCount, setFaceStabilityCount] = useState(0);
-  const [lastCaptureTime, setLastCaptureTime] = useState(0);
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
 
@@ -132,7 +129,7 @@ const FaceScanner = ({
       setHasCamera(false);
       setVideoReady(false);
       setDebugInfo("Camera access failed");
-
+      
       let errorMessage = "Camera access denied";
       if (err.name === "NotAllowedError") {
         errorMessage = "Please allow camera access and refresh the page";
@@ -141,10 +138,7 @@ const FaceScanner = ({
       } else if (err.name === "NotReadableError") {
         errorMessage = "Camera is being used by another application";
       }
-
-      toast.error(errorMessage);
-      onCameraError(err);
-      throw err;
+      onCameraError(errorMessage);
     }
   }, [facingMode, stopVideo, onCameraError]);
 

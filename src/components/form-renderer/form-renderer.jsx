@@ -86,8 +86,7 @@ export function FormRenderer({
   };
 
   const onCameraError = (error) => {
-    console.error("Camera error:", error);
-    toast.error("Camera access failed. Please check permissions.");
+    toast.error(error);
     setFaceScannerPopup(false);
   };
 
