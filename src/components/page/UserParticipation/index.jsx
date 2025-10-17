@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import ParticipanLogin from "./ParticipationLogin";
 import DynamicParticipantForm from "./DynamicParticipantForm";
+import NewDynamicParticipantForm from "./NewDynamicParticipantForm";
 import QrPage from "./ParticipationQrcode";
 import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useParams, useSearchParams } from "next/navigation";
@@ -131,6 +132,12 @@ const UserRegisterEvent = () => {
         if (key === "email") {
           return;
         }
+        // Handle faceScan separately
+        if (key === "faceScan") {
+          formData.append("faceScan", value);
+          return;
+        }
+        
         if (value instanceof File) {
           formData.append(key, value);
         } else if (Array.isArray(value)) {
@@ -157,21 +164,18 @@ const UserRegisterEvent = () => {
         formData.append("businessData[category]", businessForm?.category);
         formData.append("businessData[amount]", businessForm?.amount);
       }
-      if (eventData?.with_face_scanner == 1) {
-        setEventStep(4);
-        setResolvedForm(response);
-      } else {
-        const responce = await userPostRequest("store-register-form", formData);
-        if (responce.status == 1) {
-          setQrEventDetails(responce.data?.qrImageUrl);
-          setRegisterFormDataId(responce?.data?.registrationId);
-          setEventStep(5);
-        }
+      
+      const responce = await userPostRequest("store-register-form", formData);
+      if (responce.status == 1) {
+        setQrEventDetails(responce.data?.qrImageUrl);
+        setRegisterFormDataId(responce?.data?.registrationId);
+        setEventStep(5); // Skip step 4 since face scan is now integrated
       }
      
     } catch (err) {
       console.log(err.message);
-      return; // Prevent further execution if error occurs
+      // return; // Prevent further execution if error occurs
+      toast.error("Failed to submit registration");
     }
     // Extract participant data from response
     // const participantData =
@@ -386,7 +390,7 @@ const UserRegisterEvent = () => {
         />
       )}
       {!registrationStatus?.status && eventStep === 3 && (
-        <DynamicParticipantForm
+        <NewDynamicParticipantForm
           userEmail={userEmail}
           eventData={eventData}
           formData={formData}
