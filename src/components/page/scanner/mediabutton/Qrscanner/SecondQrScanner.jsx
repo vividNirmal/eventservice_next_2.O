@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import QRICard from '../userDetails/QrICard';
-import Scanner from '../Scanner';
-
+import React, { useEffect, useRef, useState } from "react";
+import QRICard from "../userDetails/QrICard";
+import Scanner from "../Scanner";
 
 const SecondQrScanner = ({ onCameraError }) => {
-  const [step, setStep] = useState(1);  
+  const [step, setStep] = useState(1);
   const [eventData, setEventData] = useState(null);
   const [printValue, setPrintValue] = useState(false);
   const scannerInputRef = useRef(null);
@@ -37,7 +36,7 @@ const SecondQrScanner = ({ onCameraError }) => {
   const onBlur = () => {
     if (scannerInputRef.current) {
       scannerInputRef.current.focus();
-      scannerInputRef.current.value = '';
+      scannerInputRef.current.value = "";
     }
   };
 
@@ -49,14 +48,14 @@ const SecondQrScanner = ({ onCameraError }) => {
         event_slug: json?.event_slug,
       };
 
-      if (userData?.user_token && userData?.event_slug) {        
+      if (userData?.event_slug) {
         setEventData(userData);
         setStep(2);
       } else {
-        alert('Invalid QR Code');
+        alert("Invalid QR Code");
       }
     } catch (e) {
-      alert('Invalid QR Code');
+      alert("Invalid QR Code");
     }
   };
 
@@ -77,7 +76,7 @@ const SecondQrScanner = ({ onCameraError }) => {
 
   const resetInput = () => {
     if (scannerInputRef.current) {
-      scannerInputRef.current.value = '';
+      scannerInputRef.current.value = "";
       scannerInputRef.current.focus();
     }
   };
@@ -94,21 +93,11 @@ const SecondQrScanner = ({ onCameraError }) => {
             className="bg-transparent appearance-none outline-none border-0 caret-transparent text-transparent"
             autoFocus
           />
-          <Scanner
-            onQrDetails={qrScannerDataHandler}
-            onPrintChange={printPermissionHandler}
-            onError={handleCameraError}
-          />
+          <Scanner onQrDetails={qrScannerDataHandler} onPrintChange={printPermissionHandler} onError={handleCameraError} />
         </div>
       )}
 
-      {step === 2 && (
-        <QRICard
-          data={eventData}
-          printPermission={printValue}
-          onRedirect={redirectHandler}
-        />
-      )}
+      {step === 2 && <QRICard data={eventData} printPermission={printValue} onRedirect={redirectHandler} />}
     </div>
   );
 };
