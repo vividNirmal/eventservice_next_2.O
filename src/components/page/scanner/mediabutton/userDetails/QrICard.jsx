@@ -19,11 +19,10 @@ const QRICard = ({ data, printPermission = false, onRedirect }) => {
     setLoader(true);
     const formData = new FormData();
     formData.append("event_slug", data?.event_slug);
-    formData.append("user_token", data?.user_token);
     formData.append("scanner_type", scannerToken ? scannerToken.type : 0);
 
     try {
-      const response = await userPostRequest('get-scanner-data-details',formData)
+      const response = await userPostRequest("get-scanner-data-details", formData);
       if (response.status == 1) {
         setUserDetails(response.data);
         generateEventTime(response.data[0]);
@@ -78,17 +77,11 @@ const QRICard = ({ data, printPermission = false, onRedirect }) => {
       {!loader && userNotFound && (
         <div className="flex flex-col w-full bg-unknown-gradient">
           <div className="relative after:block after:w-full">
-            <img
-              src={qutionMark}
-              className="mx-auto block max-w-[65%] sm:max-w-[326px] mb-6 invert"
-              alt="QR img"
-            />
+            <img src={qutionMark} className="mx-auto block max-w-[65%] sm:max-w-[326px] mb-6 invert" alt="QR img" />
           </div>
           <div className="px-4 pb-4 text-center">
             <div className="flex items-center justify-center gap-4 mb-2">
-              <h4 className="text-left text-sm font-medium text-[#ff4f4f]">
-                You haven't registered yet
-              </h4>
+              <h4 className="text-left text-sm font-medium text-[#ff4f4f]">You haven't registered yet</h4>
             </div>
           </div>
         </div>
@@ -97,11 +90,7 @@ const QRICard = ({ data, printPermission = false, onRedirect }) => {
       {!loader && !userNotFound && userDetails.length > 0 && (
         <div className="flex flex-col w-full bg-white">
           <div className="relative after:block after:w-full">
-            <img
-              src={userDetails[1]?.qr_image}
-              className="mx-auto block max-w-[65%] md:max-w-[326px] mb-6"
-              alt="QR img"
-            />
+            <img src={userDetails[1]?.qr_image} className="mx-auto block max-w-[65%] md:max-w-[326px] mb-6" alt="QR img" />
           </div>
           <div className={`px-4 pb-4 bg-linear-65 text-center ${getStatusColor()}`}>
             <div className="py-2 max-w-[80%] w-full mx-auto px-1.5 bg-amber-950 text-white text-base font-medium text-center rounded-bl-xl rounded-br-xl mb-4">
@@ -114,9 +103,7 @@ const QRICard = ({ data, printPermission = false, onRedirect }) => {
               <img src={getStatusIcon()} alt="status" className="h-6 w-6" />
               <h4 className="text-left text-base font-medium">{userDetails[3]?.scanning_msg}</h4>
             </div>
-            <h6 className="font-bold text-center text-sm text-black">
-              {userDetails[0]?.company_name}
-            </h6>
+            <h6 className="font-bold text-center text-sm text-black">{userDetails[0]?.company_name}</h6>
           </div>
         </div>
       )}
