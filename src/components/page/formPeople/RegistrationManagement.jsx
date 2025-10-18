@@ -9,7 +9,7 @@ import { toast } from "sonner";
 // Lazy load for better performance
 const RegistrationList = dynamic(() => import("./RegistrationList"), {
   ssr: false,
-  loading: () => <div className="flex justify-center items-center h-64">Loading registrations...</div>
+  loading: () => <div className="flex justify-center items-center h-64">Loading registrations...</div>,
 });
 
 const RegistrationManagement = ({ eventId }) => {
@@ -26,6 +26,12 @@ const RegistrationManagement = ({ eventId }) => {
       const params = new URLSearchParams({ ...(companyId && { companyId }) });
       const response = await getRequest(`user-types?${params}`);
       if (response.status === 1 && response.data?.userTypes?.length) {
+        let user_type_values = response.data.userTypes;
+        user_type_values.sort((a, b) => {
+          if (a.typeName === "Event Attendees") return -1;
+          if (b.typeName === "Event Attendees") return 1;
+          return 0;
+        });
         setUserTypes(response.data.userTypes);
         setActiveTab(response.data.userTypes[0]?._id || "");
       }
