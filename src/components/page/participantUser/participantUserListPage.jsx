@@ -479,7 +479,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
                       colSpan={dynamicHeaders.length + 3}
                       className="text-center text-gray-400"
                     >
-                      No participants found.
+                      No attendees found.
                     </TableCell>
                   </TableRow>
                 )}

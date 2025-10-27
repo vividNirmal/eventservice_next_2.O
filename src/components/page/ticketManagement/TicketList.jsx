@@ -108,6 +108,7 @@ const TicketList = ({ eventId }) => {
       if (response.status === 1) {
         toast.success(response.message || 'Ticket linked successfully');
         setLinkedTicketId(ticket._id);
+        fetchTickets();
       } else {
         toast.error(response.message || 'Failed to link ticket');
       }
@@ -852,7 +853,7 @@ const TicketList = ({ eventId }) => {
                             onClick={() => linkTicket(ticket)}
                             title="Link ticket to event"
                           >
-                            {linkedTicketId === ticket._id ? "Linked" : "Link"}
+                            {ticket?.isActiveForm ? "Linked" : "Link"}
                         </Button>
                       </TableCell>
                       <TableCell className="text-right">

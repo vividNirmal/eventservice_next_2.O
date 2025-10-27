@@ -178,6 +178,22 @@ export function FormBuilder({ form, onFormChange }) {
     [form, currentPageIndex, onFormChange]
   );
 
+  const handleDeletePage = useCallback(
+    (pageIndex) => {
+      const updatedPages = form.pages.filter((_, index) => index !== pageIndex);
+      onFormChange({
+        ...form,
+        pages: updatedPages,
+      });
+
+      if (currentPageIndex >= updatedPages.length) {
+        setCurrentPageIndex(Math.max(updatedPages.length - 1, 0));
+      }
+    },
+    [form, currentPageIndex, onFormChange]
+  );
+
+
   const handleElementEdit = useCallback((element) => {
     setSelectedElementId(element.id);
   }, []);
@@ -219,8 +235,7 @@ export function FormBuilder({ form, onFormChange }) {
         ...form,
         pages: updatedPages,
       });
-
-      setSelectedElementId(null);
+      setSelectedElementId(updatedElement._id);
     },
     [form, onFormChange]
   );
@@ -400,6 +415,7 @@ export function FormBuilder({ form, onFormChange }) {
                       selectedElementId={selectedElementId}
                       onElementSelect={handleElementSelect}
                       onPagetitleUpdate={pageDateUpdate}
+                        onPageDelete={handleDeletePage} // ✅ Add this handler
                     />
                   </div>
                 ))}

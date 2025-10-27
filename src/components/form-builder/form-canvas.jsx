@@ -8,7 +8,7 @@ import { FormElementRenderer } from '../form-elements/form-element-renderer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Check, Pencil, PackagePlus } from 'lucide-react';
+import { Check, Pencil, PackagePlus, Trash, Trash2 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 
@@ -26,6 +26,7 @@ export function FormCanvas({
   title = "",
   description = "",
   onPagetitleUpdate,
+  onPageDelete
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [cardtitle, setTitle] = useState(title || "");
@@ -60,7 +61,10 @@ export function FormCanvas({
     });
   };
 
-  // Sort elements by position
+  const handlePageDelete = () => {
+      onPageDelete(pageuniqid);
+  };
+
   const sortedElements = [...elements].sort((a, b) => a.position - b.position);
   
   return (
@@ -169,6 +173,18 @@ export function FormCanvas({
                 )}
               </div>
             )}
+          </div>
+          
+          <div className="px-4 pb-4">
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={handlePageDelete}
+              className="float-right"
+            >
+              <Trash2 className="h-4 w-4 mr-1"/>
+              Delete Page
+            </Button>
           </div>
         </CardContent>
       </Card>
