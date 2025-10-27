@@ -12,14 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const UserTypeModal = ({
+const FieldConstant = ({
   open,
   onOpenChange,
   title,
   description,
   formik,
   onCancel,
-  onSubmit,
   loading,
   mode = "add", // "add" or "edit"
 }) => {
@@ -36,52 +35,26 @@ const UserTypeModal = ({
 
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="typeName" className="text-right">
-                Type Name *
+              <Label htmlFor="param_name" className="text-right">
+                Param Name
               </Label>
               <div className="col-span-3">
                 <Input
-                  id="typeName"
-                  name="typeName"
-                  value={formik.values.typeName}
+                  id="param_name"
+                  name="param_name"
+                  value={formik.values.param_name}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   className={`col-span-3 ${
-                    formik.touched.typeName && formik.errors.typeName
+                    formik.touched.param_name && formik.errors.param_name
                       ? "border-red-500"
                       : ""
                   }`}
                   placeholder="Enter user type name"
                 />
-                {formik.touched.typeName && formik.errors.typeName && (
+                {formik.touched.param_name && formik.errors.param_name && (
                   <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.typeName}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="order" className="text-right">
-                Order
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="order"
-                  name="order"
-                  type="number"
-                  value={formik.values.order}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`col-span-3 ${
-                    formik.touched.order && formik.errors.order
-                      ? "border-red-500"
-                      : ""
-                  }`}
-                  placeholder="Enter order (number)"
-                />
-                {formik.touched.order && formik.errors.order && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.order}
+                    {formik.errors.param_name}
                   </div>
                 )}
               </div>
@@ -113,4 +86,4 @@ const UserTypeModal = ({
   );
 };
 
-export default UserTypeModal;
+export default FieldConstant;

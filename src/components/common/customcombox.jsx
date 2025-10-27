@@ -219,7 +219,7 @@ export function CustomCombobox({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "w-full justify-between",
+            "w-full justify-between 2xl:h-auto",
             multiSelect ? "min-h-10 h-auto py-2" : "h-10",
             className
           )}

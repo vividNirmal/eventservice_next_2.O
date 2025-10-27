@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -46,22 +45,17 @@ import {
   deleteRequest,
 } from "@/service/viewService";
 import { toast } from "sonner";
-import UserTypeModal from "./common/UserTypeModal";
+import FieldConstant from "./common/FieldConstantModal";
 
 // Validation Schema using Yup
-const userTypeValidationSchema = Yup.object({
-  typeName: Yup.string()
-    .required("User type name is required")
-    .min(2, "User type name must be at least 2 characters")
-    .max(50, "User type name must be less than 50 characters"),
-  order: Yup.number()
-    .required("Order is required")
-    .min(0, "Order must be a positive number")
-    .integer("Order must be an integer"),
+const paramNameValidationSchema = Yup.object({
+  param_name: Yup.string()
+    .required("Field constant name is required")
+    .min(2, "Field constant name must be at least 2 characters")
+    .max(50, "Field constant name must be less than 50 characters"),
 });
 
-const UserTypeList = () => {
-  const router = useRouter();
+const FieldConstantList = () => {
   const [userTypes, setUserTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -79,36 +73,34 @@ const UserTypeList = () => {
 
   const dataLimits = [10, 20, 30, 50];
 
-  // Formik for Add User Type
+  // Formik for Add Field constant
   const addFormik = useFormik({
     initialValues: {
-      typeName: "",
-      order: 0,
+      param_name: "",
     },
-    validationSchema: userTypeValidationSchema,
+    validationSchema: paramNameValidationSchema,
     onSubmit: async (values) => {
-      await handleAddUserType(values);
+      await handleAddFieldConstant(values);
     },
   });
 
-  // Formik for Edit User Type
+  // Formik for Edit Field constant
   const editFormik = useFormik({
     initialValues: {
-      typeName: "",
-      order: 0,
+      param_name: "",
     },
-    validationSchema: userTypeValidationSchema,
+    validationSchema: paramNameValidationSchema,
     onSubmit: async (values) => {
-      await handleEditUserType(values);
+      await handleEditFieldConstant(values);
     },
     enableReinitialize: true,
   });
 
   useEffect(() => {
-    fetchUserTypes();
+    fetchFieldConstant();
   }, [currentPage, selectedLimit, searchTerm]);
 
-  const fetchUserTypes = async () => {
+  const fetchFieldConstant = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -117,42 +109,41 @@ const UserTypeList = () => {
         ...(searchTerm && { search: searchTerm }),
       });
 
-      const response = await getRequest(`user-types?${params}`);
+      const response = await getRequest(`contant-map?${params}`);
 
       if (response.status === 1) {
-        setUserTypes(response.data.userTypes || []);
+        setUserTypes(response.data.fieldConstants || []);
         setTotalPages(response.data.pagination?.totalPages || 1);
         setTotalCount(response.data.pagination?.totalData || 0);
       }
     } catch (error) {
-      console.error("Error fetching user types:", error);
-      toast.error("Failed to fetch user types");
+      console.error("Error fetching Field constants:", error);
+      toast.error("Failed to fetch Field constants");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddUserType = async (values) => {
+  const handleAddFieldConstant = async (values) => {
     setIsCreating(true);
     try {
       const payload = {
-        typeName: values.typeName,
-        order: values.order,
+        param_name: values.param_name,
       };
 
-      const response = await postRequest("user-types", payload);
+      const response = await postRequest("contant-map", payload);
 
       if (response.status === 1) {
-        toast.success("User type created successfully");
+        toast.success("Field constant created successfully");
         setIsAddModalOpen(false);
         addFormik.resetForm();
-        fetchUserTypes();
+        fetchFieldConstant();
       } else {
-        toast.error(response.message || "Failed to create user type");
+        toast.error(response.message || "Failed to create Field constant");
       }
     } catch (error) {
-      console.error("Error creating user type:", error);
-      toast.error("Failed to create user type");
+      console.error("Error creating Field constant:", error);
+      toast.error("Failed to create Field constant");
     } finally {
       setIsCreating(false);
     }
@@ -163,50 +154,49 @@ const UserTypeList = () => {
 
     try {
       const response = await deleteRequest(
-        `user-types/${userTypeToDelete._id}`
+        `contant-map/${userTypeToDelete._id}`
       );
 
       if (response.status === 1) {
-        toast.success("User type deleted successfully");
+        toast.success("Field constant deleted successfully");
         setIsDeleteDialogOpen(false);
         setUserTypeToDelete(null);
-        fetchUserTypes();
+        fetchFieldConstant();
       } else {
-        toast.error(response.message || "Failed to delete user type");
+        toast.error(response.message || "Failed to delete Field constant");
       }
     } catch (error) {
-      console.error("Error deleting user type:", error);
-      toast.error("Failed to delete user type");
+      console.error("Error deleting Field constant:", error);
+      toast.error("Failed to delete Field constant");
     }
   };
 
-  const handleEditUserType = async (values) => {
+  const handleEditFieldConstant = async (values) => {
     if (!userTypeToEdit) return;
 
     setIsUpdating(true);
     try {
       const payload = {
-        typeName: values.typeName,
-        order: values.order,
+        param_name: values.param_name,
       };
 
       const response = await updateRequest(
-        `user-types/${userTypeToEdit._id}`,
+        `contant-map/${userTypeToEdit._id}`,
         payload
       );
 
       if (response.status === 1) {
-        toast.success("User type updated successfully");
+        toast.success("Field constant updated successfully");
         setIsEditModalOpen(false);
         setUserTypeToEdit(null);
         editFormik.resetForm();
-        fetchUserTypes();
+        fetchFieldConstant();
       } else {
-        toast.error(response.message || "Failed to update user type");
+        toast.error(response.message || "Failed to update Field constant");
       }
     } catch (error) {
-      console.error("Error updating user type:", error);
-      toast.error("Failed to update user type");
+      console.error("Error updating Field constant:", error);
+      toast.error("Failed to update Field constant");
     } finally {
       setIsUpdating(false);
     }
@@ -215,8 +205,7 @@ const UserTypeList = () => {
   const openEditModal = (userType) => {
     setUserTypeToEdit(userType);
     editFormik.setValues({
-      typeName: userType.typeName,
-      order: userType.order,
+      param_name: userType.param_name,
     });
     setIsEditModalOpen(true);
   };
@@ -272,9 +261,9 @@ const UserTypeList = () => {
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
-              <CardTitle>User Types</CardTitle>
+              <CardTitle>Field Constant</CardTitle>
               <CardDescription>
-                Total {totalCount} user types found
+                Total {totalCount} field constant found
               </CardDescription>
             </div>
             <div className="flex items-center space-x-4">
@@ -303,17 +292,17 @@ const UserTypeList = () => {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search user types..."
+                  placeholder="Search field constant..."
                   value={searchTerm}
                   onChange={handleSearch}
                   className="pl-10 w-64"
                 />
               </div>
 
-              {/* ✅ Add User Type Button */}
+              {/* ✅ Add Field constant Button */}
               <Button onClick={() => setIsAddModalOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Add User Type
+                Add Field Constant
               </Button>
             </div>
           </div>
@@ -326,11 +315,11 @@ const UserTypeList = () => {
         >
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete User Type</AlertDialogTitle>
+              <AlertDialogTitle>Delete Field Constant</AlertDialogTitle>
               <AlertDialogDescription>
                 Are you sure you want to delete "
                 <strong>{userTypeToDelete?.typeName}</strong>"? This action
-                cannot be undone and will permanently remove this user type.
+                cannot be undone and will permanently remove this field constant.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -339,7 +328,7 @@ const UserTypeList = () => {
                 onClick={handleDeleteUserType}
                 className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
               >
-                Delete User Type
+                Delete Field Constant
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -350,7 +339,7 @@ const UserTypeList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Type Name</TableHead>
+                  <TableHead>Field Name</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -359,20 +348,20 @@ const UserTypeList = () => {
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-8">
-                      Loading user types...
+                      Loading Field constants...
                     </TableCell>
                   </TableRow>
                 ) : userTypes.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-8">
-                      No user types found
+                      No Field constants found
                     </TableCell>
                   </TableRow>
                 ) : (
                   userTypes.map((userType) => (
                     <TableRow key={userType._id}>
                       <TableCell className="font-medium">
-                        {userType.typeName}
+                        {userType.param_name}
                       </TableCell>
                       <TableCell>{formatDate(userType.createdAt)}</TableCell>
                       <TableCell className="text-right">
@@ -381,7 +370,7 @@ const UserTypeList = () => {
                             variant="outline"
                             size="sm"
                             onClick={() => openEditModal(userType)}
-                            title="Edit user type"
+                            title="Edit Field constant"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -390,7 +379,7 @@ const UserTypeList = () => {
                             size="sm"
                             onClick={() => openDeleteDialog(userType)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            title="Delete user type"
+                            title="Delete Field constant"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -416,14 +405,14 @@ const UserTypeList = () => {
         </CardContent>
       </Card>
 
-      <UserTypeModal
+      <FieldConstant
         open={isAddModalOpen}
         onOpenChange={(isOpen) => {
           if (!isOpen) resetAddModal(); // Reset form when modal closes
           setIsAddModalOpen(isOpen);
         }}
-        title="Add New User Type"
-        description="Create a new user type for your application."
+        title="Add New Field constant"
+        description="Create a new Field constant for your application."
         formik={addFormik}
         onCancel={resetAddModal}
         onSubmit={addFormik.handleSubmit}
@@ -431,14 +420,14 @@ const UserTypeList = () => {
         mode="add"
       />
 
-      <UserTypeModal
+      <FieldConstant
         open={isEditModalOpen}
         onOpenChange={(isOpen) => {
           if (!isOpen) resetEditModal(); // Reset form when modal closes
           setIsEditModalOpen(isOpen);
         }}
-        title="Edit User Type"
-        description="Update the user type information."
+        title="Edit Field constant"
+        description="Update the Field constant information."
         formik={editFormik}
         onCancel={resetEditModal}
         onSubmit={editFormik.handleSubmit}
@@ -449,4 +438,4 @@ const UserTypeList = () => {
   );
 };
 
-export default UserTypeList;
+export default FieldConstantList;

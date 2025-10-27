@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import FaceComponent from "./faceScanner";
@@ -7,37 +7,31 @@ import MobileWithLogin from "./mobilewithLoging/MobileWithLogin";
 import QrScanner from "./Qrscanner/QrScanner";
 import Image from "next/image";
 import { SacnnerGet } from "@/service/viewService";
-import { useRouter, useSearchParams } from "next/navigation"; // #revert
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ArrowLeft,
-  ArrowLeftSquare,
-  EllipsisVertical,
-  MoreHorizontal,
-} from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 const MediaButton = ({ eventData, event_slug }) => {
   const [pageRedirect, setPageRedirect] = useState(3);
   const [buttonList, setButtonList] = useState([]);
-  const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-  const deviceKey = process.env.NEXT_PUBLIC_ATTENDENCE_KEY;
-  const [imageOfQr, setImageOfQr] = useState("");
   const [scannerUniqueId, setScannerUniqueId] = useState("");
-  const [scannerData, setScannerData] = useState(null)
+  const [scannerData, setScannerData] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchButtonList();
-    downloadQR();
     getScannerUniqueId();
-     const scanner_data = JSON.parse( sessionStorage.getItem("scannerloginToken"))
-    if (scanner_data){
-      setScannerData(scanner_data)
+    const scanner_data = JSON.parse(
+      sessionStorage.getItem("scannerloginToken")
+    );
+    if (scanner_data) {
+      setScannerData(scanner_data);
     }
   }, []);
 
@@ -53,7 +47,7 @@ const MediaButton = ({ eventData, event_slug }) => {
     }
   }
 
-  async function fetchButtonList() {        
+  async function fetchButtonList() {
     try {
       const response = await SacnnerGet("scanner-page");
       if (response.status == 403) {
@@ -65,30 +59,10 @@ const MediaButton = ({ eventData, event_slug }) => {
       console.error("Error fetching button list:", error);
     }
   }
-  const backButton = () => {        
+  
+  const backButton = () => {
     setPageRedirect(1);
   };
-
-  async function downloadQR() {
-    try {
-      let uniqueUrl;
-      uniqueUrl = apiUrl + "get-registration-url/" + event_slug;
-      const canvas = document.createElement("canvas");
-      
-      // Lazy load QRCode library only when needed
-      const QRCode = await import("qrcode");
-      QRCode.toCanvas(canvas, uniqueUrl, (error) => {
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        setImageOfQr(canvas.toDataURL("image/png"));
-      });
-    } catch (err) {
-      console.error("Error fetching button list:", err);
-    }
-  }
 
   const cameraError = () => {
     toast.error("Camera Error: ", { description: `Camera not found` });
@@ -103,22 +77,17 @@ const MediaButton = ({ eventData, event_slug }) => {
     setPageRedirect(3);
   };
 
-  const qrscanner = () => {
-    setPageRedirect(4);
-  };
-
-  
-  function handleLogout(){
+  function handleLogout() {
     sessionStorage.removeItem("scannerloginToken");
     const entryUrl = localStorage.getItem("scannerEntryUrl");
-    
+
     // Extract and store key and event_slug for clean URL redirect
     if (entryUrl) {
       try {
         const url = new URL(entryUrl);
         const key = url.searchParams.get("key");
         const event_slug = url.searchParams.get("event_slug");
-        
+
         // Store parameters in localStorage for the attendance page to use
         if (key && event_slug) {
           localStorage.setItem("tempAttendanceKey", key);
@@ -128,7 +97,7 @@ const MediaButton = ({ eventData, event_slug }) => {
         console.error("Error parsing entry URL:", error);
       }
     }
-    
+
     // Redirect to clean URL without any query parameters
     router.replace("/attendee");
   }
@@ -147,41 +116,23 @@ const MediaButton = ({ eventData, event_slug }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>{scannerData && scannerData.type == 0 ?"Check In" : "Check Out" } {scannerUniqueId ? `(${scannerUniqueId})` : ""}</DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={backButton}
-                className="cursor-pointer"
-              >
+              <DropdownMenuItem>
+                {scannerData && scannerData.type == 0
+                  ? "Check In"
+                  : "Check Out"}{" "}
+                {scannerUniqueId ? `(${scannerUniqueId})` : ""}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={backButton} className="cursor-pointer">
                 Change mode
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer"
               >
-                Logout 
+                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          // <button
-          //   className="fixed top-4 right-4 text-white z-10"
-          //   onClick={backButton}
-          // >
-          //   <EllipsisVerticalIcon/>
-          //   <svg
-          //     xmlns="http://www.w3.org/2000/svg"
-          //     fill="none"
-          //     viewBox="0 0 24 24"
-          //     strokeWidth="1.5"
-          //     stroke="currentColor"
-          //     className="size-5"
-          //   >
-          //     <path
-          //       strokeLinecap="round"
-          //       strokeLinejoin="round"
-          //       d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-          //     />
-          //   </svg>
-          // </button>
         )}
 
         {pageRedirect === 1 && (
@@ -214,7 +165,6 @@ const MediaButton = ({ eventData, event_slug }) => {
                 if (item.type == 0) onClick = toggleScanner;
                 else if (item.type == 1 && eventData?.with_face_scanner == 1)
                   onClick = faceScanner;
-                else if (item.type == 3) onClick = qrscanner;
                 else if (item.type == 4) onClick = () => setPageRedirect(5);
                 else if (item.type == 5) onClick = () => setPageRedirect(6);
                 else return null;
@@ -230,7 +180,7 @@ const MediaButton = ({ eventData, event_slug }) => {
                     <ButtonContent />
                   </button>
                 );
-              })              
+              })
             ) : (
               <div className="fixed inset-0 grid place-items-center">
                 <div className="three-body">
@@ -248,21 +198,11 @@ const MediaButton = ({ eventData, event_slug }) => {
         )}
 
         {pageRedirect == 3 && (
-          
           <FaceComponent eventData={eventData} onCameraError={cameraError} />
         )}
 
-        {pageRedirect === 4 && (
-          <div className="bg-white h-full w-full max-w-[300px] rounded-xl block">
-            <img
-              src={imageOfQr}
-              className="w-full h-full aspect-1/1 object-cover rounded-xl"
-              alt="QR Code"
-            />
-          </div>
-        )}
-
         {pageRedirect === 5 && <SecondQrScanner onCameraError={cameraError} />}
+
         {pageRedirect === 6 && <MobileWithLogin onCameraError={cameraError} />}
       </div>
 

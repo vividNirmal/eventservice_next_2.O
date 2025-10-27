@@ -33,7 +33,10 @@ export function FormFieldAddDrawer({
   loading = false,
 }) {
   const [userType, setUserTypes] = useState([]);
-  const [submitLoader,setSubmitLoader] = useState(false)
+  const [constantFields, setConstantFields] = useState([]);
+
+  console.log(constantFields)
+  const [submitLoader, setSubmitLoader] = useState(false);
   const fieldTypeOptions = [
     { value: "text", title: "Text" },
     { value: "textarea", title: "Textarea" },
@@ -164,13 +167,12 @@ export function FormFieldAddDrawer({
       optionRequestType: "",
       fileType: [],
       fileSize: "",
-      
       fieldVisibleIf: "",
       fieldEnableIf: "",
-      fieldRequiredIf: "",      
+      fieldRequiredIf: "",
       fieldConfigration: [],
+      mapField:"",
     },
-
     validationSchema: Yup.object({
       fieldName: Yup.string().required("Name is required"),
       fieldType: Yup.string().required("Field Type is required"),
@@ -181,18 +183,17 @@ export function FormFieldAddDrawer({
         })
       ),
     }),
-
-    onSubmit: async (values) => {      
+    onSubmit: async (values) => {
       try {
-        setSubmitLoader(true)
+        setSubmitLoader(true);
         const formData = new FormData();
-        const completeFieldConfigration = [...(values.fieldConfigration || [])];        
+        const completeFieldConfigration = [...(values.fieldConfigration || [])];
         if (values.fieldVisibleIf && values.fieldVisibleIf.trim() !== "") {
           completeFieldConfigration.push({
             type: "fieldVisibleIf",
             content: values.fieldVisibleIf,
           });
-        }        
+        }
         if (values.fieldEnableIf && values.fieldEnableIf.trim() !== "") {
           completeFieldConfigration.push({
             type: "fieldEnableIf",
@@ -205,6 +206,8 @@ export function FormFieldAddDrawer({
             content: values.fieldRequiredIf,
           });
         }
+
+        formData.append("mapField", values.mapField);
 
         if (editUser) {
           // ===== EDIT MODE =====
@@ -266,7 +269,7 @@ export function FormFieldAddDrawer({
           if (values.fileSize) {
             formData.append(`filevalidation[0][fileSize]`, values.fileSize);
           }
-          
+
           if (completeFieldConfigration.length > 0) {
             completeFieldConfigration.forEach((config, index) => {
               formData.append(`fieldConfigration[${index}][type]`, config.type);
@@ -283,7 +286,7 @@ export function FormFieldAddDrawer({
           );
 
           if (response.status == 1) {
-            setSubmitLoader(false)
+            setSubmitLoader(false);
             toast.success("Field updated successfully");
             onClose();
             refetch(true);
@@ -350,7 +353,7 @@ export function FormFieldAddDrawer({
           if (values.fileSize) {
             formData.append(`filevalidation[0][fileSize]`, values.fileSize);
           }
-          
+
           if (completeFieldConfigration.length > 0) {
             completeFieldConfigration.forEach((config, index) => {
               formData.append(`fieldConfigration[${index}][type]`, config.type);
@@ -364,7 +367,7 @@ export function FormFieldAddDrawer({
           const response = await postRequest("store-default-field", formData);
 
           if (response.status == 1) {
-            setSubmitLoader(false)
+            setSubmitLoader(false);
             toast.success("Field created successfully");
             onClose();
             refetch(true);
@@ -398,6 +401,7 @@ export function FormFieldAddDrawer({
 
   useEffect(() => {
     fetchUserTypes();
+    fetchConstantField()
     formik.resetForm();
     if (editUser) {
       const parsedOptions = Array.isArray(editUser.fieldOptions)
@@ -410,7 +414,7 @@ export function FormFieldAddDrawer({
             }
           })
         : [];
-      
+
       const fieldConfigrations = editUser.fieldConfigration || [];
       const manualConfigurations = [];
       let fieldVisibleIf = "";
@@ -455,11 +459,14 @@ export function FormFieldAddDrawer({
         // Populate separated logic fields
         fieldVisibleIf: fieldVisibleIf,
         fieldEnableIf: fieldEnableIf,
-        fieldRequiredIf: fieldRequiredIf,        
+        fieldRequiredIf: fieldRequiredIf,
         fieldConfigration: manualConfigurations,
+        mapField: editUser.mapField || "",
       });
     }
   }, [editUser, isOpen]);
+
+
 
   const fetchUserTypes = async () => {
     try {
@@ -473,10 +480,22 @@ export function FormFieldAddDrawer({
     }
   };
 
+  const fetchConstantField = async () => {
+    try {
+      const response = await getRequest(`contant-map`);
+      if (response.status === 1) {
+        setConstantFields(response.data.fieldConstants || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user types:", error);
+      toast.error("Failed to fetch user types");
+    }
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-[400px] sm:w-[540px] px-4">
-        <SheetHeader>
+        <SheetHeader className="px-0 pb-0">
           <SheetTitle>{editUser ? "Edit Field" : "Add Field"}</SheetTitle>
           <SheetDescription>
             {editUser ? "Update field information" : "Create a new field"}
@@ -486,7 +505,7 @@ export function FormFieldAddDrawer({
         <FormikProvider value={formik}>
           <form
             onSubmit={formik.handleSubmit}
-            className="space-y-4 mt-6 overflow-x-auto overflow-y-hidden"
+            className="space-y-4 overflow-x-auto overflow-y-hidden"
           >
             <Accordion
               type="single"
@@ -571,18 +590,6 @@ export function FormFieldAddDrawer({
                       className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                     />
                   </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              <AccordionItem value="generalSettings-2">
-                <AccordionTrigger
-                  className={
-                    "hover:no-underline text-sm font-semibold text-gray-700"
-                  }
-                >
-                  Permission settings
-                </AccordionTrigger>
-                <AccordionContent className={"space-y-5"}>
                   <div className="space-y-2">
                     <Label htmlFor="isRequired">Is Field Required?</Label>
                     <CustomCombobox
@@ -598,52 +605,6 @@ export function FormFieldAddDrawer({
                       placeholder="Select Field Required"
                       id="isRequired"
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="isRequired">User To Allow</Label>
-                    <CustomCombobox
-                      name="userType"
-                      value={formik.values.userType}
-                      onChange={handleUserTypeChange}
-                      onBlur={() => formik.setFieldTouched("userType", true)}
-                      valueKey="_id"
-                      labelKey="typeName"
-                      multiSelect={true}
-                      options={userType || []}
-                      placeholder="Select User Type to allow"
-                      id="userType"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="isRequired">
-                      Assign default field to users
-                    </Label>
-                    <CustomCombobox
-                      name="userFieldMapping"
-                      value={formik.values.userFieldMapping}
-                      onChange={(value) =>
-                        formik.setFieldValue("userFieldMapping", value)
-                      }
-                      onBlur={() =>
-                        formik.setFieldTouched("userFieldMapping", true)
-                      }
-                      valueKey="_id"
-                      labelKey="typeName"
-                      multiSelect={true}
-                      options={getFilteredUserTypes()}
-                      placeholder={
-                        formik.values.userType.length === 0
-                          ? "First select User To Allow"
-                          : "Select User Type to assign"
-                      }
-                      id="userFieldMapping"
-                      disabled={formik.values.userType.length === 0}
-                    />
-                    {formik.values.userType.length === 0 && (
-                      <p className="text-sm text-gray-500">
-                        Please select User To Allow first to assign fields
-                      </p>
-                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -846,7 +807,7 @@ export function FormFieldAddDrawer({
                   </FieldArray>
                 </AccordionContent>
               </AccordionItem>
-              
+
               <AccordionItem value="field-logic-config">
                 <AccordionTrigger className="text-sm font-semibold text-gray-700 hover:no-underline">
                   Field Logic Configure
@@ -1014,7 +975,7 @@ export function FormFieldAddDrawer({
                       "hover:no-underline text-sm font-semibold text-gray-700"
                     }
                   >
-                    option Configure from RESTful service
+                    Option Configure from RESTful service
                   </AccordionTrigger>
                   <AccordionContent className={"space-y-5"}>
                     <div className="flex flex-col gap-1">
@@ -1143,14 +1104,95 @@ export function FormFieldAddDrawer({
                   </AccordionContent>
                 </AccordionItem>
               )}
+
+              <AccordionItem value="generalSettings-2">
+                <AccordionTrigger
+                  className={
+                    "hover:no-underline text-sm font-semibold text-gray-700"
+                  }
+                >
+                  Permission settings
+                </AccordionTrigger>
+                <AccordionContent className={"space-y-5"}>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="isRequired">User To Allow</Label>
+                    <CustomCombobox
+                      name="userType"
+                      value={formik.values.userType}
+                      onChange={handleUserTypeChange}
+                      onBlur={() => formik.setFieldTouched("userType", true)}
+                      valueKey="_id"
+                      labelKey="typeName"
+                      multiSelect={true}
+                      options={userType || []}
+                      placeholder="Select User Type to allow"
+                      id="userType"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Label htmlFor="isRequired">
+                      Assign default field to users
+                    </Label>
+                    <CustomCombobox
+                      name="userFieldMapping"
+                      value={formik.values.userFieldMapping}
+                      onChange={(value) =>
+                        formik.setFieldValue("userFieldMapping", value)
+                      }
+                      onBlur={() =>
+                        formik.setFieldTouched("userFieldMapping", true)
+                      }
+                      valueKey="_id"
+                      labelKey="typeName"
+                      multiSelect={true}
+                      options={getFilteredUserTypes()}
+                      placeholder={
+                        formik.values.userType.length === 0
+                          ? "First select User To Allow"
+                          : "Select User Type to assign"
+                      }
+                      id="userFieldMapping"
+                      disabled={formik.values.userType.length === 0}
+                    />
+                    {formik.values.userType.length === 0 && (
+                      <p className="text-sm text-gray-500">
+                        Please select User To Allow first to assign fields
+                      </p>
+                    )}
+                  </div>
+                   <div className="space-y-2">
+                    <Label htmlFor="fieldType">Field Type</Label>
+                    <CustomCombobox
+                      name="mapField"
+                      value={formik.values.mapField}
+                      onChange={(value) =>
+                        formik.setFieldValue("mapField", value)
+                      }
+                      onBlur={() => formik.setFieldTouched("mapField", true)}
+                      valueKey="param_name"
+                      labelKey="param_name"
+                      options={constantFields || []}
+                      placeholder="Select Field Type"
+                      id="mapField"
+                    />
+                    {formik.touched.mapField && formik.errors.mapField && (
+                      <p className="text-sm text-red-500">
+                        {formik.errors.mapField}
+                      </p>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={submitLoader}>
-                {submitLoader && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Button type="submit" disabled={submitLoader} className="hover:scale-100">
+                {submitLoader && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
                 {editUser ? "Update Field" : "Add Field"}
               </Button>
             </div>

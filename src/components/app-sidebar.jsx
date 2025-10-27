@@ -113,15 +113,14 @@ export function AppSidebar({ ...props }) {
         show: true,
       },
       {
-        title: "Registration",
+        title: "Form Settings",
         icon: FileText,
         items: [
-          { title: "Forms", url: "/dashboard/form-management" },
-          { title: "Ticket Management", url: "/dashboard/ticket-management" },
           { title: "Default Fields", url: "/dashboard/default-fields" },
           { title: "User Types", url: "/dashboard/user-types" },
+          { title: "Field Constants", url: "/dashboard/field-constant" },
         ],
-        show: true,
+        show: true,        
       },
       {
         title: "Template",
@@ -129,7 +128,7 @@ export function AppSidebar({ ...props }) {
         items: [
           { title: "Email", url: "/dashboard/email-template-management" },
           { title: "SMS", url: "/dashboard/sms-template-management" },
-          { title: "Whatsapp", url: "/dashboard/whatsapp-template-management" }
+          { title: "Whatsapp", url: "/dashboard/whatsapp-template-management" },
         ],
         show: true,
       },
