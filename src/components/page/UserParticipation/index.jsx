@@ -57,8 +57,7 @@ const UserRegisterEvent = () => {
       if (response.status == 1) {
         setEventData(response?.data.event);
         setTicketData(response?.data.ticket);
-        setDynamicForm(response?.data.ticket?.registrationFormId);
-        toast.success(response.message || "Job saved successfully!");
+        setDynamicForm(response?.data.ticket?.registrationFormId);        
       } else {
         toast.error(response.message || "Failed to save job.");
       }

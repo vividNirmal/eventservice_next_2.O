@@ -44,12 +44,11 @@ const ParticipanLogin = ({
         if (recponce.status == 1) {
           onRegisterEmail({ ...recponce, email: values.email });
         } else {
-          console.log(recponce?.errorJson?.errorType);
-          if(recponce?.errorJson?.errorType == "LIMIT_REACHED"){
+          if (recponce?.errorJson?.errorType == "LIMIT_REACHED") {
             setErrorTitle("Limit Reached");
-          }else{
+          } else {
             setErrorTitle("Registration Closed");
-          }          
+          }
           setErrorMessage(recponce?.errorJson?.message);
           setShowErrorDialog(true);
         }
@@ -142,17 +141,7 @@ const ParticipanLogin = ({
     <>
       <section className="flex flex-wrap lg:items-center gap-5 bg-[#f7f9fc] h-svh p-4 overflow-auto lg:overflow-hidden">
         <div className="w-full md:w-2/4 grow relative self-stretch flex flex-col justify-center p-6 lg:p-8 2xl:p-10 rounded-2xl bg-white">
-          <SafeImage src={ticketData?.loginBannerImageUrl} mobileSrc={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-h-[calc(100vh_-_8rem)] rounded-xl w-fit mx-auto block object-contain object-center" />
-          {/* <div className="absolute left-4 lg:left-12 bottom-4 lg:bottom-12 max-w-64 lg:max-w-80 xl:max-w-[362px] w-full">
-            <img
-              src={eventData?.event_image}
-              className="max-w-[65%] lg:max-w-[240px] w-full block mb-8"
-              alt="Plastics Recycling Show"
-            />
-            <h1 className="text-white font-light uppercase text-2xl md:text-3xl xl:text-5xl max-w-[90%] xl:max-w-full">
-              {eventData?.eventName || eventData?.event_title}
-            </h1>
-          </div> */}
+          <SafeImage src={ticketData?.loginBannerImageUrl} mobileSrc={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-h-[calc(100vh_-_8rem)] rounded-xl w-fit mx-auto block object-contain object-center" />        
         </div>
 
         {/* Form Right Side */}
