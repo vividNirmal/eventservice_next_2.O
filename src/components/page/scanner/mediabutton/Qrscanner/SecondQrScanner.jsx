@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import QRICard from "../userDetails/QrICard";
 import Scanner from "../Scanner";
+import QRScannerDetails from "../ScannerDetails";
 
 const SecondQrScanner = ({ onCameraError }) => {
   const [step, setStep] = useState(1);
@@ -42,14 +43,22 @@ const SecondQrScanner = ({ onCameraError }) => {
 
   const qrScannerDataHandler = (data) => {
     try {
-      const json = JSON.parse(data);
+      let json;
+      if (typeof data === "string") {
+        try {
+          json = JSON.parse(data);
+        } catch (error) {
+          console.error("Invalid JSON string:", error);
+          json = data; // fallback to raw data if parsing fails
+        }
+      } else {
+        json = data; // already an object, no need to parse
+      }
       const userData = {
-        user_token: json?.user_token,
-        event_slug: json?.event_slug,
+        event_slug: json?.data[0]?.event_slug,
       };
-
       if (userData?.event_slug) {
-        setEventData(userData);
+        setEventData(json?.data);
         setStep(2);
       } else {
         alert("Invalid QR Code");
@@ -97,7 +106,7 @@ const SecondQrScanner = ({ onCameraError }) => {
         </div>
       )}
 
-      {step === 2 && <QRICard data={eventData} printPermission={printValue} onRedirect={redirectHandler} />}
+      {step === 2 && <QRScannerDetails qrData={eventData} printPermission={printValue} onRedirect={redirectHandler} />}
     </div>
   );
 };
