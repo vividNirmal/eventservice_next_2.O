@@ -113,8 +113,6 @@ const MobileWithLogin = ({ onCameraError }) => {
       const res = await userPostRequest("verify-otp", formData);      
       
       if (res.status == 1) {
-        console.log(res.data[0]);
-        
         setEventData(res.data[0])
         setUserData(res.data[1]);
         setStep(3);
