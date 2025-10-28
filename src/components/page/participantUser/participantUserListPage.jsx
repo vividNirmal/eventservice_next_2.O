@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Calendar, Edit2, EllipsisVertical, Key, Mail, Phone, Search, Tickets } from "lucide-react";
 import { Loader2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,7 +30,7 @@ import {
 import { Edit, MoreHorizontal, Shield, ShieldOff } from "lucide-react";
 import moment from "moment";
 import { CustomPagination } from "@/components/common/pagination";
-import { getRequest, postRequest } from "@/service/viewService";
+import { getRequest, postRequest, updateRequest } from "@/service/viewService";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -43,9 +43,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import RegistrationEditSheet from "../formPeople/commponent/RegistrationEditSheet";
 
 const ParticipantUserListPage = ({ id, eventId }) => {
   const router = useRouter();
+  const [registrations, setRegistrations] = useState([]);
   const [totalParticipants, setTotalParticipants] = useState(0);
   const [participants, setParticipants] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,6 +60,11 @@ const ParticipantUserListPage = ({ id, eventId }) => {
   const [eventList, setEventList] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(eventId || id || ""); // Use eventId first, then fallback to id prop
   const [dynamicHeaders, setDynamicHeaders] = useState([]);
+  const [previewSheetOpen, setPreviewSheetOpen] = useState(false);
+  const [editSheetOpen, setEditSheetOpen] = useState(false);
+  const [selectedRegistration, setSelectedRegistration] = useState(null);
+  const [formFields, setFormFields] = useState([]);
+  const [dateRange, setDateRange] = useState("all");
   const dataLimits = [10, 20, 30, 50];
 
   // Filter participants based on status filter
@@ -100,7 +107,14 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     // Check if the value exists in dynamic_fields first
     if (participant.dynamic_fields && participant.dynamic_fields[header] !== undefined) {
       const value = participant.dynamic_fields[header];
-      
+      if (header === "name") {
+        return value && value.trim() !== "" ? value : "N/A";
+      }
+
+      // Special handling for approved (boolean)
+      if (header === "approved") {
+        return value === true ? "Yes" : value === false ? "No" : "N/A";
+      }
       // Handle special cases for complex objects
       if (header === 'face_image' && typeof value === 'object') {
         return value.faceData ? 'Face data available' : 'No face data';
@@ -112,7 +126,14 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     // Otherwise, get the value from the top-level object
     if (participant[header] !== undefined) {
       const value = participant[header];
-      
+        if (header === "name") {
+          return value && value.trim() !== "" ? value : "N/A";
+        }
+
+        // ✅ Special handling for approved (boolean)
+        if (header === "approved") {
+          return value === true ? "Yes" : value === false ? "No" : "N/A";
+        }
       // Format dates
       if ((header === 'createdAt' || header === 'updatedAt' || header.includes('time')) && value) {
         return moment(value).format("DD/MM/YYYY | hh:mm A");
@@ -151,22 +172,83 @@ const ParticipantUserListPage = ({ id, eventId }) => {
       console.error("Error fetching events:", error);
     }
   };
+  const fetchFormStructure = async (formId) => {
+    try {
+      const response = await getRequest(`forms/${formId?._id}`);
+      if (response.status === 1 && response.data?.form?.pages) {
+        const fields = response.data.form.pages.flatMap(
+          (page) => page.elements || []
+        );
+        setFormFields(fields);
+      }
+    } catch (error) {
+      console.error("Error fetching form structure:", error);
+    }
+  };
+  
+  const handleEdit = async (registration) => {
+    setSelectedRegistration(registration);
+    if (registration.ticketId?.registrationFormId) {
+      await fetchFormStructure(registration.ticketId.registrationFormId);
+    }
+    setEditSheetOpen(true);
+  };
+  const getDateRangeParams = () => {
+    const now = new Date();
+    let startDate = null;
+    let endDate = new Date();
 
+    switch (dateRange) {
+      case "today":
+        startDate = new Date(now.setHours(0, 0, 0, 0));
+        endDate = new Date(now.setHours(23, 59, 59, 999));
+        break;
+      case "yesterday":
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        startDate = new Date(yesterday.setHours(0, 0, 0, 0));
+        endDate = new Date(yesterday.setHours(23, 59, 59, 999));
+        break;
+      case "thisWeek":
+        const firstDayOfWeek = new Date(now);
+        const day = firstDayOfWeek.getDay();
+        const diff = firstDayOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+        firstDayOfWeek.setDate(diff);
+        startDate = new Date(firstDayOfWeek.setHours(0, 0, 0, 0));
+        endDate = new Date();
+        break;
+      case "thisMonth":
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        endDate = new Date();
+        break;
+      default:
+        return {};
+    }
+
+    return startDate && endDate
+      ? {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        }
+      : {};
+  };
   // Fetch participants with event filtering
-  const fetchParticipants = async () => {
+  const fetchRegistrations = async () => {
+    const dateParams = getDateRangeParams();
     setLoading(true);
     try {
       const url = `get-all-paticipant-user-list?page=${currentPage}&pageSize=${selectedLimit}&searchQuery=${encodeURIComponent(
         searchTerm
-      )}&event_id=${selectedEvent}`;
+      )}&event_id=${selectedEvent}&startDate=${dateParams.startDate || ""}&endDate=${dateParams?.endDate || ""}`;
 
       const res = await getRequest(url);
       if (res.status === 1) {
         const participantsData = res?.data?.participants || [];
         setParticipants(participantsData);
-        setTotalParticipants(res?.data?.totalUsers);
-        setTotalPages(res?.data?.totalPages);
-        
+        setTotalParticipants(res.data.pagination?.totalData || 0);
+        setTotalPages(res.data.pagination?.totalPages || 1);
+        setRegistrations(res.data.registrations || []);
+
         // Generate dynamic headers from the participants data
         const headers = generateDynamicHeaders(participantsData);
         setDynamicHeaders(headers);
@@ -178,6 +260,31 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     }
   };
 
+  const handleStatusUpdate = async (registrationId, newStatus) => {
+    try {
+      const response = await updateRequest(
+        `form-registration-status-change/${registrationId}`,
+        { approved: newStatus } // ✅ send boolean
+      );
+      if (response.status === 1) {
+        toast.success(
+          `Registration ${newStatus ? "approved" : "disapproved"} successfully`
+        );
+        fetchRegistrations();
+      } else {
+        toast.error(response.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status");
+    }
+  };
+
+  const handleEditSuccess = () => {
+    fetchRegistrations();
+    setEditSheetOpen(false);
+  };
+  
   useEffect(() => {
     fetchEvents();
   }, []);
@@ -190,8 +297,8 @@ const ParticipantUserListPage = ({ id, eventId }) => {
   }, [id]);
 
   useEffect(() => {
-    fetchParticipants();
-  }, [currentPage, selectedLimit, searchTerm, selectedEvent]);
+    fetchRegistrations();
+  }, [currentPage, selectedLimit, searchTerm, selectedEvent, dateRange]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
@@ -215,6 +322,11 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     if (page !== currentPage && page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
+  };
+
+  const handleDateRangeChange = (range) => {
+    setDateRange(range);
+    setCurrentPage(1);
   };
 
   const handleEditParticipant = (participant) => {
@@ -280,7 +392,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
       <Card className={"gap-0 py-3"}>
         <CardHeader className={"flex flex-wrap items-center px-0 gap-3"}>
           <div className="flex flex-col gap-1">
-            <CardTitle>Participant User List</CardTitle>
+            <CardTitle>Attendees List</CardTitle>
             {participants.length > 0 && (
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span>Total: {totalParticipants}</span>
@@ -310,21 +422,26 @@ const ParticipantUserListPage = ({ id, eventId }) => {
             </Select> */}
 
             {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[130px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active Only</SelectItem>
-                <SelectItem value="blocked">Blocked Only</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+                <Calendar className="size-5 text-gray-500" />
+                <Select value={dateRange} onValueChange={handleDateRangeChange}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Date Range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Time</SelectItem>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="yesterday">Yesterday</SelectItem>
+                    <SelectItem value="thisWeek">This Week</SelectItem>
+                    <SelectItem value="thisMonth">This Month</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search participants"
+                placeholder="Search attendees"
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 className="!pl-10"
@@ -359,129 +476,127 @@ const ParticipantUserListPage = ({ id, eventId }) => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Sr.No.</TableHead>
-                  {dynamicHeaders.map((header) => (
-                    <TableHead key={header}>
-                      {formatHeaderName(header)}
-                    </TableHead>
-                  ))}
+                  <TableHead>User</TableHead>
+                  <TableHead>Contact Info</TableHead>
+                  <TableHead>Badge No</TableHead>
+                  <TableHead>Ticket</TableHead>
+                  <TableHead>User Type</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>Registered On</TableHead>
+                  <TableHead>Change Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {filteredParticipants.length > 0 ? (
-                  filteredParticipants.map((data, idx) => {
-                    const isBlocked = data.dynamic_fields?.isBlocked || false;
-                    const isBlockingInProgress = blockingLoading[data._id] || false;
-                    
-                    return (
-                      <TableRow 
-                        key={data._id || idx}
-                        className={isBlocked ? "bg-red-50" : ""}
+               <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-6">
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : registrations.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-6">
+                      No Attendees found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  registrations.map((reg) => (
+                    <TableRow key={reg._id}>
+                      <TableCell
+                        className="cursor-pointer hover:text-blue-600"
+                        onClick={() => handlePreview(reg)}
                       >
-                        <TableCell className={isBlocked ? "text-red-600 font-medium" : ""}>
-                          {(currentPage - 1) * selectedLimit + idx + 1}
-                        </TableCell>
-                        {dynamicHeaders.map((header) => (
-                          <TableCell 
-                            key={header}
-                            className={isBlocked ? "text-red-600 font-medium" : ""}
-                          >
-                            {getCellValue(data, header)}
-                          </TableCell>
-                        ))}
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {isBlocked ? (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                <ShieldOff className="h-3 w-3 mr-1" />
-                                Blocked
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <Shield className="h-3 w-3 mr-1" />
-                                Active
-                              </span>
-                            )}
+                        {reg.formData?.firstName || reg.formData?.lastName
+                          ? `${reg.formData?.firstName ?? ""} ${reg.formData?.lastName ?? ""}`.trim()
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <Mail className="w-4 h-4 text-gray-500" />
+                            <span>{reg.email || "N/A"}</span>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-right">
+                          <div className="flex items-center space-x-2">
+                            <Phone className="w-4 h-4 text-gray-500" />
+                            <span>{reg.contact || "N/A"}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{reg.badgeNo || "N/A"}</TableCell>
+                      <TableCell>
+                        <span className="text-sm text-gray-600">
+                          {reg.ticketId?.ticketName || "N/A"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {reg?.userType || 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium text-gray-700`}
+                        >
+                          {reg.approved === true ? "Approved" : "Not Approved"}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(reg.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </TableCell>
+                      <TableCell className="">
+                        <div>
+                          {reg.approved ? (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 hover:text-red-700"
+                              onClick={() => handleStatusUpdate(reg._id, false)}
+                            >
+                              Disapprove
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700"
+                              onClick={() => handleStatusUpdate(reg._id, true)}
+                            >
+                              Approve
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <div className="flex justify-end items-center gap-2">
+                          {/* Burger Menu */}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 p-0"
+                              >
+                                <EllipsisVertical className="h-5 w-5 text-gray-600" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => handleEditParticipant(data)}
-                              >
-                                <Edit className="mr-2 h-4 w-4" />
+                              <DropdownMenuItem onClick={() => handleEdit(reg)}>
+                                <Edit2 className="mr-2 h-4 w-4 text-gray-600" />
                                 Edit
                               </DropdownMenuItem>
-                              
-                              {/* Block/Unblock with Confirmation */}
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem
-                                    onSelect={(e) => e.preventDefault()}
-                                    disabled={isBlockingInProgress}
-                                    className={isBlocked ? "text-green-600 focus:text-green-600" : "text-red-600 focus:text-red-600"}
-                                  >
-                                    {isBlockingInProgress ? (
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : isBlocked ? (
-                                      <ShieldOff className="mr-2 h-4 w-4" />
-                                    ) : (
-                                      <Shield className="mr-2 h-4 w-4" />
-                                    )}
-                                    {isBlockingInProgress 
-                                      ? "Processing..." 
-                                      : isBlocked 
-                                        ? "Unblock Participant" 
-                                        : "Block Participant"
-                                    }
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      {isBlocked ? "Unblock Participant" : "Block Participant"}
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      {isBlocked 
-                                        ? "Are you sure you want to unblock this participant? They will be able to access the event again."
-                                        : "Are you sure you want to block this participant? They will not be able to access the event until unblocked."
-                                      }
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => handleToggleBlockStatus(data)}
-                                      className={isBlocked ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
-                                    >
-                                      {isBlocked ? "Unblock" : "Block"}
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              {/* Future options go here */}
+                              {/* <DropdownMenuItem>View Logs</DropdownMenuItem> */}
                             </DropdownMenuContent>
                           </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={dynamicHeaders.length + 3}
-                      className="text-center text-gray-400"
-                    >
-                      No attendees found.
-                    </TableCell>
-                  </TableRow>
+                        </div>
+                      </TableCell>
+
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -500,6 +615,13 @@ const ParticipantUserListPage = ({ id, eventId }) => {
           </div>
         )}
       </CardContent>
+      <RegistrationEditSheet
+        open={editSheetOpen}
+        onOpenChange={setEditSheetOpen}
+        registration={selectedRegistration}
+        formFields={formFields}
+        onSuccess={handleEditSuccess}
+      />
     </section>
   );
 };
