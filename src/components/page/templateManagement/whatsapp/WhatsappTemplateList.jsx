@@ -210,10 +210,10 @@ const WhatsappTemplateList = () => {
   };
 
   const openCreateModal = () => {
-    if (templateTypes.length === 0) {
-      toast.error("Please create whatsapp template types first");
-      return;
-    }
+    // if (templateTypes.length === 0) {
+    //   toast.error("Please create whatsapp template types first");
+    //   return;
+    // }
     setTemplateToEdit(null);
     setIsFormOpen(true);
   };
