@@ -102,63 +102,6 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     return Array.from(headers);
   };
 
-  // Function to get cell value for a given header and participant
-  const getCellValue = (participant, header) => {
-    // Check if the value exists in dynamic_fields first
-    if (participant.dynamic_fields && participant.dynamic_fields[header] !== undefined) {
-      const value = participant.dynamic_fields[header];
-      if (header === "name") {
-        return value && value.trim() !== "" ? value : "N/A";
-      }
-
-      // Special handling for approved (boolean)
-      if (header === "approved") {
-        return value === true ? "Yes" : value === false ? "No" : "N/A";
-      }
-      // Handle special cases for complex objects
-      if (header === 'face_image' && typeof value === 'object') {
-        return value.faceData ? 'Face data available' : 'No face data';
-      }
-      
-      return value;
-    }
-    
-    // Otherwise, get the value from the top-level object
-    if (participant[header] !== undefined) {
-      const value = participant[header];
-        if (header === "name") {
-          return value && value.trim() !== "" ? value : "N/A";
-        }
-
-        // ✅ Special handling for approved (boolean)
-        if (header === "approved") {
-          return value === true ? "Yes" : value === false ? "No" : "N/A";
-        }
-      // Format dates
-      if ((header === 'createdAt' || header === 'updatedAt' || header.includes('time')) && value) {
-        return moment(value).format("DD/MM/YYYY | hh:mm A");
-      }
-      
-      // Handle null values
-      if (value === null) {
-        return '-';
-      }
-      
-      return value;
-    }
-    
-    return '-';
-  };
-
-  // Function to format header name for display
-  const formatHeaderName = (header) => {
-    return header
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, (str) => str.toUpperCase())
-      .trim();
-  };
-
   // Fetch event list
   const fetchEvents = async () => {
     try {
