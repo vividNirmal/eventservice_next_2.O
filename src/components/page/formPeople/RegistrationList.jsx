@@ -34,6 +34,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
   const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [fieldMap , setFieldMap] = useState(null)
 
   // New filter states
   const [tickets, setTickets] = useState([]);
@@ -145,6 +146,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
         setRegistrations(response.data.registrations || []);
         setTotalPages(response.data.pagination?.totalPages || 1);
         setTotalCount(response.data.pagination?.totalData || 0);
+        setFieldMap(response.data.map_array)
       }
     } catch (error) {
       console.error("Error fetching registrations:", error);
@@ -371,8 +373,8 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                         className="cursor-pointer hover:text-blue-600"
                         onClick={() => handlePreview(reg)}
                       >
-                        {reg.formData?.firstName || reg.formData?.lastName
-                          ? `${reg.formData?.firstName ?? ""} ${reg.formData?.lastName ?? ""}`.trim()
+                        {reg.formData?.[fieldMap['first_name']] || reg.formData?.[fieldMap['last_name']]
+                          ? `${reg.formData?.[fieldMap['first_name']] ?? ""} ${reg.formData?.[fieldMap['last_name']] ?? ""}`.trim()
                           : "N/A"}
                       </TableCell>
                       <TableCell>
@@ -383,7 +385,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                           </div>
                           <div className="flex items-center space-x-2">
                             <Phone className="w-4 h-4 text-gray-500" />
-                            <span>{reg.contact || "N/A"}</span>
+                            <span>{reg.formData?.[fieldMap['contact_no']] || "N/A"}</span>
                           </div>
                         </div>
                       </TableCell>
