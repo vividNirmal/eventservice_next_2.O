@@ -228,7 +228,8 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
         setScanCompleted(true);
         setStopScanner(true);
         setStepInner(2);
-      } else if (response.status === 0) {
+      } else if (response.status === 0) {        
+        
         const errorData = response.data || [{ 
           color_status: response.data?.[0]?.color_status || "red",
           scanning_msg: response.message || "Face verification failed"
@@ -237,7 +238,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
         setScanCompleted(false); // Keep scanner active for error responses
         setStopScanner(false); 
         setFaceError(false);
-        setStepInner(2);
+        setStepInner(2);        
       } else {
         console.log("❌ Face verification failed:", response.message);
         setFaceError(true);
@@ -245,10 +246,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
     } catch (error) {
       console.error("❌ Face verification error:", error);
       setFaceError(true);
-    } finally {
-      setLoader(false);
-      setFaceLoader(false);
-    }
+    } 
   };
 
   const qrScannerData = (data) => {

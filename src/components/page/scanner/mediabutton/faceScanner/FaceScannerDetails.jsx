@@ -8,24 +8,23 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
   const [userNotFound, setUserNotFound] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [pageLoader, setPageLoader] = useState(true); // Fixed typo
 
-  useEffect(() => {
-    if (faceData) {
-      console.log("🎯 FaceScannerDetails - FaceData received:", faceData);
 
-      // Check if this is an error response (unregistered user)
-      const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
-      console.log("🎯 FaceScannerDetails - Is error response:", isErrorResponse);
+  useEffect(() => {    
+    if (faceData) {            
+      
+      const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";      
 
       if (isErrorResponse) {
-        // For error responses, don't set any user image - we'll show question mark icon
-        setUserImg(null);
-        setImageLoading(false);
+        setPageLoader(false)
         setUserNotFound(true);
+        setUserImg(null);        
+        setImageLoading(false);
         handleAudioBasedOnStatus();
+
       } else {
-        // Set user image with fallback to default for successful responses
-        // Check multiple possible locations for user_image
+        setPageLoader(false)                
         let userImage = null;
 
         // Check in faceData[3] (original location)
@@ -75,13 +74,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
 
   // Get user name from dynamic form data
   const getUserName = () => {
-    // Check if this is an error response
-    const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
-
-    if (isErrorResponse) {
-      return "Unregistered User";
-    }
-
+    
     const userData = faceData?.[2]?.formData;
     if (userData) {
       // Check for first_name and last_name (standard fields)
@@ -145,21 +138,54 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
     const status = faceData?.[4];
     const colorStatus = status?.color_status;
 
-    if (colorStatus === "green") {
-      // Play thank you speech for successful check-ins
+    if (colorStatus === "green") {      
       speakThankYou();
-    } else if (colorStatus === "red" || colorStatus === "yellow") {
-      // Play error audio for blocked/warned users
+    } else if (colorStatus === "red" || colorStatus === "yellow") {      
       playErrorAudio();
-    } else {
-      // Default to thank you for unknown statuses
-      speakThankYou();
+    } else {      
+      playErrorAudio();
     }
   }
 
-  if (userNotFound) {
+  
+
+  // Get gradient background color based on status
+  const getBackgroundColor = () => {
+    const status = faceData?.[4];
+    switch (status?.color_status) {
+      case "yellow":
+        return "bg-gradient-to-r from-yellow-400 to-yellow-600";
+      case "red":
+        return "bg-gradient-to-r from-red-400 to-red-600";
+      case "green":
+      default:
+        return "bg-gradient-to-r from-red-400 to-red-600";
+    }
+  };
+
+  // Get status message
+  const getStatusMessage = () => {
+
+    return faceData?.[4]?.scanning_msg || "We Welcome You!";
+  };
+
+  // Check if this is an error response
+  const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
+
+  // Show page loader
+  if (pageLoader) {
     return (
-      <div
+      <div >
+       
+      </div>
+    );
+  }
+
+  return (
+    <>
+    {
+      userNotFound? (
+         <div
         onClick={() => {
           console.log("🔄 FaceScannerDetails userNotFound clicked, calling onRedirect");
           onRedirect();
@@ -188,132 +214,80 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
           </div>
         </div>
       </div>
-    );
-  }
+      ):(
 
-  // Get gradient background color based on status
-  const getBackgroundColor = () => {
-    const status = faceData?.[4];
-    switch (status?.color_status) {
-      case "yellow":
-        return "bg-gradient-to-r from-yellow-400 to-yellow-600";
-      case "red":
-        return "bg-gradient-to-r from-red-400 to-red-600";
-      case "green":
-      default:
-        return "bg-gradient-to-r from-green-400 to-green-600";
-    }
-  };
-
-  // Get status message
-  const getStatusMessage = () => {
-    // Check if this is an error response
-    const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
-
-    if (isErrorResponse) {
-      return faceData[0]?.scanning_msg || "You have not registered yet";
-    }
-
-    return faceData?.[4]?.scanning_msg || "We Welcome You!";
-  };
-
-  // Check if this is an error response
-  const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
-
-  return (
-    <div
-      onClick={() => {
-        console.log("🔄 FaceScannerDetails clicked, calling onRedirect");
-        onRedirect();
-      }}
-      className={`flex flex-col w-full max-w-md mx-auto bg-white rounded-2xl overflow-hidden shadow-xl transition-transform duration-200 ${
-        isErrorResponse ? "cursor-pointer hover:scale-105 active:scale-95" : ""
-      }`}
-    >
-      {/* User Image Section - Full width rectangular */}
-      <div className="relative w-full h-80 bg-gray-100">
-        {isErrorResponse ? (
-          // Show question mark icon for error responses
-          <div className="w-full h-full flex items-center justify-center bg-gray-200">
-            <svg
-              className="w-32 h-32 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+        <div
+          onClick={() => {
+            console.log("🔄 FaceScannerDetails clicked, calling onRedirect");
+            onRedirect();
+          }}
+          className={`flex flex-col w-full max-w-md mx-auto bg-white rounded-2xl overflow-hidden shadow-xl transition-transform duration-200 `}
+        >
+          {/* User Image Section - Full width rectangular */}
+          <div className="relative w-full h-80 bg-gray-100">
+            
+              <>
+                {imageLoading && (
+                  <div className="w-full h-full flex items-center justify-center absolute inset-0 bg-gray-200">
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                  </div>
+                )}
+                <Image
+                  width={400}
+                  height={200}
+                  src={imageLoadError ? "/assets/images/user-img.jpg" : userImg}
+                  className={`w-full h-full object-cover transition-opacity duration-300 ${
+                    imageLoading ? "opacity-0" : "opacity-100"
+                  } ${isParticipantBlocked() ? "grayscale" : ""}`}
+                  alt="User Profile"
+                  onError={handleImageError}
+                  onLoad={handleImageLoad}
+                  unoptimized={true}
+                  priority={false}
+                  loader={({ src }) => {
+                    // Custom loader to handle external URLs
+                    console.log("Image loader called with src:", src);
+                    return src;
+                  }}
+                />
+              </>
+            
           </div>
-        ) : (
-          <>
-            {imageLoading && (
-              <div className="w-full h-full flex items-center justify-center absolute inset-0 bg-gray-200">
-                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-              </div>
-            )}
-            <Image
-              width={400}
-              height={200}
-              src={imageLoadError ? "/assets/images/user-img.jpg" : userImg}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
-                imageLoading ? "opacity-0" : "opacity-100"
-              } ${isParticipantBlocked() ? "grayscale" : ""}`}
-              alt="User Profile"
-              onError={handleImageError}
-              onLoad={handleImageLoad}
-              unoptimized={true}
-              priority={false}
-              loader={({ src }) => {
-                // Custom loader to handle external URLs
-                console.log("Image loader called with src:", src);
-                return src;
-              }}
-            />
-          </>
-        )}
-      </div>
-
-      {/* Status Background Section */}
-      <div className={`${getBackgroundColor()} px-6 pt-0 pb-8`}>
-        <div className="bg-amber-900 text-black px-4 py-2 mx-2 mb-2  text-center">
-          <p className="text-base font-semibold">
-            {isErrorResponse ? "Scanner System" : faceData?.[0]?.event_title || "Event Name"}
-          </p>
+          
+          <div className={`${getBackgroundColor()} px-6 pt-0 pb-8`}>
+            <div className="bg-amber-900 text-black px-4 py-2 mx-2 mb-2  text-center">
+              <p className="text-base font-semibold">
+                {isErrorResponse ? "Scanner System" : faceData?.[0]?.event_title || "Event Name"}
+              </p>
+            </div>        
+            <h1 className="text-center text-2xl font-bold mb-4 text-black capitalize">{getUserName()}</h1>
+    
+            
+            <div className="flex items-center justify-center gap-3 mb-6 text-black">
+              {isErrorResponse ? (            
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (            
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              <span className="text-lg font-medium text-black">{getStatusMessage()}</span>
+            </div>
+          </div>
         </div>
-        {/* User Name */}
-        <h1 className="text-center text-2xl font-bold mb-4 text-black capitalize">{getUserName()}</h1>
-
-        {/* Status Message with Icon */}
-        <div className="flex items-center justify-center gap-3 mb-6 text-black">
-          {isErrorResponse ? (
-            // Show X icon for error responses
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-          ) : (
-            // Show check icon for success responses
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          )}
-          <span className="text-lg font-medium text-black">{getStatusMessage()}</span>
-        </div>
-      </div>
-    </div>
+      )
+    }
+    </>
   );
 };
 

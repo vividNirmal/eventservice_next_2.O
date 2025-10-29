@@ -65,11 +65,9 @@ export async function postRequest(path, data) {
   
   // Prepare body based on data type
   let body;
-  if (data instanceof FormData) {
-    // For FormData, don't set Content-Type (browser sets it with boundary)
+  if (data instanceof FormData) {    
     body = data;
-  } else {
-    // For regular objects, stringify and set JSON content type
+  } else {    
     headers["Content-Type"] = "application/json";
     body = JSON.stringify(data);
   }
@@ -363,3 +361,108 @@ export async function SacnnerGet(path) {
       };
     });
 }
+
+export async function attengessPostRequest(path, data) { 
+  const token = getToken();
+  
+  if (!token) {
+    console.error("❌ No authentication token found");
+    return {
+      error: 'No authentication token. Please login again.',
+      success: false,
+      code: 'NO_TOKEN'
+    };
+  }
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  
+  if (!(data instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  try {
+    console.log("📡 Making request to:", `${baseURL}/${path}`);
+    
+    const response = await fetch(`${baseURL}/${path}`, {
+      method: "POST",
+      headers: headers,
+      body: data,
+    });
+    let result;
+    try {
+      result = await response.json();
+      console.log("📡 Parsed JSON result:", result);
+    } catch (jsonErr) {      
+      return {
+        error: `Invalid response format: ${response.statusText}`,
+        status: response.status,
+        success: false,
+        code: 'INVALID_JSON'
+      };
+    }
+
+    // FIX: Check if HTTP response was not ok (4xx, 5xx)
+    if (!response.ok) {      
+      return {
+        error: result?.message?.message || result?.message || result?.error || `HTTP ${response.status}: ${response.statusText}`,
+        status: response.status,
+        code: result?.code || 'HTTP_ERROR',
+        success: false,
+        errorJson: result
+      };
+    }
+
+    // FIX: Check if API returned an error in the response body
+    if (result?.error || result?.code === 'INTERNAL_SERVER_ERROR') {      
+      return {
+        error: result?.message?.message || result?.message || result?.error || 'Unknown error occurred',
+        status: response.status,
+        code: result?.code || 'API_ERROR',
+        success: false,
+        message: result?.message || null,
+        errorJson: result
+      };
+    }
+
+    // FIX: For successful responses, ensure status is set correctly
+    if (result?.status === 1 || result?.success === true) {      
+      return {
+        ...result,
+        success: true
+      };
+    }
+
+    // FIX: If status is 0 but no error flag, still treat as error
+    if (result?.status === 0) {
+      console.log("⚠️ Status 0 response (error state)");
+      return {
+        status: 0,
+        success: false,
+        error: result?.message || "Verification failed",
+        errorJson: result
+      };
+    }
+
+    // Fallback: Return as is if structure doesn't match expected
+    console.log("⚠️ Unexpected response structure:", result);
+    return {
+      ...result,
+      success: result?.status === 1
+    };
+
+  } catch (error) {
+    console.error('❌ Network or other error:', error);
+    console.error('❌ Error type:', error?.name);
+    console.error('❌ Error message:', error?.message);
+    
+    return {
+      error: error?.message || 'Network error. Please check your connection and try again.',
+      success: false,
+      code: 'NETWORK_ERROR',
+      networkError: error
+    };
+  }
+}
+
