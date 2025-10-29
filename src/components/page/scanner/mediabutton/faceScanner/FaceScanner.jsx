@@ -1,10 +1,10 @@
+// FaceScanner.jsx - UPDATED
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 import { Button } from "@/components/ui/button";
 import { SwitchCameraIcon, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
-// Preload models once at module level
 let modelsLoadedPromise = null;
 const preloadModels = () => {
   if (!modelsLoadedPromise) {
@@ -17,7 +17,7 @@ const preloadModels = () => {
         return true;
       })
       .catch((error) => {
-        console.error("❌ Error preloading face detection models:", error);
+        console.error("âŒ Error preloading face detection models:", error);
         toast.error("Failed to load face detection models");
         return false;
       });
@@ -25,7 +25,6 @@ const preloadModels = () => {
   return modelsLoadedPromise;
 };
 
-// Preload models when module is imported
 preloadModels();
 
 const FaceScanner = ({
@@ -35,10 +34,12 @@ const FaceScanner = ({
   faceNotmatch = false,
   onManualCapture,
   scannerType = 0,
+  captureMode = "manual", // NEW: capture mode prop
 }) => {
   const videoRef = useRef(null);
   const intervalIdRef = useRef(null);
   const streamRef = useRef(null);
+  const autoCaptureTimeoutRef = useRef(null); // NEW: for auto capture timeout
   const [facingMode, setFacingMode] = useState("user");
   const [isLoading, setIsLoading] = useState(true);
   const [hasCamera, setHasCamera] = useState(false);
@@ -47,7 +48,6 @@ const FaceScanner = ({
   const [modelsLoaded, setModelsLoaded] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
 
-  // Custom usePrevious hook to track previous facingMode
   const usePrevious = (value) => {
     const ref = useRef();
     useEffect(() => {
@@ -57,13 +57,12 @@ const FaceScanner = ({
   };
   const previousFacingMode = usePrevious(facingMode);
 
-  // Stop video stream
   const stopVideo = useCallback(() => {
-    console.log("🛑 Stopping video stream");
+    console.log("ðŸ›' Stopping video stream");
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => {
         track.stop();
-        console.log("🛑 Camera track stopped:", track.kind);
+        console.log("ðŸ›' Camera track stopped:", track.kind);
       });
       streamRef.current = null;
     }
@@ -73,18 +72,17 @@ const FaceScanner = ({
     setVideoReady(false);
   }, []);
 
-  // Start video stream
   const startVideo = useCallback(async () => {
     try {
-      console.log("🎥 Starting video with facing mode:", facingMode);
+      console.log("ðŸŽ¥ Starting video with facing mode:", facingMode);
       setDebugInfo("Requesting camera access...");
 
-      stopVideo(); // Stop any existing stream
+      stopVideo();
 
       const constraints = {
         video: {
           facingMode,
-          width: { ideal: 480 }, // Reduced resolution for faster initialization
+          width: { ideal: 480 },
           height: { ideal: 360 },
         },
       };
@@ -108,7 +106,7 @@ const FaceScanner = ({
           };
 
           const handleError = (error) => {
-            console.error("❌ Video error:", error);
+            console.error("âŒ Video error:", error);
             video.removeEventListener("loadeddata", handleLoadedData);
             video.removeEventListener("error", handleError);
             reject(error);
@@ -118,18 +116,18 @@ const FaceScanner = ({
           video.addEventListener("error", handleError);
 
           video.play().catch((e) => {
-            console.log("⚠️ Video autoplay failed:", e.message);
+            console.log("âš ï¸ Video autoplay failed:", e.message);
           });
         });
       } else {
-        console.error("Video element not available")
+        console.error("Video element not available");
       }
     } catch (err) {
-      console.error("❌ Camera access error:", err);
+      console.error("âŒ Camera access error:", err);
       setHasCamera(false);
       setVideoReady(false);
       setDebugInfo("Camera access failed");
-      
+
       let errorMessage = "Camera access denied";
       if (err.name === "NotAllowedError") {
         errorMessage = "Please allow camera access and refresh the page";
@@ -142,7 +140,6 @@ const FaceScanner = ({
     }
   }, [facingMode, stopVideo, onCameraError]);
 
-  // Face detection function (for display purposes only)
   const detectFaces = useCallback(async () => {
     if (!videoRef.current || !videoReady || videoRef.current.readyState !== 4) {
       return;
@@ -165,26 +162,24 @@ const FaceScanner = ({
         setDebugInfo("Position your face in the scanner");
       }
     } catch (error) {
-      console.error("❌ Face detection error:", error);
+      console.error("âŒ Face detection error:", error);
       setDebugInfo("Face detection error");
     }
   }, [videoReady]);
 
-  // Start face detection
   const startFaceDetection = useCallback(() => {
     if (intervalIdRef.current) {
       clearInterval(intervalIdRef.current);
     }
 
     if (!modelsLoaded || !videoReady) {
-      console.log("⚠️ Cannot start face detection - models or video not ready");
+      console.log("âš ï¸ Cannot start face detection - models or video not ready");
       return;
     }
     setDebugInfo("Face detection active");
-    intervalIdRef.current = setInterval(detectFaces, 300); // Reduced from 500ms to 300ms
+    intervalIdRef.current = setInterval(detectFaces, 300);
   }, [modelsLoaded, videoReady, detectFaces]);
 
-  // Capture image from video
   const captureImage = useCallback((video) => {
     try {
       const canvas = document.createElement("canvas");
@@ -192,14 +187,37 @@ const FaceScanner = ({
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext("2d");
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      return canvas.toDataURL("image/jpeg", 0.7); // Reduced quality for smaller size
+      return canvas.toDataURL("image/jpeg", 0.7);
     } catch (error) {
-      console.error("❌ Error capturing image:", error);
+      console.error("âŒ Error capturing image:", error);
       return null;
     }
   }, []);
 
-  // Initialize the scanner
+  // NEW: Auto capture effect
+  useEffect(() => {
+    if (captureMode === "auto" && faceDetected && allowScan && videoReady) {
+      if (autoCaptureTimeoutRef.current) {
+        clearTimeout(autoCaptureTimeoutRef.current);
+      }
+
+      autoCaptureTimeoutRef.current = setTimeout(() => {
+        if (videoRef.current && faceDetected) {
+          const image = captureImage(videoRef.current);
+          if (image) {
+            onManualCapture({ image });
+          }
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (autoCaptureTimeoutRef.current) {
+        clearTimeout(autoCaptureTimeoutRef.current);
+      }
+    };
+  }, [captureMode, faceDetected, allowScan, videoReady, captureImage, onManualCapture]);
+
   useEffect(() => {
     let isMounted = true;
     let safetyTimeout;
@@ -209,18 +227,16 @@ const FaceScanner = ({
       setIsLoading(true);
 
       try {
-        // Wait for preloaded models
         const modelsReady = await modelsLoadedPromise;
         if (!isMounted || !modelsReady) return;
         setModelsLoaded(true);
 
-        // Start video stream
         await startVideo();
         if (!isMounted) return;
 
         setIsLoading(false);
       } catch (error) {
-        console.error("❌ Scanner initialization failed:", error);
+        console.error("âŒ Scanner initialization failed:", error);
         if (isMounted) {
           setIsLoading(false);
           setHasCamera(false);
@@ -228,7 +244,6 @@ const FaceScanner = ({
       }
     };
 
-    // Safety timeout reduced to 5 seconds
     safetyTimeout = setTimeout(() => {
       if (isMounted) {
         setIsLoading(false);
@@ -242,11 +257,13 @@ const FaceScanner = ({
       isMounted = false;
       clearTimeout(safetyTimeout);
       clearInterval(intervalIdRef.current);
+      if (autoCaptureTimeoutRef.current) {
+        clearTimeout(autoCaptureTimeoutRef.current);
+      }
       stopVideo();
     };
   }, [startVideo]);
 
-  // Effect to handle camera switching only when facingMode actually changes
   useEffect(() => {
     if (previousFacingMode !== undefined && previousFacingMode !== facingMode) {
       startVideo()
@@ -259,7 +276,6 @@ const FaceScanner = ({
     }
   }, [facingMode, previousFacingMode, modelsLoaded, videoReady, startFaceDetection, startVideo]);
 
-  // Effect to start face detection when both models and video are ready
   useEffect(() => {
     if (modelsLoaded && videoReady && !isLoading) {
       startFaceDetection();
@@ -270,32 +286,27 @@ const FaceScanner = ({
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   }, []);
 
-  // Manual capture function
   const handleManualCapture = useCallback(() => {
-    
     if (!videoRef.current || !videoReady) {
       toast.error("Camera not ready. Please wait.");
       return;
     }
 
     const image = captureImage(videoRef.current);
-    
-    if (image ) {
+
+    if (image) {
       onManualCapture({ image });
     } else {
       toast.error("Failed to capture image. Please try again.");
     }
-  }, [videoReady, onManualCapture, captureImage, allowScan]);
+  }, [videoReady, onManualCapture, captureImage]);
 
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative rounded-xl overflow-hidden w-[200px] h-[300px] mx-auto border-8 border-solid border-white/30 bg-gray-900">
         <video
           ref={(el) => {
-            videoRef.current = el;
-            if (el) {
-              console.log("📹 Video element mounted successfully");
-            }
+            videoRef.current = el;            
           }}
           autoPlay
           playsInline
@@ -335,13 +346,12 @@ const FaceScanner = ({
               <SwitchCameraIcon />
             </Button>
 
-            {/* Face detection indicator */}
             <div
-              className={`absolute top-2 right-2 w-3 h-3 rounded-full z-20 ${faceDetected ? "bg-green-500" : "bg-red-500"
-                }`}
+              className={`absolute top-2 right-2 w-3 h-3 rounded-full z-20 ${
+                faceDetected ? "bg-green-500" : "bg-red-500"
+              }`}
             ></div>
 
-            {/* Video ready indicator */}
             {!videoReady && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
                 <div className="text-white text-xs">Preparing camera...</div>
@@ -352,12 +362,10 @@ const FaceScanner = ({
               src="/assets/images/mask-image.svg"
               className="!w-[75%] h-auto block m-auto absolute z-20 top-[100px] left-2/4 -translate-x-2/4 opacity-50"
               alt="mask"
-              loading="lazy" // Added to address LCP warning
+              loading="lazy"
             />
 
-            {/* Face detection status */}
             <div className="absolute bottom-2 left-2 right-2 z-20">
-              
               {faceNotmatch && (
                 <p className="text-xs mt-1 px-2 py-1 bg-orange-500/80 text-white rounded">
                   Face not recognized - try again
@@ -368,8 +376,8 @@ const FaceScanner = ({
         )}
       </div>
 
-      {/* Check In Button */}
-      {hasCamera && videoReady && (
+      {/* UPDATED: Only show button in manual mode */}
+      {hasCamera && videoReady && captureMode === "manual" && (
         <Button
           onClick={handleManualCapture}
           disabled={!allowScan}

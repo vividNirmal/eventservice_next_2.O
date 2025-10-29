@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import FaceScanner from "./FaceScanner";
 import FaceScannerDetails from "./FaceScannerDetails";
 import { postRequest, userPostRequest } from "@/service/viewService";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
   const [faceData, setFaceData] = useState(null);
@@ -16,17 +14,18 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
   const [loader, setLoader] = useState(false);
   const [faceError, setFaceError] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
-  const [scannerType, setScannerType] =useState(null)
-  const scannerInputRef = useRef(null);  
+  const [scannerType, setScannerType] = useState(null);
+  const [captureMode, setCaptureMode] = useState("manual"); // NEW: capture mode state
+  const scannerInputRef = useRef(null);
+
   useEffect(() => {
-    console.log(eventData);
     setStepInner(1);
     setTimeout(() => {
       scannerInputRef.current?.focus();
     }, 500);
-    const scanner_data = JSON.parse( sessionStorage.getItem("scannerloginToken"))
-    if (scanner_data){
-      setScannerType(scanner_data?.type)
+    const scanner_data = JSON.parse(sessionStorage.getItem("scannerloginToken"));
+    if (scanner_data) {
+      setScannerType(scanner_data?.type);
     }
   }, []);
 
@@ -45,8 +44,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
     }
   };
 
-  const handleRedirate = () => {
-    console.log("🔄 Resetting scanner to step 1...");
+  const handleRedirate = () => {    
     setFaceData(null);
     setFaceImage(null);
     setScanCompleted(false);
@@ -69,20 +67,13 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
 
   const faceScannerData = async (event) => {
     try {
-      console.log("🎯 faceScannerData called with event:", event);
-      const image = event?.image;
-      if (!image) {
-        console.log("❌ No image in event");
-        return;
-      }
 
-      console.log("📸 Face captured, processing image...");
-      setFaceImage(image);
-      
-      // Trigger face verification immediately when manually captured
-      console.log("📸 Image captured, starting verification...");
+      const image = event?.image;
+      if (!image) {        
+        return;
+      }      
+      setFaceImage(image);      
       await handleScanFace(image);
-      
     } catch (error) {
       console.error(
         "Error processing image:",
@@ -92,80 +83,9 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
     }
   };
 
-  const verifyFaceAutomatically = async (faceImageFile) => {
-    if (loader || faceLoader) {
-      console.log("🔄 Verification already in progress, skipping...");
-      return;
-    }
-
-    console.log("🚀 Starting automatic face verification...");
-    setLoader(true);
-    setStopScanner(true);
-    setFaceLoader(true);
-
-    try {
-      console.log("🔄 Submitting face for verification...");
-      console.log("📸 Face image size:", faceImageFile?.size || "Unknown");
-      console.log("🎪 Event ID:", eventData._id);
-      console.log("🔧 Scanner type:", scannerToken.type);
-
-      const formData = new FormData();
-      formData.append("event_id", eventData._id);
-      formData.append("file", faceImageFile);
-      formData.append("scanner_type", scannerType);
-
-      const response = await userPostRequest("scan-participant-face", formData);
-
-      console.log("📡 [AUTO] Face verification response:", response);
-      console.log("📡 [AUTO] Response status:", response.status);
-      console.log("📡 [AUTO] Response data:", response.data);
-
-      if (response.status === 1 && response.data) {
-        console.log("✅ Face verification successful");
-        setFaceData(response.data);
-        setScanCompleted(true);
-        setStopScanner(true);
-        setStepInner(2);
-      } else if (response.status === 0) {
-        // Handle error responses like "You have not registered yet"
-        console.log("❌ [AUTO] Face verification failed:", response.message);
-        const errorData = response.data || [{ 
-          color_status: response.data?.[0]?.color_status || "red",
-          scanning_msg: response.message || "Face verification failed"
-        }];
-        console.log("📡 [AUTO] Setting error faceData:", errorData);
-        setFaceData(errorData);
-        setScanCompleted(false); // Keep scanner active for error responses
-        setStopScanner(false); 
-        setFaceError(false); // Clear any previous face errors
-        console.log("📡 [AUTO] Switching to step 2 for error display");
-        setStepInner(2);
-      } else {
-        console.log("❌ Face verification failed:", response.message);
-        setFaceError(true);
-        toast.error(response.message || "Face not recognized. Please try again.");
-        setTimeout(() => {
-          setStopScanner(false);
-          setFaceError(false);
-        }, 1000); // Reduced from 3000ms
-      }
-    } catch (error) {
-      console.error("❌ Face verification error:", error);
-      setFaceError(true);
-      // toast.error("Face verification failed. Please try again.");
-      setTimeout(() => {
-        setStopScanner(false);
-        setFaceError(false);
-      }, 1000); // Reduced from 3000ms
-    } finally {
-      setLoader(false);
-      setFaceLoader(false);
-    }
-  };
-
   const handleScanFace = async (imageData = null) => {
     const imageToProcess = imageData || faceImage;
-    
+
     if (!imageToProcess) {
       setFaceError(true);
       toast.error("Please position your face in the camera to capture an image");
@@ -174,7 +94,6 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
 
     let faceImageFile;
     try {
-      // Convert image data to File object
       if (imageToProcess.startsWith("blob:") || imageToProcess.startsWith("http")) {
         const resp = await fetch(imageToProcess);
         const blob = await resp.blob();
@@ -215,7 +134,6 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
     setFaceLoader(true);
 
     try {
-
       const formData = new FormData();
       formData.append("event_id", eventData._id);
       formData.append("file", faceImageFile);
@@ -228,25 +146,29 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
         setScanCompleted(true);
         setStopScanner(true);
         setStepInner(2);
-      } else if (response.status === 0) {        
-        
-        const errorData = response.data || [{ 
-          color_status: response.data?.[0]?.color_status || "red",
-          scanning_msg: response.message || "Face verification failed"
-        }];
+      } else if (response.status === 0) {
+        const errorData = response.data || [
+          {
+            color_status: response.data?.[0]?.color_status || "red",
+            scanning_msg: response.message || "Face verification failed",
+          },
+        ];
         setFaceData(errorData);
-        setScanCompleted(false); // Keep scanner active for error responses
-        setStopScanner(false); 
+        setScanCompleted(false);
+        setStopScanner(false);
         setFaceError(false);
-        setStepInner(2);        
+        setStepInner(2);
       } else {
-        console.log("❌ Face verification failed:", response.message);
+        console.log("âŒ Face verification failed:", response.message);
         setFaceError(true);
       }
     } catch (error) {
-      console.error("❌ Face verification error:", error);
+      console.error("âŒ Face verification error:", error);
       setFaceError(true);
-    } 
+    } finally {
+      setLoader(false);
+      setFaceLoader(false);
+    }
   };
 
   const qrScannerData = (data) => {
@@ -289,33 +211,36 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
       scannerInputRef.current.focus();
     }
   };
-  
-  
+
   return (
     <>
       {stepInner === 1 && (
         <div className="w-full">
+          {/* NEW: Capture Mode Toggle Switch */}
+          <div className="mb-4 flex justify-center">
+            <button
+              onClick={() => setCaptureMode(captureMode === "manual" ? "auto" : "manual")}
+              className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors duration-300 ${
+                captureMode === "manual" ? "bg-red-500" : "bg-green-500"
+              }`}
+            >
+              <span
+                className={`inline-block h-8 w-8 transform rounded-full bg-white transition-transform duration-300 ${
+                  captureMode === "manual" ? "translate-x-1" : "translate-x-11"
+                }`}
+              />
+            </button>
+          </div>
+
           <FaceScanner
             allowScan={!stopScanner && !faceLoader && !loader}
             onCameraError={handleCameraError}
             onFaceDetected={faceScannerData}
             onManualCapture={faceScannerData}
-            faceNotmatch={faceError}            
+            faceNotmatch={faceError}
+            scannerType={scannerType}
+            captureMode={captureMode}
           />
-
-          {/* {faceLoader && (
-            <div className="flex items-center justify-center mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-500 mr-3" />
-              <div className="text-center">
-                <span className="text-blue-700 font-medium block">
-                  Verifying face and marking attendance...
-                </span>
-                <span className="text-blue-600 text-sm">
-                  Please wait while we process your scan
-                </span>
-              </div>
-            </div>
-          )} */}
 
           {faceError && (
             <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
