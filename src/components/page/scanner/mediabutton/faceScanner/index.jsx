@@ -15,7 +15,7 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
   const [faceError, setFaceError] = useState(false);
   const [scanCompleted, setScanCompleted] = useState(false);
   const [scannerType, setScannerType] = useState(null);
-  const [captureMode, setCaptureMode] = useState("manual"); // NEW: capture mode state
+  const [captureMode, setCaptureMode] = useState(true); // NEW: capture mode state
   const scannerInputRef = useRef(null);
 
   useEffect(() => {
@@ -215,9 +215,8 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
   return (
     <>
       {stepInner === 1 && (
-        <div className="w-full">
-          {/* NEW: Capture Mode Toggle Switch */}
-          <div className="mb-4 flex justify-center">
+        <div className="w-full">          
+          {/* <div className="mb-4 flex justify-center">
             <button
               onClick={() => setCaptureMode(captureMode === "manual" ? "auto" : "manual")}
               className={`relative inline-flex h-10 w-20 items-center rounded-full transition-colors duration-300 ${
@@ -230,6 +229,20 @@ const FaceComponent = ({ eventData: initialEventData, onCameraError }) => {
                 }`}
               />
             </button>
+          </div> */}
+
+           <div className="w-full flex flex-wrap items-center justify-end gap-3 h-auto absolute top-5 right-12 px-4">
+            <span className="text-white text-sm">Auto</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={captureMode}
+                onChange={(e) => setCaptureMode(e.target.checked)}
+              />
+              <div className="group peer bg-white rounded-full duration-300 w-12 h-6 ring-2 ring-primaryBlue after:duration-300 after:bg-black peer-checked:after:bg-green-600 peer-checked:ring-green-600 after:rounded-full after:absolute after:h-5 after:w-5 after:top-1/2 after:-translate-y-1/2 after:left-[3px] after:flex after:justify-center after:items-center peer-checked:after:translate-x-[22px]" />
+            </label>
+            <span className="text-white text-sm">Manual</span>
           </div>
 
           <FaceScanner

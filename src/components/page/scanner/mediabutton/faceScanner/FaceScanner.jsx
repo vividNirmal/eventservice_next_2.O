@@ -34,7 +34,7 @@ const FaceScanner = ({
   faceNotmatch = false,
   onManualCapture,
   scannerType = 0,
-  captureMode = "manual", // NEW: capture mode prop
+  captureMode = false, // NEW: capture mode prop
 }) => {
   const videoRef = useRef(null);
   const intervalIdRef = useRef(null);
@@ -196,7 +196,7 @@ const FaceScanner = ({
 
   // NEW: Auto capture effect
   useEffect(() => {
-    if (captureMode === "auto" && faceDetected && allowScan && videoReady) {
+    if (!captureMode  && faceDetected && allowScan && videoReady) {
       if (autoCaptureTimeoutRef.current) {
         clearTimeout(autoCaptureTimeoutRef.current);
       }
@@ -377,7 +377,7 @@ const FaceScanner = ({
       </div>
 
       {/* UPDATED: Only show button in manual mode */}
-      {hasCamera && videoReady && captureMode === "manual" && (
+      {hasCamera && videoReady && captureMode  && (
         <Button
           onClick={handleManualCapture}
           disabled={!allowScan}
