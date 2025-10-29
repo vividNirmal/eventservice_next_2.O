@@ -36,11 +36,9 @@ import {
 } from "@/service/viewService";
 import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
-import { EBadgeSettingFormSheet } from "./EBadgeSettingFormSheet";
-import { EBadgeEditor } from "./eBadgeEditor";
+import { PaperBadgeSettingFormSheet } from "./paperBadgeSettingFormSheet";
 
-
-const EBadgeSettingList = ({ eventId }) => {
+const PaperBadgeSettingList = ({ eventId }) => {
   const router = useRouter();
   const [settings, setSettings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -65,7 +63,6 @@ const EBadgeSettingList = ({ eventId }) => {
 
   useEffect(() => {
     fetchSettings();
-    fetchTemplates();
   }, [currentPage, selectedLimit, searchTerm]);
 
   const fetchSettings = async () => {
@@ -78,58 +75,45 @@ const EBadgeSettingList = ({ eventId }) => {
         ...(searchTerm && { search: searchTerm }),
       });
 
-      const response = await getRequest(`get-e-badge-settings?${params}`);
+      const response = await getRequest(`get-paper-badge-settings?${params}`);
 
       if (response.status === 1) {
         setSettings(response.data.settings || []);
         setTotalPages(response.data.pagination?.totalPages || 1);
         setTotalCount(response.data.pagination?.totalData || 0);
       } else {
-        toast.error(response?.message || "Failed to fetch e-badge settings");
+        toast.error(response?.message || "Failed to fetch paper badge settings");
       }
     } catch (error) {
-      console.error("Error fetching e-badge settings:", error);
-      toast.error("Failed to fetch e-badge settings");
+      console.error("Error fetching paper badge settings:", error);
+      toast.error("Failed to fetch paper badge settings");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchTemplates = async () => {
-    try {
-      
-      const response = await getRequest(`get-badge-template-by-eventid/${eventId}`)
-      if (response.status === 1) {
-        setTemplates(response.data.templates || [])
-      }
-    } catch (error) {
-      console.error("Error fetching templates:", error)
-    }
-  }
   const handleCreateSetting = async (data) => {
     setIsCreating(true);
     try {
       const payload = {
         name: data.name,
-        templateId: data.templateId,
         ticketIds: data.ticketIds,
-        downloadOption: data.downloadOption,
         eventId: eventId,
         companyId: localStorage.getItem("companyId"),
       };
 
-      const response = await postRequest(`create-e-badge-setting`, payload);
+      const response = await postRequest(`create-paper-badge-setting`, payload);
 
       if (response.status === 1) {
-        toast.success("E-Badge setting created successfully");
+        toast.success("Paper Badge setting created successfully");
         setIsSheetOpen(false);
         fetchSettings();
       } else {
-        toast.error(response?.message || "Failed to create e-badge setting");
+        toast.error(response?.message || "Failed to create paper badge setting");
       }
     } catch (error) {
-      console.error("Error creating e-badge setting:", error);
-      toast.error("Failed to create e-badge setting");
+      console.error("Error creating paper badge setting:", error);
+      toast.error("Failed to create paper badge setting");
     } finally {
       setIsCreating(false);
     }
@@ -142,27 +126,25 @@ const EBadgeSettingList = ({ eventId }) => {
     try {
       const payload = {
         name: data.name,
-        templateId: data.templateId,
         ticketIds: data.ticketIds,
-        downloadOption: data.downloadOption,
       };
 
       const response = await updateRequest(
-        `update-e-badge-setting/${editingSetting._id}`,
+        `update-paper-badge-setting/${editingSetting._id}`,
         payload
       );
 
       if (response.status === 1) {
-        toast.success("E-Badge setting updated successfully");
+        toast.success("Paper Badge setting updated successfully");
         setIsSheetOpen(false);
         setEditingSetting(null);
         fetchSettings();
       } else {
-        toast.error(response?.message || "Failed to update e-badge setting");
+        toast.error(response?.message || "Failed to update paper badge setting");
       }
     } catch (error) {
-      console.error("Error updating e-badge setting:", error);
-      toast.error("Failed to update e-badge setting");
+      console.error("Error updating paper badge setting:", error);
+      toast.error("Failed to update paper badge setting");
     } finally {
       setIsUpdating(false);
     }
@@ -173,20 +155,20 @@ const EBadgeSettingList = ({ eventId }) => {
 
     try {
       const response = await deleteRequest(
-        `delete-e-badge-setting/${settingToDelete._id}`
+        `delete-paper-badge-setting/${settingToDelete._id}`
       );
 
       if (response.status === 1) {
-        toast.success("E-Badge setting deleted successfully");
+        toast.success("Paper Badge setting deleted successfully");
         setIsDeleteDialogOpen(false);
         setSettingToDelete(null);
         fetchSettings();
       } else {
-        toast.error(response?.message || "Failed to delete e-badge setting");
+        toast.error(response?.message || "Failed to delete paper badge setting");
       }
     } catch (error) {
-      console.error("Error deleting e-badge setting:", error);
-      toast.error("Failed to delete e-badge setting");
+      console.error("Error deleting paper badge setting:", error);
+      toast.error("Failed to delete paper badge setting");
     }
   };
 
@@ -241,7 +223,7 @@ const EBadgeSettingList = ({ eventId }) => {
 
   const handleBadgeEditor = (setting) => {
     
-    router.push(`/dashboard/ebadgeSetting/${setting?._id}/builder`);
+    router.push(`/dashboard/paperBadgeSetting/${setting?._id}/builder`);
   };
 
 
@@ -251,9 +233,9 @@ const EBadgeSettingList = ({ eventId }) => {
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
-              <CardTitle>E-Badge Settings</CardTitle>
+              <CardTitle>Paper Badge Settings</CardTitle>
               <CardDescription>
-                Manage e-badge settings for your event
+                Manage paper badge settings for your event
               </CardDescription>
             </div>
             <div className="flex items-center space-x-4">
@@ -323,7 +305,7 @@ const EBadgeSettingList = ({ eventId }) => {
                 ) : settings.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-8">
-                      No e-badge settings found
+                      No paper badge settings found
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -382,8 +364,8 @@ const EBadgeSettingList = ({ eventId }) => {
         </CardContent>
       </Card>
 
-      {/* E-Badge Setting Form Sheet */}
-      <EBadgeSettingFormSheet
+      {/* Paper Badge Setting Form Sheet */}
+      <PaperBadgeSettingFormSheet
         isOpen={isSheetOpen}
         onClose={() => {
           setIsSheetOpen(false);
@@ -395,13 +377,13 @@ const EBadgeSettingList = ({ eventId }) => {
         eventId={eventId}
         title={
           editingSetting
-            ? "Update E-Badge Setting"
-            : "Create E-Badge Setting"
+            ? "Update Paper Badge Setting"
+            : "Create Paper Badge Setting"
         }
         description={
           editingSetting
-            ? "Update your e-badge setting"
-            : "Create a new e-badge setting"
+            ? "Update your paper badge setting"
+            : "Create a new paper badge setting"
         }
         submitButtonText={
           editingSetting ? "Update Setting" : "Create Setting"
@@ -416,11 +398,11 @@ const EBadgeSettingList = ({ eventId }) => {
         }}
         onConfirm={handleDeleteSetting}
         title={`Delete "${settingToDelete?.name}"`}
-        description={`Are you sure you want to delete this e-badge setting? This action cannot be undone.`}
+        description={`Are you sure you want to delete this paper badge setting? This action cannot be undone.`}
       />
     </>
   );
 };
 
-export default EBadgeSettingList;
+export default PaperBadgeSettingList;
 

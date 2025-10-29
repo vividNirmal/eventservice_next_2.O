@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import dynamic from 'next/dynamic';
+import PaperBadgeSettingList from './paperBadgeSetting/paperBadgeSettingList';
 
 // Lazy load components to prevent unnecessary renders
 const EBadgeTemplateList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplateList'), {
@@ -32,6 +33,8 @@ const BadgeManagement = ({ eventId }) => {
         return <EBadgeSettingList eventId={eventId} />;
       case 'badge-category':
         return <BadgeCategoryList eventId={eventId} />;
+      case 'paper-badge-setting':
+        return <PaperBadgeSettingList eventId={eventId} />;
       default:
         return null;
     }
@@ -49,6 +52,7 @@ const BadgeManagement = ({ eventId }) => {
             <TabsList className="mb-2">
               <TabsTrigger value="e-badge" className="px-6">E-Badge Template</TabsTrigger>
               <TabsTrigger value="e-badge-setting" className="px-6">E-Badge Setting</TabsTrigger>
+              <TabsTrigger value="paper-badge-setting" className="px-6">Paper Badge Setting</TabsTrigger>
               <TabsTrigger value="badge-category" className="px-6">Badge Category</TabsTrigger>
             </TabsList>
             

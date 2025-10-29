@@ -386,7 +386,57 @@ const EventHostDetailsPage = ({ eventId }) => {
               className="flex items-center gap-2"
             >
               <Smartphone className="h-4 w-4" />
-              Copy Device URL
+              Copy CheckIn Device URL
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                try {
+                  // Validate event data for device URL
+                  const validation = validateEventForUrl(event, 'device');
+                  if (!validation.isValid) {
+                    const missingFields = validation.missing.join(', ');
+                    toast.error(`Cannot generate device URL. Missing: ${missingFields}`);
+                    console.error('Device URL validation failed:', validation.missing);
+                    return;
+                  }
+
+                  const formData = new FormData();
+                  formData.append("id", event._id);
+                  formData.append("type", "1"); // Check-in type
+
+                  console.log('Requesting clean device URL for event:', event._id);
+                  const config = await postRequest(`generate-clean-device-url`, formData);
+                  console.log('Clean device URL generation response:', config);
+
+                  if (config.status == 1) {
+                    const shortId = config.data.shortId;
+
+                    // Build the clean device URL
+                    const deviceUrl = buildCleanDeviceUrl(shortId);
+                    console.log('Generated clean device URL:', deviceUrl);
+
+                    // Copy to clipboard with fallback
+                    const copySuccess = await copyToClipboard(deviceUrl);
+                    if (copySuccess) {
+                      toast.success("Clean device URL copied to clipboard! Share: " + deviceUrl);
+                    } else {
+                      toast.error("Failed to copy URL to clipboard");
+                    }
+                  } else {
+                    console.error("Error generating clean device URL:", config.message);
+                    toast.error(`Failed to generate device URL: ${config.message || 'Unknown error'}`);
+                  }
+                } catch (err) {
+                  console.error("Failed to generate/copy clean device URL:", err);
+                  toast.error(`Failed to copy device URL: ${err.message || 'Unknown error'}`);
+                }
+              }}
+              className="flex items-center gap-2"
+            >
+              <Smartphone className="h-4 w-4" />
+              Copy Checkout Device URL
             </Button>
             <Button onClick={handleEditEvent} className="flex items-center gap-2">
               <Edit className="h-4 w-4" />
