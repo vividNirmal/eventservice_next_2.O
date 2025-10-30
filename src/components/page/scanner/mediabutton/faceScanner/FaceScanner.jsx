@@ -57,12 +57,10 @@ const FaceScanner = ({
   };
   const previousFacingMode = usePrevious(facingMode);
 
-  const stopVideo = useCallback(() => {
-    console.log("ðŸ›' Stopping video stream");
+  const stopVideo = useCallback(() => {    
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => {
-        track.stop();
-        console.log("ðŸ›' Camera track stopped:", track.kind);
+        track.stop();        
       });
       streamRef.current = null;
     }
@@ -73,8 +71,7 @@ const FaceScanner = ({
   }, []);
 
   const startVideo = useCallback(async () => {
-    try {
-      console.log("ðŸŽ¥ Starting video with facing mode:", facingMode);
+    try {      
       setDebugInfo("Requesting camera access...");
 
       stopVideo();
@@ -116,7 +113,7 @@ const FaceScanner = ({
           video.addEventListener("error", handleError);
 
           video.play().catch((e) => {
-            console.log("âš ï¸ Video autoplay failed:", e.message);
+            console.log("Video autoplay failed:", e.message);
           });
         });
       } else {
@@ -172,8 +169,7 @@ const FaceScanner = ({
       clearInterval(intervalIdRef.current);
     }
 
-    if (!modelsLoaded || !videoReady) {
-      console.log("âš ï¸ Cannot start face detection - models or video not ready");
+    if (!modelsLoaded || !videoReady) {      
       return;
     }
     setDebugInfo("Face detection active");

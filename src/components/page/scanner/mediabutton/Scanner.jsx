@@ -8,8 +8,7 @@ import { postRequest } from "@/service/viewService";
 import QRScannerDetails from "./ScannerDetails";
 
 const Scanner = ({
-  eventId,
-  scannerType = 0,
+  eventId,  
   allowScan = true,
   onQrDetails,
   onPrintChange,
@@ -32,6 +31,7 @@ const Scanner = ({
   const setupInProgressRef = useRef(false);
   const isProcessingRef = useRef(false);
   const currentModeRef = useRef(false); // Track current mode
+  const [scannerType, setScannerType] = useState(null);
 
   // ✅ Load cameras (runs once)
   useEffect(() => {
@@ -40,8 +40,7 @@ const Scanner = ({
         if (!devices.length) {
           toast.error("No camera detected");
           return;
-        }
-        console.log("[Scanner] Available cameras:", devices);
+        }        
         setCameras(devices);
       })
       .catch((err) => {
@@ -52,17 +51,20 @@ const Scanner = ({
 
   // ✅ Handle video element ready state
   useEffect(() => {
+    const scanner_data = JSON.parse(sessionStorage.getItem("scannerloginToken"));
+    if (scanner_data) {
+      setScannerType(scanner_data?.type);
+    }
+
     const video = videoRef.current;
     if (!video) return;
 
-    const handleVideoLoaded = () => {
-      console.log("[Scanner] Video loaded and ready");
+    const handleVideoLoaded = () => {      
       setIsVideoLoaded(true);
       setCameraReady(true);
     };
 
-    const handleVideoPlay = () => {
-      console.log("[Scanner] Video playing");
+    const handleVideoPlay = () => {      
       setCameraReady(true);
     };
 
@@ -87,7 +89,6 @@ const Scanner = ({
   useEffect(() => {
     const handleVisibilityChange = async () => {
       if (document.hidden) {
-        console.log("[Scanner] Tab hidden - pausing scanner");
         if (qrScannerRef.current) {
           try {
             await qrScannerRef.current.pause();
@@ -95,15 +96,13 @@ const Scanner = ({
             console.error("[Scanner] Error pausing:", err);
           }
         }
-      } else {
-        console.log("[Scanner] Tab visible - resuming scanner");
+      } else {        
         await new Promise((resolve) => setTimeout(resolve, 300));
         
         if (qrScannerRef.current && videoRef.current) {
           try {
             await qrScannerRef.current.start();
             setCameraReady(true);
-            console.log("[Scanner] Scanner resumed successfully");
           } catch (err) {
             console.error("[Scanner] Failed to resume:", err);
             // Try to restart completely
@@ -122,7 +121,6 @@ const Scanner = ({
   // ✅ API Call
   const handleQrCheckin = useCallback(async (qrValue) => {
     if (!qrValue || isProcessingRef.current) {
-      console.log("[Scanner] Skipping - already processing or no value");
       return;
     }
     
@@ -150,7 +148,6 @@ const Scanner = ({
         else if (color === "yellow") toast.warning(msg);
         else toast.error(msg);
       } else if (response.status === 0) {
-        console.log("❌ QR verification failed:", response.message);
         const errorData = response.data || [
           {
             color_status: response.data?.[0]?.color_status || "red",
@@ -181,13 +178,11 @@ const Scanner = ({
 
   // ✅ Setup scanner function
   const setupScanner = useCallback(async () => {
-    if (!videoRef.current || !allowScan || cameras.length === 0) {
-      console.log("[Scanner] Cannot setup - missing requirements");
+    if (!videoRef.current || !allowScan || cameras.length === 0) {      
       return;
     }
 
-    if (setupInProgressRef.current) {
-      console.log("[Scanner] Setup already in progress");
+    if (setupInProgressRef.current) {      
       return;
     }
 
@@ -196,8 +191,7 @@ const Scanner = ({
 
     try {
       // Stop and destroy existing scanner
-      if (qrScannerRef.current) {
-        console.log("[Scanner] Stopping existing scanner");
+      if (qrScannerRef.current) {        
         try {
           await qrScannerRef.current.stop();
         } catch (err) {
@@ -208,27 +202,17 @@ const Scanner = ({
       }
 
       // Small delay for cleanup
-      await new Promise((resolve) => setTimeout(resolve, 150));
-
-      console.log(
-        "[Scanner] Creating new scanner - Mode:",
-        currentModeRef.current ? "MANUAL" : "AUTO",
-        "Camera:",
-        cameras[currentCameraIndex]?.label
-      );
-
+      await new Promise((resolve) => setTimeout(resolve, 150));    
       // Create new scanner instance
       qrScannerRef.current = new QrScanner(
         videoRef.current,
         (result) => {
           // Use ref to check current mode (always up to date)
-          if (currentModeRef.current) {
-            console.log("[Scanner] Manual mode - ignoring auto scan");
+          if (currentModeRef.current) {            
             return;
           }
 
-          if (result?.data && !isProcessingRef.current) {
-            console.log("[Scanner] Auto QR detected:", result.data);
+          if (result?.data && !isProcessingRef.current) {            
             handleQrCheckin(result.data);
           }
         },
@@ -242,8 +226,7 @@ const Scanner = ({
       );
 
       // Start camera
-      const cameraId = cameras[currentCameraIndex]?.id;
-      console.log("[Scanner] Starting camera...");
+      const cameraId = cameras[currentCameraIndex]?.id;      
       await qrScannerRef.current.start(cameraId);
 
       // Wait for video to be fully ready
@@ -255,8 +238,7 @@ const Scanner = ({
         await new Promise((resolve, reject) => {
           const checkReady = () => {
             attempts++;
-            if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
-              console.log("[Scanner] Video ready after", attempts, "attempts");
+            if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {              
               resolve();
             } else if (attempts >= maxAttempts) {
               reject(new Error("Video ready timeout"));
@@ -266,9 +248,7 @@ const Scanner = ({
           };
           checkReady();
         });
-      }
-
-      console.log("[Scanner] Camera started successfully");
+      }      
       setCameraReady(true);
       setIsVideoLoaded(true);
     } catch (err) {
@@ -288,8 +268,7 @@ const Scanner = ({
       setupScanner();
     }
 
-    return () => {
-      console.log("[Scanner] Cleanup - stopping scanner");
+    return () => {      
       if (qrScannerRef.current) {
         try {
           qrScannerRef.current.stop();
@@ -305,14 +284,11 @@ const Scanner = ({
 
   // ✅ Update mode ref when printChecked changes (no camera restart)
   useEffect(() => {
-    currentModeRef.current = printChecked;
-    console.log("[Scanner] Mode changed to:", printChecked ? "MANUAL" : "AUTO");
+    currentModeRef.current = printChecked;    
   }, [printChecked]);
 
   // ✅ Manual Scan
-  const handleScanQR = async () => {
-    console.log("[Scanner] Manual scan initiated");
-
+  const handleScanQR = async () => {    
     const video = videoRef.current;
 
     if (!video) {
@@ -356,16 +332,13 @@ const Scanner = ({
         return;
       }
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      console.log("[Scanner] Scanning frame:", canvas.width, "x", canvas.height);
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);      
 
       const result = await QrScanner.scanImage(canvas, {
         returnDetailedScanResult: true,
       });
 
-      if (result?.data) {
-        console.log("[Scanner] Manual scan result:", result.data);
+      if (result?.data) {        
         toast.success("QR Code detected!");
         await handleQrCheckin(result.data);
       } else {
@@ -378,27 +351,20 @@ const Scanner = ({
       setLoading(false);
     }
   };
-
-  // ✅ Toggle camera
+  
   const toggleCamera = async () => {
     if (cameras.length < 2) {
       toast.info("Only one camera available");
       return;
     }
-
-    const nextIndex = (currentCameraIndex + 1) % cameras.length;
-    console.log("[Scanner] Switching to camera:", cameras[nextIndex]?.label);
-
+    const nextIndex = (currentCameraIndex + 1) % cameras.length;    
     setCameraReady(false);
     setIsVideoLoaded(false);
     setCurrentCameraIndex(nextIndex);
   };
-
-  // ✅ Toggle Auto / Manual
+  
   const handleCheckboxChange = (e) => {
-    const isChecked = e.target.checked;
-    console.log("[Scanner] Mode switching to:", isChecked ? "MANUAL" : "AUTO");
-
+    const isChecked = e.target.checked;    
     setPrintChecked(isChecked);
     setClickButtonShow(isChecked);
     onPrintChange?.(isChecked);
@@ -407,8 +373,7 @@ const Scanner = ({
     isProcessingRef.current = false;
   };
 
-  const handleRedirate = () => {
-    console.log("🔄 Resetting scanner to step 1...");
+  const handleRedirate = () => {    
     setScanCompleted(false);
     setStepInner(1);
     setQrError(false);
@@ -430,7 +395,7 @@ const Scanner = ({
                 onChange={handleCheckboxChange}
                 disabled={!cameraReady}
               />
-              <div className="group peer bg-white rounded-full duration-300 w-12 h-6 ring-2 ring-primaryBlue after:duration-300 after:bg-primaryBlue peer-checked:after:bg-green-600 peer-checked:ring-green-600 after:rounded-full after:absolute after:h-5 after:w-5 after:top-1/2 after:-translate-y-1/2 after:left-[3px] after:flex after:justify-center after:items-center peer-checked:after:translate-x-[22px] peer-disabled:opacity-50" />
+              <div className="group peer bg-white rounded-full duration-300 w-12 h-6 ring-2 ring-primaryBlue after:duration-300 after:bg-black peer-checked:after:bg-green-600 peer-checked:ring-green-600 after:rounded-full after:absolute after:h-5 after:w-5 after:top-1/2 after:-translate-y-1/2 after:left-[3px] after:flex after:justify-center after:items-center peer-checked:after:translate-x-[22px] peer-disabled:opacity-50" />
             </label>
             <span className="text-white text-sm">Manual</span>
           </div>
@@ -473,11 +438,7 @@ const Scanner = ({
                 disabled={loading || !cameraReady || !isVideoLoaded}
                 className="uppercase font-semibold block w-fit text-base h-10 px-10 text-indigo-600 hover:text-white rounded-full bg-white border-4 border-indigo-600 duration-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading
-                  ? "Scanning..."
-                  : !cameraReady
-                  ? "Camera Loading..."
-                  : "Scan QR Code"}
+                {loading ? "Scanning...": !cameraReady ? "Camera Loading...": `Check ${scannerType == 0 ? "In" : "Out"}`}
               </Button>
             )}
           </div>

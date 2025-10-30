@@ -213,7 +213,7 @@ const MediaButton = ({ eventData, event_slug }) => {
         <Image
           width={150}
           height={150}
-          src={eventData?.event_sponsor||"/assets/images/Powerdby.png"}
+          src={eventData?.event_logo||"/assets/images/Powerdby.png"}
           className="max-w-36 w-full block h-auto mx-auto rounded-sm"
           alt="Logo"
         />
