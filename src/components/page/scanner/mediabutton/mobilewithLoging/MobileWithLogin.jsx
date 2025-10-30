@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import Details from "../userDetails/Details";
-import Scanner from "../Scanner";
-import { SacnnerPost, userPostRequest } from "@/service/viewService";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import QrPage from "@/components/page/UserParticipation/ParticipationQrcode";
 import FaceScanner from "../faceScanner/FaceScanner";
+import { userPostRequest } from "@/service/viewService";
+import { Input } from "@/components/ui/input";
 
 const MobileWithLogin = ({ onCameraError }) => {
   const [step, setStep] = useState(1);
@@ -89,23 +88,11 @@ const MobileWithLogin = ({ onCameraError }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    // if (!showOtpField) {
-    //   formData.append("email", form.number);
-    //   const res = await SacnnerPost('send-otp',formData) ;
-
-    //   if (res.data.status == 1) {
-    //     toast.success("Success", { description: `Your OTP: ${res.data.otp}` });
-    //     setShowOtpField(true);
-    //   } else {
-    //     toast.error("Error", { description: res.data.message });
-    //   }
-    // } else {
+    const formData = new FormData();   
     const urlParts = window.location.pathname.split("/");
     const eventSlug = urlParts[urlParts.length - 1];
     const type = JSON.parse(sessionStorage.getItem("scannerloginToken"))?.type;
     formData.append("contact", form.number);
-    // formData.append("otp", form.otp);
     formData.append("event_slug", eventSlug);
     formData.append("scanner_type", type);
 
@@ -116,12 +103,18 @@ const MobileWithLogin = ({ onCameraError }) => {
         setEventData(res.data[0])
         setUserData(res.data[1]);
         setStep(3);
-        toast.success("Success", { description: res.data.message });
-      } else {
-        toast.error("Error", { description: res.data.message });
+        toast.success( res.data.message );
+      } else{
+        setForm({ number: "", otp: "" });
+        setShowOtpField(false);
+        resetInput();
+        toast.error(res.error)  
+        setStep(1)              
       }
     } catch (err) {
-      toast.error("Error", { description: err });
+      console.log(err);
+      
+      // toast.error(  err );
     }
     // }
   };
@@ -244,50 +237,57 @@ const MobileWithLogin = ({ onCameraError }) => {
       )}
 
       {step === 2 && (
-        <form className="flex flex-col max-w-md w-full" onSubmit={handleSubmit}>
-          <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto lg:py-0 w-full">
-            <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0">
-              <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-                <div>
-                  <label className="block mb-2 text-sm font-medium text-gray-900">
-                    Mobile Number
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Mobile Number"
-                    value={form.number}
-                    onChange={(e) =>
-                      setForm({ ...form, number: e.target.value })
-                    }
-                    className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                  />
-                </div>
-                {showOtpField && (
-                  <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-900">
-                      OTP
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="OTP"
-                      value={form.otp}
-                      onChange={(e) =>
-                        setForm({ ...form, otp: e.target.value })
-                      }
-                      className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg block w-full p-2.5"
-                    />
-                  </div>
-                )}
-                <button
-                  type="submit"
-                  className="w-full text-white bg-[#2563eb] hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                >
-                  {!showOtpField ? "Continue" : "Next"}
-                </button>
+         <div className="min-h-screen   flex items-center justify-center p-4">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-slate-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+      </div>
+
+      {/* Form Container */}
+      <div className="relative z-10 w-full max-w-md">
+        <div className="backdrop-blur-2xl bg-slate-800/40 border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+          {/* Mobile Number Input with Button in one row */}
+          <div className="flex gap-3 mb-6">
+            <Input
+              type="tel"
+              placeholder="Enter mobile number"
+              value={form.number}
+              onChange={(e) => setForm({ ...form, number: e.target.value })}
+              className="flex-1 bg-slate-700/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
+            />
+            <Button   
+              onClick={handleSubmit}
+              type='submit'
+              className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl border border-cyan-400/30 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
+            >
+              Next
+            </Button>
+          </div>
+
+          {/* OTP Input */}
+          {showOtpField && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="flex gap-3">
+                <Input
+                  type="text"
+                  placeholder="000000"
+                  value={form.otp}
+                  onChange={(e) => setForm({ ...form, otp: e.target.value })}
+                  className="flex-1 bg-slate-700/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:border-blue-400 focus:ring-blue-400/20"
+                />
+                <Button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl border border-blue-400/30 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm whitespace-nowrap">
+                  Verify
+                </Button>
               </div>
             </div>
-          </div>
-        </form>
+          )}
+        </div>
+
+        {/* Footer text */}
+        <p className="text-center text-slate-400 text-sm mt-6">We'll send you a verification code</p>
+      </div>
+    </div>
       )}
 
       {step === 3 && (

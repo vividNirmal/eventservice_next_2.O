@@ -1,4 +1,4 @@
-// FaceScanner.jsx - UPDATED
+// FaceScanner.jsx - UPDATED WITH SAME LOADER
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as faceapi from "face-api.js";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ const preloadModels = () => {
         return true;
       })
       .catch((error) => {
-        console.error("âŒ Error preloading face detection models:", error);
+        console.error("❌ Error preloading face detection models:", error);
         toast.error("Failed to load face detection models");
         return false;
       });
@@ -34,12 +34,12 @@ const FaceScanner = ({
   faceNotmatch = false,
   onManualCapture,
   scannerType = 0,
-  captureMode = false, // NEW: capture mode prop
+  captureMode = false,
 }) => {
   const videoRef = useRef(null);
   const intervalIdRef = useRef(null);
   const streamRef = useRef(null);
-  const autoCaptureTimeoutRef = useRef(null); // NEW: for auto capture timeout
+  const autoCaptureTimeoutRef = useRef(null);
   const [facingMode, setFacingMode] = useState("user");
   const [isLoading, setIsLoading] = useState(true);
   const [hasCamera, setHasCamera] = useState(false);
@@ -103,7 +103,7 @@ const FaceScanner = ({
           };
 
           const handleError = (error) => {
-            console.error("âŒ Video error:", error);
+            console.error("❌ Video error:", error);
             video.removeEventListener("loadeddata", handleLoadedData);
             video.removeEventListener("error", handleError);
             reject(error);
@@ -120,7 +120,7 @@ const FaceScanner = ({
         console.error("Video element not available");
       }
     } catch (err) {
-      console.error("âŒ Camera access error:", err);
+      console.error("❌ Camera access error:", err);
       setHasCamera(false);
       setVideoReady(false);
       setDebugInfo("Camera access failed");
@@ -159,7 +159,7 @@ const FaceScanner = ({
         setDebugInfo("Position your face in the scanner");
       }
     } catch (error) {
-      console.error("âŒ Face detection error:", error);
+      console.error("❌ Face detection error:", error);
       setDebugInfo("Face detection error");
     }
   }, [videoReady]);
@@ -185,14 +185,14 @@ const FaceScanner = ({
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       return canvas.toDataURL("image/jpeg", 0.7);
     } catch (error) {
-      console.error("âŒ Error capturing image:", error);
+      console.error("❌ Error capturing image:", error);
       return null;
     }
   }, []);
 
-  // NEW: Auto capture effect
+  // Auto capture effect
   useEffect(() => {
-    if (!captureMode  && faceDetected && allowScan && videoReady) {
+    if (!captureMode && faceDetected && allowScan && videoReady) {
       if (autoCaptureTimeoutRef.current) {
         clearTimeout(autoCaptureTimeoutRef.current);
       }
@@ -214,6 +214,7 @@ const FaceScanner = ({
     };
   }, [captureMode, faceDetected, allowScan, videoReady, captureImage, onManualCapture]);
 
+  // Camera initialization
   useEffect(() => {
     let isMounted = true;
     let safetyTimeout;
@@ -232,7 +233,7 @@ const FaceScanner = ({
 
         setIsLoading(false);
       } catch (error) {
-        console.error("âŒ Scanner initialization failed:", error);
+        console.error("❌ Scanner initialization failed:", error);
         if (isMounted) {
           setIsLoading(false);
           setHasCamera(false);
@@ -258,7 +259,7 @@ const FaceScanner = ({
       }
       stopVideo();
     };
-  }, [startVideo]);
+  }, [startVideo, stopVideo]);
 
   useEffect(() => {
     if (previousFacingMode !== undefined && previousFacingMode !== facingMode) {
@@ -283,6 +284,11 @@ const FaceScanner = ({
   }, []);
 
   const handleManualCapture = useCallback(() => {
+    if (!allowScan) {
+      toast.error("Please wait, processing...");
+      return;
+    }
+
     if (!videoRef.current || !videoReady) {
       toast.error("Camera not ready. Please wait.");
       return;
@@ -295,7 +301,10 @@ const FaceScanner = ({
     } else {
       toast.error("Failed to capture image. Please try again.");
     }
-  }, [videoReady, onManualCapture, captureImage]);
+  }, [allowScan, videoReady, onManualCapture, captureImage]);
+
+  // UPDATED: Determine if we should show loader
+  const showLoader = isLoading || (!allowScan && hasCamera && videoReady);
 
   return (
     <div className="flex flex-col items-center gap-4">
@@ -311,11 +320,14 @@ const FaceScanner = ({
           style={{ transform: facingMode === "user" ? "scaleX(-1)" : "scaleX(1)" }}
         />
 
-        {isLoading ? (
+        {/* UPDATED: Show loader for initial loading OR when processing (!allowScan) */}
+        {showLoader ? (
           <div className="absolute inset-0 z-30 flex items-center justify-center text-white bg-gray-900">
             <div>
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-              <p className="text-sm">Loading camera...</p>
+              <p className="text-sm">
+                {isLoading ? "Loading camera..." : "Processing..."}
+              </p>
             </div>
           </div>
         ) : !hasCamera ? (
@@ -372,12 +384,16 @@ const FaceScanner = ({
         )}
       </div>
 
-      {/* UPDATED: Only show button in manual mode */}
-      {hasCamera && videoReady && captureMode  && (
+      {/* Button - Shows in capture mode */}
+      {hasCamera && videoReady && captureMode && (
         <Button
           onClick={handleManualCapture}
           disabled={!allowScan}
-          className="bg-white text-black font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+          className={`font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg ${
+            allowScan 
+              ? "bg-white text-black hover:shadow-xl hover:bg-gray-100" 
+              : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-60"
+          }`}
         >
           Check {scannerType == 0 ? "In" : "Out"}
         </Button>

@@ -18,7 +18,7 @@ import { postRequest, userPostRequest } from "@/service/viewService";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
-export default function Attendence() {
+export default function Attendence({shortId}) {
   const [subdomain, setSubdomain] = useState("");
   const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [isValidUrl, setIsValidUrl] = useState(true); // New state for URL validation
@@ -106,7 +106,9 @@ export default function Attendence() {
         // Get key from URL params or localStorage
         const urlKey = searchParams.get("key");
         const storedKey = localStorage.getItem("tempAttendanceKey");
-        const keyToUse = urlKey || storedKey;
+        const keyToUse =  storedKey        
+        
+        console.log(shortId);
         
         // Get event_slug from URL params or localStorage  
         const urlEventSlug = searchParams.get("event_slug");

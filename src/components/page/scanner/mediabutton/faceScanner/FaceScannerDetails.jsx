@@ -10,11 +10,14 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
   const [imageLoading, setImageLoading] = useState(true);
   const [pageLoader, setPageLoader] = useState(true); // Fixed typo
   const [fieldMap, setFieldMap] = useState(null);
+  const [errormsg,setErrorMsg] = useState('User Not Registered')
 
   useEffect(() => {
     if (faceData) {
-      const isErrorResponse =
-        faceData?.length === 1 && faceData[0]?.color_status === "red";
+      console.log(faceData);
+      
+      const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
+      
       if (faceData?.[2]?.map_array) {
         setFieldMap(faceData?.[2].map_array);
       }
@@ -25,6 +28,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
         setUserImg(null);
         setImageLoading(false);
         handleAudioBasedOnStatus();
+        setErrorMsg(faceData[0]?.scanning_msg)
       } else {
         setPageLoader(false);
         let userImage = null;
@@ -85,7 +89,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
 
   // Get user name from dynamic form data
   const getUserName = () => {
-    const userData = qrData?.[1];
+    const userData = faceData?.[1];
     if (userData?.formData && userData?.map_array) {
       const { formData, map_array } = userData;
 
@@ -214,7 +218,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
           <div className="text-center">
             <div className="flex items-center justify-center gap-4 mb-2">
               <h4 className="text-left text-base font-medium">
-                User Not Registered
+                {errormsg}
               </h4>
             </div>
           </div>
