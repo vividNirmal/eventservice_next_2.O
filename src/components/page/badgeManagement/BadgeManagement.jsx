@@ -20,7 +20,7 @@ const PaperBadgeSettingList = dynamic(() => import('./paperBadgeSetting/paperBad
   loading: () => <div className="flex justify-center items-center h-64">Loading paper badge settings...</div>
 });
 
-const BadgeCategoryList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplateList'), {
+const BadgeCategoryList = dynamic(() => import('./badgeCategory/BadgeCategoryList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading badge categories...</div>
 });

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -43,9 +43,20 @@ export const EBadgeTemplateFormSheet = ({
     validationSchema,
     onSubmit: async (values) => {
       await onSubmit(values);
+      // Reset form after successful submission
+      if (!isSubmitting) {
+        resetForm();
+      }
     },
     enableReinitialize: true,
   });
+
+  // Reset form when sheet opens/closes or initialData changes
+  useEffect(() => {
+    if (isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   const handleClose = () => {
     formik.resetForm();
