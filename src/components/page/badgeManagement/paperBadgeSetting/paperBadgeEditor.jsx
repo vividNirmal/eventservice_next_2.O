@@ -39,6 +39,14 @@ const defaultStyleSettings = {
   width: "20mm",
 };
 
+// Paper size configurations
+const paperSizes = [
+  { id: "a4", name: "A4", width: "210mm", height: "297mm" },
+  { id: "a5", name: "A5", width: "148mm", height: "210mm" },
+  { id: "letter", name: "Letter", width: "215.9mm", height: "279.4mm" },
+  { id: "legal", name: "Legal", width: "215.9mm", height: "355.6mm" },
+];
+
 // Predefined HTML template for paper badges without design
 const predefinedPaperBadgeHTML = `
 <div style="width: 93.5mm; height: 122mm; margin: 0 auto; background: white; position: relative; overflow: hidden;">
@@ -60,12 +68,24 @@ const PaperBadgeEditor = ({ params }) => {
   const [selectedFieldId, setSelectedFieldId] = useState(null);
   const [fieldProperties, setFieldProperties] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Paper size state
+  const [selectedPaperSize, setSelectedPaperSize] = useState("a4");
 
   const currentFieldProperties = selectedFieldId
     ? fieldProperties[selectedFieldId]
     : defaultStyleSettings;
 
   const currentField = selectedFields.find((f) => f.id === selectedFieldId);
+
+  // Get current paper dimensions
+  const getPaperDimensions = () => {
+    const paper = paperSizes.find(p => p.id === selectedPaperSize);
+    return {
+      width: paper.width,
+      height: paper.height
+    };
+  };
 
   // ─── Fetch Settings on Mount ────────────────────────────────
   useEffect(() => {
@@ -88,6 +108,11 @@ const PaperBadgeEditor = ({ params }) => {
         setSelectedTemplate(data.templateId?._id || null);
         setSelectedFields(data.fields || []);
         setFieldProperties(data.fieldProperties || {});
+        
+        // Set paper size if available in settings
+        if (data.paperSize) {
+          setSelectedPaperSize(data.paperSize);
+        }
       } else {
         toast.error(res?.message || "Failed to fetch paper badge settings");
       }
@@ -123,6 +148,10 @@ const PaperBadgeEditor = ({ params }) => {
     }
   };
 
+  const handlePaperSizeChange = (value) => {
+    setSelectedPaperSize(value);
+  };
+
   // ─── Handle Add/Remove Fields ───────────────────────────────
   const handleAddField = (fieldId) => {
     const field = availableFields.find((f) => f.id === fieldId);
@@ -132,6 +161,8 @@ const PaperBadgeEditor = ({ params }) => {
         ...fieldProperties,
         [fieldId]: fieldProperties[fieldId] || { ...defaultStyleSettings },
       });
+
+      setSelectedFieldId(fieldId); // Auto-select the newly added field
     }
   };
 
@@ -168,6 +199,7 @@ const PaperBadgeEditor = ({ params }) => {
         templateId: designType === "withDesign" ? selectedTemplate : null,
         fields: selectedFields,
         fieldProperties,
+        paperSize: selectedPaperSize,
       };
       
       const res = await postRequest(
@@ -196,15 +228,32 @@ const PaperBadgeEditor = ({ params }) => {
 
   // ─── Get Preview HTML based on design type ──────────────────
   const getPreviewHTML = () => {
+    const paperDimensions = getPaperDimensions();
+    
     if (designType === "withoutDesign") {
-      return predefinedPaperBadgeHTML;
+      return `
+        <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
+          <!-- Main Content Area positioned in left corner -->
+          <div id="badgeContent" style="position: absolute; left: 0; top: 0; width: 93.5mm; height: 122mm; padding: 5mm;"></div>
+        </div>`;
     }
     
     if (designType === "withDesign" && activeTemplate?.htmlContent) {
-      return activeTemplate.htmlContent;
+      return `
+        <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
+          <!-- Template content positioned in left corner -->
+          <div style="position: absolute; left: 0; top: 0;">
+            ${activeTemplate.htmlContent}
+          </div>
+        </div>`;
     }
     
-    return '<div style="padding: 40px; text-align: center; color: #999;">Select a template or choose "Without Design"</div>';
+    return `
+      <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">
+        <div style="padding: 40px; text-align: center; color: #999;">
+          Select a template or choose "Without Design"
+        </div>
+      </div>`;
   };
 
   // ─── Render Fields in Preview ───────────────────────────────
@@ -328,7 +377,7 @@ const PaperBadgeEditor = ({ params }) => {
       const el = renderField(field, props);
       container.appendChild(el);
     }
-  }, [selectedFields, fieldProperties, selectedFieldId, designType, activeTemplate]);
+  }, [selectedFields, fieldProperties, selectedFieldId, designType, activeTemplate, selectedPaperSize]);
 
   return (
     <>
@@ -345,6 +394,20 @@ const PaperBadgeEditor = ({ params }) => {
               {isSaving ? "Saving..." : "Save Setting"}
             </Button>
             
+            {/* Paper Size Selector */}
+            <Select value={selectedPaperSize} onValueChange={handlePaperSizeChange}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Paper Size" />
+              </SelectTrigger>
+              <SelectContent>
+                {paperSizes.map((paper) => (
+                  <SelectItem key={paper.id} value={paper.id}>
+                    {paper.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             {/* Design Type Selector */}
             <Select value={designType} onValueChange={handleDesignTypeChange}>
               <SelectTrigger className="w-[180px]">
@@ -424,13 +487,15 @@ const PaperBadgeEditor = ({ params }) => {
           </div>
 
           {/* Center Panel - Preview */}
-          <div className="flex-1 bg-gray-100 flex items-center justify-center overflow-auto p-6">
-            <div
-              ref={previewRef}
-              dangerouslySetInnerHTML={{
-                __html: getPreviewHTML(),
-              }}
-            />
+          <div className="flex-1 bg-gray-100 overflow-auto p-6">
+            <div className="flex justify-center">
+              <div
+                ref={previewRef}
+                dangerouslySetInnerHTML={{
+                  __html: getPreviewHTML(),
+                }}
+              />
+            </div>
           </div>
 
           {/* Right Panel - Field Properties */}

@@ -125,6 +125,8 @@ const EBadgeEditor = ({ params }) => {
         ...fieldProperties,
         [fieldId]: fieldProperties[fieldId] || { ...defaultStyleSettings },
       });
+
+      setSelectedFieldId(fieldId); // Auto-select the newly added field
     }
   };
 

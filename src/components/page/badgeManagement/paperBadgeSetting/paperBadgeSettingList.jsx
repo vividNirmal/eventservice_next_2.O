@@ -234,7 +234,7 @@ const PaperBadgeSettingList = ({ eventId }) => {
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
               <CardTitle>Paper Badge Settings</CardTitle>
-              <CardDescription>
+              <CardDescription className={"hidden"}>
                 Manage paper badge settings for your event
               </CardDescription>
             </div>

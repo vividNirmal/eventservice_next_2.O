@@ -252,7 +252,7 @@ const EBadgeSettingList = ({ eventId }) => {
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
               <CardTitle>E-Badge Settings</CardTitle>
-              <CardDescription>
+              <CardDescription className={"hidden"}>
                 Manage e-badge settings for your event
               </CardDescription>
             </div>

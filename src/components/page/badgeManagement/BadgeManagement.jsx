@@ -3,17 +3,21 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import dynamic from 'next/dynamic';
-import PaperBadgeSettingList from './paperBadgeSetting/paperBadgeSettingList';
 
 // Lazy load components to prevent unnecessary renders
 const EBadgeTemplateList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplateList'), {
   ssr: false,
-  loading: () => <div className="flex justify-center items-center h-64">Loading e-badge templates..</div>
+  loading: () => <div className="flex justify-center items-center h-64">Loading badge templates..</div>
 });
 
 const EBadgeSettingList = dynamic(() => import('./eBadgeSetting/EBadgeSettingList'), {
   ssr: false,
   loading: () => <div className="flex justify-center items-center h-64">Loading e-badge settings...</div>
+});
+
+const PaperBadgeSettingList = dynamic(() => import('./paperBadgeSetting/paperBadgeSettingList'), {
+  ssr: false,
+  loading: () => <div className="flex justify-center items-center h-64">Loading paper badge settings...</div>
 });
 
 const BadgeCategoryList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplateList'), {
@@ -22,19 +26,19 @@ const BadgeCategoryList = dynamic(() => import('./eBadgeTemplate/EBadgeTemplateL
 });
 
 const BadgeManagement = ({ eventId }) => {
-  const [activeTab, setActiveTab] = useState('e-badge');
+  const [activeTab, setActiveTab] = useState('badge-template');
 
   // Memoize the active tab content to prevent unnecessary re-renders
   const activeTabContent = useMemo(() => {
     switch (activeTab) {
-      case 'e-badge':
+      case 'badge-template':
         return <EBadgeTemplateList eventId={eventId} />;
       case 'e-badge-setting':
         return <EBadgeSettingList eventId={eventId} />;
-      case 'badge-category':
-        return <BadgeCategoryList eventId={eventId} />;
       case 'paper-badge-setting':
         return <PaperBadgeSettingList eventId={eventId} />;
+      case 'badge-category':
+        return <BadgeCategoryList eventId={eventId} />;
       default:
         return null;
     }
@@ -50,7 +54,7 @@ const BadgeManagement = ({ eventId }) => {
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-2">
-              <TabsTrigger value="e-badge" className="px-6">E-Badge Template</TabsTrigger>
+              <TabsTrigger value="badge-template" className="px-6">Badge Template</TabsTrigger>
               <TabsTrigger value="e-badge-setting" className="px-6">E-Badge Setting</TabsTrigger>
               <TabsTrigger value="paper-badge-setting" className="px-6">Paper Badge Setting</TabsTrigger>
               <TabsTrigger value="badge-category" className="px-6">Badge Category</TabsTrigger>

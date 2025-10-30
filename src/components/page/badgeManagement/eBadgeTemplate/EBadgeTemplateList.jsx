@@ -220,7 +220,7 @@ const EBadgeTemplateList = ({ eventId }) => {
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
-              <CardTitle>E-Badge Templates</CardTitle>
+              <CardTitle>Badge Templates</CardTitle>
               <CardDescription className={"hidden"}></CardDescription>
             </div>
             <div className="flex items-center space-x-4">
@@ -261,7 +261,7 @@ const EBadgeTemplateList = ({ eventId }) => {
                 className={"2xl:text-sm 2xl:h-10"}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add E-Badge
+                Add Badge Template
               </Button>
             </div>
           </div>
