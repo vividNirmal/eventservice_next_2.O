@@ -22,6 +22,7 @@ const availableFields = [
   { id: "lastName", name: "Last Name", type: "text" },
   { id: "email", name: "Email", type: "email" },
   { id: "contact", name: "Contact Number", type: "tel" },
+  { id: "companyName", name: "Company Name", type: "text" },
   { id: "qrCode", name: "QR Code", type: "qrcode" },
   { id: "date", name: "Select any date", type: "date" },
 ];
