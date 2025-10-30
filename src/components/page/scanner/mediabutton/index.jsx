@@ -165,7 +165,7 @@ const MediaButton = ({ eventData, event_slug }) => {
                 if (item.type == 0) onClick = toggleScanner;
                 else if (item.type == 1 && eventData?.with_face_scanner == 1)
                   onClick = faceScanner;
-                else if (item.type == 4) onClick = () => setPageRedirect(5);
+                else if (item.type == 4) onClick = () => setPageRedirect(2);
                 else if (item.type == 5) onClick = () => setPageRedirect(6);
                 else return null;
                 const isDisabled = item.status === false;
@@ -208,12 +208,12 @@ const MediaButton = ({ eventData, event_slug }) => {
 
       <div className="absolute bottom-5 left-2/4 -translate-x-2/4 flex flex-col gap-2 w-fit">
         <span className="block w-full text-zinc-50 text-sm xl:text-base px-5 text-center">
-          Powered by Levenex
+          Powered by 
         </span>
         <Image
           width={150}
           height={150}
-          src="/assets/images/Powerdby.png"
+          src={eventData?.event_sponsor||"/assets/images/Powerdby.png"}
           className="max-w-36 w-full block h-auto mx-auto rounded-sm"
           alt="Logo"
         />

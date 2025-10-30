@@ -79,7 +79,7 @@ const QrScanner = ({ onCameraError }) => {
 
   return (
     <div className="flex md:flex-row flex-col md:flex-wrap gap-5 justify-center min-h-60 px-4">
-      {step === 1 && (
+      
         <div className="flex flex-col">
           <input
             ref={inputRef}
@@ -95,14 +95,14 @@ const QrScanner = ({ onCameraError }) => {
             onError={handleCameraError}
           />
         </div>
-      )}
-      {step === 2 && (
+      
+      {/* {step === 2 && (
         <Details
           data={eventData}
           onRedirect={handleRedirect}
           printPermission={printPermission}
         />
-      )}
+      )} */}
     </div>
   );
 };

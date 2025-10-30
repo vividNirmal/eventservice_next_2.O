@@ -1,11 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import QrScanner from "qr-scanner";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { SwitchCameraIcon } from "lucide-react";
 import { toast } from "sonner";
 import { postRequest } from "@/service/viewService";
-import { json, set } from "zod";
 import QRScannerDetails from "./ScannerDetails";
 
 const Scanner = ({
@@ -26,9 +25,15 @@ const Scanner = ({
   const [loading, setLoading] = useState(false);
   const [stepInner, setStepInner] = useState(1);
   const [scanCompleted, setScanCompleted] = useState(false);
-const [qrError, setQrError] = useState(false);
-const [qrData, setQrData] = useState(null);
-  // ✅ Load cameras
+  const [qrError, setQrError] = useState(false);
+  const [qrData, setQrData] = useState(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const setupInProgressRef = useRef(false);
+  const isProcessingRef = useRef(false);
+  const currentModeRef = useRef(false); // Track current mode
+
+  // ✅ Load cameras (runs once)
   useEffect(() => {
     QrScanner.listCameras(true)
       .then((devices) => {
@@ -36,6 +41,7 @@ const [qrData, setQrData] = useState(null);
           toast.error("No camera detected");
           return;
         }
+        console.log("[Scanner] Available cameras:", devices);
         setCameras(devices);
       })
       .catch((err) => {
@@ -44,90 +50,118 @@ const [qrData, setQrData] = useState(null);
       });
   }, []);
 
-  // ✅ Initialize Scanner when camera changes
+  // ✅ Handle video element ready state
   useEffect(() => {
-    if (!videoRef.current || !allowScan) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    const setupScanner = async () => {
-      try {
-        qrScannerRef.current?.stop();
-        qrScannerRef.current?.destroy();
+    const handleVideoLoaded = () => {
+      console.log("[Scanner] Video loaded and ready");
+      setIsVideoLoaded(true);
+      setCameraReady(true);
+    };
 
-        qrScannerRef.current = new QrScanner(
-          videoRef.current,
-          (result) => {
-            if (printChecked) return; // Manual mode → skip auto detection
-            if (result?.data) {
-              console.log("[Scanner] Auto QR detected:", result.data);
-              handleQrCheckin(result.data);
-            }
-          },
-          {
-            returnDetailedScanResult: true,
-            highlightScanRegion: true,
-            highlightCodeOutline: true,
-            maxScansPerSecond: 1,
+    const handleVideoPlay = () => {
+      console.log("[Scanner] Video playing");
+      setCameraReady(true);
+    };
+
+    const handleVideoError = (e) => {
+      console.error("[Scanner] Video error:", e);
+      setCameraReady(false);
+      setIsVideoLoaded(false);
+    };
+
+    video.addEventListener("loadeddata", handleVideoLoaded);
+    video.addEventListener("playing", handleVideoPlay);
+    video.addEventListener("error", handleVideoError);
+
+    return () => {
+      video.removeEventListener("loadeddata", handleVideoLoaded);
+      video.removeEventListener("playing", handleVideoPlay);
+      video.removeEventListener("error", handleVideoError);
+    };
+  }, []);
+
+  // ✅ Handle tab visibility changes
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.hidden) {
+        console.log("[Scanner] Tab hidden - pausing scanner");
+        if (qrScannerRef.current) {
+          try {
+            await qrScannerRef.current.pause();
+          } catch (err) {
+            console.error("[Scanner] Error pausing:", err);
           }
-        );
-
-        await qrScannerRef.current.start(cameras[currentCameraIndex]?.id);
-        console.log("[Scanner] Camera started:", cameras[currentCameraIndex]?.label);
-      } catch (err) {
-        console.error("[Scanner] Failed to start camera:", err);
-        toast.error("Unable to start camera");
-        onError?.(err);
+        }
+      } else {
+        console.log("[Scanner] Tab visible - resuming scanner");
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        
+        if (qrScannerRef.current && videoRef.current) {
+          try {
+            await qrScannerRef.current.start();
+            setCameraReady(true);
+            console.log("[Scanner] Scanner resumed successfully");
+          } catch (err) {
+            console.error("[Scanner] Failed to resume:", err);
+            // Try to restart completely
+            setupScanner();
+          }
+        }
       }
     };
 
-    setupScanner();
-
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => {
-      qrScannerRef.current?.stop();
-      qrScannerRef.current?.destroy();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [allowScan, currentCameraIndex, cameras]);
+  }, []);
 
   // ✅ API Call
-  const handleQrCheckin = async (qrValue) => {
-    if (!qrValue || loading) return;
-    console.log("[Scanner] Sending QR to API:", qrValue);
+  const handleQrCheckin = useCallback(async (qrValue) => {
+    if (!qrValue || isProcessingRef.current) {
+      console.log("[Scanner] Skipping - already processing or no value");
+      return;
+    }
+    
+    isProcessingRef.current = true;
     setLoading(true);
+
     try {
       const jsonData = JSON.parse(qrValue);
       const formData = new FormData();
-            formData.append("event_id", jsonData.event_id);
-            formData.append("scanner_type", scannerType);
+      formData.append("event_id", jsonData.event_id);
+      formData.append("scanner_type", scannerType);
       formData.append("qrValue", qrValue);
 
-            const response = await postRequest("scan-participant-qr", formData);
-      if(response?.status === 1){
+      const response = await postRequest("scan-participant-qr", formData);
+      if (response?.status === 1) {
         setQrData(response?.data);
         setScanCompleted(true);
         setQrError(false);
         setStepInner(2);
-         console.log("[Scanner] API Response:", response);
-    onQrDetails?.(response);
+        onQrDetails?.(response);
+        const msg = response?.data?.[2]?.scanning_msg || "Scan complete!";
+        const color = response?.data?.[2]?.color_status;
 
-    const msg = response?.data?.[2]?.scanning_msg || "Scan complete!";
-    const color = response?.data?.[2]?.color_status;
-
-    if (color === "green") toast.success(msg);
-    else if (color === "yellow") toast.warning(msg);
-    else toast.error(msg);
-      }else if (response.status === 0) {
-        // Handle error responses like "You have not registered yet"
-        console.log("❌ [AUTO] Face verification failed:", response.message);
-        const errorData = response.data || [{ 
-          color_status: response.data?.[0]?.color_status || "red",
-          scanning_msg: response.message || "QR verification failed"
-        }];
-        console.log("📡 [AUTO] Setting error faceData:", errorData);
+        if (color === "green") toast.success(msg);
+        else if (color === "yellow") toast.warning(msg);
+        else toast.error(msg);
+      } else if (response.status === 0) {
+        console.log("❌ QR verification failed:", response.message);
+        const errorData = response.data || [
+          {
+            color_status: response.data?.[0]?.color_status || "red",
+            scanning_msg: response.message || "QR verification failed",
+          },
+        ];
         setQrData(errorData);
-        setScanCompleted(false); // Keep scanner active for error responses
-        setQrError(false); // Clear any previous face errors
-        console.log("📡 [AUTO] Switching to step 2 for error display");
+        setScanCompleted(false);
+        setQrError(false);
         setStepInner(2);
-      }else{
+      } else {
         setScanCompleted(true);
         setQrError(true);
         setStepInner(1);
@@ -138,49 +172,212 @@ const [qrData, setQrData] = useState(null);
       onError?.(err);
     } finally {
       setLoading(false);
+      // Reset processing flag after a delay to prevent rapid rescans
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 2000);
+    }
+  }, [scannerType, onQrDetails, onError]);
+
+  // ✅ Setup scanner function
+  const setupScanner = useCallback(async () => {
+    if (!videoRef.current || !allowScan || cameras.length === 0) {
+      console.log("[Scanner] Cannot setup - missing requirements");
+      return;
+    }
+
+    if (setupInProgressRef.current) {
+      console.log("[Scanner] Setup already in progress");
+      return;
+    }
+
+    setupInProgressRef.current = true;
+    setCameraReady(false);
+
+    try {
+      // Stop and destroy existing scanner
+      if (qrScannerRef.current) {
+        console.log("[Scanner] Stopping existing scanner");
+        try {
+          await qrScannerRef.current.stop();
+        } catch (err) {
+          console.warn("[Scanner] Error stopping scanner:", err);
+        }
+        qrScannerRef.current.destroy();
+        qrScannerRef.current = null;
+      }
+
+      // Small delay for cleanup
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      console.log(
+        "[Scanner] Creating new scanner - Mode:",
+        currentModeRef.current ? "MANUAL" : "AUTO",
+        "Camera:",
+        cameras[currentCameraIndex]?.label
+      );
+
+      // Create new scanner instance
+      qrScannerRef.current = new QrScanner(
+        videoRef.current,
+        (result) => {
+          // Use ref to check current mode (always up to date)
+          if (currentModeRef.current) {
+            console.log("[Scanner] Manual mode - ignoring auto scan");
+            return;
+          }
+
+          if (result?.data && !isProcessingRef.current) {
+            console.log("[Scanner] Auto QR detected:", result.data);
+            handleQrCheckin(result.data);
+          }
+        },
+        {
+          returnDetailedScanResult: true,
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+          maxScansPerSecond: 1,
+          preferredCamera: cameras[currentCameraIndex]?.id,
+        }
+      );
+
+      // Start camera
+      const cameraId = cameras[currentCameraIndex]?.id;
+      console.log("[Scanner] Starting camera...");
+      await qrScannerRef.current.start(cameraId);
+
+      // Wait for video to be fully ready
+      const video = videoRef.current;
+      if (video) {
+        let attempts = 0;
+        const maxAttempts = 50;
+
+        await new Promise((resolve, reject) => {
+          const checkReady = () => {
+            attempts++;
+            if (video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0) {
+              console.log("[Scanner] Video ready after", attempts, "attempts");
+              resolve();
+            } else if (attempts >= maxAttempts) {
+              reject(new Error("Video ready timeout"));
+            } else {
+              setTimeout(checkReady, 100);
+            }
+          };
+          checkReady();
+        });
+      }
+
+      console.log("[Scanner] Camera started successfully");
+      setCameraReady(true);
+      setIsVideoLoaded(true);
+    } catch (err) {
+      console.error("[Scanner] Failed to start camera:", err);
+      toast.error("Unable to start camera. Please check permissions.");
+      onError?.(err);
+      setCameraReady(false);
+      setIsVideoLoaded(false);
+    } finally {
+      setupInProgressRef.current = false;
+    }
+  }, [allowScan, cameras, currentCameraIndex, handleQrCheckin, onError]);
+
+  // ✅ Initialize scanner when camera changes
+  useEffect(() => {
+    if (cameras.length > 0 && allowScan) {
+      setupScanner();
+    }
+
+    return () => {
+      console.log("[Scanner] Cleanup - stopping scanner");
+      if (qrScannerRef.current) {
+        try {
+          qrScannerRef.current.stop();
+        } catch (err) {
+          console.warn("[Scanner] Error during cleanup:", err);
+        }
+        qrScannerRef.current.destroy();
+        qrScannerRef.current = null;
+      }
+      setupInProgressRef.current = false;
+    };
+  }, [cameras, currentCameraIndex, allowScan, setupScanner]);
+
+  // ✅ Update mode ref when printChecked changes (no camera restart)
+  useEffect(() => {
+    currentModeRef.current = printChecked;
+    console.log("[Scanner] Mode changed to:", printChecked ? "MANUAL" : "AUTO");
+  }, [printChecked]);
+
+  // ✅ Manual Scan
+  const handleScanQR = async () => {
+    console.log("[Scanner] Manual scan initiated");
+
+    const video = videoRef.current;
+
+    if (!video) {
+      toast.warning("Camera not initialized");
+      return;
+    }
+
+    if (!cameraReady || !isVideoLoaded) {
+      toast.warning("Camera is initializing. Please wait...");
+      return;
+    }
+
+    if (video.readyState < 2) {
+      toast.warning("Camera not ready. Please wait...");
+      console.warn("[Scanner] Video readyState:", video.readyState);
+      return;
+    }
+
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      toast.warning("Camera stream not available");
+      console.warn("[Scanner] Video dimensions:", video.videoWidth, video.videoHeight);
+      return;
+    }
+
+    if (isProcessingRef.current) {
+      toast.info("Already processing a scan...");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx) {
+        toast.error("Unable to create canvas context");
+        setLoading(false);
+        return;
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      console.log("[Scanner] Scanning frame:", canvas.width, "x", canvas.height);
+
+      const result = await QrScanner.scanImage(canvas, {
+        returnDetailedScanResult: true,
+      });
+
+      if (result?.data) {
+        console.log("[Scanner] Manual scan result:", result.data);
+        toast.success("QR Code detected!");
+        await handleQrCheckin(result.data);
+      } else {
+        toast.warning("No QR code detected. Please try again.");
+      }
+    } catch (err) {
+      console.error("[Scanner] Manual scan failed:", err);
+      toast.error("Unable to read QR code. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-
-  // ✅ Manual Scan (Frame Capture)
-const handleScanQR = async () => {
-  console.log("[Scanner] Manual scan button clicked");
-
-  const video = videoRef.current;
-  if (!video || video.readyState < 2) {
-    toast.warning("Camera not ready. Try again.");
-    console.warn("[Scanner] Video not ready for capture");
-    return;
-  }
-
-  // Create canvas same size as the video
-  const canvas = document.createElement("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-
-  // Draw the current video frame onto the canvas
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  try {
-    // Try scanning that frame for a QR code
-    const result = await QrScanner.scanImage(canvas, {
-      returnDetailedScanResult: true,
-    });
-
-    if (result?.data) {
-      console.log("[Scanner] Manual scan result:", result.data);
-      toast.success(`QR Detected: ${result.data}`);
-      await handleQrCheckin(result.data);
-    } else {
-      toast.warning("No QR code detected. Try again.");
-      console.warn("[Scanner] No QR data found in image");
-    }
-  } catch (err) {
-    console.error("[Scanner] Manual scan failed:", err);
-    toast.error("Unable to read QR code");
-  }
-};
-
 
   // ✅ Toggle camera
   const toggleCamera = async () => {
@@ -188,16 +385,26 @@ const handleScanQR = async () => {
       toast.info("Only one camera available");
       return;
     }
+
     const nextIndex = (currentCameraIndex + 1) % cameras.length;
+    console.log("[Scanner] Switching to camera:", cameras[nextIndex]?.label);
+
+    setCameraReady(false);
+    setIsVideoLoaded(false);
     setCurrentCameraIndex(nextIndex);
   };
 
   // ✅ Toggle Auto / Manual
   const handleCheckboxChange = (e) => {
     const isChecked = e.target.checked;
+    console.log("[Scanner] Mode switching to:", isChecked ? "MANUAL" : "AUTO");
+
     setPrintChecked(isChecked);
     setClickButtonShow(isChecked);
     onPrintChange?.(isChecked);
+    
+    // Reset processing flag when switching modes
+    isProcessingRef.current = false;
   };
 
   const handleRedirate = () => {
@@ -205,73 +412,77 @@ const handleScanQR = async () => {
     setScanCompleted(false);
     setStepInner(1);
     setQrError(false);
-    setTimeout(() => {
-      onBlur();
-    }, 500);
+    setQrData(null);
+    isProcessingRef.current = false;
   };
-  const onBlur = () => {
-    
-  };
+
   return (
     <>
-    {stepInner === 1 && (
-      <>
-       <div className="w-full flex flex-wrap items-center justify-end gap-3 h-auto absolute top-4 right-0 px-4">
-        <span className="text-white text-sm">Auto</span>
-        <label className="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            className="sr-only peer"
-            checked={printChecked}
-            onChange={handleCheckboxChange}
-          />
-          <div className="group peer bg-white rounded-full duration-300 w-12 h-6 ring-2 ring-primaryBlue after:duration-300 after:bg-primaryBlue peer-checked:after:bg-green-600 peer-checked:ring-green-600 after:rounded-full after:absolute after:h-5 after:w-5 after:top-1/2 after:-translate-y-1/2 after:left-[3px] after:flex after:justify-center after:items-center peer-checked:after:translate-x-[22px]" />
-        </label>
-        <span className="text-white text-sm">Manual</span>
-      </div>
+      {stepInner === 1 && (
+        <>
+          <div className="w-full flex flex-wrap items-center justify-end gap-3 h-auto absolute top-5 right-12 px-4 z-10">
+            <span className="text-white text-sm">Auto</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={printChecked}
+                onChange={handleCheckboxChange}
+                disabled={!cameraReady}
+              />
+              <div className="group peer bg-white rounded-full duration-300 w-12 h-6 ring-2 ring-primaryBlue after:duration-300 after:bg-primaryBlue peer-checked:after:bg-green-600 peer-checked:ring-green-600 after:rounded-full after:absolute after:h-5 after:w-5 after:top-1/2 after:-translate-y-1/2 after:left-[3px] after:flex after:justify-center after:items-center peer-checked:after:translate-x-[22px] peer-disabled:opacity-50" />
+            </label>
+            <span className="text-white text-sm">Manual</span>
+          </div>
 
-      {/* Video & Controls */}
-      <div className="flex flex-col items-center gap-10">
-        <div className="relative rounded-full overflow-hidden w-[200px] h-[300px] mx-auto border-8 border-white/30 text-center">
-          <Button
-            variant="ghost"
-            onClick={toggleCamera}
-            disabled={cameras.length < 2}
-            className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden"
-          >
-            <SwitchCameraIcon />
-          </Button>
+          {/* Video & Controls */}
+          <div className="flex flex-col items-center gap-10">
+            <div className="relative rounded-xl overflow-hidden w-[200px] h-[300px] mx-auto border-8 border-solid border-white/30 bg-gray-900">
+              <Button
+                variant="ghost"
+                onClick={toggleCamera}
+                disabled={cameras.length < 2 || !cameraReady}
+                className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden"
+              >
+                <SwitchCameraIcon />
+              </Button>
 
-          <video
-            ref={videoRef}
-            className="w-full absolute h-full object-cover !border-0"
-            autoPlay
-            playsInline
-            muted
-          ></video>
+              <video
+                ref={videoRef}
+                className="w-full absolute h-full object-cover !border-0"
+                autoPlay
+                playsInline
+                muted
+              ></video>
 
-          {/* <Image
-            src="/assets/images/mask-image.svg"
-            width={200}
-            height={200}
-            alt="mask img"
-            className="!w-[75%] h-auto block m-auto absolute z-20 top-[100px] left-2/4 -translate-x-2/4 opacity-50"
-          /> */}
-        </div>
+              {/* Camera loading indicator */}
+              {!cameraReady && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80 z-20">
+                  <div className="text-white text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-2"></div>
+                    <p className="text-sm">Initializing camera...</p>
+                  </div>
+                </div>
+              )}           
+            </div>
 
-        {/* Manual Scan Button */}
-        {clickButtonShow && (
-          <Button
-            onClick={handleScanQR}
-            disabled={loading}
-            className="uppercase font-semibold block w-fit text-base h-10 px-10 text-indigo-600 hover:text-white rounded-full bg-white border-4 border-indigo-600 duration-50"
-          >
-            {loading ? "Scanning..." : "Scan"}
-          </Button>
-        )}
-      </div>
+            {/* Manual Scan Button */}
+            {clickButtonShow && (
+              <Button
+                onClick={handleScanQR}
+                disabled={loading || !cameraReady || !isVideoLoaded}
+                className="uppercase font-semibold block w-fit text-base h-10 px-10 text-indigo-600 hover:text-white rounded-full bg-white border-4 border-indigo-600 duration-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading
+                  ? "Scanning..."
+                  : !cameraReady
+                  ? "Camera Loading..."
+                  : "Scan QR Code"}
+              </Button>
+            )}
+          </div>
 
-      {qrError && (
+          {qrError && (
             <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
               <div className="flex items-center justify-center mb-2">
                 <svg
@@ -287,11 +498,12 @@ const handleScanQR = async () => {
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.99-.833-2.76 0L3.054 16.5c-.77.833.192 2.5 1.732 2.5z"
                   />
                 </svg>
-                <p className="text-red-700 font-medium">QR Code not scanned properly!</p>
+                <p className="text-red-700 font-medium">
+                  QR Code not scanned properly!
+                </p>
               </div>
               <p className="text-red-600 text-center text-sm">
-                Please position your qr code clearly in the camera. The scanner will
-                automatically retry in a few seconds...
+                Please position your QR code clearly in the camera.
               </p>
             </div>
           )}
@@ -313,21 +525,19 @@ const handleScanQR = async () => {
                   />
                 </svg>
                 <p className="text-green-700 font-medium">
-                  Scan completed successfully! View details below.
+                  Scan completed successfully!
                 </p>
               </div>
             </div>
           )}
-      </>
-    )}
-    {stepInner === 2 && (
-        <>
-          <QRScannerDetails
-            className="max-w-96 w-full"
-            qrData={qrData}
-            onRedirect={handleRedirate}
-          />
         </>
+      )}
+      {stepInner === 2 && (
+        <QRScannerDetails
+          className="max-w-96 w-full"
+          qrData={qrData}
+          onRedirect={handleRedirate}
+        />
       )}
     </>
   );

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 const QRScannerDetails = ({ qrData, onRedirect }) => {
@@ -10,25 +9,16 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
   const [imageLoading, setImageLoading] = useState(true);
 
   useEffect(() => {
-    if (qrData) {
-      console.log("🎯 FaceScannerDetails - FaceData received:", qrData);
+    if (qrData) {      
+      const isErrorResponse = qrData?.length === 1 && qrData[0]?.color_status === "red";      
 
-      // Check if this is an error response (unregistered user)
-      const isErrorResponse = qrData?.length === 1 && qrData[0]?.color_status === "red";
-      console.log("🎯 FaceScannerDetails - Is error response:", isErrorResponse);
-
-      if (isErrorResponse) {
-        // For error responses, don't set any user image - we'll show question mark icon
+      if (isErrorResponse) {        
         setUserImg(null);
         setImageLoading(false);
         setUserNotFound(true);
         handleAudioBasedOnStatus();
-      } else {
-        // Set user image with fallback to default for successful responses
-        // Check multiple possible locations for user_image
+      } else {       
         let userImage = null;
-
-        // Check in qrData[3] (original location)
         if (qrData[3]?.user_image) {
           userImage = qrData[3].user_image;
         }
