@@ -7,10 +7,16 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
   const [userNotFound, setUserNotFound] = useState(false);
   const [imageLoadError, setImageLoadError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [fieldMap , setFieldMap] = useState(null)
 
   useEffect(() => {
     if (qrData) {      
       const isErrorResponse = qrData?.length === 1 && qrData[0]?.color_status === "red";      
+            
+      if(qrData?.[1].map_array){
+        
+        setFieldMap(qrData?.[1].map_array)
+      }
 
       if (isErrorResponse) {        
         setUserImg(null);
@@ -65,43 +71,34 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
 
   // Get user name from dynamic form data
   const getUserName = () => {
-    // Check if this is an error response
-    const isErrorResponse = qrData?.length === 1 && qrData[0]?.color_status === "red";
+  // Check if this is an error response
+  const isErrorResponse = qrData?.length === 1 && qrData[0]?.color_status === "red";
 
-    if (isErrorResponse) {
-      return "Unregistered User";
+  if (isErrorResponse) {
+    return "Unregistered User";
+  }
+
+  const userData = qrData?.[1];
+  
+  if (userData?.formData && userData?.map_array) {
+    const { formData, map_array } = userData;
+    
+    // Get the mapped field names from map_array
+    const firstNameField = map_array['first_name'];
+    const lastNameField = map_array['last_name'];
+    
+    // Get the actual values from formData
+    const firstName = formData[firstNameField] || "";
+    const lastName = formData[lastNameField] || "";
+    
+    // Return combined name if either exists
+    if (firstName || lastName) {
+      return `${firstName} ${lastName}`.trim();
     }
-
-    const userData = qrData?.[2]?.formData;
-    if (userData) {
-      // Check for first_name and last_name (standard fields)
-      if (userData.firstName || userData.lastName) {
-        return `${userData.firstName || ""} ${userData.lastName || ""}`.trim();
-      }
-
-      // Check for name field
-      if (userData.name) {
-        return userData.name;
-      }
-
-      // Check for full_name field
-      if (userData.full_name) {
-        return userData.full_name;
-      }
-
-      // Check for fullName field (camelCase)
-      if (userData.fullName) {
-        return userData.fullName;
-      }
-
-      // Check for participant_name field
-      if (userData.participant_name) {
-        return userData.participant_name;
-      }
-    }
-
-    return "Guest User";
-  };
+  }
+  
+  return "Guest User";
+};
 
   function speakThankYou() {
     const utterance = new SpeechSynthesisUtterance("Thank you");

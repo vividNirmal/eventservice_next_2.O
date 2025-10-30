@@ -67,6 +67,13 @@ const ParticipantUserListPage = ({ id, eventId }) => {
   const [dateRange, setDateRange] = useState("all");
   const dataLimits = [10, 20, 30, 50];
 
+  // ✅ Utility function to get mapped field values
+  const getMappedFieldValue = (registration, mapKey, fallbackValue = null) => {
+    const fieldName = registration?.registrationFormId?.map_array?.[mapKey];
+    if (!fieldName) return fallbackValue;
+    return registration?.formData?.[fieldName] || fallbackValue;
+  };
+
   // Filter participants based on status filter
   const filteredParticipants = participants.filter(participant => {
     const isBlocked = participant.dynamic_fields?.isBlocked || false;
@@ -115,6 +122,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
       console.error("Error fetching events:", error);
     }
   };
+
   const fetchFormStructure = async (formId) => {
     try {
       const response = await getRequest(`forms/${formId?._id}`);
@@ -136,6 +144,12 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     }
     setEditSheetOpen(true);
   };
+
+  const handlePreview = (registration) => {
+    setSelectedRegistration(registration);
+    setPreviewSheetOpen(true);
+  };
+
   const getDateRangeParams = () => {
     const now = new Date();
     let startDate = null;
@@ -175,6 +189,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
         }
       : {};
   };
+
   // Fetch participants with event filtering
   const fetchRegistrations = async () => {
     const dateParams = getDateRangeParams();
@@ -207,7 +222,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     try {
       const response = await updateRequest(
         `form-registration-status-change/${registrationId}`,
-        { approved: newStatus } // ✅ send boolean
+        { approved: newStatus }
       );
       if (response.status === 1) {
         toast.success(
@@ -285,7 +300,6 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     setBlockingLoading(prev => ({ ...prev, [participantId]: true }));
 
     try {
-
       // Create FormData for the request
       const formData = new FormData();
       formData.append('participant_id', participantId);
@@ -349,38 +363,25 @@ const ParticipantUserListPage = ({ id, eventId }) => {
           </div>
 
           {/* Search + Filters + Limit */}
-          <div className="flex items-center space-x-3 ml-auto">
-            {/* Event Dropdown */}
-            {/* <Select value={selectedEvent} onValueChange={handleEventChange}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select Event" />
-              </SelectTrigger>
-              <SelectContent>
-                {eventList.map((event) => (
-                  <SelectItem key={event._id} value={event._id}>
-                    {event.event_title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
-
-            {/* Status Filter */}
+          <div className="flex items-center space-x-3 ml-auto">           
+            {/* Date Range Filter */}
             <div className="flex items-center gap-2">
-                <Calendar className="size-5 text-gray-500" />
-                <Select value={dateRange} onValueChange={handleDateRangeChange}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Date Range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="yesterday">Yesterday</SelectItem>
-                    <SelectItem value="thisWeek">This Week</SelectItem>
-                    <SelectItem value="thisMonth">This Month</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Calendar className="size-5 text-gray-500" />
+              <Select value={dateRange} onValueChange={handleDateRangeChange}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Date Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="yesterday">Yesterday</SelectItem>
+                  <SelectItem value="thisWeek">This Week</SelectItem>
+                  <SelectItem value="thisMonth">This Month</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
+            {/* Search Input */}
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -390,6 +391,8 @@ const ParticipantUserListPage = ({ id, eventId }) => {
                 className="!pl-10"
               />
             </div>
+
+            {/* Limit Selector */}
             <Select
               value={selectedLimit.toString()}
               onValueChange={handleLimitChange}
@@ -430,116 +433,131 @@ const ParticipantUserListPage = ({ id, eventId }) => {
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-               <TableBody>
+              <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6">
+                    <TableCell colSpan={9} className="text-center py-6">
                       Loading...
                     </TableCell>
                   </TableRow>
                 ) : registrations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6">
+                    <TableCell colSpan={9} className="text-center py-6">
                       No Attendees found
                     </TableCell>
                   </TableRow>
                 ) : (
-                  registrations.map((reg) => (
-                    <TableRow key={reg._id}>
-                      <TableCell
-                        className="cursor-pointer hover:text-blue-600"
-                        onClick={() => handlePreview(reg)}
-                      >
-                        {reg.formData?.firstName || reg.formData?.lastName
-                          ? `${reg.formData?.firstName ?? ""} ${reg.formData?.lastName ?? ""}`.trim()
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <Mail className="w-4 h-4 text-gray-500" />
-                            <span>{reg.email || "N/A"}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4 text-gray-500" />
-                            <span>{reg.contact || "N/A"}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{reg.badgeNo || "N/A"}</TableCell>
-                      <TableCell>
-                        <span className="text-sm text-gray-600">
-                          {reg.ticketId?.ticketName || "N/A"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {reg?.userType || 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium text-gray-700`}
+                  registrations.map((reg) => {
+                    // ✅ Extract mapped field values
+                    const firstName = getMappedFieldValue(reg, 'first_name', '');
+                    const lastName = getMappedFieldValue(reg, 'last_name', '');
+                    const contactNo = getMappedFieldValue(reg, 'contact_no');
+                    const email = getMappedFieldValue(reg, 'email', reg.email);
+                    const fullName = `${firstName} ${lastName}`.trim();
+
+                    return (
+                      <TableRow key={reg._id}>
+                        {/* User Name */}
+                        <TableCell
+                          className="cursor-pointer hover:text-blue-600"
+                          onClick={() => handlePreview(reg)}
                         >
-                          {reg.approved === true ? "Approved" : "Not Approved"}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(reg.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </TableCell>
-                      <TableCell className="">
-                        <div>
-                          {reg.approved ? (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-red-600 hover:text-red-700"
-                              onClick={() => handleStatusUpdate(reg._id, false)}
-                            >
-                              Disapprove
-                            </Button>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600 hover:text-green-700"
-                              onClick={() => handleStatusUpdate(reg._id, true)}
-                            >
-                              Approve
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
+                          {fullName || "N/A"}
+                        </TableCell>
 
-                      <TableCell className="text-right">
-                        <div className="flex justify-end items-center gap-2">
-                          {/* Burger Menu */}
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
+                        {/* Contact Info */}
+                        <TableCell>
+                          <div className="flex flex-col space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <Mail className="w-4 h-4 text-gray-500" />
+                              <span>{email || "N/A"}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Phone className="w-4 h-4 text-gray-500" />
+                              <span>{contactNo || "N/A"}</span>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        {/* Badge No */}
+                        <TableCell>{reg.badgeNo || "N/A"}</TableCell>
+
+                        {/* Ticket */}
+                        <TableCell>
+                          <span className="text-sm text-gray-600">
+                            {reg.ticketId?.ticketName || "N/A"}
+                          </span>
+                        </TableCell>
+
+                        {/* User Type */}
+                        <TableCell>{reg?.userType || 'N/A'}</TableCell>
+
+                        {/* Status */}
+                        <TableCell>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium text-gray-700`}>
+                            {reg.approved === true ? "Approved" : "Not Approved"}
+                          </span>
+                        </TableCell>
+
+                        {/* Registered On */}
+                        <TableCell>
+                          {new Date(reg.createdAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </TableCell>
+
+                        {/* Change Status */}
+                        <TableCell>
+                          <div>
+                            {reg.approved ? (
                               <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 p-0"
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600 hover:text-red-700"
+                                onClick={() => handleStatusUpdate(reg._id, false)}
                               >
-                                <EllipsisVertical className="h-5 w-5 text-gray-600" />
+                                Disapprove
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEdit(reg)}>
-                                <Edit2 className="mr-2 h-4 w-4 text-gray-600" />
-                                Edit
-                              </DropdownMenuItem>
-                              {/* Future options go here */}
-                              {/* <DropdownMenuItem>View Logs</DropdownMenuItem> */}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </TableCell>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-600 hover:text-green-700"
+                                onClick={() => handleStatusUpdate(reg._id, true)}
+                              >
+                                Approve
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
 
-                    </TableRow>
-                  ))
+                        {/* Actions */}
+                        <TableCell className="text-right">
+                          <div className="flex justify-end items-center gap-2">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <EllipsisVertical className="h-5 w-5 text-gray-600" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEdit(reg)}>
+                                  <Edit2 className="mr-2 h-4 w-4 text-gray-600" />
+                                  Edit
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -558,6 +576,8 @@ const ParticipantUserListPage = ({ id, eventId }) => {
           </div>
         )}
       </CardContent>
+
+      {/* Edit Sheet */}
       <RegistrationEditSheet
         open={editSheetOpen}
         onOpenChange={setEditSheetOpen}
