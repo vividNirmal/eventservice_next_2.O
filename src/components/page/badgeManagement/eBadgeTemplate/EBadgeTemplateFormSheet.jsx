@@ -53,33 +53,40 @@ export const EBadgeTemplateFormSheet = ({
     onClose();
   };
 
-  const sampleHTMLContent = `<!-- Sample E-Badge HTML Template -->
-<table border="0" align="center" cellpadding="10" cellspacing="0" width="480" style="width:480px;max-width:100%;background:white;font-family:Arial,sans-serif;">
-  <tbody>
-    <tr>
-      <td align="center">
-        <div style="width:480px;margin:0 auto;border:1px solid #aaa;border-radius:8px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
-          
-          <!-- Header -->
-          <header style="background:#1e3a8a;color:#fff;padding:20px 0;">
-            <h2 style="margin:0;font-size:20px;">Event Header</h2>
-          </header>
+  const sampleHTMLContent = `<!-- Sample E-Badge HTML Template (93.5mm × 122mm) -->
+<div style="width: 93.5mm; height: 122mm; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; font-family: Arial, sans-serif; position: relative;">
+  
+  <!-- Header Section (34mm height) -->
+  <div style="height: 34mm; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; padding: 10px; position: relative;">
+    <div style="text-align: center;">
+      <h2 style="margin: 0; font-size: 18px; font-weight: bold;">EVENT NAME</h2>
+      <p style="margin: 5px 0 0 0; font-size: 11px;">Conference 2025</p>
+    </div>
+  </div>
 
-          <!-- Main Content -->
-           <section style="height:122mm; width:93.5mm">
-            <div id="badgeContent"></div>
-          </section>
+  <!-- Main Content Section (Printable Area: 64mm) -->
+  <div id="badgeContent" style="padding: 10mm; min-height: 64mm; position: relative; visibility: visible;">
+    <!-- Dynamic content will be inserted here by the editor -->
+    <div style="text-align: center; color: #999; font-size: 12px; padding: 20px 0;">
+      <p>Printable Area</p>
+      <p style="font-size: 10px; margin-top: 5px;">Fields will appear here</p>
+    </div>
+  </div>
 
-          <!-- Footer -->
-          <footer style="background:#f3f4f6;padding:20px 0;text-align:center;color:#666;font-size:12px;">
-            <p style="margin:0;font-size:20px">Event Footer</p>
-          </footer>
+  <!-- Footer Section (24mm height) -->
+  <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 24mm;">
+    <!-- Official Agency Bar (10mm) -->
+    <div style="height: 10mm; background: #8b8b8b; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold; padding: 0 10px;">
+      OFFICIAL AGENCY
+    </div>
+    
+    <!-- Sponsor Bar (14mm) -->
+    <div style="height: 14mm; background: #4a148c; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold; padding: 0 10px;">
+      BADGE SPONSOR
+    </div>
+  </div>
 
-        </div>
-      </td>
-    </tr>
-  </tbody>
-</table>`;
+</div>`;
 
   const insertSampleTemplate = () => {
     formik.setFieldValue("htmlContent", sampleHTMLContent);
@@ -231,10 +238,10 @@ export const EBadgeTemplateFormSheet = ({
               </Button>
             </div>
 
-            <div className="p-6 flex flex-col justify-center overflow-auto flex-1 bg-white">
+            <div className="p-6 flex flex-col justify-center items-center overflow-auto flex-1 bg-gray-50">
               <div
                 dangerouslySetInnerHTML={{ __html: formik.values.htmlContent }}
-                className="mx-auto w-full max-w-lg [&>table]:!w-full"
+                className="[&>div]:!mx-auto"
               />
             </div>
           </div>

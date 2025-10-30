@@ -28,16 +28,23 @@ const availableFields = [
 
 const defaultStyleSettings = {
   position: "left",
-  marginLeft: "0px",
-  marginTop: "0px",
+  marginLeft: "0mm",
+  marginTop: "0mm",
   fontFamily: "Arial",
-  fontSize: "12px",
+  fontSize: "12pt",
   fontColor: "#000",
   fontStyle: "normal",
   textFormat: "default",
-  height: "50px",
-  width: "50px",
+  height: "20mm",
+  width: "20mm",
 };
+
+// Predefined HTML template for paper badges without design
+const predefinedPaperBadgeHTML = `
+<div style="width: 93.5mm; height: 122mm; margin: 0 auto; background: white; position: relative; overflow: hidden;">
+  <!-- Main Content Area -->
+  <div id="badgeContent" style="position: relative; width: 100%; height: 100%; padding: 5mm;"></div>
+</div>`;
 
 const PaperBadgeEditor = ({ params }) => {
   const router = useRouter();
@@ -47,8 +54,8 @@ const PaperBadgeEditor = ({ params }) => {
 
   const [eventId, setEventId] = useState(null);
   const [templates, setTemplates] = useState([]);
+  const [designType, setDesignType] = useState("withDesign"); // "withDesign" or "withoutDesign"
   const [selectedTemplate, setSelectedTemplate] = useState(null);
-
   const [selectedFields, setSelectedFields] = useState([]);
   const [selectedFieldId, setSelectedFieldId] = useState(null);
   const [fieldProperties, setFieldProperties] = useState({});
@@ -65,22 +72,54 @@ const PaperBadgeEditor = ({ params }) => {
     fetchSettings();
   }, []);
 
+  useEffect(() => {
+    if (eventId && designType === "withDesign") {
+      fetchTemplates();
+    }
+  }, [eventId, designType]);
+
   const fetchSettings = async () => {
     try {
       const res = await getRequest(`get-paper-badge-setting-byId/${settingId}`);
       if (res.status === 1) {
-        
         const data = res.data.setting;
         setEventId(data.eventId);
+        setDesignType(data.templateId === null ? "withoutDesign" : "withDesign");
         setSelectedTemplate(data.templateId?._id || null);
         setSelectedFields(data.fields || []);
         setFieldProperties(data.fieldProperties || {});
       } else {
-        toast.error(res?.message || "Failed to fetch e-badge settings");
+        toast.error(res?.message || "Failed to fetch paper badge settings");
       }
     } catch (err) {
       console.error(err);
       toast.error("Error fetching settings");
+    }
+  };
+
+  const fetchTemplates = async () => {
+    try {
+      const res = await getRequest(`get-badge-template-by-eventid/${eventId}`);
+      if (res.status === 1) {
+        const templateList = res.data.template || [];
+        setTemplates(templateList);
+
+        // Auto-select first template if none selected
+        if (templateList.length > 0 && !selectedTemplate) {
+          setSelectedTemplate(templateList[0]._id);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDesignTypeChange = async (value) => {
+    setDesignType(value);
+    if (value === "withoutDesign") {
+      setSelectedTemplate(null);
+    } else if (value === "withDesign" && eventId) {
+      await fetchTemplates();
     }
   };
 
@@ -124,21 +163,25 @@ const PaperBadgeEditor = ({ params }) => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      
       const payload = {
-        templateId: selectedTemplate,
+        // designType,
+        templateId: designType === "withDesign" ? selectedTemplate : null,
         fields: selectedFields,
         fieldProperties,
       };
+      
       const res = await postRequest(
-        `update-e-badge-setting-properties/${settingId}`,
+        `update-paper-badge-setting-properties/${settingId}`,
         payload
       );
+      
       if (res.status === 1) {
         setSelectedFields(res?.data?.setting?.fields || []);
         setFieldProperties(res?.data?.setting?.fieldProperties);
-        toast.success(res?.message || "E-Badge setting saved successfully");
-      } else toast.error(res?.message || "Failed to save");
+        toast.success(res?.message || "Paper badge setting saved successfully");
+      } else {
+        toast.error(res?.message || "Failed to save");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Error saving setting");
@@ -151,10 +194,25 @@ const PaperBadgeEditor = ({ params }) => {
 
   const activeTemplate = templates.find((t) => t._id === selectedTemplate);
 
+  // ─── Get Preview HTML based on design type ──────────────────
+  const getPreviewHTML = () => {
+    if (designType === "withoutDesign") {
+      return predefinedPaperBadgeHTML;
+    }
+    
+    if (designType === "withDesign" && activeTemplate?.htmlContent) {
+      return activeTemplate.htmlContent;
+    }
+    
+    return '<div style="padding: 40px; text-align: center; color: #999;">Select a template or choose "Without Design"</div>';
+  };
+
+  // ─── Render Fields in Preview ───────────────────────────────
   useEffect(() => {
     let container = previewRef.current?.querySelector("#badgeContent");
     if (!container) return;
 
+    // Ensure container is properly set up
     if (container.tagName.toLowerCase() === "span") {
       const wrapper = document.createElement("div");
       wrapper.id = "badgeContent";
@@ -168,8 +226,12 @@ const PaperBadgeEditor = ({ params }) => {
       container = wrapper;
     } else {
       container.style.visibility = "visible";
+      container.style.position = "relative";
+      container.style.width = "100%";
+      container.style.height = "100%";
     }
 
+    // Clear container for field rendering
     container.innerHTML = "";
 
     const renderField = (field, props) => {
@@ -185,6 +247,7 @@ const PaperBadgeEditor = ({ params }) => {
       el.style.fontSize = props.fontSize;
       el.style.color = props.fontColor;
       el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
+      el.style.fontStyle = props.fontStyle === "italic" ? "italic" : "normal";
       el.style.textTransform =
         props.textFormat === "uppercase"
           ? "uppercase"
@@ -194,6 +257,7 @@ const PaperBadgeEditor = ({ params }) => {
           ? "capitalize"
           : "none";
 
+      // Handle QR Code specifically
       if (field.type === "qrcode") {
         el.innerText = "";
         const qrWrapper = document.createElement("div");
@@ -213,7 +277,7 @@ const PaperBadgeEditor = ({ params }) => {
 
         QRCode.toCanvas(
           qrCanvas,
-          "Sample QR Data", // You can replace later with actual value
+          "Sample QR Data",
           { width: parseInt(props.width), margin: 1 },
           (error) => {
             if (error) console.error("QR generation error:", error);
@@ -241,8 +305,7 @@ const PaperBadgeEditor = ({ params }) => {
           wrapper.style.marginLeft = props.marginLeft;
 
           const firstEl = renderField(field, props);
-          const lastProps =
-            fieldProperties[nextField.id] || defaultStyleSettings;
+          const lastProps = fieldProperties[nextField.id] || defaultStyleSettings;
           const lastEl = renderField(nextField, lastProps);
 
           wrapper.appendChild(firstEl);
@@ -265,14 +328,14 @@ const PaperBadgeEditor = ({ params }) => {
       const el = renderField(field, props);
       container.appendChild(el);
     }
-  }, [selectedFields, fieldProperties, activeTemplate, selectedFieldId]);
+  }, [selectedFields, fieldProperties, selectedFieldId, designType, activeTemplate]);
 
   return (
     <>
       <div className="flex flex-col h-screen bg-gray-50">
         {/* Header */}
         <div className="flex justify-between items-center border-b px-6 py-4 bg-white shadow-sm">
-          <h1 className="text-lg font-semibold text-gray-900">Badge Setting</h1>
+          <h1 className="text-lg font-semibold text-gray-900">Paper Badge Setting</h1>
           <div className="flex gap-2">
             <Button
               onClick={handleSave}
@@ -281,6 +344,34 @@ const PaperBadgeEditor = ({ params }) => {
             >
               {isSaving ? "Saving..." : "Save Setting"}
             </Button>
+            
+            {/* Design Type Selector */}
+            <Select value={designType} onValueChange={handleDesignTypeChange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Design Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="withDesign">With Design</SelectItem>
+                <SelectItem value="withoutDesign">Without Design</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Template Selector (only shown when designType is 'withDesign') */}
+            {designType === "withDesign" && (
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select Template" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t._id} value={t._id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
             <Button variant="ghost" size="icon" onClick={handleClose}>
               <X className="h-5 w-5" />
             </Button>
@@ -335,17 +426,14 @@ const PaperBadgeEditor = ({ params }) => {
           {/* Center Panel - Preview */}
           <div className="flex-1 bg-gray-100 flex items-center justify-center overflow-auto p-6">
             <div
-              className="bg-white rounded-md shadow-md p-6 min-h-[400px] min-w-[300px]"
               ref={previewRef}
               dangerouslySetInnerHTML={{
-                __html:
-                  activeTemplate?.htmlContent || "<p>No template selected</p>",
+                __html: getPreviewHTML(),
               }}
             />
           </div>
 
           {/* Right Panel - Field Properties */}
-          {/* Right Panel - Style Editor */}
           <div className="w-1/4 border-l bg-white overflow-y-auto">
             <div className="p-4 space-y-4">
               <h2 className="text-md font-semibold text-gray-900">
@@ -386,7 +474,7 @@ const PaperBadgeEditor = ({ params }) => {
                       onChange={(e) =>
                         handleStyleChange("marginLeft", e.target.value)
                       }
-                      placeholder="0px"
+                      placeholder="0mm"
                       className="w-full"
                     />
                   </div>
@@ -401,7 +489,7 @@ const PaperBadgeEditor = ({ params }) => {
                       onChange={(e) =>
                         handleStyleChange("marginTop", e.target.value)
                       }
-                      placeholder="0px"
+                      placeholder="0mm"
                       className="w-full"
                     />
                   </div>
@@ -439,11 +527,11 @@ const PaperBadgeEditor = ({ params }) => {
                         </Label>
                         <Input
                           type="text"
-                          value={currentFieldProperties.height || "50px"}
+                          value={currentFieldProperties.height || "20mm"}
                           onChange={(e) =>
                             handleStyleChange("height", e.target.value)
                           }
-                          placeholder="50px"
+                          placeholder="20mm"
                           className="w-full"
                         />
                       </div>
@@ -454,11 +542,11 @@ const PaperBadgeEditor = ({ params }) => {
                         </Label>
                         <Input
                           type="text"
-                          value={currentFieldProperties.width || "50px"}
+                          value={currentFieldProperties.width || "20mm"}
                           onChange={(e) =>
                             handleStyleChange("width", e.target.value)
                           }
-                          placeholder="50px"
+                          placeholder="20mm"
                           className="w-full"
                         />
                       </div>
@@ -476,7 +564,7 @@ const PaperBadgeEditor = ({ params }) => {
                           onChange={(e) =>
                             handleStyleChange("fontSize", e.target.value)
                           }
-                          placeholder="12px"
+                          placeholder="12pt"
                           className="w-full"
                         />
                       </div>

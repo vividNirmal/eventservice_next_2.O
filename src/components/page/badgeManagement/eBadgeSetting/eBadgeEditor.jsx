@@ -88,11 +88,28 @@ const EBadgeEditor = ({ params }) => {
     }
   };
 
+  // const fetchTemplates = async () => {
+  //   try {
+  //     const res = await getRequest(`get-badge-template-by-eventid/${eventId}`);
+  //     if (res.status === 1) {
+  //       setTemplates(res.data.template || []);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
+  
   const fetchTemplates = async () => {
     try {
       const res = await getRequest(`get-badge-template-by-eventid/${eventId}`);
       if (res.status === 1) {
-        setTemplates(res.data.template || []);
+        const templateList = res.data.template || [];
+        setTemplates(templateList);
+
+        // Auto-select first template if none selected
+        if (templateList.length > 0 && !selectedTemplate) {
+          setSelectedTemplate(templateList[0]._id);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -166,25 +183,18 @@ const EBadgeEditor = ({ params }) => {
 
   const activeTemplate = templates.find((t) => t._id === selectedTemplate);
 
+  // ─── Render Preview ─────────────────────────────────────────
   useEffect(() => {
-    let container = previewRef.current?.querySelector("#badgeContent");
+    const container = previewRef.current?.querySelector("#badgeContent");
     if (!container) return;
 
-    if (container.tagName.toLowerCase() === "span") {
-      const wrapper = document.createElement("div");
-      wrapper.id = "badgeContent";
-      wrapper.style.position = "relative";
-      wrapper.style.width = "100%";
-      wrapper.style.height = "100%";
-      wrapper.style.visibility = "visible";
+    // Ensure container is visible and properly positioned
+    container.style.visibility = "visible";
+    container.style.position = "relative";
+    container.style.width = "100%";
+    container.style.height = "100%";
 
-      while (container.firstChild) wrapper.appendChild(container.firstChild);
-      container.parentNode?.replaceChild(wrapper, container);
-      container = wrapper;
-    } else {
-      container.style.visibility = "visible";
-    }
-
+    // Clear existing content
     container.innerHTML = "";
 
     const renderField = (field, props) => {
@@ -228,7 +238,7 @@ const EBadgeEditor = ({ params }) => {
 
         QRCode.toCanvas(
           qrCanvas,
-          "Sample QR Data", // You can replace later with actual value
+          "Sample QR Data",
           { width: parseInt(props.width), margin: 1 },
           (error) => {
             if (error) console.error("QR generation error:", error);
@@ -246,6 +256,7 @@ const EBadgeEditor = ({ params }) => {
       const field = selectedFields[i];
       const props = fieldProperties[field.id] || defaultStyleSettings;
 
+      // Handle firstName + lastName combination
       if (field.id === "firstName") {
         const nextField = selectedFields[i + 1];
         if (nextField?.id === "lastName") {
@@ -263,11 +274,12 @@ const EBadgeEditor = ({ params }) => {
           wrapper.appendChild(firstEl);
           wrapper.appendChild(lastEl);
           container.appendChild(wrapper);
-          i++;
+          i++; // Skip next iteration since we already processed lastName
           continue;
         }
       }
 
+      // Handle standalone lastName (if not preceded by firstName)
       if (field.id === "lastName") {
         const prevField = selectedFields[i - 1];
         if (prevField?.id !== "firstName") {
@@ -277,6 +289,7 @@ const EBadgeEditor = ({ params }) => {
         continue;
       }
 
+      // Regular field rendering
       const el = renderField(field, props);
       container.appendChild(el);
     }
@@ -365,16 +378,15 @@ const EBadgeEditor = ({ params }) => {
           {/* Center Panel - Preview */}
           <div className="flex-1 bg-gray-100 flex items-center justify-center overflow-auto p-6">
             <div
-              className="bg-white rounded-md shadow-md p-6 min-h-[400px] min-w-[300px]"
               ref={previewRef}
               dangerouslySetInnerHTML={{
                 __html:
-                  activeTemplate?.htmlContent || "<p>No template selected</p>",
+                  activeTemplate?.htmlContent || 
+                  '<div style="padding: 40px; text-align: center; color: #999;">No template selected</div>',
               }}
             />
           </div>
 
-          {/* Right Panel - Field Properties */}
           {/* Right Panel - Style Editor */}
           <div className="w-1/4 border-l bg-white overflow-y-auto">
             <div className="p-4 space-y-4">
@@ -416,7 +428,7 @@ const EBadgeEditor = ({ params }) => {
                       onChange={(e) =>
                         handleStyleChange("marginLeft", e.target.value)
                       }
-                      placeholder="0px"
+                      placeholder="0mm"
                       className="w-full"
                     />
                   </div>
@@ -431,7 +443,7 @@ const EBadgeEditor = ({ params }) => {
                       onChange={(e) =>
                         handleStyleChange("marginTop", e.target.value)
                       }
-                      placeholder="0px"
+                      placeholder="0mm"
                       className="w-full"
                     />
                   </div>
@@ -469,11 +481,11 @@ const EBadgeEditor = ({ params }) => {
                         </Label>
                         <Input
                           type="text"
-                          value={currentFieldProperties.height || "50px"}
+                          value={currentFieldProperties.height || "20mm"}
                           onChange={(e) =>
                             handleStyleChange("height", e.target.value)
                           }
-                          placeholder="50px"
+                          placeholder="20mm"
                           className="w-full"
                         />
                       </div>
@@ -484,11 +496,11 @@ const EBadgeEditor = ({ params }) => {
                         </Label>
                         <Input
                           type="text"
-                          value={currentFieldProperties.width || "50px"}
+                          value={currentFieldProperties.width || "20mm"}
                           onChange={(e) =>
                             handleStyleChange("width", e.target.value)
                           }
-                          placeholder="50px"
+                          placeholder="20mm"
                           className="w-full"
                         />
                       </div>
@@ -506,7 +518,7 @@ const EBadgeEditor = ({ params }) => {
                           onChange={(e) =>
                             handleStyleChange("fontSize", e.target.value)
                           }
-                          placeholder="12px"
+                          placeholder="12pt"
                           className="w-full"
                         />
                       </div>
