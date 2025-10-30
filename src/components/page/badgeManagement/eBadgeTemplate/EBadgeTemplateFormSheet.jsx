@@ -66,7 +66,7 @@ export const EBadgeTemplateFormSheet = ({
           </header>
 
           <!-- Main Content -->
-           <section style="height: 300px;">
+           <section style="height:122mm; width:93.5mm">
             <div id="badgeContent"></div>
           </section>
 

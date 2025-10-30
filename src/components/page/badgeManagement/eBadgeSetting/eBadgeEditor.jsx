@@ -28,15 +28,15 @@ const availableFields = [
 
 const defaultStyleSettings = {
   position: "left",
-  marginLeft: "0px",
-  marginTop: "0px",
+  marginLeft: "0mm",
+  marginTop: "0mm",
   fontFamily: "Arial",
-  fontSize: "12px",
+  fontSize: "12pt",
   fontColor: "#000",
   fontStyle: "normal",
   textFormat: "default",
-  height: "50px",
-  width: "50px",
+  height: "20mm",
+  width: "20mm",
 };
 
 const EBadgeEditor = ({ params }) => {
