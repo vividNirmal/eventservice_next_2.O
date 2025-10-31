@@ -22,6 +22,7 @@ const availableFields = [
   { id: "lastName", name: "Last Name", type: "text" },
   { id: "email", name: "Email", type: "email" },
   { id: "contact", name: "Contact Number", type: "tel" },
+  { id: "companyName", name: "Company Name", type: "text" },
   { id: "qrCode", name: "QR Code", type: "qrcode" },
   { id: "date", name: "Select any date", type: "date" },
   { id: "badgeCategory", name: "Badge Category", type: "category" },
@@ -64,11 +65,15 @@ const EBadgeEditor = ({ params }) => {
   const currentField = selectedFields.find((f) => f.id === selectedFieldId);
 
   // Get the badge category field and its selected category
-  const badgeCategoryField = selectedFields.find((f) => f.id === "badgeCategory");
-  const selectedCategoryId = badgeCategoryField 
-    ? fieldProperties["badgeCategory"]?.categoryId 
+  const badgeCategoryField = selectedFields.find(
+    (f) => f.id === "badgeCategory"
+  );
+  const selectedCategoryId = badgeCategoryField
+    ? fieldProperties["badgeCategory"]?.categoryId
     : null;
-  const selectedCategory = badgeCategories.find((cat) => cat._id === selectedCategoryId);
+  const selectedCategory = badgeCategories.find(
+    (cat) => cat._id === selectedCategoryId
+  );
 
   // ─── Fetch Settings on Mount ────────────────────────────────
   useEffect(() => {
@@ -86,7 +91,6 @@ const EBadgeEditor = ({ params }) => {
     try {
       const res = await getRequest(`get-e-badge-setting-byId/${settingId}`);
       if (res.status === 1) {
-        
         const data = res.data.setting;
         setEventId(data.eventId);
         setSelectedTemplate(data.templateId?._id || null);
@@ -111,7 +115,7 @@ const EBadgeEditor = ({ params }) => {
   //     console.error(err);
   //   }
   // };
-  
+
   const fetchTemplates = async () => {
     try {
       const res = await getRequest(`get-badge-template-by-eventid/${eventId}`);
@@ -186,7 +190,6 @@ const EBadgeEditor = ({ params }) => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      
       const payload = {
         templateId: selectedTemplate,
         fields: selectedFields,
@@ -340,7 +343,13 @@ const EBadgeEditor = ({ params }) => {
       const el = renderField(field, props);
       if (el) container.appendChild(el);
     }
-  }, [selectedFields, fieldProperties, activeTemplate, selectedFieldId, selectedCategory]);
+  }, [
+    selectedFields,
+    fieldProperties,
+    activeTemplate,
+    selectedFieldId,
+    selectedCategory,
+  ]);
 
   return (
     <>
@@ -428,7 +437,7 @@ const EBadgeEditor = ({ params }) => {
               ref={previewRef}
               dangerouslySetInnerHTML={{
                 __html:
-                  activeTemplate?.htmlContent || 
+                  activeTemplate?.htmlContent ||
                   '<div style="padding: 40px; text-align: center; color: #999;">No template selected</div>',
               }}
             />
@@ -464,7 +473,9 @@ const EBadgeEditor = ({ params }) => {
                               <div className="flex items-center gap-2">
                                 <div
                                   className="w-4 h-4 rounded"
-                                  style={{ backgroundColor: cat.backgroundColor }}
+                                  style={{
+                                    backgroundColor: cat.backgroundColor,
+                                  }}
                                 />
                                 <span>{cat.name}</span>
                               </div>
@@ -496,16 +507,28 @@ const EBadgeEditor = ({ params }) => {
                                 </div>
                                 <div className="pt-2 border-t">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-600">Priority:</span>
-                                    <span className="font-medium">{cat.priority}</span>
+                                    <span className="text-gray-600">
+                                      Priority:
+                                    </span>
+                                    <span className="font-medium">
+                                      {cat.priority}
+                                    </span>
                                   </div>
                                   <div className="flex justify-between mt-1">
-                                    <span className="text-gray-600">Background:</span>
-                                    <span className="font-medium">{cat.backgroundColor}</span>
+                                    <span className="text-gray-600">
+                                      Background:
+                                    </span>
+                                    <span className="font-medium">
+                                      {cat.backgroundColor}
+                                    </span>
                                   </div>
                                   <div className="flex justify-between mt-1">
-                                    <span className="text-gray-600">Text Color:</span>
-                                    <span className="font-medium">{cat.textColor}</span>
+                                    <span className="text-gray-600">
+                                      Text Color:
+                                    </span>
+                                    <span className="font-medium">
+                                      {cat.textColor}
+                                    </span>
                                   </div>
                                 </div>
                                 {cat.description && (
@@ -519,7 +542,8 @@ const EBadgeEditor = ({ params }) => {
                         </div>
                       )}
                       <div className="mt-3 p-2 bg-blue-50 rounded text-xs text-blue-700">
-                        ℹ️ This category will apply background and text colors to the entire badge.
+                        ℹ️ This category will apply background and text colors
+                        to the entire badge.
                       </div>
                     </div>
                   )}
@@ -729,8 +753,12 @@ const EBadgeEditor = ({ params }) => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="default">Default</SelectItem>
-                                <SelectItem value="uppercase">Uppercase</SelectItem>
-                                <SelectItem value="lowercase">Lowercase</SelectItem>
+                                <SelectItem value="uppercase">
+                                  Uppercase
+                                </SelectItem>
+                                <SelectItem value="lowercase">
+                                  Lowercase
+                                </SelectItem>
                                 <SelectItem value="capitalize">
                                   Capitalize
                                 </SelectItem>
