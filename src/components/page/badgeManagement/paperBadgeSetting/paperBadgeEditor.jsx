@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import QRCode from "qrcode";
 
 const availableFields = [
@@ -51,6 +52,7 @@ const paperSizes = [
   { id: "a5", name: "A5", width: "148mm", height: "210mm" },
   { id: "letter", name: "Letter", width: "215.9mm", height: "279.4mm" },
   { id: "legal", name: "Legal", width: "215.9mm", height: "355.6mm" },
+  { id: "normal", name: "Normal", width: "93.5mm", height: "122mm" },
 ];
 
 // Predefined HTML template for paper badges without design
@@ -75,6 +77,7 @@ const PaperBadgeEditor = ({ params }) => {
   const [selectedFieldId, setSelectedFieldId] = useState(null);
   const [fieldProperties, setFieldProperties] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+  const [fixedPosition, setFixedPosition] = useState(false);
 
   // Paper size state
   const [selectedPaperSize, setSelectedPaperSize] = useState("a4");
@@ -131,6 +134,7 @@ const PaperBadgeEditor = ({ params }) => {
         setSelectedTemplate(data.templateId?._id || null);
         setSelectedFields(data.fields || []);
         setFieldProperties(data.fieldProperties || {});
+        setFixedPosition(data.fixedPosition || false);
 
         // Set paper size if available in settings
         if (data.paperSize) {
@@ -238,6 +242,7 @@ const PaperBadgeEditor = ({ params }) => {
         fields: selectedFields,
         fieldProperties,
         paperSize: selectedPaperSize,
+        fixedPosition,
       };
 
       const res = await postRequest(
@@ -267,12 +272,13 @@ const PaperBadgeEditor = ({ params }) => {
   // ─── Get Preview HTML based on design type ──────────────────
   const getPreviewHTML = () => {
     const paperDimensions = getPaperDimensions();
+    const positionStyle = fixedPosition ? 'position: absolute;' : 'position: relative;';
 
     if (designType === "withoutDesign") {
       return `
         <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
           <!-- Main Content Area positioned in left corner -->
-          <div id="badgeContent" style="position: absolute; left: 0; top: 0; width: 93.5mm; height: 122mm; padding: 5mm;"></div>
+          <div id="badgeContent" style="${positionStyle}"></div>
         </div>`;
     }
 
@@ -280,7 +286,7 @@ const PaperBadgeEditor = ({ params }) => {
       return `
         <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
           <!-- Template content positioned in left corner -->
-          <div style="position: absolute; left: 0; top: 0;">
+          <div style="${positionStyle}">
             ${activeTemplate.htmlContent}
           </div>
         </div>`;
@@ -299,188 +305,189 @@ const PaperBadgeEditor = ({ params }) => {
     const previewContainer = previewRef.current;
     if (!previewContainer) return;
 
-    let container = previewRef.current?.querySelector("#badgeContent");
-    if (!container) return;
+    setTimeout(() => {
+      let container = previewContainer.querySelector("#badgeContent");
+      if (!container) return;
 
-    // Ensure container is properly set up
-    if (container.tagName.toLowerCase() === "span") {
-      const wrapper = document.createElement("div");
-      wrapper.id = "badgeContent";
-      wrapper.style.position = "relative";
-      wrapper.style.width = "100%";
-      wrapper.style.height = "100%";
-      wrapper.style.visibility = "visible";
+      // Ensure container is properly set up
+      if (container.tagName.toLowerCase() === "span") {
+        const wrapper = document.createElement("div");
+        wrapper.id = "badgeContent";
+        wrapper.style.position = fixedPosition ? "absolute" : "relative";
+        wrapper.style.width = "100%";
+        wrapper.style.height = "100%";
+        wrapper.style.visibility = "visible";
 
-      while (container.firstChild) wrapper.appendChild(container.firstChild);
-      container.parentNode?.replaceChild(wrapper, container);
-      container = wrapper;
-    } else {
-      container.style.visibility = "visible";
-      container.style.position = "relative";
-      container.style.width = "100%";
-      container.style.height = "100%";
-    }
-
-    // Apply category colors to the entire badge
-    if (selectedCategory) {
-      container.style.backgroundColor = selectedCategory.backgroundColor;
-      container.style.color = selectedCategory.textColor;
-    } else {
-      // Reset to default if no category selected
-      container.style.backgroundColor = "";
-      container.style.color = "";
-    }
-
-    // Clear container for field rendering
-    container.innerHTML = "";
-
-    const renderField = (field, props) => {
-      // Skip rendering badge category field - it only applies colors
-      if (field.type === "category") {
-        return null;
+        while (container.firstChild) wrapper.appendChild(container.firstChild);
+        container.parentNode?.replaceChild(wrapper, container);
+        container = wrapper;
+      } else {
+        container.style.visibility = "visible";
+        container.style.position = fixedPosition ? "absolute" : "relative";
+        container.style.width = "100%";
+        container.style.height = "100%";
       }
 
-      const el = document.createElement("div");
-      el.id = `field-${field.id}`;
+      // Apply category colors to the entire badge WITHOUT changing layout
+      if (selectedCategory) {
+        container.style.backgroundColor = selectedCategory.backgroundColor;
+        // Don't modify position, padding, or other layout properties here
+      } else {
+        container.style.backgroundColor = "";
+      }
 
-      // Handle Face Image specifically
-      if (field.type === "image") {
-        el.style.position = "relative";
+      // Clear container for field rendering
+      container.innerHTML = "";
+
+      const renderField = (field, props) => {
+        if (field.type === "category") {
+          return null;
+        }
+
+        const el = document.createElement("div");
+        el.id = `field-${field.id}`;
+
+        // Use fixed or relative positioning based on toggle
+        el.style.position = fixedPosition ? "absolute" : "relative";
         el.style.marginLeft = props.marginLeft;
         el.style.marginTop = props.marginTop;
-        el.style.display = "flex";
-        el.style.justifyContent =
-          props.position === "left"
-            ? "flex-start"
-            : props.position === "center"
-            ? "center"
-            : "flex-end";
 
-        const imageWrapper = document.createElement("div");
-        imageWrapper.style.width = props.width || "30mm";
-        imageWrapper.style.height = props.height || "40mm";
-        imageWrapper.style.borderRadius = props.borderRadius || "0px";
-        imageWrapper.style.overflow = "hidden";
-        imageWrapper.style.backgroundColor = "#f0f0f0";
-        imageWrapper.style.display = "flex";
-        imageWrapper.style.alignItems = "center";
-        imageWrapper.style.justifyContent = "center";
-        imageWrapper.style.border = "1px solid #ddd";
+        if (field.type === "image") {
+          el.style.display = "flex";
+          el.style.justifyContent =
+            props.position === "left"
+              ? "flex-start"
+              : props.position === "center"
+              ? "center"
+              : "flex-end";
 
-        // Create a placeholder for the face image
-        const placeholder = document.createElement("div");
-        placeholder.style.display = "flex";
-        placeholder.style.flexDirection = "column";
-        placeholder.style.alignItems = "center";
-        placeholder.style.justifyContent = "center";
-        placeholder.style.color = "#999";
+          const imageWrapper = document.createElement("div");
+          imageWrapper.style.width = props.width || "30mm";
+          imageWrapper.style.height = props.height || "40mm";
+          imageWrapper.style.borderRadius = props.borderRadius || "0px";
+          imageWrapper.style.overflow = "hidden";
+          imageWrapper.style.backgroundColor = "#f0f0f0";
+          imageWrapper.style.display = "flex";
+          imageWrapper.style.alignItems = "center";
+          imageWrapper.style.justifyContent = "center";
+          imageWrapper.style.border = "1px solid #ddd";
 
-        // Add user icon
-        placeholder.innerHTML = `
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-          <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
-        `;
+          const placeholder = document.createElement("div");
+          placeholder.style.display = "flex";
+          placeholder.style.flexDirection = "column";
+          placeholder.style.alignItems = "center";
+          placeholder.style.justifyContent = "center";
+          placeholder.style.color = "#999";
 
-        imageWrapper.appendChild(placeholder);
-        el.appendChild(imageWrapper);
+          placeholder.innerHTML = `
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
+          `;
+
+          imageWrapper.appendChild(placeholder);
+          el.appendChild(imageWrapper);
+          return el;
+        }
+
+        el.innerText = field.name;
+        el.style.textAlign = props.position;
+        el.style.fontFamily = props.fontFamily;
+        el.style.fontSize = props.fontSize;
+        el.style.color = selectedCategory?.textColor || props.fontColor;
+        el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
+        el.style.fontStyle = props.fontStyle === "italic" ? "italic" : "normal";
+        el.style.textTransform =
+          props.textFormat === "uppercase"
+            ? "uppercase"
+            : props.textFormat === "lowercase"
+            ? "lowercase"
+            : props.textFormat === "capitalize"
+            ? "capitalize"
+            : "none";
+
+        if (field.type === "qrcode") {
+          el.innerText = "";
+          const qrWrapper = document.createElement("div");
+          qrWrapper.style.display = "flex";
+          qrWrapper.style.justifyContent =
+            props.position === "left"
+              ? "flex-start"
+              : props.position === "center"
+              ? "center"
+              : "flex-end";
+
+          const qrCanvas = document.createElement("canvas");
+          qrCanvas.style.width = props.width;
+          qrCanvas.style.height = props.height;
+
+          QRCode.toCanvas(
+            qrCanvas,
+            "Sample QR Data",
+            { width: parseInt(props.width), margin: 1 },
+            (error) => {
+              if (error) console.error("QR generation error:", error);
+            }
+          );
+
+          qrWrapper.appendChild(qrCanvas);
+          el.appendChild(qrWrapper);
+        }
+
         return el;
-      }
+      };
 
-      el.innerText = field.name;
+      for (let i = 0; i < selectedFields.length; i++) {
+        const field = selectedFields[i];
+        const props = fieldProperties[field.id] || defaultStyleSettings;
 
-      el.style.position = "relative";
-      el.style.marginLeft = props.marginLeft;
-      el.style.marginTop = props.marginTop;
-      el.style.textAlign = props.position;
-      el.style.fontFamily = props.fontFamily;
-      el.style.fontSize = props.fontSize;
-      el.style.color = selectedCategory?.textColor || props.fontColor;
-      el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
-      el.style.fontStyle = props.fontStyle === "italic" ? "italic" : "normal";
-      el.style.textTransform =
-        props.textFormat === "uppercase"
-          ? "uppercase"
-          : props.textFormat === "lowercase"
-          ? "lowercase"
-          : props.textFormat === "capitalize"
-          ? "capitalize"
-          : "none";
+        if (field.id === "firstName") {
+          const nextField = selectedFields[i + 1];
+          if (nextField?.id === "lastName") {
+            const wrapper = document.createElement("div");
+            wrapper.style.display = "flex";
+            wrapper.style.gap = "8px";
+            wrapper.style.position = fixedPosition ? "absolute" : "relative";
+            wrapper.style.marginTop = props.marginTop;
+            wrapper.style.marginLeft = props.marginLeft;
 
-      // Handle QR Code specifically
-      if (field.type === "qrcode") {
-        el.innerText = "";
-        const qrWrapper = document.createElement("div");
-        qrWrapper.style.display = "flex";
-        qrWrapper.style.justifyContent =
-          props.position === "left"
-            ? "flex-start"
-            : props.position === "center"
-            ? "center"
-            : "flex-end";
-        qrWrapper.style.marginLeft = props.marginLeft;
-        qrWrapper.style.marginTop = props.marginTop;
+            const firstEl = renderField(field, props);
+            const lastProps = fieldProperties[nextField.id] || defaultStyleSettings;
+            const lastEl = renderField(nextField, lastProps);
 
-        const qrCanvas = document.createElement("canvas");
-        qrCanvas.style.width = props.width;
-        qrCanvas.style.height = props.height;
-
-        QRCode.toCanvas(
-          qrCanvas,
-          "Sample QR Data",
-          { width: parseInt(props.width), margin: 1 },
-          (error) => {
-            if (error) console.error("QR generation error:", error);
+            if (firstEl) {
+              firstEl.style.position = "relative";
+              firstEl.style.marginTop = "0";
+              firstEl.style.marginLeft = "0";
+              wrapper.appendChild(firstEl);
+            }
+            if (lastEl) {
+              lastEl.style.position = "relative";
+              lastEl.style.marginTop = "0";
+              lastEl.style.marginLeft = "0";
+              wrapper.appendChild(lastEl);
+            }
+            container.appendChild(wrapper);
+            i++;
+            continue;
           }
-        );
+        }
 
-        qrWrapper.appendChild(qrCanvas);
-        el.appendChild(qrWrapper);
-      }
-
-      return el;
-    };
-
-    for (let i = 0; i < selectedFields.length; i++) {
-      const field = selectedFields[i];
-      const props = fieldProperties[field.id] || defaultStyleSettings;
-
-      if (field.id === "firstName") {
-        const nextField = selectedFields[i + 1];
-        if (nextField?.id === "lastName") {
-          const wrapper = document.createElement("div");
-          wrapper.style.display = "flex";
-          wrapper.style.gap = "8px";
-          wrapper.style.marginTop = props.marginTop;
-          wrapper.style.marginLeft = props.marginLeft;
-
-          const firstEl = renderField(field, props);
-          const lastProps =
-            fieldProperties[nextField.id] || defaultStyleSettings;
-          const lastEl = renderField(nextField, lastProps);
-
-          if (firstEl) wrapper.appendChild(firstEl);
-          if (lastEl) wrapper.appendChild(lastEl);
-          container.appendChild(wrapper);
-          i++;
+        if (field.id === "lastName") {
+          const prevField = selectedFields[i - 1];
+          if (prevField?.id !== "firstName") {
+            const el = renderField(field, props);
+            if (el) container.appendChild(el);
+          }
           continue;
         }
-      }
 
-      if (field.id === "lastName") {
-        const prevField = selectedFields[i - 1];
-        if (prevField?.id !== "firstName") {
-          const el = renderField(field, props);
-          if (el) container.appendChild(el);
-        }
-        continue;
+        const el = renderField(field, props);
+        if (el) container.appendChild(el);
       }
-
-      const el = renderField(field, props);
-      if (el) container.appendChild(el);
-    }
+    }, 100);
   }, [
     selectedFields,
     fieldProperties,
@@ -489,6 +496,7 @@ const PaperBadgeEditor = ({ params }) => {
     activeTemplate,
     selectedPaperSize,
     selectedCategory,
+    fixedPosition,
   ]);
 
   return (
@@ -499,7 +507,7 @@ const PaperBadgeEditor = ({ params }) => {
           <h1 className="text-lg font-semibold text-gray-900">
             Paper Badge Setting
           </h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Button
               onClick={handleSave}
               disabled={isSaving}
@@ -507,6 +515,18 @@ const PaperBadgeEditor = ({ params }) => {
             >
               {isSaving ? "Saving..." : "Save Setting"}
             </Button>
+            
+            {/* Fixed Position Toggle */}
+            <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-gray-50">
+              <Label htmlFor="fixed-position" className="text-sm font-medium cursor-pointer">
+                Fixed Position
+              </Label>
+              <Switch
+                id="fixed-position"
+                checked={fixedPosition}
+                onCheckedChange={setFixedPosition}
+              />
+            </div>
 
             {/* Paper Size Selector */}
             <Select
