@@ -65,10 +65,10 @@ export const EBadgeTemplateFormSheet = ({
   };
 
   const sampleHTMLContent = `<!-- Sample E-Badge HTML Template (93.5mm × 122mm) -->
-<div style="width: 93.5mm; height: 122mm; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; font-family: Arial, sans-serif; position: relative;">
+<div style="width: 93.5mm; height: 122mm; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; font-family: Arial, sans-serif; position: relative;">
   
   <!-- Header Section (34mm height) -->
-  <div style="height: 34mm; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; padding: 10px; position: relative;">
+  <div style="height: 34mm; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; position: relative;">
     <div style="text-align: center;">
       <h2 style="margin: 0; font-size: 18px; font-weight: bold;">EVENT NAME</h2>
       <p style="margin: 5px 0 0 0; font-size: 11px;">Conference 2025</p>
@@ -76,7 +76,7 @@ export const EBadgeTemplateFormSheet = ({
   </div>
 
   <!-- Main Content Section (Printable Area: 64mm) -->
-  <div id="badgeContent" style="padding: 10mm; min-height: 64mm; position: relative; visibility: visible;">
+  <div id="badgeContent" style="">
     <!-- Dynamic content will be inserted here by the editor -->
     <div style="text-align: center; color: #999; font-size: 12px; padding: 20px 0;">
       <p>Printable Area</p>
