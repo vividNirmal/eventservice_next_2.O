@@ -101,6 +101,13 @@ const MediaButton = ({ eventData, event_slug }) => {
     router.replace("/attendee");
   }
 
+  function mediaButtonNameUpdate (item){
+    if(item.type == 1 || item.type == 4 ){
+      return scannerData.type == 0 ? `Entry ${item.name}` : `Exit ${item.name}`
+    }else{
+      return item.name
+    }
+  }
   return (
     <div className="flex md:flex-row pb-24 p-4 flex-col md:flex-wrap items-center justify-center h-full min-h-svh gap-4 relative bg-cover bg-no-repeat bg-center bg-[url('/assets/images/scanner-bg.webp')]">
       <div className="w-full flex md:flex-row flex-col md:flex-wrap gap-3 md:gap-5 justify-center xl:min-h-60 px-4">
@@ -155,7 +162,7 @@ const MediaButton = ({ eventData, event_slug }) => {
                       />
                     </div>
                     <span className="text-sm lg:text-lg leading-tight text-center w-full block">
-                      {item.name}
+                      {mediaButtonNameUpdate(item)}
                     </span>
                   </>
                 );
