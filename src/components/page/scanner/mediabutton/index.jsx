@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import FaceComponent from "./faceScanner";
-import SecondQrScanner from "./Qrscanner/SecondQrScanner";
 import MobileWithLogin from "./mobilewithLoging/MobileWithLogin";
 import QrScanner from "./Qrscanner/QrScanner";
 import Image from "next/image";
@@ -200,8 +199,7 @@ const MediaButton = ({ eventData, event_slug }) => {
         {pageRedirect == 3 && (
           <FaceComponent eventData={eventData} onCameraError={cameraError} />
         )}
-
-        {pageRedirect === 5 && <SecondQrScanner onCameraError={cameraError} />}
+        
 
         {pageRedirect === 6 && <MobileWithLogin onCameraError={cameraError} />}
       </div>

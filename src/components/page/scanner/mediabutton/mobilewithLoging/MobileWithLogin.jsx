@@ -2,22 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import QrPage from "@/components/page/UserParticipation/ParticipationQrcode";
-import FaceScanner from "../faceScanner/FaceScanner";
 import { userPostRequest } from "@/service/viewService";
 import { Input } from "@/components/ui/input";
+import OnlyScanner from "../Qrscanner/SecondQrScanner";
 
 const MobileWithLogin = ({ onCameraError }) => {
   const [step, setStep] = useState(1);
   const [showOtpField, setShowOtpField] = useState(false);
   const [form, setForm] = useState({ number: "", otp: "" });
   const [eventData, setEventData] = useState(null);
-  const [userData, setUserData] = useState(null);
-  const [printValue, setPrintValue] = useState(false);
+  const [userData, setUserData] = useState(null);  
   const scannerInputRef = useRef(null);
   const scannerTimeoutRef = useRef(null);
   const [faceError, setFaceError] = useState(false);
-  const [stopScanner, setStopScanner] = useState(false);
-  const [faceLoader, setFaceLoader] = useState(false);
+  
   const [scanCompleted, setScanCompleted] = useState(false);
 
   useEffect(() => {
@@ -26,14 +24,14 @@ const MobileWithLogin = ({ onCameraError }) => {
     }
   }, [step]);
 
-   useEffect(() => {
-      if (faceError) {
-        const timer = setTimeout(() => {
-          setFaceError(false);
-        }, 2000);
-        return () => clearTimeout(timer);
-      }
-    }, [faceError]);
+  useEffect(() => {
+    if (faceError) {
+      const timer = setTimeout(() => {
+        setFaceError(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [faceError]);
 
   const handleInput = (e) => {
     e.preventDefault();
@@ -72,8 +70,7 @@ const MobileWithLogin = ({ onCameraError }) => {
     }
   };
 
-   const getUserName = () => {
-    
+  const getUserName = () => {
     if (userData?.formData && userData?.map_array) {
       const { formData, map_array } = userData;
 
@@ -94,19 +91,9 @@ const MobileWithLogin = ({ onCameraError }) => {
     return "Guest User";
   };
 
-  const handlePrintPermission = (value) => {
-    setPrintValue(!!value);
-  };
-
-  const redirate = () => {
-    setPrintValue(false);
-    setStep(1);
-    setTimeout(() => resetInput(), 500);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();   
+    const formData = new FormData();
     const urlParts = window.location.pathname.split("/");
     const eventSlug = urlParts[urlParts.length - 1];
     const type = JSON.parse(sessionStorage.getItem("scannerloginToken"))?.type;
@@ -115,52 +102,32 @@ const MobileWithLogin = ({ onCameraError }) => {
     formData.append("scanner_type", type);
 
     try {
-      const res = await userPostRequest("verify-otp", formData);      
-      
+      const res = await userPostRequest("verify-otp", formData);
+
       if (res.status == 1) {
-        setEventData(res.data[0])
+        setEventData(res.data[0]);
         setUserData(res.data[1]);
         setStep(3);
-        toast.success( res.data.message );
-      } else{
+        toast.success(res.data.message);
+      } else {
         setForm({ number: "", otp: "" });
         setShowOtpField(false);
         resetInput();
-        toast.error(res.error)  
-        setStep(1)              
+        toast.error(res.error);
+        setStep(1);
       }
     } catch (err) {
       console.log(err);
-      
+
       // toast.error(  err );
     }
     // }
   };
-
-
-   const handleCameraError = (value) => {
-    if (value && onCameraError) {
-      onCameraError(true);
-    }
-  };
-
-  const faceScannerData = async (event) => {
-    try {      
-      const image = event?.image;
-      if (!image) {        
-        return;
-      }
-      setStep(4)            
-      // Trigger face verification immediately when manually captured
-      console.log("📸 Image captured, starting verification...");
-      await handleScanFace(image);
-      
-    } catch (error) {
-      console.error(
-        "Error processing image:",
-        error,
-        event.image?.slice?.(0, 60) + "..."
-      );
+  const handleQrScanner = (data) => {
+    if (data) {
+      setEventData(data[0]);
+      setUserData(data[1]);
+      setStep(3);
     }
   };
 
@@ -176,16 +143,7 @@ const MobileWithLogin = ({ onCameraError }) => {
             autoFocus
             className="bg-transparent appearance-none outline-none border-0 caret-transparent text-transparent"
           />
-          <FaceScanner
-            allowScan={!stopScanner && !faceLoader }
-            onCameraError={handleCameraError}
-            onFaceDetected={faceScannerData}
-            onManualCapture={faceScannerData}
-            faceNotmatch={faceError}            
-          />
-
-          
-
+          <OnlyScanner EventData={handleQrScanner} />
           {faceError && (
             <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
               <div className="flex items-center justify-center mb-2">
@@ -205,8 +163,8 @@ const MobileWithLogin = ({ onCameraError }) => {
                 <p className="text-red-700 font-medium">Face not recognized!</p>
               </div>
               <p className="text-red-600 text-center text-sm">
-                Please position your face clearly in the camera. The scanner will
-                automatically retry in a few seconds...
+                Please position your face clearly in the camera. The scanner
+                will automatically retry in a few seconds...
               </p>
             </div>
           )}
@@ -243,57 +201,61 @@ const MobileWithLogin = ({ onCameraError }) => {
       )}
 
       {step === 2 && (
-         <div className="min-h-screen   flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-slate-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
-      </div>
-
-      {/* Form Container */}
-      <div className="relative z-10 w-full max-w-md">
-        <div className="backdrop-blur-2xl bg-slate-800/40 border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
-          {/* Mobile Number Input with Button in one row */}
-          <div className="flex gap-3 mb-6">
-            <Input
-              type="tel"
-              placeholder="Enter mobile number"
-              value={form.number}
-              onChange={(e) => setForm({ ...form, number: e.target.value })}
-              className="flex-1 bg-slate-700/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
-            />
-            <Button   
-              onClick={handleSubmit}
-              type='submit'
-              className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl border border-cyan-400/30 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
-            >
-              Next
-            </Button>
+        <div className="min-h-screen   flex items-center justify-center p-4">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+            <div className="absolute top-40 right-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-slate-400 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
           </div>
 
-          {/* OTP Input */}
-          {showOtpField && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="flex gap-3">
+          {/* Form Container */}
+          <div className="relative z-10 w-full max-w-md">
+            <div className="backdrop-blur-2xl bg-slate-800/40 border border-slate-700/50 rounded-3xl p-8 shadow-2xl">
+              {/* Mobile Number Input with Button in one row */}
+              <div className="flex gap-3 mb-6">
                 <Input
-                  type="text"
-                  placeholder="000000"
-                  value={form.otp}
-                  onChange={(e) => setForm({ ...form, otp: e.target.value })}
-                  className="flex-1 bg-slate-700/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:border-blue-400 focus:ring-blue-400/20"
+                  type="tel"
+                  placeholder="Enter mobile number"
+                  value={form.number}
+                  onChange={(e) => setForm({ ...form, number: e.target.value })}
+                  className="flex-1 bg-slate-700/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:border-cyan-400 focus:ring-cyan-400/20"
                 />
-                <Button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl border border-blue-400/30 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm whitespace-nowrap">
-                  Verify
+                <Button
+                  onClick={handleSubmit}
+                  type="submit"
+                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl border border-cyan-400/30 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm whitespace-nowrap"
+                >
+                  Next
                 </Button>
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Footer text */}
-        <p className="text-center text-slate-400 text-sm mt-6">We'll send you a verification code</p>
-      </div>
-    </div>
+              {/* OTP Input */}
+              {showOtpField && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="flex gap-3">
+                    <Input
+                      type="text"
+                      placeholder="000000"
+                      value={form.otp}
+                      onChange={(e) =>
+                        setForm({ ...form, otp: e.target.value })
+                      }
+                      className="flex-1 bg-slate-700/50 border-slate-600/50 text-slate-100 placeholder-slate-400 focus:border-blue-400 focus:ring-blue-400/20"
+                    />
+                    <Button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-xl border border-blue-400/30 shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 text-sm whitespace-nowrap">
+                      Verify
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer text */}
+            <p className="text-center text-slate-400 text-sm mt-6">
+              We'll send you a verification code
+            </p>
+          </div>
+        </div>
       )}
 
       {step === 3 && (
@@ -306,16 +268,13 @@ const MobileWithLogin = ({ onCameraError }) => {
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 flex items-center gap-4">
               {/* Profile Image */}
               <div className="flex-shrink-0">
-                {
-                  userData?.faceImageUrl && (
-
-                    <img
-                      className="w-16 h-16 rounded-full border-4 border-white shadow-md object-cover"
-                      src={userData?.faceImageUrl}
-                      alt="Profile"
-                    />
-                  )
-                }
+                {userData?.faceImageUrl && (
+                  <img
+                    className="w-16 h-16 rounded-full border-4 border-white shadow-md object-cover"
+                    src={userData?.faceImageUrl}
+                    alt="Profile"
+                  />
+                )}
               </div>
 
               {/* Content */}
@@ -324,7 +283,7 @@ const MobileWithLogin = ({ onCameraError }) => {
                   {getUserName() || "Demo User"}
                 </h2>
                 {/* <p className="text-sm text-gray-600 mb-3">Official Agency</p> */}
-                <Button variant={"formBtn"} onClick={()=> setStep(4)}>
+                <Button variant={"formBtn"} onClick={() => setStep(4)}>
                   View E-Ticket
                 </Button>
               </div>
@@ -332,14 +291,15 @@ const MobileWithLogin = ({ onCameraError }) => {
           </div>
         </div>
       )}
-      {step === 4 && (       
+      {step === 4 && (
         <QrPage
           eventDetails={eventData}
-          formData={userData?.formData}
+          formData={userData}
           eventData={eventData}
           token={"After_Pass_Data"}
           eventQr={userData?.qrImage}
           registerFormDataId={userData._id}
+          enteryDetails={true}
         />
       )}
     </div>

@@ -6,60 +6,68 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { pdfgenrate } from "@/service/viewService";
 
-const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId }) => {
+const QrPage = ({
+  eventDetails,
+  eventData,
+  formData,
+  eventQr,
+  registerFormDataId,
+  enteryDetails = false,
+}) => {
   const [eventTime, setEventTime] = useState([]);
   const [eventDate, setEventDate] = useState();
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [printLoading, setPrintLoading] = useState(false);  
-  
+  const [printLoading, setPrintLoading] = useState(false);
+
   // Early return if essential data is missing
-  if (!eventDetails && !eventData) {    
+  if (!eventDetails && !eventData) {
     return (
       <section className="h-screen bg-white px-4 py-5 md:py-10 lg:py-20 overflow-auto">
         <Card className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl overflow-hidden border-0 mx-auto relative">
           <div className="p-6 text-center space-y-4">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600" />
             <p className="text-gray-500">Loading event details...</p>
-            <p className="text-sm text-gray-400">Please wait while we generate your QR code</p>
+            <p className="text-sm text-gray-400">
+              Please wait while we generate your QR code
+            </p>
           </div>
         </Card>
       </section>
     );
   }
 
-  useEffect(() => {    
-
+  useEffect(() => {
     // Handle different event details structures and prioritize available data
     let eventInfo = null;
 
     // Try to get event info from multiple sources
     if (eventDetails?.event) {
-      eventInfo = eventDetails.event;      
+      eventInfo = eventDetails.event;
     } else if (eventData) {
-      eventInfo = eventData;      
+      eventInfo = eventData;
     } else if (eventDetails && !eventDetails.event) {
       // Sometimes the event data might be directly in eventDetails
-      eventInfo = eventDetails;      
+      eventInfo = eventDetails;
     }
 
-
     if (!eventInfo) {
-      console.log('⚠️ No event information available for date processing');
+      console.log("⚠️ No event information available for date processing");
       return;
     }
 
     // Try different possible date field names
-    const startDates = eventInfo.start_date ||
+    const startDates =
+      eventInfo.start_date ||
       eventInfo.event_start_date ||
-      (eventInfo.event?.start_date) ||
-      (eventInfo.event?.event_start_date) ||
+      eventInfo.event?.start_date ||
+      eventInfo.event?.event_start_date ||
       [];
-    const endDates = eventInfo.end_date ||
+    const endDates =
+      eventInfo.end_date ||
       eventInfo.event_end_date ||
-      (eventInfo.event?.end_date) ||
-      (eventInfo.event?.event_end_date) ||
+      eventInfo.event?.end_date ||
+      eventInfo.event?.event_end_date ||
       [];
-  
 
     if (startDates?.length && endDates?.length) {
       const times = startDates.map((start, idx) => {
@@ -71,12 +79,14 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
 
         const formattedDate = startMoment.format("Do MMMM YYYY");
         setEventDate(formattedDate);
-        const timeRange = `${startMoment.format("hh:mm A")} to ${endMoment.format("hh:mm A")} IST`;        
+        const timeRange = `${startMoment.format(
+          "hh:mm A"
+        )} to ${endMoment.format("hh:mm A")} IST`;
         return timeRange;
       });
-      setEventTime(times);      
+      setEventTime(times);
     } else {
-      console.log('⚠️ No valid start/end dates found in event data');
+      console.log("⚠️ No valid start/end dates found in event data");
       // Try to extract from event start/end time if dates are not arrays
       if (eventInfo.event_start_date && eventInfo.event_end_date) {
         const startDate = moment.tz(eventInfo.event_start_date, "Asia/Kolkata");
@@ -84,12 +94,18 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
         setEventDate(startDate.format("Do MMMM YYYY"));
 
         if (eventInfo.event_start_time && eventInfo.event_end_time) {
-          setEventTime([`${eventInfo.event_start_time} to ${eventInfo.event_end_time} IST`]);
+          setEventTime([
+            `${eventInfo.event_start_time} to ${eventInfo.event_end_time} IST`,
+          ]);
         } else {
-          setEventTime([`${startDate.format("hh:mm A")} to ${endDate.format("hh:mm A")} IST`]);
-        }        
+          setEventTime([
+            `${startDate.format("hh:mm A")} to ${endDate.format(
+              "hh:mm A"
+            )} IST`,
+          ]);
+        }
       } else {
-        console.error('❌ No date information found in any expected format');
+        console.error("❌ No date information found in any expected format");
       }
     }
   }, [eventDetails, eventData]);
@@ -107,7 +123,9 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `${eventDetails?.slug || eventData?.event_slug || 'event'}.pdf`;
+      link.download = `${
+        eventDetails?.slug || eventData?.event_slug || "event"
+      }.pdf`;
       document.body.appendChild(link);
       link.click();
       // Cleanup
@@ -142,6 +160,29 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
     }
   };
 
+  const getUserName = () => {            
+    
+    if (formData?.formData && formData?.map_array) {
+      const {  map_array } = formData;
+      
+      // Get the mapped field names from map_array
+      const firstNameField = map_array["first_name"];
+      const lastNameField = map_array["last_name"];
+            
+      
+      // Get the actual values from formData
+      const firstName = formData?.formData[firstNameField] || "";
+      const lastName = formData?.formData[lastNameField] || "";
+
+      // Return combined name if either exists
+      if (firstName || lastName) {
+        return `${firstName} ${lastName}`.trim();
+      }
+    }
+
+    return "Guest User";
+  };
+
   return (
     <section className="h-screen  px-4 py-5 md:py-10 lg:py-20 overflow-auto">
       <Card className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl overflow-hidden border-0 mx-auto relative">
@@ -152,8 +193,14 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
             <img src={eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo} className="mx-auto" alt="logo" />
           )} */}
           {/* Show placeholder if no logo */}
-          {!(eventDetails?.event?.event_logo || eventDetails?.event_logo || eventData?.event_logo) && (
-            <div className="mx-auto text-center py-4 text-gray-500">Event Logo</div>
+          {!(
+            eventDetails?.event?.event_logo ||
+            eventDetails?.event_logo ||
+            eventData?.event_logo
+          ) && (
+            <div className="mx-auto text-center py-4 text-gray-500">
+              Event Logo
+            </div>
           )}
         </div>
 
@@ -165,10 +212,18 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
               <Calendar className="w-5 h-5 text-teal-600" />
             </div>
             <div className="flex flex-wrap gap-x-2">
-              <p className="text-base font-medium text-zinc-950 w-full">Date & Time</p>
-              <p className="text-sm text-zinc-500 font-semibold">{eventDetails?.startDate || eventData?.startDate} {eventDetails?.startTime || eventData?.startTime}</p>
+              <p className="text-base font-medium text-zinc-950 w-full">
+                Date & Time
+              </p>
+              <p className="text-sm text-zinc-500 font-semibold">
+                {eventDetails?.startDate || eventData?.startDate}{" "}
+                {eventDetails?.startTime || eventData?.startTime}
+              </p>
               <p className="text-sm text-zinc-500 font-semibold">to</p>
-              <p className="text-sm text-zinc-500 font-semibold">{eventDetails?.endDate || eventData?.endDate} {eventDetails?.endTime || eventData?.endTime}</p>
+              <p className="text-sm text-zinc-500 font-semibold">
+                {eventDetails?.endDate || eventData?.endDate}{" "}
+                {eventDetails?.endTime || eventData?.endTime}
+              </p>
             </div>
           </div>
 
@@ -178,36 +233,61 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
               <MapPin className="w-5 h-5 text-orange-600" />
             </div>
             <div className="flex flex-wrap gap-x-2">
-              <p className="text-base font-medium text-zinc-950 w-full">Location</p>
+              <p className="text-base font-medium text-zinc-950 w-full">
+                Location
+              </p>
               <p className="text-sm text-zinc-500 font-semibold capitalize">
                 {eventDetails?.event?.location ||
                   eventDetails?.location ||
                   eventData?.location ||
                   eventDetails?.participantUser?.dynamic_fields?.location ||
                   eventDetails?.participantUser?.location ||
-                  'Event Location'}
+                  "Event Location"}
               </p>
             </div>
           </div>
 
           {/* Event Details */}
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-800 mb-1">
-              {eventDetails?.participantUser?.dynamic_form_data?.first_name ||
-                eventDetails?.participantUser?.dynamic_form_data?.full_name ||
-                eventDetails?.participantUser?.first_name ||
-                'Participant'}{" "}
-              {eventDetails?.participantUser?.dynamic_form_data?.last_name ||
-                eventDetails?.participantUser?.last_name ||
-                ''}
-            </h2>
-            <p className="text-slate-500 font-medium">
-              ({eventDetails?.participantUser?.dynamic_form_data?.designation ||
-                eventDetails?.participantUser?.dynamic_form_data?.role ||
-                eventDetails?.participantUser?.designation ||
-                'Participant'})
-            </p>
-          </div>
+          {enteryDetails ? (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-slate-800 mb-1">
+                {getUserName() ||"Participant"}
+                {eventDetails?.participantUser?.dynamic_form_data?.last_name ||
+                  eventDetails?.participantUser?.last_name ||
+                  ""}
+              </h2>
+              <p className="text-slate-500 font-medium">
+                (
+                {eventDetails?.participantUser?.dynamic_form_data
+                  ?.designation ||
+                  eventDetails?.participantUser?.dynamic_form_data?.role ||
+                  eventDetails?.participantUser?.designation ||
+                  "Participant"}
+                )
+              </p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-slate-800 mb-1">
+                {eventDetails?.participantUser?.dynamic_form_data?.first_name ||
+                  eventDetails?.participantUser?.dynamic_form_data?.full_name ||
+                  eventDetails?.participantUser?.first_name ||
+                  "Participant"}{" "}
+                {eventDetails?.participantUser?.dynamic_form_data?.last_name ||
+                  eventDetails?.participantUser?.last_name ||
+                  ""}
+              </h2>
+              <p className="text-slate-500 font-medium">
+                (
+                {eventDetails?.participantUser?.dynamic_form_data
+                  ?.designation ||
+                  eventDetails?.participantUser?.dynamic_form_data?.role ||
+                  eventDetails?.participantUser?.designation ||
+                  "Participant"}
+                )
+              </p>
+            </div>
+          )}
 
           {/* QR Code */}
           <div className="flex justify-center">
@@ -224,7 +304,9 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
                 <div className="w-[228px] h-[228px] bg-gray-100 flex items-center justify-center rounded-lg">
                   <div className="text-center space-y-2">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto text-teal-600" />
-                    <p className="text-gray-500 text-sm">Generating QR Code...</p>
+                    <p className="text-gray-500 text-sm">
+                      Generating QR Code...
+                    </p>
                   </div>
                 </div>
               )}
@@ -240,7 +322,12 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" className="text-base flex-1 h-12 font-semibold border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300" onClick={handleDownload} disabled={pdfLoading}>
+            <Button
+              variant="outline"
+              className="text-base flex-1 h-12 font-semibold border-teal-200 text-teal-700 hover:bg-teal-50 hover:border-teal-300"
+              onClick={handleDownload}
+              disabled={pdfLoading}
+            >
               {pdfLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -253,7 +340,11 @@ const QrPage = ({ eventDetails, eventData, formData,eventQr, registerFormDataId 
                 </>
               )}
             </Button>
-            <Button className="text-base flex-1 h-12 font-semibold !border-none hover:text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800" onClick={handlePrint} disabled={printLoading}>
+            <Button
+              className="text-base flex-1 h-12 font-semibold !border-none hover:text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800"
+              onClick={handlePrint}
+              disabled={printLoading}
+            >
               {printLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
