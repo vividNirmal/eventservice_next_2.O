@@ -72,8 +72,26 @@ const MobileWithLogin = ({ onCameraError }) => {
     }
   };
 
-  const handleCameraErr = (value) => {
-    if (value && onCameraError) onCameraError(true);
+   const getUserName = () => {
+    
+    if (userData?.formData && userData?.map_array) {
+      const { formData, map_array } = userData;
+
+      // Get the mapped field names from map_array
+      const firstNameField = map_array["first_name"];
+      const lastNameField = map_array["last_name"];
+
+      // Get the actual values from formData
+      const firstName = formData[firstNameField] || "";
+      const lastName = formData[lastNameField] || "";
+
+      // Return combined name if either exists
+      if (firstName || lastName) {
+        return `${firstName} ${lastName}`.trim();
+      }
+    }
+
+    return "Guest User";
   };
 
   const handlePrintPermission = (value) => {
@@ -166,19 +184,7 @@ const MobileWithLogin = ({ onCameraError }) => {
             faceNotmatch={faceError}            
           />
 
-          {/* {faceLoader && (
-            <div className="flex items-center justify-center mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-500 mr-3" />
-              <div className="text-center">
-                <span className="text-blue-700 font-medium block">
-                  Verifying face and marking attendance...
-                </span>
-                <span className="text-blue-600 text-sm">
-                  Please wait while we process your scan
-                </span>
-              </div>
-            </div>
-          )} */}
+          
 
           {faceError && (
             <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
@@ -315,7 +321,7 @@ const MobileWithLogin = ({ onCameraError }) => {
               {/* Content */}
               <div className="flex-1">
                 <h2 className="text-lg font-bold text-gray-800">
-                  {userData?.firsName || "Demo User"}
+                  {getUserName() || "Demo User"}
                 </h2>
                 {/* <p className="text-sm text-gray-600 mb-3">Official Agency</p> */}
                 <Button variant={"formBtn"} onClick={()=> setStep(4)}>

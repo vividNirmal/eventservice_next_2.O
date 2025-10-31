@@ -138,7 +138,7 @@ const MediaButton = ({ eventData, event_slug }) => {
         {pageRedirect === 1 && (
           <div className="flex flex-wrap justify-center gap-4 max-w-4xl w-full mx-auto">
             <div className="w-full text-center">
-              <h3 className="text-white mb-3 md:mb-5 text-xl lg:text-3xl 2xl:text-4xl font-semibold capitalize -tracking-wide">
+              <h3 className="text-white sm:mb-3 md:mb-5 text-xl lg:text-3xl 2xl:text-4xl font-semibold capitalize -tracking-wide">
                 Choose your choice
               </h3>
             </div>
@@ -174,7 +174,7 @@ const MediaButton = ({ eventData, event_slug }) => {
                   <button
                     key={idx}
                     disabled={isDisabled}
-                    className="text-white bg-white/10 hover:bg-white/15 backdrop-blur-lg border border-solid border-white/20 overflow-hidden rounded-xl lg:rounded-2xl cursor-pointer p-4 outline-0 flex flex-col items-center gap-3 max-w-1/3 w-1/4 grow transition-all duration-200 ease-linear"
+                    className="text-white bg-white/10 hover:bg-white/15 backdrop-blur-lg border border-solid border-white/20 overflow-hidden rounded-xl lg:rounded-2xl cursor-pointer p-4 outline-0 flex flex-col items-center gap-3 w-3xs md:max-w-1/3 md:w-1/4 grow transition-all duration-200 ease-linear"
                     onClick={onClick}
                   >
                     <ButtonContent />

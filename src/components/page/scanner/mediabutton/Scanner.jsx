@@ -402,12 +402,12 @@ const Scanner = ({
 
           {/* Video & Controls */}
           <div className="flex flex-col items-center gap-10">
-            <div className="relative rounded-xl overflow-hidden w-[200px] h-[300px] mx-auto border-8 border-solid border-white/30 bg-gray-900">
+            <div className="relative rounded-xl overflow-hidden w-3xs h-[300px] mx-auto border-8 border-solid border-white/30 bg-gray-900">
               <Button
                 variant="ghost"
                 onClick={toggleCamera}
                 disabled={cameras.length < 2 || !cameraReady}
-                className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden"
+                className="!absolute !top-2 !left-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none z-30 md:hidden"
               >
                 <SwitchCameraIcon />
               </Button>

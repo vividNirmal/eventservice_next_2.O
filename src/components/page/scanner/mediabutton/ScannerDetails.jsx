@@ -25,8 +25,10 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
         handleAudioBasedOnStatus();
       } else {       
         let userImage = null;
-        if (qrData[3]?.user_image) {
-          userImage = qrData[3].user_image;
+        if (qrData[1]?.faceImageUrl) {
+          userImage = qrData[1].faceImageUrl;
+        }else if(qrData[1]?.qrImage){
+          userImage = qrData[1].qrImage;
         }
         setImageLoading(true);
 
@@ -187,6 +189,7 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
       case "red":
         return "bg-gradient-to-r from-red-400 to-red-600";
       case "green":
+        return "bg-gradient-to-r from-green-400 to-green-600";
       default:
         return "bg-gradient-to-r from-green-400 to-green-600";
     }

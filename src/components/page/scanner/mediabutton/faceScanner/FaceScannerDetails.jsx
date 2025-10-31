@@ -1,6 +1,5 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 const FaceScannerDetails = ({ faceData, onRedirect }) => {
@@ -34,8 +33,8 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
         let userImage = null;
 
         // Check in faceData[3] (original location)
-        if (faceData[3]?.user_image) {
-          userImage = faceData[3].user_image;
+        if (faceData[2]?.user_image) {
+          userImage = faceData[2].user_image;
         }
         setImageLoading(true);
 
@@ -140,7 +139,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
     }
 
     // Check the main status color
-    const status = faceData?.[4];
+    const status = faceData?.[3];
     const colorStatus = status?.color_status;
 
     if (colorStatus === "green") {
@@ -154,13 +153,14 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
 
   // Get gradient background color based on status
   const getBackgroundColor = () => {
-    const status = faceData?.[4];
+    const status = faceData?.[3];
     switch (status?.color_status) {
       case "yellow":
         return "bg-gradient-to-r from-yellow-400 to-yellow-600";
       case "red":
         return "bg-gradient-to-r from-red-400 to-red-600";
       case "green":
+        return "bg-gradient-to-r from-green-400 to-green-600";
       default:
         return "bg-gradient-to-r from-red-400 to-red-600";
     }
@@ -168,7 +168,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
 
   // Get status message
   const getStatusMessage = () => {
-    return faceData?.[4]?.scanning_msg || "We Welcome You!";
+    return faceData?.[3]?.scanning_msg || "We Welcome You!";
   };
 
   // Check if this is an error response
@@ -184,10 +184,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
     <>
       {userNotFound ? (
         <div
-          onClick={() => {
-            console.log(
-              "🔄 FaceScannerDetails userNotFound clicked, calling onRedirect"
-            );
+          onClick={() => {           
             onRedirect();
           }}
           className="max-w-96 mx-auto flex flex-col justify-center gap-4 w-full rounded-sm bg-gradient-to-t bg-[#ff4f4f] from-white p-4 min-h-80 cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200"
