@@ -20,7 +20,6 @@ const UserRegisterEvent = () => {
   const [formData, setFormData] = useState({ email: "" });
   const [eventData, setEventData] = useState(null);
   const [ticketData, setTicketData] = useState(null);
-
   const [visitReason, setVisitReason] = useState([]);
   const [companyVisit, setCompanyVisit] = useState([]);
   const [qrEventDetails, setQrEventDetails] = useState(null);
