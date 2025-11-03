@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { X, Trash2, User } from "lucide-react";
+import { X, Trash2, User, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import {
@@ -16,7 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import QRCode from "qrcode";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const availableFields = [
   { id: "faceImage", name: "Face Image", type: "image" },
@@ -78,28 +85,35 @@ const PaperBadgeEditor = ({ params }) => {
   const [fieldProperties, setFieldProperties] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [fixedPosition, setFixedPosition] = useState(false);
+  const [renderHtml, setRenderHtml] = useState("");
 
   // Paper size state
   const [selectedPaperSize, setSelectedPaperSize] = useState("a4");
 
-  const currentFieldProperties = selectedFieldId
-    ? fieldProperties[selectedFieldId]
-    : defaultStyleSettings;
+  // Multi-select state
+  const [selectedForCombining, setSelectedForCombining] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const currentField = selectedFields.find((f) => f.id === selectedFieldId);
-
-  // Get the badge category field and its selected category
-  const badgeCategoryField = selectedFields.find(
-    (f) => f.id === "badgeCategory"
+  // Get current field group
+  const currentField = selectedFields.find(
+    (f) => (f.combined_id || f.id) === selectedFieldId
   );
-  const selectedCategoryId = badgeCategoryField
-    ? fieldProperties["badgeCategory"]?.categoryId
+
+  // Find badge category and get selected category
+  const badgeCategoryGroup = selectedFields.find((f) =>
+    f.field?.some((field) => field.id === "badgeCategory")
+  );
+  const selectedCategoryId = badgeCategoryGroup
+    ? fieldProperties[badgeCategoryGroup.combined_id || badgeCategoryGroup.id]
+        ?.categoryId
     : null;
   const selectedCategory = badgeCategories.find(
     (cat) => cat._id === selectedCategoryId
   );
 
-  // Get current paper dimensions
+  const activeTemplate = templates.find((t) => t._id === selectedTemplate);
+
+  // Get paper dimensions
   const getPaperDimensions = () => {
     const paper = paperSizes.find((p) => p.id === selectedPaperSize);
     return {
@@ -132,7 +146,19 @@ const PaperBadgeEditor = ({ params }) => {
           data.templateId === null ? "withoutDesign" : "withDesign"
         );
         setSelectedTemplate(data.templateId?._id || null);
-        setSelectedFields(data.fields || []);
+        
+        // Handle both old and new data structure
+        let fields = data.fields || [];
+
+        // Convert old structure to new if needed
+        if (fields.length > 0 && !fields[0].field) {
+          fields = fields.map((f) => ({
+            id: f.id,
+            field: [f],
+          }));
+        }
+
+        setSelectedFields(fields);
         setFieldProperties(data.fieldProperties || {});
         setFixedPosition(data.fixedPosition || false);
 
@@ -166,19 +192,6 @@ const PaperBadgeEditor = ({ params }) => {
     }
   };
 
-  const handleDesignTypeChange = async (value) => {
-    setDesignType(value);
-    if (value === "withoutDesign") {
-      setSelectedTemplate(null);
-    } else if (value === "withDesign" && eventId) {
-      await fetchTemplates();
-    }
-  };
-
-  const handlePaperSizeChange = (value) => {
-    setSelectedPaperSize(value);
-  };
-
   const fetchBadgeCategories = async () => {
     try {
       const res = await getRequest(`get-badge-category-by-eventId/${eventId}`);
@@ -194,30 +207,98 @@ const PaperBadgeEditor = ({ params }) => {
     }
   };
 
-  // ─── Handle Add/Remove Fields ───────────────────────────────
-  const handleAddField = (fieldId) => {
-    const field = availableFields.find((f) => f.id === fieldId);
-    if (field && !selectedFields.find((f) => f.id === fieldId)) {
-      setSelectedFields([...selectedFields, field]);
-      setFieldProperties({
-        ...fieldProperties,
-        [fieldId]: fieldProperties[fieldId] || { ...defaultStyleSettings },
-      });
-
-      setSelectedFieldId(fieldId); // Auto-select the newly added field
+  const handleDesignTypeChange = async (value) => {
+    setDesignType(value);
+    if (value === "withoutDesign") {
+      setSelectedTemplate(null);
+    } else if (value === "withDesign" && eventId) {
+      await fetchTemplates();
     }
   };
 
-  const handleRemoveField = (fieldId) => {
-    const updatedFields = selectedFields.filter((f) => f.id !== fieldId);
+  // ─── Handle checkbox selection in dropdown
+  const handleCheckboxChange = (fieldId, checked) => {
+    const field = availableFields.find((f) => f.id === fieldId);
+
+    // If badge category is selected/deselected
+    if (fieldId === "badgeCategory") {
+      if (checked) {
+        setSelectedForCombining(["badgeCategory"]);
+      } else {
+        setSelectedForCombining([]);
+      }
+      return;
+    }
+
+    // Normal selection logic
+    if (checked) {
+      setSelectedForCombining([...selectedForCombining, fieldId]);
+    } else {
+      setSelectedForCombining(
+        selectedForCombining.filter((id) => id !== fieldId)
+      );
+    }
+  };
+
+  // Add fields (single or combined)
+  const handleAddFields = () => {
+    if (selectedForCombining.length === 0) {
+      toast.error("Please select at least one field");
+      return;
+    }
+
+    const fieldsToAdd = selectedForCombining
+      .map((fieldId) => availableFields.find((f) => f.id === fieldId))
+      .filter(Boolean);
+
+    if (selectedForCombining.length === 1) {
+      // Add as single field
+      const field = fieldsToAdd[0];
+      const newField = {
+        id: field.id,
+        field: [field],
+      };
+
+      setSelectedFields([...selectedFields, newField]);
+      setFieldProperties({
+        ...fieldProperties,
+        [field.id]: { ...defaultStyleSettings },
+      });
+      setSelectedFieldId(field.id);
+    } else {
+      // Add as combined fields
+      const combined_id = `combined_${Date.now()}`;
+      const newCombinedGroup = {
+        combined_id,
+        field: fieldsToAdd,
+      };
+
+      setSelectedFields([...selectedFields, newCombinedGroup]);
+      setFieldProperties({
+        ...fieldProperties,
+        [combined_id]: { ...defaultStyleSettings },
+      });
+      setSelectedFieldId(combined_id);
+    }
+
+    setSelectedForCombining([]);
+    setIsDropdownOpen(false);
+  };
+
+  const handleRemoveField = (fieldGroupId) => {
+    const updatedFields = selectedFields.filter(
+      (f) => (f.combined_id || f.id) !== fieldGroupId
+    );
     setSelectedFields(updatedFields);
 
-    if (selectedFieldId === fieldId) {
-      setSelectedFieldId(updatedFields[0]?.id || null);
+    if (selectedFieldId === fieldGroupId) {
+      setSelectedFieldId(
+        updatedFields[0]?.combined_id || updatedFields[0]?.id || null
+      );
     }
 
     const updatedProperties = { ...fieldProperties };
-    delete updatedProperties[fieldId];
+    delete updatedProperties[fieldGroupId];
     setFieldProperties(updatedProperties);
   };
 
@@ -230,6 +311,13 @@ const PaperBadgeEditor = ({ params }) => {
         [key]: value,
       },
     });
+  };
+
+  // Check if field is already added
+  const isFieldAlreadyAdded = (fieldId) => {
+    return selectedFields.some((f) =>
+      f.field?.some((innerField) => innerField.id === fieldId)
+    );
   };
 
   // ─── Save Settings ───────────────────────────────
@@ -267,7 +355,9 @@ const PaperBadgeEditor = ({ params }) => {
 
   const handleClose = () => router.back();
 
-  const activeTemplate = templates.find((t) => t._id === selectedTemplate);
+  const currentFieldProperties = selectedFieldId
+    ? fieldProperties[selectedFieldId] || defaultStyleSettings
+    : defaultStyleSettings;
 
   // ─── Get Preview HTML based on design type ──────────────────
   const getPreviewHTML = () => {
@@ -300,194 +390,190 @@ const PaperBadgeEditor = ({ params }) => {
       </div>`;
   };
 
+  // Render field helper
+  const renderField = async (field, props, selectedCategory) => {
+    // Skip rendering badge category field - it only applies colors
+    if (field.type === "category") {
+      return null;
+    }
+
+    const el = document.createElement("div");
+    el.id = `field-${field.id}`;
+    el.style.position = fixedPosition ? "absolute" : "relative";
+    el.style.marginLeft = props.marginLeft;
+    el.style.marginTop = props.marginTop;
+
+    if (field.type === "image") {
+      el.style.display = "flex";
+      el.style.justifyContent =
+        props.position === "left"
+          ? "flex-start"
+          : props.position === "center"
+          ? "center"
+          : "flex-end";
+
+      const imageWrapper = document.createElement("div");
+      imageWrapper.style.width = props.width || "30mm";
+      imageWrapper.style.height = props.height || "40mm";
+      imageWrapper.style.borderRadius = props.borderRadius || "0px";
+      imageWrapper.style.overflow = "hidden";
+      imageWrapper.style.backgroundColor = "#f0f0f0";
+      imageWrapper.style.display = "flex";
+      imageWrapper.style.alignItems = "center";
+      imageWrapper.style.justifyContent = "center";
+      imageWrapper.style.border = "1px solid #ddd";
+
+      const placeholder = document.createElement("div");
+      placeholder.style.display = "flex";
+      placeholder.style.flexDirection = "column";
+      placeholder.style.alignItems = "center";
+      placeholder.style.justifyContent = "center";
+      placeholder.style.color = "#999";
+
+      placeholder.innerHTML = `
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
+      `;
+
+      imageWrapper.appendChild(placeholder);
+      el.appendChild(imageWrapper);
+      return el;
+    }
+
+    el.innerText = field.name;
+    el.style.textAlign = props.position;
+    el.style.fontFamily = props.fontFamily;
+    el.style.fontSize = props.fontSize;
+    el.style.color = selectedCategory?.textColor || props.fontColor;
+    el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
+    el.style.textTransform =
+      props.textFormat === "uppercase"
+        ? "uppercase"
+        : props.textFormat === "lowercase"
+        ? "lowercase"
+        : props.textFormat === "capitalize"
+        ? "capitalize"
+        : "none";
+
+    if (field.type === "qrcode") {
+      el.innerText = "";
+
+      const qrWrapper = document.createElement("div");
+      qrWrapper.style.display = "flex";
+      qrWrapper.style.justifyContent =
+        props.position === "left"
+          ? "flex-start"
+          : props.position === "center"
+          ? "center"
+          : "flex-end";
+
+      const qrImg = document.createElement("img");
+      qrImg.style.width = props.width;
+      qrImg.style.height = props.height;
+
+      // Generate QR code as base64 image
+      QRCode.toDataURL("Sample QR Data", { width: parseInt(props.width), margin: 1 })
+        .then((url) => {
+          qrImg.src = url;
+        })
+        .catch((err) => console.error("QR generation error:", err));
+
+      qrWrapper.appendChild(qrImg);
+      el.appendChild(qrWrapper);
+    }
+
+    return el;
+  };
+
   // ─── Render Fields in Preview ───────────────────────────────
   useEffect(() => {
-    const previewContainer = previewRef.current;
-    if (!previewContainer) return;
+    const renderPreview = async () => {
+      const previewContainer = previewRef.current;
+      if (!previewContainer) return;
 
-    setTimeout(() => {
-      let container = previewContainer.querySelector("#badgeContent");
-      if (!container) return;
+      setTimeout(async () => {
+        let container = previewContainer.querySelector("#badgeContent");
+        if (!container) return;
 
-      // Ensure container is properly set up
-      if (container.tagName.toLowerCase() === "span") {
-        const wrapper = document.createElement("div");
-        wrapper.id = "badgeContent";
-        wrapper.style.position = fixedPosition ? "absolute" : "relative";
-        wrapper.style.width = "100%";
-        wrapper.style.height = "100%";
-        wrapper.style.visibility = "visible";
+        // Ensure container is properly set up
+        if (container.tagName.toLowerCase() === "span") {
+          const wrapper = document.createElement("div");
+          wrapper.id = "badgeContent";
+          wrapper.style.position = fixedPosition ? "absolute" : "relative";
+          wrapper.style.width = "100%";
+          wrapper.style.height = "100%";
+          wrapper.style.visibility = "visible";
 
-        while (container.firstChild) wrapper.appendChild(container.firstChild);
-        container.parentNode?.replaceChild(wrapper, container);
-        container = wrapper;
-      } else {
-        container.style.visibility = "visible";
-        container.style.position = fixedPosition ? "absolute" : "relative";
-        container.style.width = "100%";
-        container.style.height = "100%";
-      }
-
-      // Apply category colors to the entire badge WITHOUT changing layout
-      if (selectedCategory) {
-        container.style.backgroundColor = selectedCategory.backgroundColor;
-        // Don't modify position, padding, or other layout properties here
-      } else {
-        container.style.backgroundColor = "";
-      }
-
-      // Clear container for field rendering
-      container.innerHTML = "";
-
-      const renderField = (field, props) => {
-        if (field.type === "category") {
-          return null;
+          while (container.firstChild) wrapper.appendChild(container.firstChild);
+          container.parentNode?.replaceChild(wrapper, container);
+          container = wrapper;
+        } else {
+          container.style.visibility = "visible";
+          container.style.position = fixedPosition ? "absolute" : "relative";
+          container.style.width = "100%";
+          container.style.height = "100%";
         }
 
-        const el = document.createElement("div");
-        el.id = `field-${field.id}`;
-
-        // Use fixed or relative positioning based on toggle
-        el.style.position = fixedPosition ? "absolute" : "relative";
-        el.style.marginLeft = props.marginLeft;
-        el.style.marginTop = props.marginTop;
-
-        if (field.type === "image") {
-          el.style.display = "flex";
-          el.style.justifyContent =
-            props.position === "left"
-              ? "flex-start"
-              : props.position === "center"
-              ? "center"
-              : "flex-end";
-
-          const imageWrapper = document.createElement("div");
-          imageWrapper.style.width = props.width || "30mm";
-          imageWrapper.style.height = props.height || "40mm";
-          imageWrapper.style.borderRadius = props.borderRadius || "0px";
-          imageWrapper.style.overflow = "hidden";
-          imageWrapper.style.backgroundColor = "#f0f0f0";
-          imageWrapper.style.display = "flex";
-          imageWrapper.style.alignItems = "center";
-          imageWrapper.style.justifyContent = "center";
-          imageWrapper.style.border = "1px solid #ddd";
-
-          const placeholder = document.createElement("div");
-          placeholder.style.display = "flex";
-          placeholder.style.flexDirection = "column";
-          placeholder.style.alignItems = "center";
-          placeholder.style.justifyContent = "center";
-          placeholder.style.color = "#999";
-
-          placeholder.innerHTML = `
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
-          `;
-
-          imageWrapper.appendChild(placeholder);
-          el.appendChild(imageWrapper);
-          return el;
+        // Apply category colors to the entire badge
+        if (selectedCategory) {
+          container.style.backgroundColor = selectedCategory.backgroundColor;
+          container.style.color = selectedCategory.textColor;
+        } else {
+          container.style.backgroundColor = "";
+          container.style.color = "";
         }
 
-        el.innerText = field.name;
-        el.style.textAlign = props.position;
-        el.style.fontFamily = props.fontFamily;
-        el.style.fontSize = props.fontSize;
-        el.style.color = selectedCategory?.textColor || props.fontColor;
-        el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
-        el.style.fontStyle = props.fontStyle === "italic" ? "italic" : "normal";
-        el.style.textTransform =
-          props.textFormat === "uppercase"
-            ? "uppercase"
-            : props.textFormat === "lowercase"
-            ? "lowercase"
-            : props.textFormat === "capitalize"
-            ? "capitalize"
-            : "none";
+        // Clear container for field rendering
+        container.innerHTML = "";
 
-        if (field.type === "qrcode") {
-          el.innerText = "";
-          const qrWrapper = document.createElement("div");
-          qrWrapper.style.display = "flex";
-          qrWrapper.style.justifyContent =
-            props.position === "left"
-              ? "flex-start"
-              : props.position === "center"
-              ? "center"
-              : "flex-end";
+        // Render fields sequentially to handle async QR code generation
+        for (const fieldGroup of selectedFields) {
+          const groupId = fieldGroup.combined_id || fieldGroup.id;
+          const props = fieldProperties[groupId] || defaultStyleSettings;
 
-          const qrCanvas = document.createElement("canvas");
-          qrCanvas.style.width = props.width;
-          qrCanvas.style.height = props.height;
-
-          QRCode.toCanvas(
-            qrCanvas,
-            "Sample QR Data",
-            { width: parseInt(props.width), margin: 1 },
-            (error) => {
-              if (error) console.error("QR generation error:", error);
-            }
-          );
-
-          qrWrapper.appendChild(qrCanvas);
-          el.appendChild(qrWrapper);
-        }
-
-        return el;
-      };
-
-      for (let i = 0; i < selectedFields.length; i++) {
-        const field = selectedFields[i];
-        const props = fieldProperties[field.id] || defaultStyleSettings;
-
-        if (field.id === "firstName") {
-          const nextField = selectedFields[i + 1];
-          if (nextField?.id === "lastName") {
+          if (fieldGroup.combined_id) {
+            // Combined fields - render in a flex container
             const wrapper = document.createElement("div");
             wrapper.style.display = "flex";
             wrapper.style.gap = "8px";
+            wrapper.style.alignItems = "center";
             wrapper.style.position = fixedPosition ? "absolute" : "relative";
-            wrapper.style.marginTop = props.marginTop;
-            wrapper.style.marginLeft = props.marginLeft;
+            wrapper.style.marginTop = props.marginTop || "0mm";
+            wrapper.style.marginLeft = props.marginLeft || "0mm";
+            wrapper.style.justifyContent =
+              props.position === "left"
+                ? "flex-start"
+                : props.position === "center"
+                ? "center"
+                : "flex-end";
 
-            const firstEl = renderField(field, props);
-            const lastProps = fieldProperties[nextField.id] || defaultStyleSettings;
-            const lastEl = renderField(nextField, lastProps);
+            for (const field of fieldGroup.field) {
+              const el = await renderField(field, props, selectedCategory);
+              if (el) {
+                el.style.position = "relative";
+                el.style.marginLeft = "0mm";
+                el.style.marginTop = "0mm";
+                wrapper.appendChild(el);
+              }
+            }
 
-            if (firstEl) {
-              firstEl.style.position = "relative";
-              firstEl.style.marginTop = "0";
-              firstEl.style.marginLeft = "0";
-              wrapper.appendChild(firstEl);
-            }
-            if (lastEl) {
-              lastEl.style.position = "relative";
-              lastEl.style.marginTop = "0";
-              lastEl.style.marginLeft = "0";
-              wrapper.appendChild(lastEl);
-            }
             container.appendChild(wrapper);
-            i++;
-            continue;
+          } else {
+            // Single field
+            const field = fieldGroup.field?.[0];
+            if (field) {
+              const el = await renderField(field, props, selectedCategory);
+              if (el) container.appendChild(el);
+            }
           }
         }
+      }, 100);
+    };
 
-        if (field.id === "lastName") {
-          const prevField = selectedFields[i - 1];
-          if (prevField?.id !== "firstName") {
-            const el = renderField(field, props);
-            if (el) container.appendChild(el);
-          }
-          continue;
-        }
-
-        const el = renderField(field, props);
-        if (el) container.appendChild(el);
-      }
-    }, 100);
+    renderPreview();
   }, [
     selectedFields,
     fieldProperties,
@@ -531,7 +617,7 @@ const PaperBadgeEditor = ({ params }) => {
             {/* Paper Size Selector */}
             <Select
               value={selectedPaperSize}
-              onValueChange={handlePaperSizeChange}
+              onValueChange={setSelectedPaperSize}
             >
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Paper Size" />
@@ -584,45 +670,140 @@ const PaperBadgeEditor = ({ params }) => {
         <div className="flex flex-1 overflow-hidden">
           {/* Left Panel */}
           <div className="w-1/4 border-r bg-white overflow-y-auto p-4">
-            <Label className="text-sm font-semibold mb-2 block">
-              Add Fields
-            </Label>
-            <Select onValueChange={handleAddField}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select field to add" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableFields.map((f) => (
-                  <SelectItem key={f.id} value={f.id}>
-                    {f.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="mb-4">
+              <Label className="text-sm font-semibold mb-3 block">
+                Select Fields to Add
+              </Label>
 
-            <div className="mt-4 space-y-2">
-              {selectedFields.map((f) => (
-                <div
-                  key={f.id}
-                  onClick={() => setSelectedFieldId(f.id)}
-                  className={`flex justify-between items-center p-2 rounded-md border cursor-pointer ${
-                    selectedFieldId === f.id
-                      ? "bg-blue-50 border-blue-300"
-                      : "hover:bg-gray-100 border-gray-200"
-                  }`}
-                >
-                  <span className="text-sm">{f.name}</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleRemoveField(f.id);
-                    }}
-                    className="text-gray-400 hover:text-red-500"
+              {/* Field Selection Dropdown with Checkboxes */}
+              <DropdownMenu
+                open={isDropdownOpen}
+                onOpenChange={setIsDropdownOpen}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+                    <span>
+                      {selectedForCombining.length > 0
+                        ? `${selectedForCombining.length} field(s) selected`
+                        : "Select fields"}
+                    </span>
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[350px] max-h-[400px] overflow-y-auto">
+                  <div className="p-2">
+                    {availableFields.map((field) => {
+                      const isAlreadyAdded = isFieldAlreadyAdded(field.id);
+                      const isSelected = selectedForCombining.includes(field.id);
+                      const isBadgeCategory = field.id === "badgeCategory";
+                      const hasBadgeCategorySelected = selectedForCombining.includes("badgeCategory");
+                      const anyNonCategorySelected = selectedForCombining.some(
+                        (id) => id !== "badgeCategory"
+                      );
+                      const isDisabled =
+                        isAlreadyAdded ||
+                        (hasBadgeCategorySelected && !isBadgeCategory) ||
+                        (anyNonCategorySelected && isBadgeCategory);
+
+                      return (
+                        <div
+                          key={field.id}
+                          className={`flex items-center gap-3 p-2 rounded transition-all ${
+                            isDisabled
+                              ? "opacity-50 cursor-not-allowed"
+                              : "hover:bg-gray-50 cursor-pointer"
+                          } ${isSelected ? "bg-blue-50" : ""}`}
+                        >
+                          <Checkbox
+                            id={field.id}
+                            checked={isSelected}
+                            onCheckedChange={(checked) =>
+                              handleCheckboxChange(field.id, checked)
+                            }
+                            disabled={isDisabled}
+                          />
+                          <label
+                            htmlFor={field.id}
+                            className={`text-sm flex-1 ${
+                              isDisabled
+                                ? "cursor-not-allowed"
+                                : "cursor-pointer"
+                            } select-none`}
+                          >
+                            <div className="font-medium">{field.name}</div>
+                            <div className="text-xs text-gray-500">
+                              {field.type}
+                            </div>
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <div className="p-2">
+                    <Button
+                      onClick={handleAddFields}
+                      disabled={selectedForCombining.length === 0}
+                      className="w-full"
+                      size="sm"
+                    >
+                      Add Fields
+                    </Button>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="border-t pt-4">
+              <Label className="text-sm font-semibold mb-2 block">
+                Added Fields
+              </Label>
+
+              <div className="space-y-2">
+                {selectedFields.length === 0 ? (
+                  <div className="text-xs text-gray-500 text-center py-4">
+                    No fields added yet
+                  </div>
+                ) : (
+                  selectedFields.map((fieldGroup) => {
+                    const groupId = fieldGroup.combined_id || fieldGroup.id;
+                    const isCombined = !!fieldGroup.combined_id;
+                    const displayName = isCombined
+                      ? fieldGroup.field.map((f) => f.name).join(" + ")
+                      : fieldGroup.field[0]?.name;
+
+                    return (
+                      <div
+                        key={groupId}
+                        onClick={() => setSelectedFieldId(groupId)}
+                        className={`flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${
+                          selectedFieldId === groupId
+                            ? "bg-blue-50 border-blue-300 shadow-sm"
+                            : "hover:bg-gray-50 border-gray-200"
+                        }`}
+                      >
+                        <div className="flex-1 mr-2">
+                          <div className="text-sm font-medium">
+                            {displayName}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveField(groupId);
+                          }}
+                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
 
@@ -641,14 +822,18 @@ const PaperBadgeEditor = ({ params }) => {
           {/* Right Panel - Field Properties */}
           <div className="w-1/4 border-l bg-white overflow-y-auto">
             <div className="p-4 space-y-4">
-              <h2 className="text-md font-semibold text-gray-900">
-                {currentField?.name || "No field selected"}
-              </h2>
+              <div className="pb-3 border-b">
+                <h2 className="text-md font-semibold text-gray-900">
+                  {currentField?.combined_id
+                    ? `${currentField.field.map((f) => f.name).join(" + ")}`
+                    : currentField?.field?.[0]?.name || "No field selected"}
+                </h2>
+              </div>
 
               {selectedFieldId ? (
                 <>
                   {/* Badge Category Selector */}
-                  {currentField?.type === "category" && (
+                  {currentField?.field?.some((f) => f.type === "category") ? (
                     <div>
                       <Label className="text-xs font-semibold text-gray-700 mb-2 block">
                         Select Category
@@ -741,11 +926,9 @@ const PaperBadgeEditor = ({ params }) => {
                         to the entire badge.
                       </div>
                     </div>
-                  )}
-
-                  {/* Show common properties for non-category fields */}
-                  {currentField?.type !== "category" && (
+                  ) : (
                     <>
+                      {/* Common Properties for Non-Category Fields */}
                       <div>
                         <Label className="text-xs font-semibold text-gray-700 mb-2 block">
                           Position
@@ -798,7 +981,7 @@ const PaperBadgeEditor = ({ params }) => {
                       </div>
 
                       {/* Face Image specific properties */}
-                      {currentField?.type === "image" ? (
+                      {currentField?.field?.some((f) => f.type === "image") ? (
                         <>
                           <div>
                             <Label className="text-xs font-semibold text-gray-700 mb-2 block">
@@ -879,35 +1062,8 @@ const PaperBadgeEditor = ({ params }) => {
                         </>
                       ) : (
                         <>
-                          {/* Other fields properties */}
-                          <div>
-                            <Label className="text-xs font-semibold text-gray-700 mb-2 block">
-                              Font Family
-                            </Label>
-                            <Select
-                              value={currentFieldProperties.fontFamily}
-                              onValueChange={(value) =>
-                                handleStyleChange("fontFamily", value)
-                              }
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Arial">Arial</SelectItem>
-                                <SelectItem value="Helvetica">
-                                  Helvetica
-                                </SelectItem>
-                                <SelectItem value="Times New Roman">
-                                  Times New Roman
-                                </SelectItem>
-                                <SelectItem value="Courier">Courier</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
                           {/* QR Code specific */}
-                          {currentField?.type === "qrcode" ? (
+                          {currentField?.field?.some((f) => f.type === "qrcode") ? (
                             <>
                               <div>
                                 <Label className="text-xs font-semibold text-gray-700 mb-2 block">
@@ -943,7 +1099,33 @@ const PaperBadgeEditor = ({ params }) => {
                             </>
                           ) : (
                             <>
-                              {/* Non-QR, Non-Image Fields Only */}
+                              {/* Text Fields Only */}
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Font Family
+                                </Label>
+                                <Select
+                                  value={currentFieldProperties.fontFamily}
+                                  onValueChange={(value) =>
+                                    handleStyleChange("fontFamily", value)
+                                  }
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Arial">Arial</SelectItem>
+                                    <SelectItem value="Helvetica">
+                                      Helvetica
+                                    </SelectItem>
+                                    <SelectItem value="Times New Roman">
+                                      Times New Roman
+                                    </SelectItem>
+                                    <SelectItem value="Courier">Courier</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
                               <div>
                                 <Label className="text-xs font-semibold text-gray-700 mb-2 block">
                                   Font Size
