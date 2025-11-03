@@ -62,12 +62,106 @@ const paperSizes = [
   { id: "normal", name: "Normal", width: "93.5mm", height: "122mm" },
 ];
 
-// Predefined HTML template for paper badges without design
-const predefinedPaperBadgeHTML = `
-<div style="width: 93.5mm; height: 122mm; margin: 0 auto; background: white; position: relative; overflow: hidden;">
-  <!-- Main Content Area -->
-  <div id="badgeContent" style="position: relative; width: 100%; height: 100%; padding: 5mm;"></div>
-</div>`;
+// Render field helper function (outside component like in e-badge)
+const renderField = async (field, props, selectedCategory, fixedPosition) => {
+  // Skip rendering badge category field - it only applies colors
+  if (field.type === "category") {
+    return null;
+  }
+
+  const el = document.createElement("div");
+  el.id = `field-${field.id}`;
+  el.style.position = fixedPosition ? "absolute" : "relative";
+  el.style.marginLeft = props.marginLeft;
+  el.style.marginTop = props.marginTop;
+
+  if (field.type === "image") {
+    el.style.display = "flex";
+    el.style.justifyContent =
+      props.position === "left"
+        ? "flex-start"
+        : props.position === "center"
+        ? "center"
+        : "flex-end";
+
+    const imageWrapper = document.createElement("div");
+    imageWrapper.style.width = props.width || "30mm";
+    imageWrapper.style.height = props.height || "40mm";
+    imageWrapper.style.borderRadius = props.borderRadius || "0px";
+    imageWrapper.style.overflow = "hidden";
+    imageWrapper.style.backgroundColor = "#f0f0f0";
+    imageWrapper.style.display = "flex";
+    imageWrapper.style.alignItems = "center";
+    imageWrapper.style.justifyContent = "center";
+    imageWrapper.style.border = "1px solid #ddd";
+
+    const placeholder = document.createElement("div");
+    placeholder.style.display = "flex";
+    placeholder.style.flexDirection = "column";
+    placeholder.style.alignItems = "center";
+    placeholder.style.justifyContent = "center";
+    placeholder.style.color = "#999";
+
+    placeholder.innerHTML = `
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
+    `;
+
+    imageWrapper.appendChild(placeholder);
+    el.appendChild(imageWrapper);
+    return el;
+  }
+
+  el.innerText = field.name;
+  el.style.textAlign = props.position;
+  el.style.fontFamily = props.fontFamily;
+  el.style.fontSize = props.fontSize;
+  el.style.color = selectedCategory?.textColor || props.fontColor;
+  el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
+  el.style.textTransform =
+    props.textFormat === "uppercase"
+      ? "uppercase"
+      : props.textFormat === "lowercase"
+      ? "lowercase"
+      : props.textFormat === "capitalize"
+      ? "capitalize"
+      : "none";
+
+  if (field.type === "qrcode") {
+    el.innerText = "";
+
+    const qrWrapper = document.createElement("div");
+    qrWrapper.style.display = "flex";
+    qrWrapper.style.justifyContent =
+      props.position === "left"
+        ? "flex-start"
+        : props.position === "center"
+        ? "center"
+        : "flex-end";
+    qrWrapper.style.marginLeft = props.marginLeft;
+    qrWrapper.style.marginTop = props.marginTop;
+
+    // ✅ Create an <img> to hold the QR code (same as e-badge)
+    const qrImg = document.createElement("img");
+    qrImg.style.width = props.width;
+    qrImg.style.height = props.height;
+
+    // ✅ Generate QR code as base64 image
+    QRCode.toDataURL("Sample QR Data", { width: parseInt(props.width), margin: 1 })
+      .then((url) => {
+        qrImg.src = url;
+      })
+      .catch((err) => console.error("QR generation error:", err));
+
+    qrWrapper.appendChild(qrImg);
+    el.appendChild(qrWrapper);
+  }
+
+  return el;
+};
 
 const PaperBadgeEditor = ({ params }) => {
   const router = useRouter();
@@ -77,7 +171,7 @@ const PaperBadgeEditor = ({ params }) => {
 
   const [eventId, setEventId] = useState(null);
   const [templates, setTemplates] = useState([]);
-  const [designType, setDesignType] = useState("withDesign"); // "withDesign" or "withoutDesign"
+  const [designType, setDesignType] = useState("withDesign");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [badgeCategories, setBadgeCategories] = useState([]);
   const [selectedFields, setSelectedFields] = useState([]);
@@ -359,221 +453,104 @@ const PaperBadgeEditor = ({ params }) => {
     ? fieldProperties[selectedFieldId] || defaultStyleSettings
     : defaultStyleSettings;
 
-  // ─── Get Preview HTML based on design type ──────────────────
-  const getPreviewHTML = () => {
-    const paperDimensions = getPaperDimensions();
-    const positionStyle = fixedPosition ? 'position: absolute;' : 'position: relative;';
-
-    if (designType === "withoutDesign") {
-      return `
-        <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
-          <!-- Main Content Area positioned in left corner -->
-          <div id="badgeContent" style="${positionStyle}"></div>
-        </div>`;
-    }
-
-    if (designType === "withDesign" && activeTemplate?.htmlContent) {
-      return `
-        <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
-          <!-- Template content positioned in left corner -->
-          <div style="${positionStyle}">
-            ${activeTemplate.htmlContent}
-          </div>
-        </div>`;
-    }
-
-    return `
-      <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">
-        <div style="padding: 40px; text-align: center; color: #999;">
-          Select a template or choose "Without Design"
-        </div>
-      </div>`;
-  };
-
-  // Render field helper
-  const renderField = async (field, props, selectedCategory) => {
-    // Skip rendering badge category field - it only applies colors
-    if (field.type === "category") {
-      return null;
-    }
-
-    const el = document.createElement("div");
-    el.id = `field-${field.id}`;
-    el.style.position = fixedPosition ? "absolute" : "relative";
-    el.style.marginLeft = props.marginLeft;
-    el.style.marginTop = props.marginTop;
-
-    if (field.type === "image") {
-      el.style.display = "flex";
-      el.style.justifyContent =
-        props.position === "left"
-          ? "flex-start"
-          : props.position === "center"
-          ? "center"
-          : "flex-end";
-
-      const imageWrapper = document.createElement("div");
-      imageWrapper.style.width = props.width || "30mm";
-      imageWrapper.style.height = props.height || "40mm";
-      imageWrapper.style.borderRadius = props.borderRadius || "0px";
-      imageWrapper.style.overflow = "hidden";
-      imageWrapper.style.backgroundColor = "#f0f0f0";
-      imageWrapper.style.display = "flex";
-      imageWrapper.style.alignItems = "center";
-      imageWrapper.style.justifyContent = "center";
-      imageWrapper.style.border = "1px solid #ddd";
-
-      const placeholder = document.createElement("div");
-      placeholder.style.display = "flex";
-      placeholder.style.flexDirection = "column";
-      placeholder.style.alignItems = "center";
-      placeholder.style.justifyContent = "center";
-      placeholder.style.color = "#999";
-
-      placeholder.innerHTML = `
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
-      `;
-
-      imageWrapper.appendChild(placeholder);
-      el.appendChild(imageWrapper);
-      return el;
-    }
-
-    el.innerText = field.name;
-    el.style.textAlign = props.position;
-    el.style.fontFamily = props.fontFamily;
-    el.style.fontSize = props.fontSize;
-    el.style.color = selectedCategory?.textColor || props.fontColor;
-    el.style.fontWeight = props.fontStyle === "bold" ? "bold" : "normal";
-    el.style.textTransform =
-      props.textFormat === "uppercase"
-        ? "uppercase"
-        : props.textFormat === "lowercase"
-        ? "lowercase"
-        : props.textFormat === "capitalize"
-        ? "capitalize"
-        : "none";
-
-    if (field.type === "qrcode") {
-      el.innerText = "";
-
-      const qrWrapper = document.createElement("div");
-      qrWrapper.style.display = "flex";
-      qrWrapper.style.justifyContent =
-        props.position === "left"
-          ? "flex-start"
-          : props.position === "center"
-          ? "center"
-          : "flex-end";
-
-      const qrImg = document.createElement("img");
-      qrImg.style.width = props.width;
-      qrImg.style.height = props.height;
-
-      // Generate QR code as base64 image
-      QRCode.toDataURL("Sample QR Data", { width: parseInt(props.width), margin: 1 })
-        .then((url) => {
-          qrImg.src = url;
-        })
-        .catch((err) => console.error("QR generation error:", err));
-
-      qrWrapper.appendChild(qrImg);
-      el.appendChild(qrWrapper);
-    }
-
-    return el;
-  };
-
-  // ─── Render Fields in Preview ───────────────────────────────
+  // ─── Render Preview (Same pattern as e-badge editor) ─────────────────────────────────────────
   useEffect(() => {
     const renderPreview = async () => {
       const previewContainer = previewRef.current;
       if (!previewContainer) return;
 
-      setTimeout(async () => {
-        let container = previewContainer.querySelector("#badgeContent");
-        if (!container) return;
+      const paperDimensions = getPaperDimensions();
+      let htmlContent = "";
 
-        // Ensure container is properly set up
-        if (container.tagName.toLowerCase() === "span") {
+      if (designType === "withoutDesign") {
+        htmlContent = `
+          <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
+            <div id="badgeContent" style="position: relative; width: 100%; height: 100%; padding: 5mm;"></div>
+          </div>`;
+      } else if (designType === "withDesign" && activeTemplate) {
+        htmlContent = activeTemplate.htmlContent;
+      } else {
+        htmlContent = `
+          <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">
+            <div style="padding: 40px; text-align: center; color: #999;">Select a template or choose "Without Design"</div>
+          </div>`;
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, "text/html");
+
+      const container = doc.getElementById("badgeContent");
+      if (!container) {
+        setRenderHtml(doc.body.innerHTML);
+        return;
+      }
+
+      // Ensure container is visible and properly positioned
+      container.style.visibility = "visible";
+      container.style.position = "relative";
+      container.style.width = "100%";
+      container.style.height = "100%";
+
+      // Apply category colors to the entire badge
+      if (selectedCategory) {
+        container.style.backgroundColor = selectedCategory.backgroundColor;
+        container.style.color = selectedCategory.textColor;
+      } else {
+        // Reset to default if no category selected
+        container.style.backgroundColor = "";
+        container.style.color = "";
+      }
+
+      container.innerHTML = "";
+
+      // Render fields sequentially to handle async QR code generation
+      for (const fieldGroup of selectedFields) {
+        const groupId = fieldGroup.combined_id || fieldGroup.id;
+        const props = fieldProperties[groupId] || defaultStyleSettings;
+
+        if (fieldGroup.combined_id) {
+          // Combined fields - render in a flex container
           const wrapper = document.createElement("div");
-          wrapper.id = "badgeContent";
-          wrapper.style.position = fixedPosition ? "absolute" : "relative";
-          wrapper.style.width = "100%";
-          wrapper.style.height = "100%";
-          wrapper.style.visibility = "visible";
+          wrapper.style.display = "flex";
+          wrapper.style.gap = "8px";
+          wrapper.style.alignItems = "center";
+          wrapper.style.marginTop = props.marginTop || "0mm";
+          wrapper.style.marginLeft = props.marginLeft || "0mm";
+          wrapper.style.justifyContent =
+            props.position === "left"
+              ? "flex-start"
+              : props.position === "center"
+              ? "center"
+              : "flex-end";
 
-          while (container.firstChild) wrapper.appendChild(container.firstChild);
-          container.parentNode?.replaceChild(wrapper, container);
-          container = wrapper;
-        } else {
-          container.style.visibility = "visible";
-          container.style.position = fixedPosition ? "absolute" : "relative";
-          container.style.width = "100%";
-          container.style.height = "100%";
-        }
-
-        // Apply category colors to the entire badge
-        if (selectedCategory) {
-          container.style.backgroundColor = selectedCategory.backgroundColor;
-          container.style.color = selectedCategory.textColor;
-        } else {
-          container.style.backgroundColor = "";
-          container.style.color = "";
-        }
-
-        // Clear container for field rendering
-        container.innerHTML = "";
-
-        // Render fields sequentially to handle async QR code generation
-        for (const fieldGroup of selectedFields) {
-          const groupId = fieldGroup.combined_id || fieldGroup.id;
-          const props = fieldProperties[groupId] || defaultStyleSettings;
-
-          if (fieldGroup.combined_id) {
-            // Combined fields - render in a flex container
-            const wrapper = document.createElement("div");
-            wrapper.style.display = "flex";
-            wrapper.style.gap = "8px";
-            wrapper.style.alignItems = "center";
-            wrapper.style.position = fixedPosition ? "absolute" : "relative";
-            wrapper.style.marginTop = props.marginTop || "0mm";
-            wrapper.style.marginLeft = props.marginLeft || "0mm";
-            wrapper.style.justifyContent =
-              props.position === "left"
-                ? "flex-start"
-                : props.position === "center"
-                ? "center"
-                : "flex-end";
-
-            for (const field of fieldGroup.field) {
-              const el = await renderField(field, props, selectedCategory);
-              if (el) {
-                el.style.position = "relative";
-                el.style.marginLeft = "0mm";
-                el.style.marginTop = "0mm";
-                wrapper.appendChild(el);
-              }
-            }
-
-            container.appendChild(wrapper);
-          } else {
-            // Single field
-            const field = fieldGroup.field?.[0];
-            if (field) {
-              const el = await renderField(field, props, selectedCategory);
-              if (el) container.appendChild(el);
+          for (const field of fieldGroup.field) {
+            const el = await renderField(field, props, selectedCategory, fixedPosition);
+            if (el) {
+              el.style.marginLeft = "0mm";
+              el.style.marginTop = "0mm";
+              wrapper.appendChild(el);
             }
           }
+
+          container.appendChild(wrapper);
+        } else {
+          // Single field
+          const field = fieldGroup.field?.[0];
+          if (field) {
+            const el = await renderField(field, props, selectedCategory, fixedPosition);
+            if (el) container.appendChild(el);
+          }
         }
-      }, 100);
+      }
+
+      setRenderHtml(doc.body.innerHTML);
     };
 
-    renderPreview();
+    const timeOut = setTimeout(() => {
+      renderPreview();
+    }, 100);
+
+    return () => clearTimeout(timeOut);
   }, [
     selectedFields,
     fieldProperties,
@@ -808,15 +785,15 @@ const PaperBadgeEditor = ({ params }) => {
           </div>
 
           {/* Center Panel - Preview */}
-          <div className="flex-1 bg-gray-100 overflow-auto p-6">
-            <div className="flex justify-center">
-              <div
-                ref={previewRef}
-                dangerouslySetInnerHTML={{
-                  __html: getPreviewHTML(),
-                }}
-              />
-            </div>
+          <div className="flex-1 bg-gray-100 flex items-center justify-center overflow-auto p-6">
+            <div
+              ref={previewRef}
+              dangerouslySetInnerHTML={{
+                __html:
+                  renderHtml ||
+                  '<div style="padding: 40px; text-align: center; color: #999;">No template selected</div>',
+              }}
+            />
           </div>
 
           {/* Right Panel - Field Properties */}
