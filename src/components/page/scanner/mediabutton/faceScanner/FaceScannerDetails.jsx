@@ -12,11 +12,8 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
   const [errormsg,setErrorMsg] = useState('User Not Registered')
 
   useEffect(() => {
-    if (faceData) {
-      console.log(faceData);
-      
-      const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";
-      
+    if (faceData) {            
+      const isErrorResponse = faceData?.length === 1 && faceData[0]?.color_status === "red";      
       if (faceData?.[2]?.map_array) {
         setFieldMap(faceData?.[2].map_array);
       }
@@ -56,21 +53,16 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
     } else {
       setUserNotFound(true);
     }
-
-    // Remove automatic redirect - user will manually click "Scan Again"
   }, [faceData]);
-
-  // Handle image load error
-  const handleImageError = () => {
-    console.log("Image failed to load, using default");
+  
+  const handleImageError = () => {    
     setImageLoadError(true);
     setUserImg("/assets/images/user-img.jpg");
     setImageLoading(false);
   };
 
   // Handle image load success
-  const handleImageLoad = () => {
-    console.log("Image loaded successfully:", userImg);
+  const handleImageLoad = () => {    
     setImageLoading(false);
     setImageLoadError(false);
   };
@@ -222,8 +214,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
         </div>
       ) : (
         <div
-          onClick={() => {
-            console.log("🔄 FaceScannerDetails clicked, calling onRedirect");
+          onClick={() => {            
             onRedirect();
           }}
           className={`flex flex-col w-full max-w-md mx-auto bg-white rounded-2xl overflow-hidden shadow-xl transition-transform duration-200 `}
@@ -248,9 +239,7 @@ const FaceScannerDetails = ({ faceData, onRedirect }) => {
                 onLoad={handleImageLoad}
                 unoptimized={true}
                 priority={false}
-                loader={({ src }) => {
-                  // Custom loader to handle external URLs
-                  console.log("Image loader called with src:", src);
+                loader={({ src }) => {                                    
                   return src;
                 }}
               />

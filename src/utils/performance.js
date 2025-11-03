@@ -6,7 +6,6 @@ export const measurePerformance = {
       const start = performance.now();
       const result = renderFn();
       const end = performance.now();
-      console.log(`🚀 ${componentName} render: ${(end - start).toFixed(2)}ms`);
       return result;
     }
     return renderFn();
@@ -18,7 +17,6 @@ export const measurePerformance = {
       const start = performance.now();
       const result = await apiFn();
       const end = performance.now();
-      console.log(`📡 ${apiName} API call: ${(end - start).toFixed(2)}ms`);
       return result;
     }
     return await apiFn();
@@ -27,12 +25,7 @@ export const measurePerformance = {
   // Measure memory usage
   measureMemory: (label) => {
     if (typeof window !== 'undefined' && window.performance && window.performance.memory) {
-      const memory = window.performance.memory;
-      console.log(`💾 ${label} Memory:`, {
-        used: `${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
-        total: `${(memory.totalJSHeapSize / 1024 / 1024).toFixed(2)}MB`,
-        limit: `${(memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2)}MB`
-      });
+      const memory = window.performance.memory;      
     }
   },
 
@@ -47,10 +40,7 @@ export const measurePerformance = {
   measure: (name, startMark, endMark) => {
     if (typeof window !== 'undefined' && window.performance) {
       performance.measure(name, startMark, endMark);
-      const entries = performance.getEntriesByName(name);
-      if (entries.length > 0) {
-        console.log(`⏱️ ${name}: ${entries[0].duration.toFixed(2)}ms`);
-      }
+      const entries = performance.getEntriesByName(name);      
     }
   }
 };
@@ -73,8 +63,7 @@ export const cacheMonitor = {
   logStats() {
     const total = this.hits + this.misses;
     if (total > 0 && total % 10 === 0) {
-      const hitRate = ((this.hits / total) * 100).toFixed(1);
-      console.log(`📊 Cache hit rate: ${hitRate}% (${this.hits}/${total})`);
+      const hitRate = ((this.hits / total) * 100).toFixed(1);      
     }
   },
   

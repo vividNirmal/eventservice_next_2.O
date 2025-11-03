@@ -312,8 +312,7 @@ const TicketList = ({ eventId }) => {
     setIsBulkDeleting(true);
     try {
       // Use the new bulk delete API endpoint
-      const ticketIds = Array.from(selectedTickets);
-      console.log('Deleting tickets with IDs:', ticketIds);
+      const ticketIds = Array.from(selectedTickets);      
       const response = await postRequest('tickets/bulk-delete', { ticketIds });
 
       if (response.status === 1) {

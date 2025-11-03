@@ -35,19 +35,20 @@ import EventDetailsForm from "@/components/common/EventDetailsForm";
 import { cn } from "@/lib/utils";
 
 // Validation schemas - moved outside as regular constants
-const eventDetailsSchema = Yup.object()
-  .shape({
-    eventName: Yup.string().required("Event name is required"),
-    eventShortName: Yup.string().required("Event short name is required"),
-    eventTimeZone: Yup.string().required("Time zone is required"),
-    dateRanges: Yup.array()
-      .of(
-        Yup.object().shape({
+const eventDetailsSchema = Yup.object().shape({
+  eventName: Yup.string().required("Event name is required"),
+  eventShortName: Yup.string().required("Event short name is required"),
+  eventTimeZone: Yup.string().required("Time zone is required"),
+  dateRanges: Yup.array()
+    .of(
+      Yup.object()
+        .shape({
           startDate: Yup.string().required("Start date is required"),
           startTime: Yup.string().required("Start time is required"),
           endDate: Yup.string().required("End date is required"),
           endTime: Yup.string().required("End time is required"),
-        }).test("end-after-start", "End must be after start", function (value) {
+        })
+        .test("end-after-start", "End must be after start", function (value) {
           const { startDate, startTime, endDate, endTime } = value;
           if (!startDate || !startTime || !endDate || !endTime) return true;
 
@@ -56,15 +57,15 @@ const eventDetailsSchema = Yup.object()
 
           return end > start;
         })
-      )
-      .min(1, "At least one date range is required")
-      .required("Date ranges are required"),
-    // Keep legacy fields for backward compatibility
-    startDate: Yup.string(),
-    startTime: Yup.string(),
-    endDate: Yup.string(),
-    endTime: Yup.string(),
-  });
+    )
+    .min(1, "At least one date range is required")
+    .required("Date ranges are required"),
+  // Keep legacy fields for backward compatibility
+  startDate: Yup.string(),
+  startTime: Yup.string(),
+  endDate: Yup.string(),
+  endTime: Yup.string(),
+});
 
 const locationSchema = Yup.object().shape({
   location: Yup.string().required("Location is required"),
@@ -82,21 +83,15 @@ const EventModal = ({
     editMode ? "in-person" : ""
   );
   const [selectedEventFormat, setSelectedEventFormat] = useState(
-    editMode ? (initialData?.event_type || "Conference") : ""
+    editMode ? initialData?.event_type || "Conference" : ""
   );
   const [selectedCategories, setSelectedCategories] = useState(
-    editMode ? (initialData?.eventCategory || ["Career-Fair"]) : []
+    editMode ? initialData?.eventCategory || ["Career-Fair"] : []
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [eventDetailsData, setEventDetailsData] = useState(null);
   const eventDetailsFormRef = useRef(null);
-
-  // Debug log when eventDetailsData changes
-  useEffect(() => {
-    console.log("=== DEBUG: eventDetailsData state changed ===");
-    console.log("New eventDetailsData:", eventDetailsData);
-  }, [eventDetailsData]);
 
   // Event type options
   const eventTypes = [
@@ -159,30 +154,43 @@ const EventModal = ({
       with_face_scanner: initialData?.with_face_scanner || null,
       dateRanges: (() => {
         // If we have dateRanges array in initialData, use it
-        if (initialData?.dateRanges && Array.isArray(initialData.dateRanges) && initialData.dateRanges.length > 0) {
-          return initialData.dateRanges.map(range => ({
+        if (
+          initialData?.dateRanges &&
+          Array.isArray(initialData.dateRanges) &&
+          initialData.dateRanges.length > 0
+        ) {
+          return initialData.dateRanges.map((range) => ({
             startDate: range.startDate || "",
-            startTime: range.startTime || "", 
+            startTime: range.startTime || "",
             endDate: range.endDate || "",
-            endTime: range.endTime || ""
+            endTime: range.endTime || "",
           }));
         }
         // Fallback to legacy fields if available
-        if (initialData?.startDate && initialData?.startTime && initialData?.endDate && initialData?.endTime) {
-          return [{
-            startDate: initialData.startDate,
-            startTime: initialData.startTime,
-            endDate: initialData.endDate,
-            endTime: initialData.endTime
-          }];
+        if (
+          initialData?.startDate &&
+          initialData?.startTime &&
+          initialData?.endDate &&
+          initialData?.endTime
+        ) {
+          return [
+            {
+              startDate: initialData.startDate,
+              startTime: initialData.startTime,
+              endDate: initialData.endDate,
+              endTime: initialData.endTime,
+            },
+          ];
         }
         // Default empty range for new events
-        return [{
-          startDate: "",
-          startTime: "",
-          endDate: "",
-          endTime: ""
-        }];
+        return [
+          {
+            startDate: "",
+            startTime: "",
+            endDate: "",
+            endTime: "",
+          },
+        ];
       })(),
       event_image: initialData?.event_image || null,
       event_logo: initialData?.event_logo || null,
@@ -209,29 +217,28 @@ const EventModal = ({
     enableReinitialize: true,
   });
 
-
   // Updated useEffect to always start from step 1:
   useEffect(() => {
     if (isOpen) {
       if (editMode) {
         // Start from step 1 even in edit mode
         setCurrentStep(1);
-        setSelectedEventType(initialData?.eventType || 'in-person');
-        setSelectedEventFormat(initialData?.event_type || 'Conference');
-        setSelectedCategories(initialData?.eventCategory || ['Career-Fair']);
+        setSelectedEventType(initialData?.eventType || "in-person");
+        setSelectedEventFormat(initialData?.event_type || "Conference");
+        setSelectedCategories(initialData?.eventCategory || ["Career-Fair"]);
       } else {
         // Reset for add mode
         setCurrentStep(1);
-        setSelectedEventType('');
-        setSelectedEventFormat('');
+        setSelectedEventType("");
+        setSelectedEventFormat("");
         setSelectedCategories([]);
       }
       setError(null);
     } else {
       // Reset when closing
       setCurrentStep(1);
-      setSelectedEventType('');
-      setSelectedEventFormat('');
+      setSelectedEventType("");
+      setSelectedEventFormat("");
       setSelectedCategories([]);
       setError(null);
     }
@@ -254,26 +261,17 @@ const EventModal = ({
   };
 
   const handleNext = () => {
-    console.log("=== DEBUG: handleNext called ===");
-    console.log("Current step:", currentStep);
-    console.log("Selected event type:", selectedEventType);
-    console.log("Selected event format:", selectedEventFormat);
-    console.log("Selected categories:", selectedCategories);
-    console.log("Event details form valid:", eventDetailsForm.isValid);
-    console.log("Location form valid:", locationForm.isValid);
-    console.log("Event details data:", eventDetailsData);
-
     if (currentStep === 1 && selectedEventType) {
-      console.log("Moving from step 1 to step 2");
       setCurrentStep(2);
-    } else if (currentStep === 2 && selectedEventFormat && selectedCategories.length > 0) {
-      console.log("Moving from step 2 to step 3");
+    } else if (
+      currentStep === 2 &&
+      selectedEventFormat &&
+      selectedCategories.length > 0
+    ) {
       setCurrentStep(3);
     } else if (currentStep === 3) {
-      console.log("Submitting event details form (step 3)");
       eventDetailsForm.handleSubmit();
     } else if (currentStep === 4) {
-      console.log("Submitting location form (step 4)");
       locationForm.handleSubmit();
     }
     // Step 5 is now handled by the EventDetailsForm's own submit button
@@ -290,11 +288,7 @@ const EventModal = ({
   };
 
   const handleEventDetailsSubmit = async (values, extraData) => {
-    console.log("=== DEBUG: handleEventDetailsSubmit called ===");
-    console.log("Event details values:", values);
-    console.log("Event details extraData:", extraData);
-    console.log("Values type:", typeof values);
-    console.log("ExtraData type:", typeof extraData);
+    
 
     if (!values) {
       console.error("ERROR: values is null/undefined");
@@ -302,9 +296,7 @@ const EventModal = ({
       return;
     }
 
-    try {
-      // Pass the data directly to handleFinalSubmit instead of relying on state
-      console.log("Calling handleFinalSubmit with values and extraData");
+    try {        
       await handleFinalSubmit(values, extraData);
     } catch (error) {
       console.error("Error in handleEventDetailsSubmit:", error);
@@ -312,18 +304,10 @@ const EventModal = ({
     }
   };
 
-  const handleFinalSubmit = async (eventDetailsValues = null, eventDetailsExtraData = null) => {
-    console.log("=== DEBUG: handleFinalSubmit called ===");
-    console.log("Parameters received:");
-    console.log("eventDetailsValues:", eventDetailsValues);
-    console.log("eventDetailsExtraData:", eventDetailsExtraData);
-    console.log("Passed eventDetailsValues:", eventDetailsValues);
-    console.log("Passed eventDetailsExtraData:", eventDetailsExtraData);
-    console.log("Current eventDetailsData state:", eventDetailsData);
-    console.log("Current eventDetailsForm values:", eventDetailsForm.values);
-    console.log("Current locationForm values:", locationForm.values);
-    console.log("Current selectedEventType:", selectedEventType);
-    console.log("Current selectedCategories:", selectedCategories);
+  const handleFinalSubmit = async (
+    eventDetailsValues = null,
+    eventDetailsExtraData = null
+  ) => {    
 
     setSubmitting(true);
     setError(null);
@@ -335,12 +319,11 @@ const EventModal = ({
       // Combine form data from all steps
       const formData = new FormData();
 
-      console.log("=== DEBUG: Building FormData ===");
+
 
       // Add event host form fields
       if (editMode && eventDetailsForm.values.event_id) {
         formData.append("event_id", eventDetailsForm.values.event_id);
-        console.log("Added event_id:", eventDetailsForm.values.event_id);
       }
 
       if (companyId != undefined) {
@@ -351,47 +334,35 @@ const EventModal = ({
       formData.append("eventShortName", eventDetailsForm.values.eventShortName);
       formData.append("eventTimeZone", eventDetailsForm.values.eventTimeZone);
       // Send dateRanges only - backend will handle legacy field population
-      if (eventDetailsForm.values.dateRanges && eventDetailsForm.values.dateRanges.length > 0) {
-        formData.append("dateRanges", JSON.stringify(eventDetailsForm.values.dateRanges));
+      if (
+        eventDetailsForm.values.dateRanges &&
+        eventDetailsForm.values.dateRanges.length > 0
+      ) {
+        formData.append(
+          "dateRanges",
+          JSON.stringify(eventDetailsForm.values.dateRanges)
+        );
       }
       formData.append("event_type", selectedEventFormat);
       formData.append("eventType", selectedEventType);
       formData.append("location", locationForm.values.location);
 
-      console.log("Basic event fields added to FormData");
-      console.log("event_type (selectedEventFormat):", selectedEventFormat);
-      console.log("eventType (selectedEventType):", selectedEventType);
+      
 
       // Handle eventCategory as array
       selectedCategories.forEach((category) => {
         formData.append("eventCategory[]", category);
-      });
-      console.log("Event categories added:", selectedCategories);
+      });      
 
-      // Use passed parameters if available, otherwise use state
-      console.log("=== DEBUG: Checking eventDetailsValues ===");
-      console.log("eventDetailsValues:", eventDetailsValues);
-      console.log("Is eventDetailsValues truthy?", !!eventDetailsValues);
-      console.log("Type of eventDetailsValues:", typeof eventDetailsValues);
-      console.log("eventDetailsExtraData:", eventDetailsExtraData);
-      console.log("eventDetailsData state:", eventDetailsData);
+      
 
-      const currentEventDetailsData = eventDetailsValues ?
-        { values: eventDetailsValues, extraData: eventDetailsExtraData } :
-        eventDetailsData;
-
-      console.log("Using event details data:", currentEventDetailsData);
-      console.log("currentEventDetailsData is truthy?", !!currentEventDetailsData);
-      console.log("currentEventDetailsData.values exists?", !!currentEventDetailsData?.values);
+      const currentEventDetailsData = eventDetailsValues
+        ? { values: eventDetailsValues, extraData: eventDetailsExtraData }
+        : eventDetailsData;      
 
       // Add event details form data (now required)
-      if (currentEventDetailsData && currentEventDetailsData.values) {
-        console.log("=== DEBUG: Adding event details data ===");
-        const { values, extraData } = currentEventDetailsData;
-
-        console.log("Event details values to add:", values);
-        console.log("Event details extraData to add:", extraData);
-
+      if (currentEventDetailsData && currentEventDetailsData.values) {        
+        const { values, extraData } = currentEventDetailsData;        
         // Add event details fields
         formData.append("company_name", values.company_name || "");
         formData.append("event_slug", values.event_slug || "");
@@ -400,7 +371,10 @@ const EventModal = ({
         formData.append("organizer_name", values.organizer_name || "");
         formData.append("organizer_email", values.organizer_email || "");
         formData.append("organizer_phone", values.organizer_phone || "");
-        formData.append("with_face_scanner", extraData?.faceScannerEnabled ? 1 : 0);
+        formData.append(
+          "with_face_scanner",
+          extraData?.faceScannerEnabled ? 1 : 0
+        );
 
         // Handle date ranges
         if (values.dateRanges && values.dateRanges.length > 0) {
@@ -466,7 +440,8 @@ const EventModal = ({
         onClose();
       } else {
         throw new Error(
-          response.message || `Failed to ${editMode ? "update" : "create"} event`
+          response.message ||
+            `Failed to ${editMode ? "update" : "create"} event`
         );
       }
     } catch (err) {
@@ -493,19 +468,53 @@ const EventModal = ({
                 { number: 2, label: "Format & Category" },
                 { number: 3, label: "Details" },
                 { number: 4, label: "Location" },
-                { number: 5, label: "Extra Details" }
+                { number: 5, label: "Extra Details" },
               ].map((step, index) => (
-                <li key={step.number} onClick={() => handleStepClick(step.number)} className={cn("flex items-center sm:items-start flex-col sm:flex-row gap-1 last:pb-0 sm:pb-8 last:mb-0 last:after:hidden relative after:w-full sm:after:w-px after:h-px sm:after:h-full after:absolute after:left-8 sm:after:left-4 after:top-4 sm:after:top-0", step.number <= currentStep ? 'after:bg-gradient-to-t after:from-blue-100 after:to-blue-600' : 'after:bg-zinc-300')}>
-                  <div className={cn("relative z-1 shrink-0 cursor-pointer flex items-center justify-center size-8 rounded-full text-sm font-medium", step.number <= currentStep ? 'bg-blue-600 text-white' : 'bg-zinc-200 text-zinc-600')}>{step.number}</div>
-                  <span className={cn("select-none sm:min-h-8 flex items-center w-full sm:w-2/4 sm:grow sm:ml-3 text-center sm:text-left text-xs lg:text-sm leading-tight sm:leading-normal cursor-pointer", step.number <= currentStep ? 'text-blue-700 font-semibold' : 'text-zinc-600')}>{step.label}</span>
+                <li
+                  key={step.number}
+                  onClick={() => handleStepClick(step.number)}
+                  className={cn(
+                    "flex items-center sm:items-start flex-col sm:flex-row gap-1 last:pb-0 sm:pb-8 last:mb-0 last:after:hidden relative after:w-full sm:after:w-px after:h-px sm:after:h-full after:absolute after:left-8 sm:after:left-4 after:top-4 sm:after:top-0",
+                    step.number <= currentStep
+                      ? "after:bg-gradient-to-t after:from-blue-100 after:to-blue-600"
+                      : "after:bg-zinc-300"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "relative z-1 shrink-0 cursor-pointer flex items-center justify-center size-8 rounded-full text-sm font-medium",
+                      step.number <= currentStep
+                        ? "bg-blue-600 text-white"
+                        : "bg-zinc-200 text-zinc-600"
+                    )}
+                  >
+                    {step.number}
+                  </div>
+                  <span
+                    className={cn(
+                      "select-none sm:min-h-8 flex items-center w-full sm:w-2/4 sm:grow sm:ml-3 text-center sm:text-left text-xs lg:text-sm leading-tight sm:leading-normal cursor-pointer",
+                      step.number <= currentStep
+                        ? "text-blue-700 font-semibold"
+                        : "text-zinc-600"
+                    )}
+                  >
+                    {step.label}
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
           <div className="flex flex-col p-5 w-2/4 grow">
-            <h3 className="text-base md:text-lg xl:text-xl font-bold mb-0 text-blue-600">{editMode ? "Edit Event" : "Welcome, Your Event Journey Begins Now!"}</h3>
+            <h3 className="text-base md:text-lg xl:text-xl font-bold mb-0 text-blue-600">
+              {editMode
+                ? "Edit Event"
+                : "Welcome, Your Event Journey Begins Now!"}
+            </h3>
             {!editMode && currentStep === 1 && (
-              <p className="text-center text-gray-600 mt-2">An amazing event starts with one click! Choose your event type and let's roll.</p>
+              <p className="text-center text-gray-600 mt-2">
+                An amazing event starts with one click! Choose your event type
+                and let's roll.
+              </p>
             )}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-4">
@@ -527,15 +536,22 @@ const EventModal = ({
                       <div
                         key={type.id}
                         onClick={() => handleEventTypeSelect(type.id)}
-                        className={`p-6 border rounded-lg cursor-pointer transition-all hover:shadow-lg ${selectedEventType === type.id
+                        className={`p-6 border rounded-lg cursor-pointer transition-all hover:shadow-lg ${
+                          selectedEventType === type.id
                             ? "border-blue-500 bg-blue-50"
                             : "border-gray-200 hover:border-gray-300"
-                          }`}
+                        }`}
                       >
                         <div className="text-center">
-                          <div className="mb-4 flex justify-center">{type.icon}</div>
-                          <h3 className="font-semibold text-lg mb-2">{type.title}</h3>
-                          <p className="text-sm text-gray-600">{type.description}</p>
+                          <div className="mb-4 flex justify-center">
+                            {type.icon}
+                          </div>
+                          <h3 className="font-semibold text-lg mb-2">
+                            {type.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {type.description}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -548,16 +564,19 @@ const EventModal = ({
                 <div className="space-y-6 min-h-90">
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-lg font-semibold mb-4">Select Event Format</h3>
+                      <h3 className="text-lg font-semibold mb-4">
+                        Select Event Format
+                      </h3>
                       <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
                         {eventFormats.map((format) => (
                           <div
                             key={format}
                             onClick={() => handleEventFormatSelect(format)}
-                            className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${selectedEventFormat === format
+                            className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${
+                              selectedEventFormat === format
                                 ? "border-blue-500 bg-blue-50 text-blue-700"
                                 : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                              }`}
+                            }`}
                           >
                             {format}
                           </div>
@@ -567,16 +586,19 @@ const EventModal = ({
 
                     {selectedEventFormat && (
                       <div>
-                        <h3 className="text-lg font-semibold mb-4">Select Event Categories</h3>
+                        <h3 className="text-lg font-semibold mb-4">
+                          Select Event Categories
+                        </h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
                           {eventCategories.map((category) => (
                             <div
                               key={category}
                               onClick={() => handleCategoryToggle(category)}
-                              className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${selectedCategories.includes(category)
+                              className={`p-3 border rounded-lg cursor-pointer text-sm text-center transition-all ${
+                                selectedCategories.includes(category)
                                   ? "border-blue-500 bg-blue-50 text-blue-700"
                                   : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                                }`}
+                              }`}
                             >
                               {category}
                             </div>
@@ -596,7 +618,10 @@ const EventModal = ({
                   </h3>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="eventName" className="text-sm font-medium">
+                      <Label
+                        htmlFor="eventName"
+                        className="text-sm font-medium"
+                      >
                         Event Name *
                       </Label>
                       <Input
@@ -663,7 +688,9 @@ const EventModal = ({
                           <SelectItem value="CST">CST (Central)</SelectItem>
                           <SelectItem value="IST">IST (India)</SelectItem>
                           <SelectItem value="GMT">GMT (London)</SelectItem>
-                          <SelectItem value="CET">CET (Central Europe)</SelectItem>
+                          <SelectItem value="CET">
+                            CET (Central Europe)
+                          </SelectItem>
                           <SelectItem value="AEST">AEST (Sydney)</SelectItem>
                         </SelectContent>
                       </Select>
@@ -686,15 +713,16 @@ const EventModal = ({
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const currentRanges = eventDetailsForm.values.dateRanges;
+                            const currentRanges =
+                              eventDetailsForm.values.dateRanges;
                             eventDetailsForm.setFieldValue("dateRanges", [
                               ...currentRanges,
                               {
                                 startDate: "",
                                 startTime: "",
                                 endDate: "",
-                                endTime: ""
-                              }
+                                endTime: "",
+                              },
                             ]);
                           }}
                           className="text-xs"
@@ -703,113 +731,153 @@ const EventModal = ({
                         </Button>
                       </div>
 
-                      {eventDetailsForm.values.dateRanges.map((range, index) => (
-                        <div key={index} className="border rounded-lg p-4 bg-gray-50">
-                          <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-sm font-medium">
-                              Date Range {index + 1}
-                            </h4>
-                            {eventDetailsForm.values.dateRanges.length > 1 && (
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  const updatedRanges = eventDetailsForm.values.dateRanges.filter(
-                                    (_, i) => i !== index
-                                  );
-                                  eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                }}
-                                className="text-red-600 hover:text-red-700 text-xs"
-                              >
-                                Remove
-                              </Button>
-                            )}
-                          </div>
+                      {eventDetailsForm.values.dateRanges.map(
+                        (range, index) => (
+                          <div
+                            key={index}
+                            className="border rounded-lg p-4 bg-gray-50"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="text-sm font-medium">
+                                Date Range {index + 1}
+                              </h4>
+                              {eventDetailsForm.values.dateRanges.length >
+                                1 && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    const updatedRanges =
+                                      eventDetailsForm.values.dateRanges.filter(
+                                        (_, i) => i !== index
+                                      );
+                                    eventDetailsForm.setFieldValue(
+                                      "dateRanges",
+                                      updatedRanges
+                                    );
+                                  }}
+                                  className="text-red-600 hover:text-red-700 text-xs"
+                                >
+                                  Remove
+                                </Button>
+                              )}
+                            </div>
 
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label className="text-xs font-medium">
-                                Start Date & Time
-                              </Label>
-                              <div className="grid grid-cols-2 gap-2 mt-1">
-                                <div className="relative">
-                                  <Input
-                                    type="date"
-                                    value={range.startDate}
-                                    onChange={(e) => {
-                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                      updatedRanges[index].startDate = e.target.value;
-                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                    }}
-                                    className="text-xs"
-                                  />
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label className="text-xs font-medium">
+                                  Start Date & Time
+                                </Label>
+                                <div className="grid grid-cols-2 gap-2 mt-1">
+                                  <div className="relative">
+                                    <Input
+                                      type="date"
+                                      value={range.startDate}
+                                      onChange={(e) => {
+                                        const updatedRanges = [
+                                          ...eventDetailsForm.values.dateRanges,
+                                        ];
+                                        updatedRanges[index].startDate =
+                                          e.target.value;
+                                        eventDetailsForm.setFieldValue(
+                                          "dateRanges",
+                                          updatedRanges
+                                        );
+                                      }}
+                                      className="text-xs"
+                                    />
+                                  </div>
+                                  <div className="relative">
+                                    <Input
+                                      type="time"
+                                      value={range.startTime}
+                                      onChange={(e) => {
+                                        const updatedRanges = [
+                                          ...eventDetailsForm.values.dateRanges,
+                                        ];
+                                        updatedRanges[index].startTime =
+                                          e.target.value;
+                                        eventDetailsForm.setFieldValue(
+                                          "dateRanges",
+                                          updatedRanges
+                                        );
+                                      }}
+                                      className="text-xs"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="relative">
-                                  <Input
-                                    type="time"
-                                    value={range.startTime}
-                                    onChange={(e) => {
-                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                      updatedRanges[index].startTime = e.target.value;
-                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                    }}
-                                    className="text-xs"
-                                  />
+                              </div>
+
+                              <div>
+                                <Label className="text-xs font-medium">
+                                  End Date & Time
+                                </Label>
+                                <div className="grid grid-cols-2 gap-2 mt-1">
+                                  <div className="relative">
+                                    <Input
+                                      type="date"
+                                      value={range.endDate}
+                                      onChange={(e) => {
+                                        const updatedRanges = [
+                                          ...eventDetailsForm.values.dateRanges,
+                                        ];
+                                        updatedRanges[index].endDate =
+                                          e.target.value;
+                                        eventDetailsForm.setFieldValue(
+                                          "dateRanges",
+                                          updatedRanges
+                                        );
+                                      }}
+                                      className="text-xs"
+                                    />
+                                  </div>
+                                  <div className="relative">
+                                    <Input
+                                      type="time"
+                                      value={range.endTime}
+                                      onChange={(e) => {
+                                        const updatedRanges = [
+                                          ...eventDetailsForm.values.dateRanges,
+                                        ];
+                                        updatedRanges[index].endTime =
+                                          e.target.value;
+                                        eventDetailsForm.setFieldValue(
+                                          "dateRanges",
+                                          updatedRanges
+                                        );
+                                      }}
+                                      className="text-xs"
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
 
-                            <div>
-                              <Label className="text-xs font-medium">
-                                End Date & Time
-                              </Label>
-                              <div className="grid grid-cols-2 gap-2 mt-1">
-                                <div className="relative">
-                                  <Input
-                                    type="date"
-                                    value={range.endDate}
-                                    onChange={(e) => {
-                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                      updatedRanges[index].endDate = e.target.value;
-                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                    }}
-                                    className="text-xs"
-                                  />
+                            {/* Show validation errors for this specific range */}
+                            {eventDetailsForm.errors.dateRanges &&
+                              eventDetailsForm.errors.dateRanges[index] && (
+                                <div className="mt-2 text-xs text-red-500">
+                                  {typeof eventDetailsForm.errors.dateRanges[
+                                    index
+                                  ] === "string"
+                                    ? eventDetailsForm.errors.dateRanges[index]
+                                    : Object.values(
+                                        eventDetailsForm.errors.dateRanges[
+                                          index
+                                        ] || {}
+                                      ).join(", ")}
                                 </div>
-                                <div className="relative">
-                                  <Input
-                                    type="time"
-                                    value={range.endTime}
-                                    onChange={(e) => {
-                                      const updatedRanges = [...eventDetailsForm.values.dateRanges];
-                                      updatedRanges[index].endTime = e.target.value;
-                                      eventDetailsForm.setFieldValue("dateRanges", updatedRanges);
-                                    }}
-                                    className="text-xs"
-                                  />
-                                </div>
-                              </div>
-                            </div>
+                              )}
                           </div>
-
-                          {/* Show validation errors for this specific range */}
-                          {eventDetailsForm.errors.dateRanges && 
-                          eventDetailsForm.errors.dateRanges[index] && (
-                            <div className="mt-2 text-xs text-red-500">
-                              {typeof eventDetailsForm.errors.dateRanges[index] === 'string' ? 
-                                eventDetailsForm.errors.dateRanges[index] : 
-                                Object.values(eventDetailsForm.errors.dateRanges[index] || {}).join(', ')
-                              }
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                        )
+                      )}
 
                       {/* General dateRanges validation errors */}
                       {eventDetailsForm.touched.dateRanges &&
                         eventDetailsForm.errors.dateRanges &&
-                        typeof eventDetailsForm.errors.dateRanges === 'string' && (
+                        typeof eventDetailsForm.errors.dateRanges ===
+                          "string" && (
                           <p className="text-red-500 text-xs">
                             {eventDetailsForm.errors.dateRanges}
                           </p>
@@ -817,11 +885,12 @@ const EventModal = ({
                     </div>
 
                     {/* Validation error for date range */}
-                    {eventDetailsForm.errors && eventDetailsForm.errors.endDate && (
-                      <p className="text-red-500 text-xs mt-1">
-                        {eventDetailsForm.errors.endDate}
-                      </p>
-                    )}
+                    {eventDetailsForm.errors &&
+                      eventDetailsForm.errors.endDate && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {eventDetailsForm.errors.endDate}
+                        </p>
+                      )}
                   </div>
                 </div>
               )}
@@ -829,9 +898,7 @@ const EventModal = ({
               {/* Step 4: Location */}
               {currentStep === 4 && (
                 <div className="space-y-6 min-h-90">
-                  <h3 className="text-lg font-semibold">
-                    Location of Event
-                  </h3>
+                  <h3 className="text-lg font-semibold">Location of Event</h3>
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="location" className="text-sm font-medium">
@@ -872,13 +939,14 @@ const EventModal = ({
                   <EventDetailsForm
                     onSubmit={handleEventDetailsSubmit}
                     initialData={initialData}
-                    submitButtonText={editMode ? "Update Event" : "Create Event"}
-                    showSubmitButton={false}  // Changed from true to false
+                    submitButtonText={
+                      editMode ? "Update Event" : "Create Event"
+                    }
+                    showSubmitButton={false} // Changed from true to false
                     formRef={eventDetailsFormRef}
                   />
                 </div>
               )}
-
             </div>
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-auto w-full pt-4">
@@ -900,7 +968,9 @@ const EventModal = ({
                   disabled={
                     submitting ||
                     (currentStep === 1 && !selectedEventType) ||
-                    (currentStep === 2 && (!selectedEventFormat || selectedCategories.length === 0)) ||
+                    (currentStep === 2 &&
+                      (!selectedEventFormat ||
+                        selectedCategories.length === 0)) ||
                     (currentStep === 3 && !eventDetailsForm.isValid) ||
                     (currentStep === 4 && !locationForm.isValid)
                   }
@@ -908,9 +978,7 @@ const EventModal = ({
                 >
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   Next
-                  {!submitting && (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
+                  {!submitting && <ChevronRight className="h-4 w-4" />}
                 </Button>
               ) : (
                 // Submit button for step 5
@@ -919,13 +987,19 @@ const EventModal = ({
                   onClick={() => {
                     // Trigger the EventDetailsForm submission
                     if (eventDetailsFormRef.current) {
-                      const submitButton = eventDetailsFormRef.current.querySelector('button[type="submit"]');
+                      const submitButton =
+                        eventDetailsFormRef.current.querySelector(
+                          'button[type="submit"]'
+                        );
                       if (submitButton) {
                         submitButton.click();
                       } else {
                         // Fallback: dispatch submit event
                         eventDetailsFormRef.current.dispatchEvent(
-                          new Event('submit', { cancelable: true, bubbles: true })
+                          new Event("submit", {
+                            cancelable: true,
+                            bubbles: true,
+                          })
                         );
                       }
                     }

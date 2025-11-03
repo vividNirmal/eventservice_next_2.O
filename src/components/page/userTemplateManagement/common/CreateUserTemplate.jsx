@@ -71,8 +71,7 @@ export default function CreateUserTemplate({
   const fetchTemplateData = async () => {
     try {
       const response = await getRequest(`user-templates/${templateId}`);
-      if (response.status === 1) {
-        console.log("Fetched template data:", response.data);
+      if (response.status === 1) {        
         formik.setValues({
           name: response.data.name || "",
           typeId: response.data.typeId?._id || "",
@@ -202,9 +201,7 @@ export default function CreateUserTemplate({
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (values) => {
-    console.log(values);
-    
+  const handleSubmit = async (values) => {        
     setIsSubmitting(true);
     try {
       const formData = new FormData();

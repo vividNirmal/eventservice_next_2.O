@@ -50,16 +50,14 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
   }, [qrData]);
 
   // Handle image load error
-  const handleImageError = () => {
-    console.log("Image failed to load, using default");
+  const handleImageError = () => {    
     setImageLoadError(true);
     setUserImg("/assets/images/user-img.jpg");
     setImageLoading(false);
   };
 
   // Handle image load success
-  const handleImageLoad = () => {
-    console.log("Image loaded successfully:", userImg);
+  const handleImageLoad = () => {    
     setImageLoading(false);
     setImageLoadError(false);
   };

@@ -69,8 +69,7 @@ const NewDynamicParticipantForm = ({
       const response = await userGetRequest(`/forms/${dynamicForm}`);
       if (response.status === 1 && response.data) {
         setForm(response.data.form);
-      } else {
-        console.log("❌ API Response error or no data:", response);
+      } else {        
       }
     } catch (error) {
       console.error("🚨 Error fetching form:", error);

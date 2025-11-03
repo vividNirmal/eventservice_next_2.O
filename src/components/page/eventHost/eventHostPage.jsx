@@ -349,11 +349,7 @@ const EventHostPage = () => {
   }, []);
 
   // Handle opening edit modal - memoized
-  const handleEditEvent = useCallback((event) => {
-    console.log("=== DEBUG: Editing event ===");
-    console.log("Original event data:", event);
-    console.log("Event dateRanges:", event.dateRanges);
-    
+  const handleEditEvent = useCallback((event) => {        
     const editData = {
       _id: event._id,
       event_id: event._id,
@@ -393,8 +389,7 @@ const EventHostPage = () => {
       with_face_scanner: event.with_face_scanner || null,
     };
 
-    console.log("Edit data being passed to modal:", editData);
-    console.log("Edit data dateRanges:", editData.dateRanges);
+    
     
     setEditingEvent(editData);
     setModalMode("edit");
@@ -412,8 +407,7 @@ const EventHostPage = () => {
         // Success - refresh events list
         await fetchEvents(page, searchQuery);
         
-        // You can add a toast notification here if you have one
-        console.log("Event copied successfully:", response.message);
+        // You can add a toast notification here if you have one        
       } else {
         // Handle error response
         console.error("Failed to copy event:", response.message);

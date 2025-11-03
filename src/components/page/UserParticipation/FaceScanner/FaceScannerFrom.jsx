@@ -41,19 +41,12 @@ export default function FaceScannerFrom({faceDate, ticketData, eventData}) {
   };
 
   const faceScannerData = async (event) => {
-    try {
-      console.log("🎯 faceScannerData called with event:", event);
+    try {      
       const image = event?.image;
-      if (!image) {
-        console.log("❌ No image in event");
+      if (!image) {                
         return;
-      }
-
-      console.log("📸 Face captured, processing image...");
-      setFaceImage(image);
-
-      // Trigger face verification immediately when manually captured
-      console.log("📸 Image captured, starting verification...");
+      }      
+      setFaceImage(image);            
       await handleScanFace(image);
     } catch (error) {
       console.error(

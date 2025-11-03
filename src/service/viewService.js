@@ -382,9 +382,7 @@ export async function attengessPostRequest(path, data) {
     headers["Content-Type"] = "application/json";
   }
 
-  try {
-    console.log("📡 Making request to:", `${baseURL}/${path}`);
-    
+  try {        
     const response = await fetch(`${baseURL}/${path}`, {
       method: "POST",
       headers: headers,
@@ -392,8 +390,7 @@ export async function attengessPostRequest(path, data) {
     });
     let result;
     try {
-      result = await response.json();
-      console.log("📡 Parsed JSON result:", result);
+      result = await response.json();      
     } catch (jsonErr) {      
       return {
         error: `Invalid response format: ${response.statusText}`,
@@ -436,7 +433,6 @@ export async function attengessPostRequest(path, data) {
 
     // FIX: If status is 0 but no error flag, still treat as error
     if (result?.status === 0) {
-      console.log("⚠️ Status 0 response (error state)");
       return {
         status: 0,
         success: false,
@@ -445,8 +441,7 @@ export async function attengessPostRequest(path, data) {
       };
     }
 
-    // Fallback: Return as is if structure doesn't match expected
-    console.log("⚠️ Unexpected response structure:", result);
+    // Fallback: Return as is if structure doesn't match expected    
     return {
       ...result,
       success: result?.status === 1

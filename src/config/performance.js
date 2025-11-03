@@ -33,8 +33,7 @@ export const performanceMonitor = {
     if (process.env.NODE_ENV === 'development') {
       const start = performance.now();
       const result = renderFn();
-      const end = performance.now();
-      console.log(`${componentName} render time: ${end - start}ms`);
+      const end = performance.now();      
       return result;
     }
     return renderFn();
@@ -44,8 +43,7 @@ export const performanceMonitor = {
     if (process.env.NODE_ENV === 'development') {
       const start = performance.now();
       const result = await asyncFn();
-      const end = performance.now();
-      console.log(`${operationName} time: ${end - start}ms`);
+      const end = performance.now();      
       return result;
     }
     return await asyncFn();

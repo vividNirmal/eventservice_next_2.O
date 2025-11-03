@@ -5,6 +5,7 @@ import { Calendar, Download, MapPin, Printer, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { pdfgenrate } from "@/service/viewService";
+import { toast } from "sonner";
 
 const QrPage = ({
   eventDetails,
@@ -51,7 +52,7 @@ const QrPage = ({
     }
 
     if (!eventInfo) {
-      console.log("⚠️ No event information available for date processing");
+      toast.error("⚠️ No event information available for date processing");      
       return;
     }
 
@@ -85,8 +86,7 @@ const QrPage = ({
         return timeRange;
       });
       setEventTime(times);
-    } else {
-      console.log("⚠️ No valid start/end dates found in event data");
+    } else {      
       // Try to extract from event start/end time if dates are not arrays
       if (eventInfo.event_start_date && eventInfo.event_end_date) {
         const startDate = moment.tz(eventInfo.event_start_date, "Asia/Kolkata");

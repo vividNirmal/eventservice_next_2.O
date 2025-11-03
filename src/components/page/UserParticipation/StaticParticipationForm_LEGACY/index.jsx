@@ -429,9 +429,7 @@ const ParticipantForm = ({
   };
 
   // Helper function to render field status icon
-  const renderFieldStatus = (fieldName) => {
-    // Show checkmark if field is touched, has no error, and has a value
-    console.log("fieldName", formik.values.country);
+  const renderFieldStatus = (fieldName) => {        
     if (
       formik.touched[fieldName] &&
       !formik.errors[fieldName] &&
