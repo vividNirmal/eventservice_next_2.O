@@ -26,11 +26,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const availableFields = [
-  { id: "firstName", name: "First Name", type: "text" },
-  { id: "lastName", name: "Last Name", type: "text" },
+  { id: "first_name", name: "First Name", type: "text" },
+  { id: "last_name", name: "Last Name", type: "text" },
   { id: "email", name: "Email", type: "email" },
-  { id: "contact", name: "Contact Number", type: "tel" },
-  { id: "companyName", name: "Company Name", type: "text" },
+  { id: "contact_no", name: "Contact Number", type: "tel" },
+  { id: "company_name", name: "Company Name", type: "text" },
   { id: "qrCode", name: "QR Code", type: "qrcode" },
   { id: "date", name: "Select any date", type: "date" },
   { id: "badgeCategory", name: "Badge Category", type: "category" },
