@@ -468,7 +468,13 @@ const PaperBadgeEditor = ({ params }) => {
             <div id="badgeContent" style="position: relative; width: 100%; height: 100%; padding: 5mm;"></div>
           </div>`;
       } else if (designType === "withDesign" && activeTemplate) {
-        htmlContent = activeTemplate.htmlContent;
+        htmlContent = `
+        <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
+          <!-- Template content positioned in left corner -->
+          <div>
+            ${activeTemplate.htmlContent}
+          </div>
+        </div>`;
       } else {
         htmlContent = `
           <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center;">
