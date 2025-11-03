@@ -27,22 +27,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, MoreHorizontal, Shield, ShieldOff } from "lucide-react";
-import moment from "moment";
 import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, postRequest, updateRequest } from "@/service/viewService";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import RegistrationEditSheet from "../formPeople/commponent/RegistrationEditSheet";
 
 const ParticipantUserListPage = ({ id, eventId }) => {
@@ -59,7 +46,6 @@ const ParticipantUserListPage = ({ id, eventId }) => {
   const [statusFilter, setStatusFilter] = useState("all"); // "all", "active", "blocked"
   const [eventList, setEventList] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(eventId || id || ""); // Use eventId first, then fallback to id prop
-  const [dynamicHeaders, setDynamicHeaders] = useState([]);
   const [previewSheetOpen, setPreviewSheetOpen] = useState(false);
   const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState(null);
@@ -205,11 +191,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
         setParticipants(participantsData);
         setTotalParticipants(res.data.pagination?.totalData || 0);
         setTotalPages(res.data.pagination?.totalPages || 1);
-        setRegistrations(res.data.registrations || []);
-
-        // Generate dynamic headers from the participants data
-        const headers = generateDynamicHeaders(participantsData);
-        setDynamicHeaders(headers);
+        setRegistrations(res.data.registrations || []);        
       }
     } catch (error) {
       console.error("Error fetching participants:", error);
@@ -271,11 +253,6 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     }
   };
 
-  const handleEventChange = (value) => {
-    setSelectedEvent(value);
-    setCurrentPage(1); // Reset to first page when event changes
-  };
-
   const handlePageChange = (page) => {
     if (page !== currentPage && page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -287,62 +264,6 @@ const ParticipantUserListPage = ({ id, eventId }) => {
     setCurrentPage(1);
   };
 
-  const handleEditParticipant = (participant) => {
-    router.push(`/dashboard/participant-edit/${participant._id}`);
-  };
-
-  const handleToggleBlockStatus = async (participant) => {
-    const participantId = participant._id;
-    const currentBlockStatus = participant.dynamic_fields?.isBlocked || false;
-    const newBlockStatus = !currentBlockStatus;
-
-    // Set loading state for this specific participant
-    setBlockingLoading(prev => ({ ...prev, [participantId]: true }));
-
-    try {
-      // Create FormData for the request
-      const formData = new FormData();
-      formData.append('participant_id', participantId);
-      formData.append('isBlocked', newBlockStatus);
-
-      const response = await postRequest("toggle-participant-block-status", formData);
-
-      if (response.status === 1) {
-        // Update the participant in the local state (optimistic update)
-        setParticipants(prevParticipants => 
-          prevParticipants.map(p => 
-            p._id === participantId 
-              ? {
-                  ...p,
-                  dynamic_fields: {
-                    ...p.dynamic_fields,
-                    isBlocked: newBlockStatus
-                  }
-                }
-              : p
-          )
-        );
-
-        toast.success(
-          newBlockStatus 
-            ? "Participant blocked successfully" 
-            : "Participant unblocked successfully"
-        );
-      } else {
-        throw new Error(response.message || "Failed to update participant status");
-      }
-    } catch (error) {
-      console.error("❌ Error updating participant block status:", error);
-      toast.error("Failed to update participant status. Please try again.");
-    } finally {
-      // Remove loading state for this participant
-      setBlockingLoading(prev => {
-        const newState = { ...prev };
-        delete newState[participantId];
-        return newState;
-      });
-    }
-  };
 
   return (
     <section>

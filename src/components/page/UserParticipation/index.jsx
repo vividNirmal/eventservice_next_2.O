@@ -1,17 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ParticipanLogin from "./ParticipationLogin";
-import DynamicParticipantForm from "./DynamicParticipantForm";
 import NewDynamicParticipantForm from "./NewDynamicParticipantForm";
 import QrPage from "./ParticipationQrcode";
-import { userGetRequest, userPostRequest } from "@/service/viewService";
-import { useParams, useSearchParams } from "next/navigation";
+import {  userPostRequest } from "@/service/viewService";
+import { useParams } from "next/navigation";
 import { usePreventHydrationMismatch } from "@/hooks/usePreventHydrationMismatch";
 import { toast } from "sonner";
 import TicketBooking from "./businessParticipant/BusinessParticipant";
 import FaceScannerFrom from "./FaceScanner/FaceScannerFrom";
-import { FormRenderer } from "@/components/form-renderer/form-renderer";
-import ParticipantForm from "./StaticParticipationForm_LEGACY";
 
 const UserRegisterEvent = () => {
   // Prevent hydration mismatch from browser extensions
@@ -35,8 +32,7 @@ const UserRegisterEvent = () => {
   const [formLoading, setFormLoading] = useState(false); // Loading state for form
   const [resolvedForm, setResolvedForm] = useState(null); // For short URL resolved form_id
   const [registrationStatus, setRegistrationStatus] = useState(null); // For registration status errors
-  const [businessForm, setBusinessFrom] = useState(null);
-  const [faceDate, setFaceDate] = useState(null);
+  const [businessForm, setBusinessFrom] = useState(null);  
   const [registerFormDataId, setRegisterFormDataId] = useState(null)
 
   useEffect(() => {
@@ -93,32 +89,7 @@ const UserRegisterEvent = () => {
       }));
     }
   };
-
-  // Step validation guard
-  // const isStepValid = (step) => {
-  //   switch (step) {
-  //     case 1:
-  //       return true;
-  //     case 2:
-  //       return !!userEmail;
-  //     case 3:
-  //       return !!qrEventDetails;
-  //     default:
-  //       return false;
-  //   }
-  // };
-
-  // // Force redirect to appropriate step if invalid
-  // useEffect(() => {
-  //   if (!isStepValid(eventStep)) {
-  //     console.warn(`⚠️ Invalid step ${eventStep}, redirecting to valid step`);
-  //     if (!userEmail) {
-  //       setEventStep(1);
-  //     } else if (!qrEventDetails) {
-  //       setEventStep(2);
-  //     }
-  //   }
-  // }, [eventStep, userEmail, qrEventDetails]);
+  
 
   const handleFormSuccess = async (response) => {
     try {
@@ -171,45 +142,9 @@ const UserRegisterEvent = () => {
         setEventStep(5); // Skip step 4 since face scan is now integrated
       }
      
-    } catch (err) {
-      console.log(err.message);
-      // return; // Prevent further execution if error occurs
+    } catch (err) {          
       toast.error("Failed to submit registration");
-    }
-    // Extract participant data from response
-    // const participantData =
-    //   response.message?.EventParticipantData ||
-    //   response.message?.participantUser;
-    // const participantUser = participantData?._id
-    //   ? participantData
-    //   : response.message?.participantUser;
-
-    // // Update formData with the response data
-    // const updatedFormData = {
-    //   ...formData,
-    //   participant_id:
-    //     participantData?._id || participantData?.participant_user_id,
-    //   event_id: participantData?.event_id || formData.event_id,
-    //   email:
-    //     participantData?.dynamic_form_data?.email ||
-    //     participantData?.dynamic_form_data?.email_address ||
-    //     participantUser?.dynamic_fields?.email ||
-    //     participantUser?.dynamic_fields?.email_address ||
-    //     formData.email ||
-    //     userEmail,
-    // };
-
-    // setFormData(updatedFormData);
-
-    // Set the QR event details for Step 3 - ensure eventData and base64Image are included
-    // const qrDetails = {
-    //   participantUser: participantUser || participantData,
-    //   event: eventData || null,
-    //   base64Image: response.message?.base64Image, // Directly assign base64Image from response
-    //   ...participantData, // Include all participant data
-    // };
-    // Update qrEventDetails
-    // setQrEventDetails(qrDetails);
+    }    
   };
 
   async function handelFaseScanner(faceData) {
@@ -393,17 +328,7 @@ const UserRegisterEvent = () => {
           formLoading={formLoading}
           onFormSuccess={handleFormSuccess}
           ticketData={ticketData}
-        />
-        // <ParticipantForm
-        //   userEmail={userEmail}
-        //   eventData={eventData}
-        //   formData={formData}
-        //   faceScannerPermission={faceScanner}
-        //   eventHasFacePermission={eventHasFacePermission}
-        //   visitReason={visitReason}
-        //   companyVisit={companyVisit}
-        //   dynamicForm={dynamicForm}
-        // />
+        />      
       )}
       {!registrationStatus?.status &&
         eventStep === 4 &&
