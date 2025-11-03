@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { X, Trash2, User, ChevronDown } from "lucide-react";
+import { X, Trash2, User, ChevronDown, Printer } from "lucide-react";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import {
@@ -166,6 +166,7 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
 const PaperBadgeEditor = ({ params }) => {
   const router = useRouter();
   const previewRef = useRef(null);
+  const printFrameRef = useRef(null);
   const parsedValue = params?.value ? JSON.parse(params.value) : {};
   const settingId = parsedValue.id;
 
@@ -180,6 +181,7 @@ const PaperBadgeEditor = ({ params }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [fixedPosition, setFixedPosition] = useState(false);
   const [renderHtml, setRenderHtml] = useState("");
+  const [isPrinting, setIsPrinting] = useState(false);
 
   // Paper size state
   const [selectedPaperSize, setSelectedPaperSize] = useState("a4");
@@ -213,8 +215,126 @@ const PaperBadgeEditor = ({ params }) => {
     return {
       width: paper.width,
       height: paper.height,
+      name: paper.name,
     };
   };
+
+  // ─── Print Handler (using iframe in same tab) ───────────────────────────────
+  const handlePrint = () => {
+    setIsPrinting(true);
+    
+    const paperDimensions = getPaperDimensions();
+    
+    // Create or get the iframe
+    let printFrame = printFrameRef.current;
+    if (!printFrame) {
+      printFrame = document.createElement('iframe');
+      printFrame.style.position = 'absolute';
+      printFrame.style.width = '0';
+      printFrame.style.height = '0';
+      printFrame.style.border = 'none';
+      printFrame.style.visibility = 'hidden';
+      document.body.appendChild(printFrame);
+      printFrameRef.current = printFrame;
+    }
+
+    const printDocument = printFrame.contentDocument || printFrame.contentWindow.document;
+    
+    // Write content to iframe
+    printDocument.open();
+    printDocument.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Print Badge - ${paperDimensions.name}</title>
+          <style>
+            @page {
+              size: ${paperDimensions.width} ${paperDimensions.height};
+              margin: 0;
+            }
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
+            body {
+              margin: 0;
+              padding: 0;
+              width: 100%;
+              height: 100vh;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              font-family: Arial, sans-serif;
+            }
+            
+            .print-container {
+              width: ${paperDimensions.width};
+              height: ${paperDimensions.height};
+              position: relative;
+              page-break-after: always;
+            }
+            
+            /* Hide screen-only elements */
+            .no-print {
+              display: none !important;
+            }
+            
+            /* Ensure images print */
+            img {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color-adjust: exact;
+            }
+            
+            /* Ensure backgrounds print */
+            * {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color-adjust: exact;
+            }
+            
+            @media print {
+              body {
+                margin: 0;
+                padding: 0;
+              }
+              
+              .print-container {
+                margin: 0;
+                padding: 0;
+                border: none !important;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            ${renderHtml.replace(/border:\s*1px\s*solid\s*#ccc;?/gi, '')}
+          </div>
+        </body>
+      </html>
+    `);
+    printDocument.close();
+
+    // Wait for content to load then print
+    setTimeout(() => {
+      printFrame.contentWindow.focus();
+      printFrame.contentWindow.print();
+      setIsPrinting(false);
+    }, 500);
+  };
+
+  // Clean up iframe on unmount
+  useEffect(() => {
+    return () => {
+      if (printFrameRef.current && printFrameRef.current.parentNode) {
+        printFrameRef.current.parentNode.removeChild(printFrameRef.current);
+      }
+    };
+  }, []);
 
   // ─── Fetch Settings on Mount ────────────────────────────────
   useEffect(() => {
@@ -577,6 +697,16 @@ const PaperBadgeEditor = ({ params }) => {
             Paper Badge Setting
           </h1>
           <div className="flex gap-2 items-center">
+            <Button
+              onClick={handlePrint}
+              disabled={isPrinting || !renderHtml}
+              variant="outline"
+              className="gap-2"
+            >
+              <Printer className="h-4 w-4" />
+              {isPrinting ? "Preparing..." : "Print Badge"}
+            </Button>
+            
             <Button
               onClick={handleSave}
               disabled={isSaving}

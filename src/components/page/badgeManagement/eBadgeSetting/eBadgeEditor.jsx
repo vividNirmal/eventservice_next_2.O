@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import QRCode from "qrcode";
 import {
@@ -48,7 +49,7 @@ const defaultStyleSettings = {
   width: "20mm",
   categoryId: null,
 };
-const renderField = async (field, props, selectedCategory) => {
+const renderField = async (field, props, selectedCategory, fixedPosition) => {
   // Skip rendering badge category field - it only applies colors
   if (field.type === "category") {
     return null;
@@ -58,9 +59,19 @@ const renderField = async (field, props, selectedCategory) => {
   el.id = `field-${field.id}`;
   el.innerText = field.name;
 
-  el.style.position = "relative";
+  // Use absolute positioning when fixedPosition is enabled
+  el.style.position = fixedPosition ? "absolute" : "relative";
   el.style.marginLeft = props.marginLeft;
   el.style.marginTop = props.marginTop;
+  
+  // When fixed position is enabled, use margins as absolute positioning
+  if (fixedPosition) {
+    el.style.left = props.marginLeft;
+    el.style.top = props.marginTop;
+    el.style.marginLeft = "0";
+    el.style.marginTop = "0";
+  }
+  
   el.style.textAlign = props.position;
   el.style.fontFamily = props.fontFamily;
   el.style.fontSize = props.fontSize;
@@ -86,8 +97,12 @@ const renderField = async (field, props, selectedCategory) => {
         : props.position === "center"
         ? "center"
         : "flex-end";
-    qrWrapper.style.marginLeft = props.marginLeft;
-    qrWrapper.style.marginTop = props.marginTop;
+    
+    // Don't apply margins to wrapper when using fixed position
+    if (!fixedPosition) {
+      qrWrapper.style.marginLeft = props.marginLeft;
+      qrWrapper.style.marginTop = props.marginTop;
+    }
 
     // ✅ Create an <img> to hold the QR code
     const qrImg = document.createElement("img");
@@ -118,7 +133,7 @@ const EBadgeEditor = ({ params }) => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [badgeCategories, setBadgeCategories] = useState([]);
-
+  const [fixedPosition, setFixedPosition] = useState(false);
   const [selectedFields, setSelectedFields] = useState([]);
   const [selectedFieldId, setSelectedFieldId] = useState(null);
   const [fieldProperties, setFieldProperties] = useState({});
@@ -181,6 +196,9 @@ const EBadgeEditor = ({ params }) => {
 
         setSelectedFields(fields);
         setFieldProperties(data.fieldProperties || {});
+        
+        // Load fixedPosition setting if available
+        setFixedPosition(data.fixedPosition || false);
       } else {
         toast.error(res?.message || "Failed to fetch e-badge settings");
       }
@@ -338,6 +356,7 @@ const EBadgeEditor = ({ params }) => {
         templateId: selectedTemplate,
         fields: selectedFields,
         fieldProperties,
+        fixedPosition,
       };
       const res = await postRequest(
         `update-e-badge-setting-properties/${settingId}`,
@@ -404,8 +423,8 @@ const EBadgeEditor = ({ params }) => {
         const groupId = fieldGroup.combined_id || fieldGroup.id;
         const props = fieldProperties[groupId] || defaultStyleSettings;
 
-        if (fieldGroup.combined_id) {
-          // Combined fields - render in a flex container
+        if (fieldGroup.combined_id && !fixedPosition) {
+          // Combined fields - render in a flex container (only when not using fixed position)
           const wrapper = document.createElement("div");
           wrapper.style.display = "flex";
           wrapper.style.gap = "8px";
@@ -420,7 +439,7 @@ const EBadgeEditor = ({ params }) => {
               : "flex-end";
 
           for (const field of fieldGroup.field) {
-            const el = await renderField(field, props, selectedCategory);
+            const el = await renderField(field, props, selectedCategory, fixedPosition);
             if (el) {
               el.style.marginLeft = "0mm";
               el.style.marginTop = "0mm";
@@ -429,11 +448,17 @@ const EBadgeEditor = ({ params }) => {
           }
 
           container.appendChild(wrapper);
+        } else if (fieldGroup.combined_id && fixedPosition) {
+          // When using fixed position, render combined fields individually
+          for (const field of fieldGroup.field) {
+            const el = await renderField(field, props, selectedCategory, fixedPosition);
+            if (el) container.appendChild(el);
+          }
         } else {
           // Single field
           const field = fieldGroup.field?.[0];
           if (field) {
-            const el = await renderField(field, props, selectedCategory);
+            const el = await renderField(field, props, selectedCategory, fixedPosition);
             if (el) container.appendChild(el);
           }
         }
@@ -453,6 +478,7 @@ const EBadgeEditor = ({ params }) => {
     activeTemplate,
     selectedFieldId,
     selectedCategory,
+    fixedPosition,
   ]);
 
   return (
@@ -461,7 +487,7 @@ const EBadgeEditor = ({ params }) => {
         {/* Header */}
         <div className="flex justify-between items-center border-b px-6 py-4 bg-white shadow-sm">
           <h1 className="text-lg font-semibold text-gray-900">Badge Setting</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <Button
               onClick={handleSave}
               disabled={isSaving}
@@ -469,6 +495,19 @@ const EBadgeEditor = ({ params }) => {
             >
               {isSaving ? "Saving..." : "Save Setting"}
             </Button>
+            
+            {/* Fixed Position Toggle */}
+            <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-gray-50">
+              <Label htmlFor="fixed-position" className="text-sm font-medium cursor-pointer">
+                Fixed Position
+              </Label>
+              <Switch
+                id="fixed-position"
+                checked={fixedPosition}
+                onCheckedChange={setFixedPosition}
+              />
+            </div>
+            
             <Select
               value={selectedTemplate}
               onValueChange={setSelectedTemplate}
@@ -484,6 +523,7 @@ const EBadgeEditor = ({ params }) => {
                 ))}
               </SelectContent>
             </Select>
+            
             <Button variant="ghost" size="icon" onClick={handleClose}>
               <X className="h-5 w-5" />
             </Button>
@@ -506,7 +546,7 @@ const EBadgeEditor = ({ params }) => {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-[440px] justify-between"
+                    className="w-full justify-between"
                   >
                     <span>
                       {selectedForCombining.length > 0
@@ -516,7 +556,7 @@ const EBadgeEditor = ({ params }) => {
                     <ChevronDown className="h-4 w-4 ml-2" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[440px] max-h-[400px] overflow-y-auto">
+                <DropdownMenuContent className="w-[350px] max-h-[400px] overflow-y-auto">
                   <div className="p-2">
                     {availableFields.map((field) => {
                       const isAlreadyAdded = isFieldAlreadyAdded(field.id);
