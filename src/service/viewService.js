@@ -40,6 +40,32 @@ export async function getRequest(path) {
     });
 }
 
+export async function pdfgenrateRequest(path, data) {
+  const token = getToken();
+  
+  // Prepare headers object
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+  
+  // Prepare body based on data type
+  let body;
+  if (data instanceof FormData) {    
+    body = data;
+  } else {    
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(data);
+  }
+  
+  return fetch(`${baseURL}/${path}`, {
+    method: "POST",
+    headers: headers,
+    body: body,
+  })
+    .then((response) => response.blob())
+    .catch((error) => console.error(error));
+}
+
 export async function getApiWithParam(path, param) {
   const token = getToken();
   if (!token) {

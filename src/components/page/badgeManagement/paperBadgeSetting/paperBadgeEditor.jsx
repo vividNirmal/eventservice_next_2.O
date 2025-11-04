@@ -298,7 +298,9 @@ const PaperBadgeEditor = ({ params }) => {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Print Badge - ${paperDimensions.name}</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Print Badge - ${paperDimensions.width} x ${paperDimensions.height}</title>
           <style>
             @page {
               size: ${paperDimensions.width} ${paperDimensions.height};
@@ -309,9 +311,12 @@ const PaperBadgeEditor = ({ params }) => {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color-adjust: exact;
             }
             
-            body {
+            html, body {
               margin: 0;
               padding: 0;
               width: 100%;
@@ -329,35 +334,48 @@ const PaperBadgeEditor = ({ params }) => {
               page-break-after: always;
             }
             
-            /* Hide screen-only elements */
-            .no-print {
-              display: none !important;
-            }
-            
-            /* Ensure images print */
+            /* Ensure images print correctly */
             img {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
-              color-adjust: exact;
+              max-width: 100%;
+              height: auto;
             }
             
             /* Ensure backgrounds print */
-            * {
+            div, span, section, article {
               -webkit-print-color-adjust: exact;
               print-color-adjust: exact;
-              color-adjust: exact;
             }
             
             @media print {
-              body {
+              html, body {
                 margin: 0;
                 padding: 0;
+                width: 100%;
+                height: 100%;
               }
               
               .print-container {
                 margin: 0;
                 padding: 0;
                 border: none !important;
+                box-shadow: none !important;
+              }
+              
+              /* Hide any border that might show in preview */
+              * {
+                box-shadow: none !important;
+              }
+            }
+            
+            @media screen {
+              body {
+                background: #f5f5f5;
+              }
+              
+              .print-container {
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
               }
             }
           </style>
@@ -371,12 +389,31 @@ const PaperBadgeEditor = ({ params }) => {
     `);
     printDocument.close();
 
-    // Wait for content to load then print
-    setTimeout(() => {
-      printFrame.contentWindow.focus();
-      printFrame.contentWindow.print();
-      setIsPrinting(false);
-    }, 500);
+    // Wait for images to load before printing
+    const images = printDocument.getElementsByTagName('img');
+    const imagePromises = Array.from(images).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = resolve; // Continue even if image fails
+        // Timeout after 5 seconds
+        setTimeout(resolve, 5000);
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      setTimeout(() => {
+        try {
+          printFrame.contentWindow.focus();
+          printFrame.contentWindow.print();
+        } catch (error) {
+          console.error('Print error:', error);
+          toast.error('Failed to open print dialog');
+        } finally {
+          setIsPrinting(false);
+        }
+      }, 500);
+    });
   };
 
   // Clean up iframe on unmount

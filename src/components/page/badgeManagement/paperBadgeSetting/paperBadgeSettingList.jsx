@@ -27,12 +27,13 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { CustomPagination } from "@/components/common/pagination";
-import { Plus, Search, Edit, Trash2, Copy, Eye, Loader2, Settings } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Copy, Eye, Loader2, Settings, Printer } from "lucide-react";
 import {
   getRequest,
   postRequest,
   updateRequest,
   deleteRequest,
+  pdfgenrateRequest,
 } from "@/service/viewService";
 import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
@@ -58,6 +59,7 @@ const PaperBadgeSettingList = ({ eventId }) => {
   const [templates, setTemplates] = useState([])
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState(null);
+  const [printLoading, setPrintLoading] = useState(false);
 
   const dataLimits = [10, 20, 30, 50];
 
@@ -171,6 +173,28 @@ const PaperBadgeSettingList = ({ eventId }) => {
       toast.error("Failed to delete paper badge setting");
     }
   };
+
+  const handlePrint = async (setting) => {
+    setPrintLoading(true);
+    try {
+      const Adddata = new FormData();
+      const blob = await pdfgenrateRequest(`get-paper-preview-pdf/${setting._id}`);
+      const url = URL.createObjectURL(blob);
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      iframe.onload = () => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setPrintLoading(false);
+      };
+    } catch (e) {
+      console.error(e);
+      setPrintLoading(false);
+    }
+  };
+
 
   const openCreateSheet = () => {
     setEditingSetting(null);
@@ -322,6 +346,15 @@ const PaperBadgeSettingList = ({ eventId }) => {
                             title="Open Editor"
                           >
                             <Settings className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePrint(setting)}
+                            title="Print Preview"
+                            disabled={printLoading}
+                          >
+                            <Printer className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="outline"
