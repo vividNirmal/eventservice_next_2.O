@@ -52,7 +52,7 @@ const defaultStyleSettings = {
   borderRadius: "0px",
   objectFit: "cover",
 };
-const renderField = async (field, props, selectedCategory, fixedPosition) => {
+const renderField = async (field, props, selectedCategory, fixedPosition, fieldIndex = 0, totalFields = 1, previousFieldsWidth = 0) => {
   // Skip rendering badge category field - it only applies colors
   if (field.type === "category") {
     return null;
@@ -68,7 +68,12 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
   
   // When fixed position is enabled, use margins as absolute positioning
   if (fixedPosition) {
-    el.style.left = props.marginLeft;
+    // For combined fields in fixed position, calculate position based on actual widths
+    const baseLeft = parseFloat(props.marginLeft) || 0;
+    const spacing = 2; // 2mm spacing between combined fields
+    const offsetLeft = baseLeft + previousFieldsWidth + (fieldIndex * spacing);
+    
+    el.style.left = `${offsetLeft}mm`;
     el.style.top = props.marginTop;
     el.style.marginLeft = "0";
     el.style.marginTop = "0";
@@ -112,6 +117,10 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
 
     imageWrapper.appendChild(placeholder);
     el.appendChild(imageWrapper);
+    
+    // Store the actual width for spacing calculation
+    el.dataset.fieldWidth = props.width || "30mm";
+    
     return el;
   }
   
@@ -150,8 +159,8 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
 
     // ✅ Create an <img> to hold the QR code
     const qrImg = document.createElement("img");
-    qrImg.style.width = props.width;
-    qrImg.style.height = props.height;
+    qrImg.style.width = props.width || "20mm";
+    qrImg.style.height = props.height || "20mm";
 
     // ✅ Generate QR code as base64 image
     QRCode.toDataURL("Sample QR Data", { width: parseInt(props.width), margin: 1 })
@@ -162,10 +171,39 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
 
     qrWrapper.appendChild(qrImg);
     el.appendChild(qrWrapper);
+    
+    // Store the actual width for spacing calculation
+    el.dataset.fieldWidth = props.width || "20mm";
+    
+    return el;
   }
+
+  // For text fields, estimate width based on content and font size
+  // This is an approximation - you may need to adjust the multiplier
+  const estimatedWidth = field.name.length * (parseFloat(props.fontSize) || 12) * 0.6;
+  el.dataset.fieldWidth = `${estimatedWidth}px`;
 
   return el;
 };
+
+// ============================================
+// Helper function to calculate field width
+// ============================================
+const getFieldWidth = (field, props) => {
+  if (field.type === "image") {
+    return parseFloat(props.width) || 30;
+  }
+  if (field.type === "qrcode") {
+    return parseFloat(props.width) || 20;
+  }
+  // For text fields, estimate based on font size and content length
+  // Approximate: character width ≈ fontSize * 0.6
+  const fontSize = parseFloat(props.fontSize) || 12;
+  const charWidth = fontSize * 0.6;
+  const textLength = field.name.length;
+  return (textLength * charWidth) / 3.78; // Convert pixels to mm (1mm ≈ 3.78px at 96dpi)
+};
+
 
 const EBadgeEditor = ({ params }) => {
   const router = useRouter();
@@ -490,7 +528,7 @@ const EBadgeEditor = ({ params }) => {
               : "flex-end";
 
           for (const field of fieldGroup.field) {
-            const el = await renderField(field, props, selectedCategory, fixedPosition);
+            const el = await renderField(field, props, selectedCategory, fixedPosition, 0, 1, 0);
             if (el) {
               el.style.marginLeft = "0mm";
               el.style.marginTop = "0mm";
@@ -500,16 +538,34 @@ const EBadgeEditor = ({ params }) => {
 
           container.appendChild(wrapper);
         } else if (fieldGroup.combined_id && fixedPosition) {
-          // When using fixed position, render combined fields individually
-          for (const field of fieldGroup.field) {
-            const el = await renderField(field, props, selectedCategory, fixedPosition);
-            if (el) container.appendChild(el);
+          // When using fixed position, render combined fields individually with proper spacing
+          const totalFields = fieldGroup.field.length;
+          let cumulativeWidth = 0;
+          
+          for (let i = 0; i < fieldGroup.field.length; i++) {
+            const field = fieldGroup.field[i];
+            const fieldWidth = getFieldWidth(field, props);
+            
+            const el = await renderField(
+              field, 
+              props, 
+              selectedCategory, 
+              fixedPosition, 
+              i, 
+              totalFields,
+              cumulativeWidth
+            );
+            
+            if (el) {
+              container.appendChild(el);
+              cumulativeWidth += fieldWidth;
+            }
           }
         } else {
           // Single field
           const field = fieldGroup.field?.[0];
           if (field) {
-            const el = await renderField(field, props, selectedCategory, fixedPosition);
+            const el = await renderField(field, props, selectedCategory, fixedPosition, 0, 1, 0);
             if (el) container.appendChild(el);
           }
         }
