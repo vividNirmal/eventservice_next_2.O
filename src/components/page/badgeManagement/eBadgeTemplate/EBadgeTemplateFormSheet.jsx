@@ -249,10 +249,10 @@ export const EBadgeTemplateFormSheet = ({
               </Button>
             </div>
 
-            <div className="p-6 flex flex-col justify-center items-center overflow-auto flex-1 bg-gray-50">
+            <div className="p-6 flex flex-col justify-center items-center overflow-auto h-40 grow bg-gray-50">
               <div
                 dangerouslySetInnerHTML={{ __html: formik.values.htmlContent }}
-                className="[&>div]:!mx-auto"
+                className="[&>div]:!mx-auto max-w-full overflow-auto"
               />
             </div>
           </div>

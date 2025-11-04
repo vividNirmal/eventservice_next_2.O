@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const availableFields = [
+  { id: "faceImage", name: "Face Image", type: "image" },
   { id: "first_name", name: "First Name", type: "text" },
   { id: "last_name", name: "Last Name", type: "text" },
   { id: "email", name: "Email", type: "email" },
@@ -48,6 +49,8 @@ const defaultStyleSettings = {
   height: "20mm",
   width: "20mm",
   categoryId: null,
+  borderRadius: "0px",
+  objectFit: "cover",
 };
 const renderField = async (field, props, selectedCategory, fixedPosition) => {
   // Skip rendering badge category field - it only applies colors
@@ -57,7 +60,6 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
 
   const el = document.createElement("div");
   el.id = `field-${field.id}`;
-  el.innerText = field.name;
 
   // Use absolute positioning when fixedPosition is enabled
   el.style.position = fixedPosition ? "absolute" : "relative";
@@ -71,7 +73,49 @@ const renderField = async (field, props, selectedCategory, fixedPosition) => {
     el.style.marginLeft = "0";
     el.style.marginTop = "0";
   }
+
+  // Handle Face Image
+  if (field.type === "image") {
+    el.style.display = "flex";
+    el.style.justifyContent =
+      props.position === "left"
+        ? "flex-start"
+        : props.position === "center"
+        ? "center"
+        : "flex-end";
+
+    const imageWrapper = document.createElement("div");
+    imageWrapper.style.width = props.width || "30mm";
+    imageWrapper.style.height = props.height || "40mm";
+    imageWrapper.style.borderRadius = props.borderRadius || "0px";
+    imageWrapper.style.overflow = "hidden";
+    imageWrapper.style.backgroundColor = "#f0f0f0";
+    imageWrapper.style.display = "flex";
+    imageWrapper.style.alignItems = "center";
+    imageWrapper.style.justifyContent = "center";
+    imageWrapper.style.border = "1px solid #ddd";
+
+    const placeholder = document.createElement("div");
+    placeholder.style.display = "flex";
+    placeholder.style.flexDirection = "column";
+    placeholder.style.alignItems = "center";
+    placeholder.style.justifyContent = "center";
+    placeholder.style.color = "#999";
+
+    placeholder.innerHTML = `
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      <span style="margin-top: 8px; font-size: 10px;">Face Image</span>
+    `;
+
+    imageWrapper.appendChild(placeholder);
+    el.appendChild(imageWrapper);
+    return el;
+  }
   
+  el.innerText = field.name;
   el.style.textAlign = props.position;
   el.style.fontFamily = props.fontFamily;
   el.style.fontSize = props.fontSize;
@@ -139,6 +183,13 @@ const EBadgeEditor = ({ params }) => {
   const [fieldProperties, setFieldProperties] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [renderHtml, setRenderHtml] = useState("");
+
+  // Fixed e-badge dimensions
+  const badgeDimensions = {
+    width: "93.5mm",
+    height: "122mm"
+  };
+
 
   // Multi-select state
   const [selectedForCombining, setSelectedForCombining] = useState([]);
@@ -678,14 +729,40 @@ const EBadgeEditor = ({ params }) => {
 
           {/* Center Panel - Preview */}
           <div className="bg-gray-100 overflow-auto p-6 w-1/3 grow flex justify-center items-center">
-            <div
-              ref={previewRef}
-              dangerouslySetInnerHTML={{
-                __html:
-                  renderHtml ||
-                  '<div style="padding: 40px; text-align: center; color: #999;">No template selected</div>',
-              }}
-            />
+            <div className="relative">
+              {/* Width Dimension Indicator */}
+              <div className="absolute -top-6 left-0 right-0 gap-4 flex items-center justify-between">
+                <div className="w-6 grow h-px bg-gray-600 relative"></div>
+                <div className="text-xs text-gray-700 font-medium bg-gray-100 rounded">{badgeDimensions.width}</div>
+                <div className="w-6 grow h-px bg-gray-600 relative"></div>
+              </div>
+
+              {/* Height Dimension Indicator */}
+              <div className="absolute -left-10 top-0 bottom-0 flex flex-col gap-8 items-center justify-between">
+                <div className="w-px h-6 grow bg-gray-600 relative"></div>
+                <div className="text-xs text-gray-700 font-medium px-1 bg-gray-100 rounded transform -rotate-90 whitespace-nowrap">{badgeDimensions.height}</div>
+                <div className="w-px h-6 grow bg-gray-600 relative"></div>
+              </div>
+
+              {/* Badge Preview Container */}
+              <div
+                className="bg-white relative overflow-hidden"
+                style={{
+                  minWidth: badgeDimensions.width,
+                  minHeight: badgeDimensions.height
+                }}
+              >
+                <div
+                  ref={previewRef}
+                  // className="w-full h-full"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      renderHtml ||
+                      '<div style="padding: 40px; text-align: center; color: #999; min-width: 93.5mm; min-height: 122mm; display: flex; align-items: center; justify-content: center;">No template selected</div>',
+                  }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Right Panel - Style Editor */}
@@ -849,32 +926,8 @@ const EBadgeEditor = ({ params }) => {
                         />
                       </div>
 
-                      <div>
-                        <Label className="text-xs font-semibold text-gray-700 mb-2 block">
-                          Font Family
-                        </Label>
-                        <Select
-                          value={currentFieldProperties.fontFamily}
-                          onValueChange={(value) =>
-                            handleStyleChange("fontFamily", value)
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Arial">Arial</SelectItem>
-                            <SelectItem value="Helvetica">Helvetica</SelectItem>
-                            <SelectItem value="Times New Roman">
-                              Times New Roman
-                            </SelectItem>
-                            <SelectItem value="Courier">Courier</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* QR Code specific */}
-                      {currentField?.field?.some((f) => f.type === "qrcode") ? (
+                      {/* Face Image specific properties */}
+                      {currentField?.field?.some((f) => f.type === "image") ? (
                         <>
                           <div>
                             <Label className="text-xs font-semibold text-gray-700 mb-2 block">
@@ -882,11 +935,11 @@ const EBadgeEditor = ({ params }) => {
                             </Label>
                             <Input
                               type="text"
-                              value={currentFieldProperties.height || "20mm"}
+                              value={currentFieldProperties.height || "40mm"}
                               onChange={(e) =>
                                 handleStyleChange("height", e.target.value)
                               }
-                              placeholder="20mm"
+                              placeholder="40mm"
                               className="w-full"
                             />
                           </div>
@@ -897,121 +950,246 @@ const EBadgeEditor = ({ params }) => {
                             </Label>
                             <Input
                               type="text"
-                              value={currentFieldProperties.width || "20mm"}
+                              value={currentFieldProperties.width || "30mm"}
                               onChange={(e) =>
                                 handleStyleChange("width", e.target.value)
                               }
-                              placeholder="20mm"
+                              placeholder="30mm"
                               className="w-full"
                             />
                           </div>
-                        </>
-                      ) : (
-                        <>
-                          {/* Non-QR Fields Only */}
+
                           <div>
                             <Label className="text-xs font-semibold text-gray-700 mb-2 block">
-                              Font Size
+                              Border Radius
                             </Label>
                             <Input
                               type="text"
-                              value={currentFieldProperties.fontSize}
-                              onChange={(e) =>
-                                handleStyleChange("fontSize", e.target.value)
+                              value={
+                                currentFieldProperties.borderRadius || "0px"
                               }
-                              placeholder="12pt"
+                              onChange={(e) =>
+                                handleStyleChange(
+                                  "borderRadius",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="0px"
                               className="w-full"
                             />
                           </div>
 
                           <div>
                             <Label className="text-xs font-semibold text-gray-700 mb-2 block">
-                              Font Color
-                            </Label>
-                            <div className="flex gap-2">
-                              <Input
-                                type="text"
-                                value={currentFieldProperties.fontColor}
-                                onChange={(e) =>
-                                  handleStyleChange("fontColor", e.target.value)
-                                }
-                                placeholder="#000"
-                                className="flex-1"
-                              />
-                              <Input
-                                type="color"
-                                value={currentFieldProperties.fontColor}
-                                onChange={(e) =>
-                                  handleStyleChange("fontColor", e.target.value)
-                                }
-                                className="w-12 h-10 p-1 cursor-pointer"
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label className="text-xs font-semibold text-gray-700 mb-2 block">
-                              Font Style
-                            </Label>
-                            <div className="flex gap-2">
-                              <Button
-                                variant={
-                                  currentFieldProperties.fontStyle === "bold"
-                                    ? "default"
-                                    : "outline"
-                                }
-                                size="sm"
-                                onClick={() =>
-                                  handleStyleChange("fontStyle", "bold")
-                                }
-                                className="flex-1"
-                              >
-                                Bold
-                              </Button>
-                              <Button
-                                variant={
-                                  currentFieldProperties.fontStyle === "normal"
-                                    ? "default"
-                                    : "outline"
-                                }
-                                size="sm"
-                                onClick={() =>
-                                  handleStyleChange("fontStyle", "normal")
-                                }
-                                className="flex-1"
-                              >
-                                Normal
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div>
-                            <Label className="text-xs font-semibold text-gray-700 mb-2 block">
-                              Text Format
+                              Object Fit
                             </Label>
                             <Select
-                              value={currentFieldProperties.textFormat}
+                              value={
+                                currentFieldProperties.objectFit || "cover"
+                              }
                               onValueChange={(value) =>
-                                handleStyleChange("textFormat", value)
+                                handleStyleChange("objectFit", value)
                               }
                             >
                               <SelectTrigger className="w-full">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="default">Default</SelectItem>
-                                <SelectItem value="uppercase">
-                                  Uppercase
-                                </SelectItem>
-                                <SelectItem value="lowercase">
-                                  Lowercase
-                                </SelectItem>
-                                <SelectItem value="capitalize">
-                                  Capitalize
+                                <SelectItem value="cover">Cover</SelectItem>
+                                <SelectItem value="contain">Contain</SelectItem>
+                                <SelectItem value="fill">Fill</SelectItem>
+                                <SelectItem value="none">None</SelectItem>
+                                <SelectItem value="scale-down">
+                                  Scale Down
                                 </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* QR Code specific */}
+                          {currentField?.field?.some((f) => f.type === "qrcode") ? (
+                            <>
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Height
+                                </Label>
+                                <Input
+                                  type="text"
+                                  value={
+                                    currentFieldProperties.height || "20mm"
+                                  }
+                                  onChange={(e) =>
+                                    handleStyleChange("height", e.target.value)
+                                  }
+                                  placeholder="20mm"
+                                  className="w-full"
+                                />
+                              </div>
+
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Width
+                                </Label>
+                                <Input
+                                  type="text"
+                                  value={currentFieldProperties.width || "20mm"}
+                                  onChange={(e) =>
+                                    handleStyleChange("width", e.target.value)
+                                  }
+                                  placeholder="20mm"
+                                  className="w-full"
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              {/* Text Fields Only */}
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Font Family
+                                </Label>
+                                <Select
+                                  value={currentFieldProperties.fontFamily}
+                                  onValueChange={(value) =>
+                                    handleStyleChange("fontFamily", value)
+                                  }
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Arial">Arial</SelectItem>
+                                    <SelectItem value="Helvetica">
+                                      Helvetica
+                                    </SelectItem>
+                                    <SelectItem value="Times New Roman">
+                                      Times New Roman
+                                    </SelectItem>
+                                    <SelectItem value="Courier">Courier</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Font Size
+                                </Label>
+                                <Input
+                                  type="text"
+                                  value={currentFieldProperties.fontSize}
+                                  onChange={(e) =>
+                                    handleStyleChange(
+                                      "fontSize",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="12pt"
+                                  className="w-full"
+                                />
+                              </div>
+
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Font Color
+                                </Label>
+                                <div className="flex gap-2">
+                                  <Input
+                                    type="text"
+                                    value={currentFieldProperties.fontColor}
+                                    onChange={(e) =>
+                                      handleStyleChange(
+                                        "fontColor",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder="#000"
+                                    className="flex-1"
+                                  />
+                                  <Input
+                                    type="color"
+                                    value={currentFieldProperties.fontColor}
+                                    onChange={(e) =>
+                                      handleStyleChange(
+                                        "fontColor",
+                                        e.target.value
+                                      )
+                                    }
+                                    className="w-12 h-10 p-1 cursor-pointer"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Font Style
+                                </Label>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant={
+                                      currentFieldProperties.fontStyle ===
+                                      "bold"
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    size="sm"
+                                    onClick={() =>
+                                      handleStyleChange("fontStyle", "bold")
+                                    }
+                                    className="flex-1"
+                                  >
+                                    Bold
+                                  </Button>
+                                  <Button
+                                    variant={
+                                      currentFieldProperties.fontStyle ===
+                                      "normal"
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    size="sm"
+                                    onClick={() =>
+                                      handleStyleChange("fontStyle", "normal")
+                                    }
+                                    className="flex-1"
+                                  >
+                                    Normal
+                                  </Button>
+                                </div>
+                              </div>
+
+                              <div>
+                                <Label className="text-xs font-semibold text-gray-700 mb-2 block">
+                                  Text Format
+                                </Label>
+                                <Select
+                                  value={currentFieldProperties.textFormat}
+                                  onValueChange={(value) =>
+                                    handleStyleChange("textFormat", value)
+                                  }
+                                >
+                                  <SelectTrigger className="w-full">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="default">
+                                      Default
+                                    </SelectItem>
+                                    <SelectItem value="uppercase">
+                                      Uppercase
+                                    </SelectItem>
+                                    <SelectItem value="lowercase">
+                                      Lowercase
+                                    </SelectItem>
+                                    <SelectItem value="capitalize">
+                                      Capitalize
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </>
+                          )}
                         </>
                       )}
                     </>
