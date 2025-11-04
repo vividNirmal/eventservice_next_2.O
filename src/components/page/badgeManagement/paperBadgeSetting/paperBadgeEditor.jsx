@@ -780,7 +780,7 @@ const PaperBadgeEditor = ({ params }) => {
           </div>
         </div>
 
-        <div className="flex flex-1 overflow-hidden">
+        <div className="w-full flex h-40 grow overflow-hidden">
           {/* Left Panel */}
           <div className="w-1/4 border-r bg-white overflow-y-auto p-4">
             <div className="mb-4">
@@ -921,7 +921,7 @@ const PaperBadgeEditor = ({ params }) => {
           </div>
 
           {/* Center Panel - Preview */}
-          <div className="flex-1 bg-gray-100 flex items-center justify-center overflow-auto p-6">
+          <div className="bg-gray-100 overflow-auto p-6 w-1/3 grow">
             <div
               ref={previewRef}
               dangerouslySetInnerHTML={{
