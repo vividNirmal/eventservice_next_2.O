@@ -143,7 +143,7 @@ const QrPage = ({
     try {
       const Adddata = new FormData();
       Adddata.append("formRegistrationId", registerFormDataId);
-      const blob = await pdfgenrate("generate-pdf-scanner", Adddata);
+      const blob = await pdfgenrate("generate-paper-pdf-scanner", Adddata);
       const url = URL.createObjectURL(blob);
       const iframe = document.createElement("iframe");
       iframe.style.display = "none";
