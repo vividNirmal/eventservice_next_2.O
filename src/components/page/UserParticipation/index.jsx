@@ -139,10 +139,17 @@ const UserRegisterEvent = () => {
         setQrEventDetails(responce.data?.qrImageUrl);
         setRegisterFormDataId(responce?.data?.registrationId);
         setEventStep(5); // Skip step 4 since face scan is now integrated
+      } else {
+        // Throw error with API response message
+        throw new Error(responce.message || "Failed to submit registration");
       }
      
     } catch (err) {          
-      toast.error("Failed to submit registration");
+      console.error("Registration error:", err);
+      // Show specific error message from API
+      const errorMessage = err.message || "Failed to submit registration";
+      toast.error(errorMessage);
+      throw err; // Re-throw to let form know submission failed
     }    
   };
 
@@ -189,10 +196,20 @@ const UserRegisterEvent = () => {
         setQrEventDetails(responce.data?.qrImageUrl)
         setRegisterFormDataId(responce?.data?.registrationId);
         setEventStep(5);
+      } else {
+        // Show specific error message
+        const errorMessage = responce.message || "Face processing failed";
+        if (responce?.errorType == "FACE_PROCESSING_ERROR") {
+          toast.error(errorMessage);
+        } else {
+          toast.error(errorMessage);
+        }
+        throw new Error(errorMessage); // Throw error to prevent state update
       }
     } catch (err) {
-      console.log(err.message);
-      return; // Prevent further execution if error occurs
+       console.error("Face scanner error:", err);
+      toast.error(err.message || "Failed to process face image");
+      throw err; // Re-throw to prevent further execution
     }
   }
 

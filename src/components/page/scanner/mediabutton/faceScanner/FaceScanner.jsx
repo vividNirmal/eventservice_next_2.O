@@ -35,6 +35,7 @@ const FaceScanner = ({
   onManualCapture,
   scannerType = 0,
   captureMode = false,
+  newCaptureMode = false, // New prop for capturing face button
 }) => {
   const videoRef = useRef(null);
   const intervalIdRef = useRef(null);
@@ -190,9 +191,9 @@ const FaceScanner = ({
     }
   }, []);
 
-  // Auto capture effect
+  // Auto capture effect - only run if in newCaptureMode
   useEffect(() => {
-    if (!captureMode && faceDetected && allowScan && videoReady) {
+    if (newCaptureMode && !captureMode && faceDetected && allowScan && videoReady) {
       if (autoCaptureTimeoutRef.current) {
         clearTimeout(autoCaptureTimeoutRef.current);
       }
@@ -212,7 +213,7 @@ const FaceScanner = ({
         clearTimeout(autoCaptureTimeoutRef.current);
       }
     };
-  }, [captureMode, faceDetected, allowScan, videoReady, captureImage, onManualCapture]);
+  }, [newCaptureMode, captureMode, faceDetected, allowScan, videoReady, captureImage, onManualCapture]);
 
   // Camera initialization
   useEffect(() => {
@@ -385,7 +386,7 @@ const FaceScanner = ({
       </div>
 
       {/* Button - Shows in capture mode */}
-      {hasCamera && videoReady && captureMode && (
+      {hasCamera && videoReady && (captureMode || newCaptureMode) && (
         <Button
           onClick={handleManualCapture}
           disabled={!allowScan}
@@ -395,7 +396,7 @@ const FaceScanner = ({
               : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-60"
           }`}
         >
-          Check {scannerType == 0 ? "In" : "Out"}
+          {newCaptureMode ? "Capture Face" : `Check ${scannerType == 0 ? "In" : "Out"}`}
         </Button>
       )}
     </div>

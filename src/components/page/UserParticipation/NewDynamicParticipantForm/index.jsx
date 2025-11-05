@@ -745,7 +745,7 @@ const NewDynamicParticipantForm = ({
       <Dialog open={faceScannerPopup} onOpenChange={() => setFaceScannerPopup(false)}>
         <DialogTitle className={'sr-only'}>Face Scanner</DialogTitle>
         <DialogContent className="sm:max-w-[425px] p-0 flex-col">
-          <FaceScanner allowScan={stopScanner} onCameraError={onCameraError} onManualCapture={faceScannerData} />
+          <FaceScanner allowScan={stopScanner} onCameraError={onCameraError} onManualCapture={faceScannerData} newCaptureMode={true} />
         </DialogContent>
       </Dialog>
     </div>
