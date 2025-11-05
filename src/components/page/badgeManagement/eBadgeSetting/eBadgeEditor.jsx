@@ -1120,10 +1120,10 @@ const EBadgeEditor = ({ params }) => {
                                     <SelectItem value="Inter">
                                       Inter
                                     </SelectItem>
-                                    <SelectItem value="Poppins">
+                                    {/* <SelectItem value="Poppins">
                                       Poppins
                                     </SelectItem>
-                                    <SelectItem value="Montserrat">Montserrat</SelectItem>
+                                    <SelectItem value="Montserrat">Montserrat</SelectItem> */}
                                   </SelectContent>
                                 </Select>
                               </div>
