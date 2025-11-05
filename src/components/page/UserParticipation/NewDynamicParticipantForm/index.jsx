@@ -294,13 +294,21 @@ const NewDynamicParticipantForm = ({
 
   const onEventImageSelected = (event) => {
     const inputElement = event.target;
-    const allowedExtensions = ["image/png", "image/jpeg", "image/jpg"];
+    const allowedExtensions = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/x-webp", // add this
+  "application/octet-stream", // optional fallback
+];
+
 
     if (inputElement.files && inputElement.files.length > 0) {
       const file = inputElement.files[0];
 
       if (!allowedExtensions.includes(file.type)) {
-        toast.error("Only PNG and JPG files are allowed.");
+        toast.error("Only PNG, JPG and WEBP files are allowed.");
         return;
       }
 
