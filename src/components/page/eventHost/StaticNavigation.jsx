@@ -15,7 +15,8 @@ import {
   LayoutTemplate,
   Phone,
   ShieldUser,
-  FileBadge
+  FileBadge,
+  Images
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -114,6 +115,14 @@ const StaticNavigation = ({ eventId = null }) => {
           url: actualEventId ? `/dashboard/event-host/${actualEventId}/badge-management` : '/dashboard/badge',
           description: 'Manage event badges',
           isActive: activeSection === 'badge',
+        },
+        {
+          id: 'eventImages',
+          label: 'Event Images',
+          icon: Images,
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/event-images` : '/dashboard/event-images',
+          description: 'Manage event images',
+          isActive: activeSection === 'eventImages',
         }
       ]
     },
