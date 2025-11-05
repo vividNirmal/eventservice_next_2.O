@@ -41,7 +41,7 @@ const defaultStyleSettings = {
   position: "left",
   marginLeft: "0mm",
   marginTop: "0mm",
-  fontFamily: "Arial",
+  fontFamily: "Roboto",
   fontSize: "12pt",
   fontColor: "#000",
   fontStyle: "normal",
@@ -324,7 +324,7 @@ const PaperBadgeEditor = ({ params }) => {
               display: flex;
               justify-content: center;
               align-items: center;
-              font-family: Arial, sans-serif;
+              font-family: Roboto, sans-serif;
             }
             
             .print-container {
@@ -1340,14 +1340,14 @@ const PaperBadgeEditor = ({ params }) => {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="Arial">Arial</SelectItem>
-                                    <SelectItem value="Helvetica">
-                                      Helvetica
+                                    <SelectItem value="Roboto">Roboto</SelectItem>
+                                    <SelectItem value="Inter">
+                                      Inter
                                     </SelectItem>
-                                    <SelectItem value="Times New Roman">
-                                      Times New Roman
+                                    <SelectItem value="Poppins">
+                                      Poppins
                                     </SelectItem>
-                                    <SelectItem value="Courier">Courier</SelectItem>
+                                    <SelectItem value="Montserrat">Montserrat</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>

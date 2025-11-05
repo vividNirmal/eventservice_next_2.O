@@ -65,7 +65,7 @@ export const EBadgeTemplateFormSheet = ({
   };
 
   const sampleHTMLContent = `<!-- Sample E-Badge HTML Template (93.5mm × 122mm) -->
-<div style="width: 93.5mm; height: 122mm; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; font-family: Arial, sans-serif; position: relative;">
+<div style="width: 93.5mm; height: 122mm; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); background: white; font-family: Roboto, sans-serif; position: relative;">
   
   <!-- Header Section (34mm height) -->
   <div style="height: 34mm; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; position: relative;">
