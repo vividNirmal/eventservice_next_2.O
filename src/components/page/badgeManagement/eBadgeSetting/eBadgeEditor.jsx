@@ -251,8 +251,7 @@ const EBadgeEditor = ({ params }) => {
   );
 
   const activeTemplate = templates.find((t) => t._id === selectedTemplate);
-
-  // ─── Fetch Settings on Mount ────────────────────────────────
+  
   useEffect(() => {
     fetchSettings();
   }, []);
@@ -296,17 +295,7 @@ const EBadgeEditor = ({ params }) => {
       toast.error("Error fetching settings");
     }
   };
-
-  // const fetchTemplates = async () => {
-  //   try {
-  //     const res = await getRequest(`get-badge-template-by-eventid/${eventId}`);
-  //     if (res.status === 1) {
-  //       setTemplates(res.data.template || []);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+ 
 
   const fetchTemplates = async () => {
     try {
