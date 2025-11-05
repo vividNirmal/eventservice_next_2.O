@@ -111,9 +111,6 @@ function AdminTeams() {
     }
   };
 
-  const getSrNumber = (index) => {
-    return (currentPage - 1) * selectedLimit + index + 1;
-  };
 
   const handleSelectUser = (userId) => {
     const newSelected = new Set(selectedUsers);

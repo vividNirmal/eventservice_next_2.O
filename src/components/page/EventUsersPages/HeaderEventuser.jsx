@@ -16,12 +16,15 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { handleEventUserTypeSelected } from "@/redux/eventuserReducer/eventuserReducer";
 
 export default function HeaderEventuser() {
   const [loginUser, setLoginUser] = useState(null);
   const [selectedUserType, setSelectedUserType] = useState(null);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const dispatch = useDispatch()
 
   // Memoized values
   const hasMultipleUserTypes = useMemo(
@@ -46,6 +49,7 @@ export default function HeaderEventuser() {
       setLoginUser(user);
       if (user.userType?.length > 0) {
         setSelectedUserType(user.userType[0]);
+        dispatch(handleEventUserTypeSelected(user.userType[0]))
       }
     }
   }, []);
@@ -77,6 +81,7 @@ export default function HeaderEventuser() {
 
   const handleUserTypeChange = useCallback((type) => {
     setSelectedUserType(type);
+    dispatch(handleEventUserTypeSelected(type))
   }, []);
 
   return (
