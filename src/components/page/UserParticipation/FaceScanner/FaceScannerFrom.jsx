@@ -124,8 +124,7 @@ export default function FaceScannerFrom({faceDate, ticketData, eventData}) {
   }
   return (
     <div className="flex flex-wrap gap-5 p-4 bg-[#f7f9fc] h-svh overflow-auto lg:overflow-hidden">
-      <div className="shrink-0 w-full lg:w-5/12 xl:w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
-        {/* <img src={ticketData?.desktopBannerImageUrl || "/assets/images/login-img.webp"} className="max-w-full w-full object-cover h-svh transition-all duration-100 ease-linear" alt="" /> */}
+      <div className="shrink-0 w-full lg:w-5/12 xl:w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">        
         <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
         
         {

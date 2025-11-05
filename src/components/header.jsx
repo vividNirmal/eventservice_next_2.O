@@ -24,8 +24,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { useDispatch, useSelector } from "react-redux";
-import { handleAdminuser, handleUser } from "@/redux/userReducer/userRducer";
 import { Breadcrumbs } from "./breadcrumb";
 
 export default function Header() {
@@ -34,11 +32,9 @@ export default function Header() {
   const [loginUser, setLoginUser] = useState(null);
   const [emailStatus, setEmailStatus] = useState(false);
   const [statusPopupOpen, setStatusPopupOpen] = useState(false);
-  const [buttonLoading, setButtonLoading] = useState(false);
-  const adminuser = useSelector((state) => state.users.adminuser);
+  const [buttonLoading, setButtonLoading] = useState(false);  
   const [open, setOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const dispatch = useDispatch();
+  const dropdownRef = useRef(null);  
   useEffect(() => {
     // getuserBytoken();
     const user = localStorage.getItem("loginuser");
@@ -47,13 +43,6 @@ export default function Header() {
     }
   }, []);
 
-  // async function getuserBytoken() {
-  //   const token = localStorage.getItem("token");
-  //   if (token) {
-  //     const responce = await getRequest(`get-user-by-token/${token}`);
-  //     dispatch(handleAdminuser(responce?.data));
-  //   }
-  // }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
