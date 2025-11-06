@@ -33,6 +33,7 @@ import { getRequest, postRequest } from "@/service/viewService";
 import { toast } from "sonner";
 import EventDetailsForm from "@/components/common/EventDetailsForm";
 import { cn } from "@/lib/utils";
+import { CustomCombobox } from "@/components/common/customcombox";
 
 // Validation schemas - moved outside as regular constants
 const eventDetailsSchema = Yup.object().shape({
@@ -93,6 +94,13 @@ const EventModal = ({
   const [eventDetailsData, setEventDetailsData] = useState(null);
   const eventDetailsFormRef = useRef(null);
 
+  // NEW: Category states
+  const [categories, setCategories] = useState([]);
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(
+    editMode ? initialData?.event_category?._id || "" : ""
+  );
+
   // Event type options
   const eventTypes = [
     {
@@ -130,6 +138,22 @@ const EventModal = ({
     "Other",
   ];
 
+  // NEW: Fetch categories function
+  async function fetchCategory() {
+    setFetchLoading(true);
+    try {
+      const response = await getRequest("get-event-category");
+      if (response.data) {
+        setCategories(response.data.eventCategories);
+      }
+    } catch (error) {
+      toast.error("Category fetch error");
+      console.error("Error fetching categories:", error);
+    } finally {
+      setFetchLoading(false);
+    }
+  }  
+  
   // Form for event details
   const eventDetailsForm = useFormik({
     initialValues: {
@@ -197,6 +221,7 @@ const EventModal = ({
       show_location_image: initialData?.show_location_image || null,
       event_sponsor: initialData?.event_sponsor || null,
       face_scanner_enabled: initialData?.with_face_scanner === 1 ? true : false,
+      event_category : initialData?.event_category || ""
     },
     validationSchema: eventDetailsSchema,
     onSubmit: (values) => {
@@ -204,6 +229,8 @@ const EventModal = ({
     },
     enableReinitialize: true,
   });
+  
+  
 
   // Form for location
   const locationForm = useFormik({
@@ -219,30 +246,45 @@ const EventModal = ({
 
   // Updated useEffect to always start from step 1:
   useEffect(() => {
-    if (isOpen) {
-      if (editMode) {
-        // Start from step 1 even in edit mode
-        setCurrentStep(1);
-        setSelectedEventType(initialData?.eventType || "in-person");
-        setSelectedEventFormat(initialData?.event_type || "Conference");
-        setSelectedCategories(initialData?.eventCategory || ["Career-Fair"]);
-      } else {
-        // Reset for add mode
-        setCurrentStep(1);
-        setSelectedEventType("");
-        setSelectedEventFormat("");
-        setSelectedCategories([]);
-      }
-      setError(null);
+  if (isOpen) {
+    if (editMode) {
+      // Start from step 1 even in edit mode
+      setCurrentStep(1);
+      setSelectedEventType(initialData?.eventType || "in-person");
+      setSelectedEventFormat(initialData?.event_type || "Conference");
+      setSelectedCategories(initialData?.eventCategory || ["Career-Fair"]);
+      // FIX: Change from initialData?.category to initialData?.event_category
+      setSelectedCategory(
+        typeof initialData?.event_category === 'object' 
+          ? initialData?.event_category?._id || "" 
+          : initialData?.event_category || ""
+      );
     } else {
-      // Reset when closing
+      // Reset for add mode
       setCurrentStep(1);
       setSelectedEventType("");
       setSelectedEventFormat("");
       setSelectedCategories([]);
-      setError(null);
+      setSelectedCategory("");
     }
-  }, [isOpen, editMode, initialData]);
+    setError(null);
+  } else {
+    // Reset when closing
+    setCurrentStep(1);
+    setSelectedEventType("");
+    setSelectedEventFormat("");
+    setSelectedCategories([]);
+    setSelectedCategory("");
+    setError(null);
+  }
+}, [isOpen, editMode, initialData]);
+
+  // NEW: Fetch categories when modal opens or when reaching step 2
+  useEffect(() => {
+    if (isOpen && currentStep === 2 && categories.length === 0) {
+      fetchCategory();
+    }
+  }, [isOpen, currentStep]);
 
   const handleEventTypeSelect = (type) => {
     setSelectedEventType(type);
@@ -266,7 +308,8 @@ const EventModal = ({
     } else if (
       currentStep === 2 &&
       selectedEventFormat &&
-      selectedCategories.length > 0
+      selectedCategories.length > 0 &&
+      selectedCategory // NEW: Added validation for category
     ) {
       setCurrentStep(3);
     } else if (currentStep === 3) {
@@ -288,15 +331,13 @@ const EventModal = ({
   };
 
   const handleEventDetailsSubmit = async (values, extraData) => {
-    
-
     if (!values) {
       console.error("ERROR: values is null/undefined");
       setError("Form values are missing");
       return;
     }
 
-    try {        
+    try {
       await handleFinalSubmit(values, extraData);
     } catch (error) {
       console.error("Error in handleEventDetailsSubmit:", error);
@@ -307,8 +348,7 @@ const EventModal = ({
   const handleFinalSubmit = async (
     eventDetailsValues = null,
     eventDetailsExtraData = null
-  ) => {    
-
+  ) => {
     setSubmitting(true);
     setError(null);
 
@@ -318,8 +358,6 @@ const EventModal = ({
 
       // Combine form data from all steps
       const formData = new FormData();
-
-
 
       // Add event host form fields
       if (editMode && eventDetailsForm.values.event_id) {
@@ -333,6 +371,7 @@ const EventModal = ({
       formData.append("eventName", eventDetailsForm.values.eventName);
       formData.append("eventShortName", eventDetailsForm.values.eventShortName);
       formData.append("eventTimeZone", eventDetailsForm.values.eventTimeZone);
+      
       // Send dateRanges only - backend will handle legacy field population
       if (
         eventDetailsForm.values.dateRanges &&
@@ -343,26 +382,29 @@ const EventModal = ({
           JSON.stringify(eventDetailsForm.values.dateRanges)
         );
       }
+      
       formData.append("event_type", selectedEventFormat);
       formData.append("eventType", selectedEventType);
       formData.append("location", locationForm.values.location);
 
-      
-
       // Handle eventCategory as array
       selectedCategories.forEach((category) => {
         formData.append("eventCategory[]", category);
-      });      
+      });
 
-      
+      // NEW: Add category field from CustomCombobox
+      if (selectedCategory) {
+        formData.append("event_category", selectedCategory);
+      }
 
       const currentEventDetailsData = eventDetailsValues
         ? { values: eventDetailsValues, extraData: eventDetailsExtraData }
-        : eventDetailsData;      
+        : eventDetailsData;
 
       // Add event details form data (now required)
-      if (currentEventDetailsData && currentEventDetailsData.values) {        
-        const { values, extraData } = currentEventDetailsData;        
+      if (currentEventDetailsData && currentEventDetailsData.values) {
+        const { values, extraData } = currentEventDetailsData;
+        
         // Add event details fields
         formData.append("company_name", values.company_name || "");
         formData.append("event_slug", values.event_slug || "");
@@ -385,9 +427,7 @@ const EventModal = ({
           });
           endDates.forEach((element) => {
             formData.append("end_date[]", element);
-          });
-          console.log("Start dates added:", startDates);
-          console.log("End dates added:", endDates);
+          });          
         }
 
         // Handle file uploads
@@ -406,12 +446,7 @@ const EventModal = ({
       } else {
         throw new Error("Additional Event Details are required");
       }
-
-      console.log("=== DEBUG: Final FormData contents ===");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
+            
       const endpoint = editMode ? "update-event-host" : "save-event-host";
 
       const response = await postRequest(`${endpoint}`, formData);
@@ -434,6 +469,7 @@ const EventModal = ({
         setSelectedEventType("");
         setSelectedEventFormat("");
         setSelectedCategories([]);
+        setSelectedCategory("");
         setEventDetailsData(null);
 
         // Close modal
@@ -563,6 +599,7 @@ const EventModal = ({
               {currentStep === 2 && (
                 <div className="space-y-6 min-h-90">
                   <div className="space-y-6">
+                    {/* Event Format Selection */}
                     <div>
                       <h3 className="text-lg font-semibold mb-4">
                         Select Event Format
@@ -584,6 +621,7 @@ const EventModal = ({
                       </div>
                     </div>
 
+                    {/* Existing Event Categories Selection */}
                     {selectedEventFormat && (
                       <div>
                         <h3 className="text-lg font-semibold mb-4">
@@ -604,6 +642,33 @@ const EventModal = ({
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {/* NEW: Category CustomCombobox */}
+                    {selectedEventFormat && (
+                      <div className="w-full">
+                        <Label className="pl-1 block mb-1 text-sm md:text-base font-semibold text-slate-700">
+                          Category
+                        </Label>
+                        <CustomCombobox
+                          name="event_category"
+                          value={selectedCategory || ""}
+                          onChange={(value) => setSelectedCategory(value)}
+                          valueKey="_id"
+                          labelKey="title"
+                          options={categories}
+                          placeholder={fetchLoading ? "Loading categories..." : "Select Category"}
+                          className="ln-autocomplete"
+                          disabled={fetchLoading}
+                          search= {categories.length >10 ? true : false}
+                        />
+                      
+                        {!selectedCategory && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Please select a category
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -942,7 +1007,7 @@ const EventModal = ({
                     submitButtonText={
                       editMode ? "Update Event" : "Create Event"
                     }
-                    showSubmitButton={false} // Changed from true to false
+                    showSubmitButton={false}
                     formRef={eventDetailsFormRef}
                   />
                 </div>
@@ -970,7 +1035,8 @@ const EventModal = ({
                     (currentStep === 1 && !selectedEventType) ||
                     (currentStep === 2 &&
                       (!selectedEventFormat ||
-                        selectedCategories.length === 0)) ||
+                        selectedCategories.length === 0 ||
+                        !selectedCategory)) ||
                     (currentStep === 3 && !eventDetailsForm.isValid) ||
                     (currentStep === 4 && !locationForm.isValid)
                   }

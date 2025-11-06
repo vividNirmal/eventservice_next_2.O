@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { usePathname, useRouter } from "next/navigation"; // ADD THIS
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +25,11 @@ export default function HeaderEventuser() {
   const [selectedUserType, setSelectedUserType] = useState(null);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  
+  // ADD THESE
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Memoized values
   const hasMultipleUserTypes = useMemo(
@@ -49,10 +54,10 @@ export default function HeaderEventuser() {
       setLoginUser(user);
       if (user.userType?.length > 0) {
         setSelectedUserType(user.userType[0]);
-        dispatch(handleEventUserTypeSelected(user.userType[0]))
+        dispatch(handleEventUserTypeSelected(user.userType[0]));
       }
     }
-  }, []);
+  }, [dispatch]);
 
   // Handle click outside
   useEffect(() => {
@@ -72,17 +77,26 @@ export default function HeaderEventuser() {
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("loginuser");
-    window.location.href = "/login"; // Add redirect after logout
+    window.location.href = "/login";
   }, []);
 
   const toggleDropdown = useCallback(() => {
     setOpen((prev) => !prev);
   }, []);
 
+  // UPDATED handleUserTypeChange
   const handleUserTypeChange = useCallback((type) => {
     setSelectedUserType(type);
-    dispatch(handleEventUserTypeSelected(type))
-  }, []);
+    dispatch(handleEventUserTypeSelected(type));
+    
+    // Redirect if switching away from Exhibitor while on directory page
+    if (
+      type.typeName !== "Exhibitor" && 
+      pathname === "/dashboard/eventuser/company-teams"
+    ) {
+      router.push("/dashboard/eventuser");
+    }
+  }, [dispatch, pathname, router]);
 
   return (
     <header className="bg-white">
@@ -124,7 +138,6 @@ export default function HeaderEventuser() {
             </div>
           )}
 
-          {/* Fixed: Compare typeName instead of object */}
           <Link
             href="/dashboard/eventuser"
             className="text-gray-700 hover:text-gray-900 font-medium text-sm"

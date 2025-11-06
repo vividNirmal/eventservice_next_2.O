@@ -29,6 +29,7 @@ const EventModal = dynamic(() => import("@/components/modal/eventHostModal"), {
 import { getEventsList, clearEventsCache, getEventStatus, getEventsListByCompany, copyEventHost } from "@/service/eventService";
 import { useDebounce } from "use-debounce";
 import { EventListSkeleton } from "@/components/common/EventListSkeleton";
+import { EventCategoryModal } from "@/components/modal/eventCategoryList";
 
 // Memoized EventCard component for better performance
 const EventCard = memo(({ event, onEdit, onCopy, onClick, isCopying }) => {
@@ -259,13 +260,13 @@ const EventHostPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);  
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebounce(searchQuery, 500);
   const [userRole, setUserRole] = useState("");
   const [companyId, setCompanyId] = useState("");
   const [copyingEventId, setCopyingEventId] = useState(null);
+  const [categorymodalOpen, setCategoryModalOpen] = useState(false);
 
   // Memoized function to get event status - now using optimized service
   const getEventStatusMemo = useCallback((event) => {
@@ -279,9 +280,7 @@ const EventHostPage = () => {
       const status = getEventStatusMemo(event);
       return status === filter;
     });
-  }, [events, filter, getEventStatusMemo]);
-
-  // Memoized event counts for filter buttons
+  }, [events, filter, getEventStatusMemo]);  
   const eventCounts = useMemo(() => {
     return {
       Incoming: events.filter(e => getEventStatusMemo(e) === "Incoming").length,
@@ -305,8 +304,7 @@ const EventHostPage = () => {
       }
 
       if (response.status == 1) {
-        setEvents(response.data.events || []);
-        setTotalPages(response.data.totalPages || 1);
+        setEvents(response.data.events || []);        
         setError(null);
       } else {
         throw new Error(response.message || "Failed to fetch events");
@@ -387,6 +385,7 @@ const EventHostPage = () => {
       organizer_email: event.organizer_email || "",
       organizer_phone: event.organizer_phone || "",
       with_face_scanner: event.with_face_scanner || null,
+      event_category : event?.event_category|| null
     };
 
     
@@ -476,6 +475,7 @@ const EventHostPage = () => {
         <div className="mb-4 flex flex-wrap items-center gap-4">
           <input type="text" placeholder="Search events..." value={searchQuery} onChange={handleSearch} className="w-2/4 grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2" />
           <Button className="w-fit h-10" onClick={handleAddEvent} size="lg">Add New Event</Button>
+          <Button className="w-fit h-10" onClick={()=>setCategoryModalOpen(true)} size="lg">Event category</Button>
         </div>
         {/* Filter Buttons */}
         <div className="w-full space-y-4">
@@ -551,6 +551,14 @@ const EventHostPage = () => {
           onSuccess={handleEventSuccess}
         />
       )}
+
+       {/* category module  */}
+         {categorymodalOpen && (
+          <EventCategoryModal
+            open={categorymodalOpen}
+            onOpenChange={setCategoryModalOpen}            
+          />
+        )}
     </div>
   );
 };

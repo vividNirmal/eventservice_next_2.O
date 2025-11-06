@@ -1,33 +1,36 @@
 "use client";
 import { useEffect, useState } from "react";
-import { EventAttendeesCard, ExhibitorCard } from "./EventAttendeesCard";
+import { EventAttendeesCard, ExhibitorCard, CategoryCard } from "./EventAttendeesCard";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { getRequest } from "@/service/viewService";
-
+import { ChevronLeft } from "lucide-react";
 
 export default function UserEventList() {
   const { userType } = useSelector((state) => state.eventUser);
-  const [loading, setLoading] = useState(true);
-  const [attendeesData,setAttendeesData] = useState([]);
-  const [exhibitor, setExhibitor] = useState([])  
-  useEffect(()=>{ 
-    fetchForm()   
-  },[])
-  const fetchForm = async () => {    
+  const [loading, setLoading] = useState(true);  
+  const [exhibitor, setExhibitor] = useState([]);
+  const [categorizedEvents, setCategorizedEvents] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+
+  useEffect(() => {
+    fetchForm();
+  }, []);
+
+  const fetchForm = async () => {
     try {
       setLoading(true);
       const response = await getRequest(`/eventuser-events`);
-      if (response.status === 1 && response.data) {        
-        if(response.data.groupedData){
-          response.data.groupedData.map((item)=>{
-            if(item.userType == 'Exhibitor'){
-              setExhibitor(item.data)
+      if (response.status === 1 && response.data) {
+        if (response.data.groupedData) {
+          response.data.groupedData.map((item) => {
+            if (item.userType == "Exhibitor") {
+              setExhibitor(item.data);
             }
-            if(item.userType == 'Event Attendees'){
-              setAttendeesData(item.data)
+            if (item.userType == "Event Attendees") {                            
+              groupEventsByCategory(item.data);
             }
-          })
+          });
         }
       } else {
         console.log("❌ API Response error or no data:", response);
@@ -40,7 +43,35 @@ export default function UserEventList() {
     }
   };
 
-   if (loading) {
+  const groupEventsByCategory = (events) => {
+    const categoryMap = {};
+
+    events.forEach((event) => {
+      const category = event.eventId?.event_category;
+      if (category) {
+        const categoryId = category._id;
+        if (!categoryMap[categoryId]) {
+          categoryMap[categoryId] = {
+            category: category,
+            events: [],
+          };
+        }
+        categoryMap[categoryId].events.push(event);
+      }
+    });
+
+    setCategorizedEvents(Object.values(categoryMap));
+  };
+
+  const handleCategorySelect = (categoryData) => {
+    setSelectedCategory(categoryData);
+  };
+
+  const handleBackToCategories = () => {
+    setSelectedCategory(null);
+  };
+
+  if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="text-center">
@@ -52,8 +83,9 @@ export default function UserEventList() {
   }
 
   return (
-    <div className=" bg-background">
+    <div className="bg-background">
       <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Event Attendees View */}
         {userType?.typeName === "Event Attendees" && (
           <section className="w-full">
             <h2 className="text-2xl font-bold text-foreground mb-6">
@@ -66,27 +98,60 @@ export default function UserEventList() {
                   title={pkg.eventId?.event_title}
                   description={pkg.eventId?.event_description}
                   price={pkg.price}
-                  onBuyNow={() => onAction?.(pkg.id)}
+                  onBuyNow={() => console.log(pkg._id)}
                 />
               ))}
             </div>
           </section>
         )}
+
+        {/* Exhibitor View - Category wise */}
         {userType?.typeName === "Exhibitor" && (
           <section className="w-full">
-            <h2 className="text-2xl font-bold text-foreground mb-6">
-              Explore Shows
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {attendeesData?.map((show) => (
-                <EventAttendeesCard
-                  key={show._id}
-                  title={show.eventId?.event_title}
-                  description={show.eventId?.event_description}
-                  onApply={() => onAction?.(show.id)}
-                />
-              ))}
-            </div>
+            {!selectedCategory ? (
+              // Show Categories
+              <>
+                <h2 className="text-2xl font-bold text-foreground mb-6">
+                  Event Categories
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {categorizedEvents?.map((item) => (
+                    <CategoryCard
+                      key={item.category._id}
+                      category={item.category}
+                      eventCount={item.events.length}
+                      onApply={() => handleCategorySelect(item)}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              // Show Events of Selected Category
+              <>
+                <div className="mb-6 flex items-center gap-4">
+                  <button
+                    onClick={handleBackToCategories}
+                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                    Back to Categories
+                  </button>
+                  <h2 className="text-2xl font-bold text-foreground">
+                    {selectedCategory.category.title} - Events
+                  </h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {selectedCategory.events?.map((show) => (
+                    <EventAttendeesCard
+                      key={show._id}
+                      title={show.eventId?.event_title}
+                      description={show.eventId?.event_description}
+                      onApply={() => console.log(show._id)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </section>
         )}
       </div>

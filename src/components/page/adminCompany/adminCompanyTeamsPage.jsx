@@ -22,7 +22,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { CustomPagination } from "@/components/common/pagination";
-import { Button } from "@/components/ui/button";
 import { getRequest } from "@/service/viewService";
 import { toast } from "sonner";
 import moment from "moment";

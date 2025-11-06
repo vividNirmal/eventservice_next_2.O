@@ -31,15 +31,44 @@ export function EventAttendeesCard({
 }
 
 // Exhibitor Card (second image layout)
-export function ExhibitorCard({
-  title,
-  description,
-  price,
-  onBuyNow,
-}) {
+export function CategoryCard({ category, eventCount, onApply }) {
+  return (
+    <div className="relative bg-white rounded-lg p-6 shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-gray-100">
+      {/* Decorative accent */}
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-400 to-blue-500 opacity-10 rounded-bl-3xl" />
+      <div className="absolute top-2 right-2 w-20 h-20 border-2 border-blue-400/30 rounded-bl-2xl" />
+
+      <div className="space-y-4 relative z-10">
+        <div>
+          <h3 className="text-xl font-bold text-foreground mb-2">
+            {category.title}
+          </h3>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="inline-flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-full font-semibold">
+              {eventCount}
+            </span>
+            <span>{eventCount === 1 ? "Event" : "Events"} Available</span>
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-gray-200">
+          <Button
+            onClick={onApply}
+            className="w-full bg-blue-600 text-white hover:bg-blue-700 gap-2"
+          >
+            View Events
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Keep your existing ExhibitorCard component
+export function ExhibitorCard({ title, description, price, onBuyNow }) {
   return (
     <div className="relative bg-white rounded-lg p-6 shadow-md overflow-hidden">
-      {/* Decorative gold accent with diagonal stripes pattern */}
       <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400 to-amber-500 opacity-10 rounded-bl-3xl" />
       <div className="absolute top-2 right-2 w-20 h-20 border-2 border-amber-400/30 rounded-bl-2xl" />
 
@@ -53,12 +82,15 @@ export function ExhibitorCard({
 
         <div className="flex items-center justify-between pt-4">
           <span className="text-sm text-muted-foreground">More Details</span>
-          <Button onClick={onBuyNow} className="bg-amber-400 text-foreground hover:bg-amber-500 gap-2 ml-auto">
+          <Button
+            onClick={onBuyNow}
+            className="bg-amber-400 text-foreground hover:bg-amber-500 gap-2 ml-auto"
+          >
             {price}
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
