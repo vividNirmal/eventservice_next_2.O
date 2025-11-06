@@ -132,12 +132,15 @@ export default function HeaderEventuser() {
             {selectedUserType?.typeName === "Exhibitor" ? "Shows" : "Event"}
           </Link>
 
-          <Link
-            href="/dashboard/eventuser/company-teams"
-            className="text-gray-700 hover:text-gray-900 font-medium text-sm"
-          >
-            Directory
-          </Link>
+          {selectedUserType && selectedUserType.typeName === "Exhibitor" && (
+            <Link
+              href="/dashboard/eventuser/company-teams"
+              className="text-gray-700 hover:text-gray-900 font-medium text-sm"
+            >
+              Directory
+            </Link>
+          )}
+          
           <Link
             href="/dashboard/eventuser/payment"
             className="text-gray-700 hover:text-gray-900 font-medium text-sm"
