@@ -40,6 +40,18 @@ export const STEP_TITLES = [
   'Notifications'
 ];
 
+export const DEPENDANT_FORMS = [
+  { label: 'Form 1', value: 'form1' },
+  { label: 'Form 2', value: 'form2' },
+  { label: 'Form 3', value: 'form3' }
+];
+
+export const DEPENDANT_FEATURES = [
+  { label: 'Feature 1', value: 'feature1' },
+  { label: 'Feature 2', value: 'feature2' },
+  { label: 'Feature 3', value: 'feature3' }
+];
+
 export const INITIAL_FORM_DATA = {
   // Basic Info
   basicInfo: {
@@ -48,11 +60,11 @@ export const INITIAL_FORM_DATA = {
     due_date: null,
     submission_disclaimer: "",
     form_description: "",
-    measurement_unit: "Square Feet",
+    measurement_unit: "",
     allow_multiple_submission: false,
     is_mendatory: false,
-    dependant_form: "",
-    dependant_features: "",
+    dependant_form: "form1",
+    dependant_features: "feature1",
     limit_quantity_for_all: false,
     payment_collection_required: false,
     payment_collection_mode: "Online",

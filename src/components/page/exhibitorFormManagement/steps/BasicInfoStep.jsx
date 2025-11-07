@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { MEASUREMENT_UNIT_OPTIONS, STALL_TYPE_OPTIONS, PAYMENT_COLLECTION_MODE_OPTIONS, OFFLINE_PAYMENT_OPTIONS, SERVICE_PROVIDER_OPTIONS } from '../constants/exhibitorFormConstants';
+import { MEASUREMENT_UNIT_OPTIONS, STALL_TYPE_OPTIONS, PAYMENT_COLLECTION_MODE_OPTIONS, OFFLINE_PAYMENT_OPTIONS, SERVICE_PROVIDER_OPTIONS, DEPENDANT_FORMS, DEPENDANT_FEATURES } from '../constants/exhibitorFormConstants';
 import { ErrorMessage } from '../components/ErrorMessage';
 import dynamic from "next/dynamic";
 import { textEditormodule } from "@/lib/constant";
@@ -17,6 +17,9 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 
 const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, errors }) => {
   const { basicInfo } = formData;
+
+   // ⚡ Helper to create a fresh copy of modules
+  const getModules = () => JSON.parse(JSON.stringify(textEditormodule.modules));
 
   return (
     <div className="space-y-4 sm:space-y-6 ">
@@ -83,8 +86,13 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
             theme="snow"
             value={basicInfo.form_description || ""}
             onChange={(value) => handleInputChange("basicInfo.form_description", value)}
-            modules={textEditormodule.modules}
-            className="!shadow-none w-full min-h-64 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-md [&>.ql-container.ql-snow]:rounded-b-md [&>.ql-container.ql-snow]:flex-grow"
+            modules={getModules()}
+            className="!shadow-none w-full min-h-64 flex flex-col 
+                       [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col 
+                       [&>.ql-container>.ql-editor]:grow 
+                       [&>.ql-toolbar.ql-snow]:rounded-t-md 
+                       [&>.ql-container.ql-snow]:rounded-b-md 
+                       [&>.ql-container.ql-snow]:flex-grow"
           />
           <ErrorMessage error={errors.form_description} />
         </div>
@@ -128,8 +136,8 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {STALL_TYPE_OPTIONS.map(option => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
+              {DEPENDANT_FORMS.map(option => (
+                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -142,8 +150,8 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {STALL_TYPE_OPTIONS.map(option => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
+              {DEPENDANT_FEATURES.map(option => (
+                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -210,14 +218,21 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
 
       <div className="space-y-2">
         <Label htmlFor="payment_instructions">Payment Instructions</Label>
-        <ReactQuill 
-          key="payment-instructions-editor"
-          theme="snow"
-          value={basicInfo.payment_instructions || ""}
-          onChange={(value) => handleInputChange("basicInfo.payment_instructions", value)}
-          modules={textEditormodule.modules}
-          className="!shadow-none w-full min-h-64 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-md [&>.ql-container.ql-snow]:rounded-b-md [&>.ql-container.ql-snow]:flex-grow"
-        />
+        <div className="relative pb-3.5">
+          <ReactQuill 
+            key="payment-instructions-editor"
+            theme="snow"
+            value={basicInfo.payment_instructions || ""}
+            onChange={(value) => handleInputChange("basicInfo.payment_instructions", value)}
+            modules={getModules()}
+            className="!shadow-none w-full min-h-64 flex flex-col 
+                       [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col 
+                       [&>.ql-container>.ql-editor]:grow 
+                       [&>.ql-toolbar.ql-snow]:rounded-t-md 
+                       [&>.ql-container.ql-snow]:rounded-b-md 
+                       [&>.ql-container.ql-snow]:flex-grow"
+          />
+        </div>
       </div>
 
       <div className="space-y-4 border rounded-lg p-4">
