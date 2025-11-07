@@ -16,7 +16,8 @@ import {
   Phone,
   ShieldUser,
   FileBadge,
-  Imagesk
+  Images,
+  HandPlatter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
