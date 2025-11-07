@@ -13,6 +13,7 @@ import ThemedWrapper from "@/components/ThemedWrapper";
 import HeaderBar from "@/components/header-bar";
 import { usePathname } from "next/navigation";
 import HeaderEventuser from "@/components/page/EventUsersPages/HeaderEventuser";
+import EventAdminNavigation from "@/components/page/eventHost/eventAdminNavigation";
 
 export default function RootLayout({ children }) {
   const [user, setUser] = useState(null);
@@ -71,7 +72,7 @@ export default function RootLayout({ children }) {
     }
     
     // Check for exact /dashboard/event-host path (event list page)
-    if (pathname === "/dashboard/event-host") {
+    if (pathname === "/dashboard/event-host" && user.role !== 'admin') {
       return (
         <div className="flex flex-col h-screen bg-gray-50">
           <SimpleHeaderBar />
@@ -83,7 +84,19 @@ export default function RootLayout({ children }) {
         </div>
       );
     }
-    
+
+    if (pathname === "/dashboard/event-host" && user.role == 'admin') {
+      return (
+        <div className="flex h-screen bg-gray-50">
+          <EventAdminNavigation  />
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <SimpleHeaderBar />
+            <div className="flex-1 overflow-auto p-4 xl:p-6">{children}</div>
+          </div>
+        </div>
+      );
+    }
+
     // Check for event detail pages (like /dashboard/event-host/123)
     if (pathname?.startsWith("/dashboard/event-host/")) {
       return (

@@ -16,8 +16,7 @@ import {
   Phone,
   ShieldUser,
   FileBadge,
-  Images,
-  HandPlatter
+  Imagesk
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,8 +33,7 @@ const StaticNavigation = ({ eventId = null }) => {
       const pathParts = pathname.split('/');
       const eventHostIndex = pathParts.findIndex(part => part === 'event-host');
       if (eventHostIndex !== -1 && pathParts[eventHostIndex + 1]) {
-        const extractedId = pathParts[eventHostIndex + 1];
-        console.log("Extracted eventId from pathname:", extractedId);
+        const extractedId = pathParts[eventHostIndex + 1];        
         return extractedId;
       }
     }
@@ -222,10 +220,7 @@ const StaticNavigation = ({ eventId = null }) => {
     }));
   };
 
-  const handleItemClick = (item) => {
-    console.log("handleItemClick called with item:", item);
-    console.log("Current eventId:", eventId);
-    
+  const handleItemClick = (item) => {        
     setActiveSection(item.id);
     if (item.url) {
       router.replace(item.url);
@@ -233,10 +228,7 @@ const StaticNavigation = ({ eventId = null }) => {
   };
 
   const handleSubItemClick = (subItem, parentId) => {
-    setActiveSection(subItem.id);
-
-    console.log("SubItem clicked:", subItem);
-    console.log("isActive", activeSection);
+    setActiveSection(subItem.id);    
     setExpandedSections(prev => ({
       ...prev,
       [parentId]: true

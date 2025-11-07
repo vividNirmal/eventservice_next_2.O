@@ -49,7 +49,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { buildCleanDeviceUrl, buildShortFormUrl, buildSlugFormUrl, copyToClipboard, validateEventForUrl } from "@/utils/urlBuilder";
+
 
 const EventHostDetailsPage = ({ eventId }) => {
   const [modalOpen, setModalOpen] = useState(false);
