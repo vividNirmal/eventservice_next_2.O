@@ -42,8 +42,8 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
   const validateCurrentStep = useCallback(() => {
     const stepErrors = validateStep(currentStep, formData);
     setErrors(stepErrors);
-    // return Object.keys(stepErrors).length === 0;
-    return true; // for skiping validation
+    return Object.keys(stepErrors).length === 0;
+    // return true; // #Skip validation
   }, [currentStep, formData, setErrors]);
 
   const nextStep = useCallback(() => {
@@ -150,7 +150,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
 
   return (
     <Sheet open={isOpen} onOpenChange={handleClose}>
-      <SheetContent className="sm:max-w-4xl xl:max-w-5xl flex flex-col p-0">
+      <SheetContent className="sm:max-w-4xl xl:max-w-4xl flex flex-col p-0">
         <SheetHeader className="border-b border-gray-200 px-6 py-4">
           <SheetTitle>
             {isEditMode ? 'Edit Exhibitor Form' : 'Add Exhibitor Form'}
