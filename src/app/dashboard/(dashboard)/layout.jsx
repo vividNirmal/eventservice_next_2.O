@@ -85,7 +85,7 @@ export default function RootLayout({ children }) {
       );
     }
 
-    if (pathname === "/dashboard/event-host" && user.role == 'admin') {
+    if (pathname === "/dashboard/event-host" && user.role == 'admin' || pathname === "/dashboard/package") {
       return (
         <div className="flex h-screen bg-gray-50">
           <EventAdminNavigation  />
