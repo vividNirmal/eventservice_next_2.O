@@ -16,7 +16,8 @@ import {
   Phone,
   ShieldUser,
   FileBadge,
-  Images
+  Images,
+  HandPlatter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -188,7 +189,26 @@ const StaticNavigation = ({ eventId = null }) => {
           isActive: activeSection === 'whatsapp',
         }
       ]
-    }
+    },
+    {
+      id: 'exhibitor',
+      label: "Exhibitor Management",
+      icon: HandPlatter,
+      show: true,
+      description: 'Manage exhibitors',
+      isExpandable: true,
+      isExpanded: expandedSections.exhibitor,
+      subItems: [
+        {
+          id: 'exhibitor-forms',
+          label: 'Exhibitor Forms',
+          icon: FileText,
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/exhibitor-management/exhibitor-forms` : '/dashboard/exhibitor-management/exhibitor-forms',
+          description: 'Manage exhibitor forms',
+          isActive: activeSection === 'exhibitor-forms',
+        },
+      ]
+    },
   ];
 
   const toggleNavigation = () => {
