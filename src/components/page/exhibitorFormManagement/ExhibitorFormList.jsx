@@ -1,19 +1,9 @@
 "use client";
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useDebounce } from '@/hooks/useDebounce';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from '@/components/ui/table';
 import {
   Select,
   SelectContent,
@@ -32,14 +22,14 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { CustomPagination } from '@/components/common/pagination';
-import { Plus, Search, Edit, Trash2, Copy, Loader2 } from 'lucide-react';
-import { getRequest, deleteRequest } from '@/service/viewService';
+import { Plus, Search, Edit, Trash2, MoreVertical, CheckCircle2, XCircle } from 'lucide-react';
+import { getRequest, deleteRequest, updateRequest } from '@/service/viewService';
 import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 const ExhibitorFormWizard = dynamic(() => import('./ExhibitorFormWizard'), { ssr: false });
@@ -57,9 +47,7 @@ const ExhibitorFormList = ({ eventId }) => {
   const [formToDelete, setFormToDelete] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
   const [formToEdit, setFormToEdit] = useState(null);
-  const [selectedForms, setSelectedForms] = useState(new Set());
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const dataLimits = [10, 20, 30, 50];
 
   const companyId = localStorage.getItem('companyId');
@@ -70,7 +58,7 @@ const ExhibitorFormList = ({ eventId }) => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: selectedLimit.toString(),
-        ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+        ...(searchTerm && { search: searchTerm }),
         ...(selectedStatus && { status: selectedStatus }),
         ...(eventId && { eventId: eventId }),
         ...(companyId && { companyId: companyId }),
@@ -82,7 +70,6 @@ const ExhibitorFormList = ({ eventId }) => {
         setForms(response.data.forms || []);
         setTotalPages(response.data.pagination?.totalPages || 1);
         setTotalCount(response.data.pagination?.totalCount || 0);
-        setSelectedForms(new Set());
       } else {
         toast.error(response.message || 'Failed to fetch forms');
       }
@@ -92,31 +79,11 @@ const ExhibitorFormList = ({ eventId }) => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, selectedLimit, debouncedSearchTerm, selectedStatus, eventId]);
+  }, [currentPage, selectedLimit, searchTerm, selectedStatus, eventId, companyId]);
 
   useEffect(() => {
     fetchForms();
   }, [fetchForms]);
-
-  const handleSelectForm = useCallback((formId, isChecked) => {
-    setSelectedForms(prev => {
-      const newSelected = new Set(prev);
-      if (isChecked) {
-        newSelected.add(formId);
-      } else {
-        newSelected.delete(formId);
-      }
-      return newSelected;
-    });
-  }, []);
-
-  const handleSelectAllForms = useCallback((isChecked) => {
-    if (isChecked) {
-      setSelectedForms(new Set(forms.map(form => form._id)));
-    } else {
-      setSelectedForms(new Set());
-    }
-  }, [forms]);
 
   const handleDeleteForm = useCallback(async () => {
     if (!formToDelete) return;
@@ -138,6 +105,26 @@ const ExhibitorFormList = ({ eventId }) => {
       setFormToDelete(null);
     }
   }, [formToDelete, fetchForms]);
+
+  const handleTogglePublish = useCallback(async (form) => {
+    const newStatus = form.status === 'published' ? 'unpublished' : 'published';
+    
+    try {
+      const response = await updateRequest(`exhibitor-forms-status/${form._id}`, {
+        status: newStatus
+      });
+      
+      if (response.status === 1) {
+        toast.success(`Form ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+        fetchForms();
+      } else {
+        toast.error(response.message || 'Failed to update form status');
+      }
+    } catch (error) {
+      console.error('Error updating form status:', error);
+      toast.error('Failed to update form status');
+    }
+  }, [fetchForms]);
 
   const openDeleteDialog = useCallback((form) => {
     setFormToDelete(form);
@@ -192,15 +179,6 @@ const ExhibitorFormList = ({ eventId }) => {
     });
   }, []);
 
-  const getStatusBadgeColor = useMemo(() => {
-    const colors = {
-      'active': 'bg-green-100 text-green-800',
-      'inactive': 'bg-gray-100 text-gray-800',
-      'expired': 'bg-red-100 text-red-800'
-    };
-    return (status) => colors[status] || 'bg-gray-100 text-gray-800';
-  }, []);
-
   const handleWizardClose = useCallback(() => {
     setIsWizardOpen(false);
     setFormToEdit(null);
@@ -219,17 +197,14 @@ const ExhibitorFormList = ({ eventId }) => {
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle>Exhibitor Forms</CardTitle>
+                <CardTitle>Manage Form</CardTitle>
                 <CardDescription>
-                  Total {totalCount} forms found
-                  {(selectedStatus || searchTerm) && (
-                    <span className="text-blue-600 ml-2">(Filtered)</span>
-                  )}
+                  Empower your exhibitors with user-friendly platform to effortlessly get all custom forms for seamless data collection. Enhance their stall services by capturing crucial information. Simplify the exhibitor experience and ensure a successful event with our powerful Exhibitor Form Module.
                 </CardDescription>
               </div>
-              <Button onClick={openAddDialog}>
+              <Button onClick={openAddDialog} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Form
+                Add New Form
               </Button>
             </div>
             <div className="flex flex-wrap items-center gap-4">
@@ -257,21 +232,6 @@ const ExhibitorFormList = ({ eventId }) => {
                   onChange={handleSearch}
                   className="!pl-10 w-64"
                 />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Status:</span>
-                <Select value={selectedStatus || 'all'} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="expired">Expired</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
               {(selectedStatus || searchTerm) && (
@@ -305,103 +265,121 @@ const ExhibitorFormList = ({ eventId }) => {
         </AlertDialog>
 
         <CardContent>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={forms.length > 0 && selectedForms.size === forms.length}
-                      onCheckedChange={handleSelectAllForms}
-                    />
-                  </TableHead>
-                  <TableHead>Form Name</TableHead>
-                  <TableHead>Form Number</TableHead>
-                  <TableHead>Stall Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      Loading forms...
-                    </TableCell>
-                  </TableRow>
-                ) : forms.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8">
-                      No forms found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  forms.map((form) => (
-                    <TableRow key={form._id}>
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedForms.has(form._id)}
-                          onCheckedChange={(checked) => handleSelectForm(form._id, checked)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {form.basicInfo?.full_name}
-                      </TableCell>
-                      <TableCell>
-                        {form.basicInfo?.form_number}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {form.basicInfo?.stall_type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusBadgeColor(form.status)}>
-                          {form.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {form.basicInfo?.due_date ? formatDate(form.basicInfo.due_date) : 'Not set'}
-                      </TableCell>
-                      <TableCell>
-                        {formatDate(form.createdAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openEditDialog(form)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openDeleteDialog(form)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Loading forms...</p>
+            </div>
+          ) : forms.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No forms found</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {forms.map((form) => (
+                <Card key={form._id} className="border-l-4 border-l-blue-500">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-blue-600">
+                            {form.basicInfo?.full_name}
+                          </h3>
+                          {form.basicInfo?.is_mendatory && (
+                            <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
+                              <span className="mr-1">⚠</span> Required
+                            </Badge>
+                          )}
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                        
+                        <p className="text-sm text-gray-600 mb-4">
+                          Form description
+                        </p>
+
+                        <div className="flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-2 text-blue-600">
+                            <span className="font-medium">⏰ Deadline:</span>
+                            <span>
+                              {form.basicInfo?.due_date 
+                                ? formatDate(form.basicInfo.due_date)
+                                : 'Not set'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-4">
+                          {form.status === 'published' ? (
+                            <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Published
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-700 flex items-center gap-1">
+                              <XCircle className="h-3 w-3" />
+                              Unpublished
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <Button 
+                          className="bg-blue-600 hover:bg-blue-700"
+                          onClick={() => toast.info('Submission functionality coming soon')}
+                        >
+                          📋 Submission
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-5 w-5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditDialog(form)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleTogglePublish(form)}>
+                              {form.status === 'published' ? (
+                                <>
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Unpublish
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  Publish
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => openDeleteDialog(form)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
           {totalPages > 1 && (
-            <CustomPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              pageSize={selectedLimit}
-              totalEntries={totalCount}
-            />
+            <div className="mt-6">
+              <CustomPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                pageSize={selectedLimit}
+                totalEntries={totalCount}
+              />
+            </div>
           )}
         </CardContent>
       </Card>

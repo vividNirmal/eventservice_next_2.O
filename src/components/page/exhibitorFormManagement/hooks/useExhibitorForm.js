@@ -75,11 +75,22 @@ export const useExhibitorForm = (editData = null) => {
   const initializeEditData = useCallback((editData) => {
     if (editData) {
       setIsEditMode(true);
+      
+      // Transform supporting documents to include URLs and mark existing ones
+      const transformedSupportingDocs = editData.mediaInfo?.supporting_documents?.map(doc => ({
+        ...doc,
+        url: doc.url, // Keep the URL for downloads
+        isExisting: true // Mark as existing document
+      })) || [];
+      
       setFormData({
         ...editData,
         mediaInfo: {
           ...editData.mediaInfo,
-          important_instructions_image_preview: editData.mediaInfo?.important_instructions_image || null
+          // Preserve the original image path for sending back to server
+          important_instructions_image: editData.mediaInfo?.important_instructions_image,
+          important_instructions_image_preview: editData.mediaInfo?.important_instructions_image_url || null,
+          supporting_documents: transformedSupportingDocs
         }
       });
     } else {

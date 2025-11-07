@@ -89,12 +89,13 @@ export const submitExhibitorFormData = async (formData, isEditMode, editData, ev
 };
 
 export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
-  const hasFiles = formData.mediaInfo?.important_instructions_image || 
-    (formData.mediaInfo?.supporting_documents && formData.mediaInfo.supporting_documents.length > 0);
+  const hasNewFiles = formData.mediaInfo?.important_instructions_image instanceof File || 
+    (formData.mediaInfo?.supporting_documents && formData.mediaInfo.supporting_documents.some(doc => doc.file));
   
   const companyId = localStorage.getItem('companyId');
 
-  if (hasFiles) {
+  // Always use FormData for updates to handle mixed data types
+  if (hasNewFiles || isEditMode) {
     const formDataToSend = new FormData();
     
     // Add basicInfo as JSON string
@@ -106,21 +107,36 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Add notifications as JSON string
     formDataToSend.append('notifications', JSON.stringify(formData.notifications));
     
-    // Handle important instructions image - FIXED
-    if (formData.mediaInfo.important_instructions_image) {
+    // Handle important instructions image
+    if (formData.mediaInfo.important_instructions_image instanceof File) {
+      console.log('Appending new image file');
       formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
-    } else {
-      console.log('No important instructions image found');
+    } else if (formData.mediaInfo.important_instructions_image && isEditMode) {
+      // Send existing image path as string when not changed
+      console.log('Appending existing image path:', formData.mediaInfo.important_instructions_image);
+      formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
     }
     
     // Handle supporting documents
     if (formData.mediaInfo.supporting_documents && formData.mediaInfo.supporting_documents.length > 0) {
       formData.mediaInfo.supporting_documents.forEach((doc, index) => {
         if (doc.file) {
-          // Append file with index to maintain order
+          // New file upload
+          console.log(`Appending new document at index ${index}:`, doc.name);
           formDataToSend.append(`supporting_documents[${index}][file]`, doc.file);
-          // Append document name with the same index
           formDataToSend.append(`supporting_documents[${index}][name]`, doc.name || doc.fileName);
+        } else if (doc.path && isEditMode) {
+          // Existing document - only send name if it changed
+          if (doc.nameChanged) {
+            console.log(`Updating name for existing document at index ${index}:`, doc.name);
+            formDataToSend.append(`supporting_documents[${index}][name]`, doc.name);
+          }
+        }
+        
+        // Mark deleted documents
+        if (doc.deleted) {
+          console.log(`Marking document at index ${index} for deletion`);
+          formDataToSend.append(`supporting_documents[${index}][deleted]`, 'true');
         }
       });
     }

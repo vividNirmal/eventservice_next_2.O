@@ -124,6 +124,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
             handleInputChange={handleInputChange}
             errors={errors}
             imageHandlers={imageHandlers}
+            isEditMode={isEditMode} // Add this line
           />
         );
       case 3:
