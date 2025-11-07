@@ -68,6 +68,8 @@ export const submitExhibitorFormData = async (formData, isEditMode, editData, ev
   try {
     const submitData = prepareFormDataForSubmission(formData, isEditMode, eventId);
     
+    console.log('Submitting form data:', submitData); // Debug log
+    
     const response = isEditMode
       ? await updateRequest(`exhibitor-forms/${editData._id}`, submitData)
       : await postRequest('exhibitor-forms', submitData);
@@ -92,6 +94,9 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
   
   const companyId = localStorage.getItem('companyId');
 
+  console.log('Form data for submission:', formData); // Debug log
+  console.log('Has files:', hasFiles); // Debug log
+
   if (hasFiles) {
     const formDataToSend = new FormData();
     
@@ -104,8 +109,12 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Add notifications as JSON string
     formDataToSend.append('notifications', JSON.stringify(formData.notifications));
     
-    // Handle media files
-    if (formData.mediaInfo.important_instructions_image) {
+    // Handle important instructions image - FIXED: Check if it's a File object
+    if (formData.mediaInfo.important_instructions_image && formData.mediaInfo.important_instructions_image instanceof File) {
+      console.log('Appending important instructions image:', formData.mediaInfo.important_instructions_image); // Debug log
+      formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
+    } else if (formData.mediaInfo.important_instructions_image) {
+      // If it's a string (URL from edit mode), append as is
       formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
     }
     
@@ -113,7 +122,10 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     if (formData.mediaInfo.supporting_documents && formData.mediaInfo.supporting_documents.length > 0) {
       formData.mediaInfo.supporting_documents.forEach((doc, index) => {
         if (doc.file) {
-          formDataToSend.append(`supporting_documents`, doc.file);
+          // Append file with index to maintain order
+          formDataToSend.append(`supporting_documents[${index}][file]`, doc.file);
+          // Append document name with the same index
+          formDataToSend.append(`supporting_documents[${index}][name]`, doc.name || doc.fileName);
         }
       });
     }
@@ -125,15 +137,30 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       formDataToSend.append('eventId', eventId);
     }
 
+    // Debug: Log all form data entries
+    console.log('FormData entries:');
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0] + ', ' + (pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]));
+    }
+
     return formDataToSend;
   } else {
+    // For non-file submissions
     const submitData = {
-      ...formData
+      basicInfo: formData.basicInfo,
+      otherInfo: formData.otherInfo,
+      notifications: formData.notifications,
+      mediaInfo: {
+        important_instructions_image: formData.mediaInfo.important_instructions_image,
+        supporting_documents: formData.mediaInfo.supporting_documents?.map(doc => ({
+          name: doc.name,
+          path: doc.path,
+        })).filter(doc => doc.name && doc.path)
+      }
     };
 
-    // Remove file preview fields
+    // Remove preview fields
     delete submitData.mediaInfo.important_instructions_image_preview;
-    delete submitData.mediaInfo.supporting_documents;
 
     if (companyId && !isEditMode) {
       submitData.companyId = companyId;

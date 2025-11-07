@@ -9,6 +9,7 @@ import { MEASUREMENT_UNIT_OPTIONS, STALL_TYPE_OPTIONS, PAYMENT_COLLECTION_MODE_O
 import { ErrorMessage } from '../components/ErrorMessage';
 import dynamic from "next/dynamic";
 import { textEditormodule } from "@/lib/constant";
+import { CustomCombobox } from '@/components/common/customcombox';
 
 // Dynamically import ReactQuill
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -57,8 +58,8 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           <Input
             id="due_date"
             type="date"
-            value={basicInfo.due_date ? new Date(basicInfo.due_date).toISOString().slice(0, 16) : ''}
-            onChange={(e) => handleInputChange('basicInfo.due_date', new Date(e.target.value))}
+            value={basicInfo.due_date}
+            onChange={(e) => handleInputChange('basicInfo.due_date', e.target.value)}
           />
           <ErrorMessage error={errors.due_date} />
         </div>
@@ -188,22 +189,22 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           </Select>
         </div>
 
-        {(basicInfo.payment_collection_mode === 'Offline' || basicInfo.payment_collection_mode === 'Both') && (
+        {/* Payment checkboxes with CustomCombobox */}
+        {(basicInfo.payment_collection_mode === 'Offline' ||
+          basicInfo.payment_collection_mode === 'Both') && (
           <div className="space-y-2">
             <Label>Offline Payment Options</Label>
-            <div className="grid sm:grid-cols-2 gap-2">
-              {OFFLINE_PAYMENT_OPTIONS.map(option => (
-                <div key={option} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={basicInfo.offline_payment_option?.includes(option)}
-                    onCheckedChange={(checked) => 
-                      handleArrayFieldChange('basicInfo.offline_payment_option', option, checked ? 'add' : 'remove')
-                    }
-                  />
-                  <Label>{option}</Label>
-                </div>
-              ))}
-            </div>
+            <CustomCombobox
+              name="offline_payment_option"
+              options={OFFLINE_PAYMENT_OPTIONS.map((opt) => ({
+                label: opt,
+                value: opt,
+              }))}
+              value={basicInfo.offline_payment_option || []}
+              onChange={(val) => handleInputChange('basicInfo.offline_payment_option', val)}
+              placeholder="Select offline payment options"
+              multiSelect
+            />
           </div>
         )}
 
@@ -235,24 +236,23 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         </div>
       </div>
 
-      <div className="space-y-4 border rounded-lg p-4">
-        <h4 className="font-medium">Service Providers</h4>
-        <div className="grid sm:grid-cols-2 gap-2">
-          {SERVICE_PROVIDER_OPTIONS.map(provider => (
-            <div key={provider} className="flex items-center space-x-2">
-              <Checkbox
-                checked={basicInfo.service_provider?.includes(provider)}
-                onCheckedChange={(checked) => 
-                  handleArrayFieldChange('basicInfo.service_provider', provider, checked ? 'add' : 'remove')
-                }
-              />
-              <Label>{provider}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="grid sm:grid-cols-2 gap-4">
+        {/* Service Providers checkboxes with CustomCombobox */}
+        <div className="space-y-2">
+          <Label>Service Providers</Label>
+          <CustomCombobox
+            name="service_provider"
+            options={SERVICE_PROVIDER_OPTIONS.map((opt) => ({
+              label: opt,
+              value: opt,
+            }))}
+            value={basicInfo.service_provider || []}
+            onChange={(val) => handleInputChange('basicInfo.service_provider', val)}
+            placeholder="Select service providers"
+            multiSelect
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="stall_type">Stall Type</Label>
           <Select value={basicInfo.stall_type} onValueChange={(value) => handleInputChange('basicInfo.stall_type', value)}>
@@ -266,6 +266,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
             </SelectContent>
           </Select>
         </div>
+
         <div className="space-y-2">
           <Label htmlFor="machinery_wbs">Machinery WBS</Label>
           <Input
