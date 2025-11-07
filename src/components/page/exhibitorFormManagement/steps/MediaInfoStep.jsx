@@ -3,14 +3,40 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Upload, File, Plus } from 'lucide-react';
-import ImageUpload from '../components/ImageUpload';
+import { Trash2, Upload, File, Plus, Image as ImageIcon, X } from 'lucide-react';
 
 const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers }) => {
   const { mediaInfo } = formData;
   const docInputRef = useRef(null);
+  const imageInputRef = useRef(null);
 
   const { handleImageUpload, removeImage } = imageHandlers;
+
+  // Simplified image upload handler
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      console.log('Image selected:', file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        console.log('Setting preview and file');
+        // Update both the file and preview in form data
+        handleInputChange('mediaInfo.important_instructions_image', file);
+        handleInputChange('mediaInfo.important_instructions_image_preview', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    handleInputChange('mediaInfo.important_instructions_image', null);
+    handleInputChange('mediaInfo.important_instructions_image_preview', null);
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
+  };
 
   const handleDocumentUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -46,17 +72,80 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers }) =
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* Important Instructions Image - Fixed integration */}
+      {/* Important Instructions Image - Simplified Version */}
       <div className="space-y-4">
         <Label className="text-lg font-semibold">Upload Important Instructions</Label>
-        <ImageUpload 
-          label=""
-          preview={mediaInfo.important_instructions_image_preview}
-          onUpload={handleImageUpload('mediaInfo.important_instructions_image', 'mediaInfo.important_instructions_image_preview')}
-          onRemove={removeImage('mediaInfo.important_instructions_image', 'mediaInfo.important_instructions_image_preview')}
-          uploadId="instructions-image-upload"
-          recommendedSize="Recommended size: 1MB"
-        />
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50/50">
+          {mediaInfo.important_instructions_image_preview ? (
+            <div className="space-y-4">
+              <div className="relative mx-auto max-w-md">
+                <img
+                  src={mediaInfo.important_instructions_image_preview}
+                  alt="Upload preview"
+                  className="w-full h-48 object-contain rounded-lg border"
+                />
+                <div className="absolute top-2 right-2 flex gap-1">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => imageInputRef.current?.click()}
+                    className="bg-white/90 hover:bg-white shadow-sm"
+                  >
+                    Change
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleRemoveImage}
+                    className="bg-white/90 hover:bg-white shadow-sm"
+                  >
+                    <X className="h-4 w-4 text-black" />
+                  </Button>
+                </div>
+              </div>
+              <p className="text-center text-sm text-green-600">
+                Image uploaded successfully!
+              </p>
+            </div>
+          ) : (
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="bg-blue-100 p-4 rounded-full">
+                  <ImageIcon className="h-8 w-8 text-blue-600" />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-900">
+                  Upload Important Instructions Image
+                </p>
+                <p className="text-xs text-gray-500">
+                  Recommended size: 1MB
+                </p>
+              </div>
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => imageInputRef.current?.click()}
+                className="flex items-center gap-2 mx-auto"
+              >
+                <Upload className="h-4 w-4" />
+                Choose Image
+              </Button>
+            </div>
+          )}
+          
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+        </div>
       </div>
 
       {/* Supporting Documents Section */}

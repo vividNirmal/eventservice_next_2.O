@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Upload, Image as ImageIcon } from 'lucide-react';
+import { Upload, Image as ImageIcon, X } from 'lucide-react';
 
 const ImageUpload = ({ 
   label, 
@@ -16,16 +16,50 @@ const ImageUpload = ({
   linkPlaceholder = null,
   className = ""
 }) => {
+  const [localPreview, setLocalPreview] = useState(null);
+
+  // Use local preview if provided preview is not available
+  const displayPreview = preview || localPreview;
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create local preview immediately
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setLocalPreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+      
+      // Call the parent handler
+      if (onUpload) {
+        onUpload(e);
+      }
+    }
+  };
+
+  const handleRemove = () => {
+    setLocalPreview(null);
+    if (onRemove) {
+      onRemove();
+    }
+    // Reset the file input
+    const fileInput = document.getElementById(uploadId);
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
   return (
     <div className={`space-y-3 ${className}`}>
       {label && <Label className="text-base font-medium">{label}</Label>}
       
       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50/50 hover:bg-gray-50 transition-colors">
-        {preview ? (
+        {displayPreview ? (
           <div className="space-y-4">
             <div className="relative mx-auto max-w-md">
               <img
-                src={preview}
+                src={displayPreview}
                 alt="Upload preview"
                 className="w-full h-48 object-contain rounded-lg border"
               />
@@ -35,7 +69,7 @@ const ImageUpload = ({
                   variant="secondary"
                   size="sm"
                   onClick={() => document.getElementById(uploadId).click()}
-                  className="bg-white/90 hover:bg-white"
+                  className="bg-white/90 hover:bg-white shadow-sm"
                 >
                   Change
                 </Button>
@@ -43,10 +77,10 @@ const ImageUpload = ({
                   type="button"
                   variant="destructive"
                   size="sm"
-                  onClick={onRemove}
-                  className="bg-white/90 hover:bg-white"
+                  onClick={handleRemove}
+                  className="bg-white/90 hover:bg-white shadow-sm"
                 >
-                  Remove
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -84,7 +118,7 @@ const ImageUpload = ({
           id={uploadId}
           type="file"
           accept="image/*"
-          onChange={onUpload}
+          onChange={handleFileChange}
           className="hidden"
         />
       </div>

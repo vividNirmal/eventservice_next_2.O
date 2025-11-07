@@ -62,6 +62,8 @@ const ExhibitorFormList = ({ eventId }) => {
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const dataLimits = [10, 20, 30, 50];
 
+  const companyId = localStorage.getItem('companyId');
+
   const fetchForms = useCallback(async () => {
     setLoading(true);
     try {
@@ -71,6 +73,7 @@ const ExhibitorFormList = ({ eventId }) => {
         ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
         ...(selectedStatus && { status: selectedStatus }),
         ...(eventId && { eventId: eventId }),
+        ...(companyId && { companyId: companyId }),
       });
 
       const response = await getRequest(`exhibitor-forms?${params}`);

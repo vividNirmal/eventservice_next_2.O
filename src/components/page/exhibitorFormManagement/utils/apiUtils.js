@@ -94,9 +94,6 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
   
   const companyId = localStorage.getItem('companyId');
 
-  console.log('Form data for submission:', formData); // Debug log
-  console.log('Has files:', hasFiles); // Debug log
-
   if (hasFiles) {
     const formDataToSend = new FormData();
     
@@ -109,13 +106,11 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Add notifications as JSON string
     formDataToSend.append('notifications', JSON.stringify(formData.notifications));
     
-    // Handle important instructions image - FIXED: Check if it's a File object
-    if (formData.mediaInfo.important_instructions_image && formData.mediaInfo.important_instructions_image instanceof File) {
-      console.log('Appending important instructions image:', formData.mediaInfo.important_instructions_image); // Debug log
+    // Handle important instructions image - FIXED
+    if (formData.mediaInfo.important_instructions_image) {
       formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
-    } else if (formData.mediaInfo.important_instructions_image) {
-      // If it's a string (URL from edit mode), append as is
-      formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
+    } else {
+      console.log('No important instructions image found');
     }
     
     // Handle supporting documents
