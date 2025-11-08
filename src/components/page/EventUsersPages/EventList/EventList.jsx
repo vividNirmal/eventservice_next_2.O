@@ -11,10 +11,11 @@ export default function UserEventList() {
   const [loading, setLoading] = useState(true);  
   const [exhibitor, setExhibitor] = useState([]);
   const [categorizedEvents, setCategorizedEvents] = useState([]);
+  const [attendees,setAttendess] =useState([])
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
-    fetchForm();
+    fetchForm();    
   }, []);
 
   const fetchForm = async () => {
@@ -22,7 +23,7 @@ export default function UserEventList() {
       setLoading(true);
       const response = await getRequest(`/eventuser-events`);
       if (response.status === 1 && response.data) {
-        if (response.data.groupedData) {
+        if (response.data) {
           response.data.groupedData.map((item) => {
             if (item.userType == "Exhibitor") {
               setExhibitor(item.data);
@@ -31,6 +32,7 @@ export default function UserEventList() {
               groupEventsByCategory(item.data);
             }
           });
+          setAttendess(response.data.attendasData?.data)
         }
       } else {
         console.log("❌ API Response error or no data:", response);
@@ -41,7 +43,7 @@ export default function UserEventList() {
     } finally {
       setLoading(false);
     }
-  };
+  }; 
 
   const groupEventsByCategory = (events) => {
     const categoryMap = {};
@@ -92,11 +94,11 @@ export default function UserEventList() {
               Available Packages
             </h2>
             <div className="space-y-4">
-              {exhibitor?.map((pkg) => (
+              {attendees?.map((pkg) => (
                 <ExhibitorCard
                   key={pkg._id}
-                  title={pkg.eventId?.event_title}
-                  description={pkg.eventId?.event_description}
+                  title={pkg.title}
+                  description={pkg.description}
                   price={pkg.price}
                   onBuyNow={() => console.log(pkg._id)}
                 />

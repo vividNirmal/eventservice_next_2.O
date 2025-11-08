@@ -56,7 +56,7 @@ export function CategoryCard({ category, eventCount, onApply }) {
             onClick={onApply}
             className="w-full bg-blue-600 text-white hover:bg-blue-700 gap-2"
           >
-            View Events
+            View Events 
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
@@ -80,8 +80,7 @@ export function ExhibitorCard({ title, description, price, onBuyNow }) {
           <span>{description}</span>
         </div>
 
-        <div className="flex items-center justify-between pt-4">
-          <span className="text-sm text-muted-foreground">More Details</span>
+        <div className="flex items-center justify-between pt-4">          
           <Button
             onClick={onBuyNow}
             className="bg-amber-400 text-foreground hover:bg-amber-500 gap-2 ml-auto"
