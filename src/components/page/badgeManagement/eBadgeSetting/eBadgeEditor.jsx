@@ -41,7 +41,7 @@ const defaultStyleSettings = {
   position: "left",
   marginLeft: "0mm",
   marginTop: "0mm",
-  fontFamily: "Roboto",
+  fontFamily: "'Roboto', sans-serif",
   fontSize: "12pt",
   fontColor: "#000",
   fontStyle: "normal",
@@ -1105,14 +1105,10 @@ const EBadgeEditor = ({ params }) => {
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="Roboto">Roboto</SelectItem>
-                                    <SelectItem value="Inter">
-                                      Inter
-                                    </SelectItem>
-                                    {/* <SelectItem value="Poppins">
-                                      Poppins
-                                    </SelectItem>
-                                    <SelectItem value="Montserrat">Montserrat</SelectItem> */}
+                                    <SelectItem value="'Roboto', sans-serif">Roboto</SelectItem>
+                                    <SelectItem value="'Inter', sans-serif">Inter</SelectItem>
+                                    <SelectItem value="'Montserrat', sans-serif">Montserrat</SelectItem>
+                                    <SelectItem value="'Momo Signature', cursive">Momo Signature</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
