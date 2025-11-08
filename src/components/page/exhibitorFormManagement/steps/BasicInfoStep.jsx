@@ -23,11 +23,10 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
   const getModules = () => JSON.parse(JSON.stringify(textEditormodule.modules));
 
   return (
-    <div className="space-y-4 sm:space-y-6 ">
-
+    <div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="full_name">Form Name *</Label>
+          <Label htmlFor="full_name">Form Name <sup className='text-red-500'>*</sup></Label>
           <div className='relative pb-3.5'>
             <Input
               id="full_name"
@@ -41,7 +40,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="form_number">Form Number *</Label>
+          <Label htmlFor="form_number">Form Number <sup className='text-red-500'>*</sup></Label>
           <Input
             id="form_number"
             type="number"
@@ -53,34 +52,23 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="due_date">Due Date *</Label>
+        <Label htmlFor="due_date">Due Date <sup className='text-red-500'>*</sup></Label>
         <div className='relative pb-3.5'>
-          <Input
-            id="due_date"
-            type="date"
-            value={basicInfo.due_date}
-            onChange={(e) => handleInputChange('basicInfo.due_date', e.target.value)}
-          />
+          <Input id="due_date" type="date" value={basicInfo.due_date} onChange={(e) => handleInputChange('basicInfo.due_date', e.target.value)} />
           <ErrorMessage error={errors.due_date} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="submission_disclaimer">Submission Disclaimer *</Label>
+        <Label htmlFor="submission_disclaimer">Submission Disclaimer <sup className='text-red-500'>*</sup></Label>
         <div className='relative pb-3.5'>
-          <Textarea
-            id="submission_disclaimer"
-            value={basicInfo.submission_disclaimer}
-            onChange={(e) => handleInputChange('basicInfo.submission_disclaimer', e.target.value)}
-            placeholder="Enter submission disclaimer"
-            rows={3}
-          />
+          <Textarea id="submission_disclaimer" value={basicInfo.submission_disclaimer} onChange={(e) => handleInputChange('basicInfo.submission_disclaimer', e.target.value)} placeholder="Enter submission disclaimer" rows={3} />
           <ErrorMessage error={errors.submission_disclaimer} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="form_description">Form Description *</Label>
+        <Label htmlFor="form_description">Form Description <sup className='text-red-500'>*</sup></Label>
         <div className='relative pb-3.5'>
           <ReactQuill 
             key="form-description-editor"
@@ -99,9 +87,9 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4 mb-4">
         <div className="space-y-2">
-          <Label htmlFor="measurement_unit">Measurement Unit *</Label>
+          <Label htmlFor="measurement_unit">Measurement Unit <sup className='text-red-500'>*</sup></Label>
           <div className='relative pb-3.5'>
             <Input
               id="measurement_unit"
@@ -114,26 +102,20 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Label>Allow Multiple Submission</Label>
-          <Switch
-            checked={basicInfo.allow_multiple_submission}
-            onCheckedChange={(checked) => handleInputChange('basicInfo.allow_multiple_submission', checked)}
-          />
+        <div className="flex items-center justify-between">
+          <Label className={'mb-0'}>Allow Multiple Submission</Label>
+          <Switch checked={basicInfo.allow_multiple_submission} onCheckedChange={(checked) => handleInputChange('basicInfo.allow_multiple_submission', checked)} />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Label>Mandatory Form</Label>
-          <Switch
-            checked={basicInfo.is_mendatory}
-            onCheckedChange={(checked) => handleInputChange('basicInfo.is_mendatory', checked)}
-          />
+        <div className="flex items-center justify-between space-x-2">
+          <Label className={'mb-0'}>Mandatory Form</Label>
+          <Switch checked={basicInfo.is_mendatory} onCheckedChange={(checked) => handleInputChange('basicInfo.is_mendatory', checked)} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="dependant_form">Dependant Form</Label>
           <Select value={basicInfo.dependant_form} onValueChange={(value) => handleInputChange('basicInfo.dependant_form', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={'w-full'}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -147,7 +129,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         <div className="space-y-2">
           <Label htmlFor="dependant_features">Dependant Features</Label>
           <Select value={basicInfo.dependant_features} onValueChange={(value) => handleInputChange('basicInfo.dependant_features', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={'w-full'}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -158,27 +140,20 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           </Select>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Label>Limit Quantity For All</Label>
-          <Switch
-            checked={basicInfo.limit_quantity_for_all}
-            onCheckedChange={(checked) => handleInputChange('basicInfo.limit_quantity_for_all', checked)}
-          />
+        <div className="flex items-center justify-between space-x-2">
+          <Label className={'mb-0'}>Limit Quantity For All</Label>
+          <Switch checked={basicInfo.limit_quantity_for_all} onCheckedChange={(checked) => handleInputChange('basicInfo.limit_quantity_for_all', checked)} />
         </div>
 
-                
-        <div className="flex items-center space-x-2 mb-4">
-          <Label>Payment Collection Required</Label>
-          <Switch
-            checked={basicInfo.payment_collection_required}
-            onCheckedChange={(checked) => handleInputChange('basicInfo.payment_collection_required', checked)}
-          />
+        <div className="flex items-center justify-between space-x-2">
+          <Label className={'mb-0'}>Payment Collection Required</Label>
+          <Switch checked={basicInfo.payment_collection_required} onCheckedChange={(checked) => handleInputChange('basicInfo.payment_collection_required', checked)} />
         </div>
 
         <div className="space-y-2">
           <Label>Payment Collection Mode</Label>
           <Select value={basicInfo.payment_collection_mode} onValueChange={(value) => handleInputChange('basicInfo.payment_collection_mode', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={'w-full'}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -208,7 +183,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           </div>
         )}
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between space-x-2">
           <Label>TDS Applicable</Label>
           <Switch
             checked={basicInfo.tds_applicable}
@@ -237,7 +212,6 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
-        {/* Service Providers checkboxes with CustomCombobox */}
         <div className="space-y-2">
           <Label>Service Providers</Label>
           <CustomCombobox
@@ -256,7 +230,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         <div className="space-y-2">
           <Label htmlFor="stall_type">Stall Type</Label>
           <Select value={basicInfo.stall_type} onValueChange={(value) => handleInputChange('basicInfo.stall_type', value)}>
-            <SelectTrigger>
+            <SelectTrigger className={'w-full'}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -287,7 +261,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           />
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between space-x-2">
           <Label>Apply Vendor Filter</Label>
           <Switch
             checked={basicInfo.apply_vendor_filter}
@@ -295,7 +269,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           />
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between space-x-2">
           <Label>Apply Zone Filter</Label>
           <Switch
             checked={basicInfo.apply_zone_filter}
@@ -303,7 +277,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           />
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between space-x-2">
           <Label>Submit Without Payment Verification</Label>
           <Switch
             checked={basicInfo.submit_without_pay_verify}
@@ -311,7 +285,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           />
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between space-x-2">
           <Label>Allow Personal CCTV Installation</Label>
           <Switch
             checked={basicInfo.allow_personal_cctv_installation}
@@ -319,7 +293,6 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           />
         </div>
       </div>
-
     </div>
   );
 };

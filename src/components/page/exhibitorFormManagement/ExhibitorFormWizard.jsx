@@ -151,8 +151,8 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
 
   return (
     <Sheet open={isOpen} onOpenChange={handleClose}>
-      <SheetContent className="sm:max-w-4xl xl:max-w-4xl flex flex-col p-0">
-        <SheetHeader className="border-b border-gray-200 px-6 py-4">
+      <SheetContent className="sm:max-w-4xl xl:max-w-4xl flex flex-col gap-0 p-0">
+        <SheetHeader className="border-b border-gray-200 px-6 py-4 gap-0">
           <SheetTitle>
             {isEditMode ? 'Edit Exhibitor Form' : 'Add Exhibitor Form'}
           </SheetTitle>
