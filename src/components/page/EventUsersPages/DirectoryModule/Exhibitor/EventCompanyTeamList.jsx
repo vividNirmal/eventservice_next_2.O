@@ -208,8 +208,8 @@ const EventCompanyTeamList = () => {
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <Card className={'mx-auto max-w-7xl relative z-20'}>
+        <CardHeader className={'px-0'}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <CardTitle>Company Team Members</CardTitle>
             <Button onClick={handleCreate}>
@@ -238,7 +238,7 @@ const EventCompanyTeamList = () => {
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="All Roles" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent align="end">
                   <SelectItem value="all">All Roles</SelectItem>
                   <SelectItem value="owner">Owner</SelectItem>
                   <SelectItem value="partner">Partner</SelectItem>
@@ -258,7 +258,7 @@ const EventCompanyTeamList = () => {
                   <SelectTrigger className="w-20">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent align="end">
                     {limits.map((l) => (
                       <SelectItem key={l} value={l.toString()}>
                         {l}
@@ -271,7 +271,7 @@ const EventCompanyTeamList = () => {
           </div>
 
           {/* Table */}
-          <div className="rounded-md border">
+          <div className="rounded-md border max-h-80 overflow-auto 2xl:max-h-full">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -302,7 +302,7 @@ const EventCompanyTeamList = () => {
                     <TableRow key={member._id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <Avatar className="h-10 w-10">
+                          <Avatar className="size-9 font-medium">
                             {/* FIX: Use profilePictureUrl instead of profile_picture */}
                             {member.profilePictureUrl && (
                               <AvatarImage 
@@ -314,50 +314,36 @@ const EventCompanyTeamList = () => {
                                 }}
                               />
                             )}
-                            <AvatarFallback>
-                              {getInitials(member.first_name, member.last_name)}
-                            </AvatarFallback>
+                            <AvatarFallback className={'bg-blue-600 text-white'}>{getInitials(member.first_name, member.last_name)}</AvatarFallback>
                           </Avatar>
-                          <div>
-                            <div className="font-medium">
-                              {member.first_name} {member.last_name}
-                            </div>
-                          </div>
+                          <div className="font-medium text-sm">{member.first_name} {member.last_name}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col space-y-1">
                           <div className="flex items-center space-x-2">
-                            <Mail className="w-4 h-4 text-gray-500" />
+                            <Mail className="w-4 h-4 text-blue-600" />
                             <span className="text-sm">{member.email}</span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4 text-gray-500" />
+                            <Phone className="w-4 h-4 text-blue-600" />
                             <span className="text-sm">{member.contact_no}</span>
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getOwnershipBadgeColor(member.ownership)}>
-                          {member.ownership}
-                        </Badge>
+                        <Badge className={getOwnershipBadgeColor(member.ownership)}>{member.ownership}</Badge>
                       </TableCell>
                       <TableCell>
                         <span className="capitalize">{member.gender}</span>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>
-                            {member.city?.name || "N/A"}, {member.state?.name || "N/A"}
-                          </div>
-                          <div className="text-gray-500">
-                            {member.country?.name || "N/A"}
-                          </div>
+                          <div>{member.city?.name || "N/A"}, {member.state?.name || "N/A"}</div>
+                          <div className="text-gray-500">{member.country?.name || "N/A"}</div>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        {member.pan_no || "N/A"}
-                      </TableCell>
+                      <TableCell>{member.pan_no || "N/A"}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

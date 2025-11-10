@@ -60,12 +60,13 @@ export default function RootLayout({ children }) {
   function ConditionHeder() {    
     if (pathname?.startsWith("/dashboard/eventuser")) {
       return (
-        <div className="flex flex-col h-screen bg-gray-50 ">
+        <div className="flex flex-col h-screen bg-[#F5F6FA]">
           <HeaderEventuser />
-          <div className="flex-1 overflow-auto p-4 xl:p-6 container px-4 mx-auto">
-            <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 min-h-0 themed-content">
-              {children}
+          <div className="flex-1 overflow-auto custom-scroll pt-54 pb-4 2xl:pt-64 relative">
+            <div className="max-w-full w-full rounded-b-2xl overflow-hidden fixed top-0 left-0 z-10">
+              <img src="/banner-img.png" className="max-w-full w-full h-60 object-cover" alt="banner image" />
             </div>
+            {children}
           </div>
         </div>
       );

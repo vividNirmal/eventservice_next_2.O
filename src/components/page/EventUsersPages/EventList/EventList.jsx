@@ -20,7 +20,7 @@ export default function UserEventList() {
   const [buttonLoader, setButtonLoader] = useState(false);
 
   useEffect(() => {
-    fetchForm();
+    fetchForm();        
   }, []);
 
   const fetchForm = async () => {
@@ -54,12 +54,16 @@ export default function UserEventList() {
     const categoryMap = {};
 
     events.forEach((event) => {
+      console.log(event);
+      
       const category = event.eventId?.event_category;
-      if (category) {
+      if (category) {        
+        
         const categoryId = category._id;
         if (!categoryMap[categoryId]) {
           categoryMap[categoryId] = {
             category: category,
+            status: event?.approved,
             events: [],
           };
         }
@@ -108,24 +112,15 @@ export default function UserEventList() {
   }
 
   return (
-    <div className="bg-background">
-      <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="">
+      <div className="max-w-7xl mx-auto px-4 py-12 relative -top-20 z-20">
         {/* Event Attendees View */}
         {userType?.typeName === "Event Attendees" && (
           <section className="w-full">
-            <h2 className="text-2xl font-bold text-foreground mb-6">
-              Available Packages
-            </h2>
+            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Available Packages</h2>
             <div className="space-y-4">
               {attendees?.map((pkg) => (
-                <ExhibitorCard
-                  key={pkg._id}
-                  title={pkg.title}
-                  description={pkg.description}
-                  price={pkg.price}
-                  currency = {pkg.currency}
-                  onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
-                />
+                <ExhibitorCard key={pkg._id} title={pkg.title} description={pkg.description} price={pkg.price} currency = {pkg.currency} onBuyNow={() => handleUserRegister(pkg.type, pkg._id)} />
               ))}
             </div>
           </section>
@@ -137,15 +132,14 @@ export default function UserEventList() {
             {!selectedCategory ? (
               // Show Categories
               <>
-                <h2 className="text-2xl font-bold text-foreground mb-6">
-                  Event Categories
-                </h2>
+                <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Event Categories</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {categorizedEvents?.map((item) => (
                     <CategoryCard
                       key={item.category._id}
                       category={item.category}
                       eventCount={item.events.length}
+                      status={item.status}
                       onApply={() => handleCategorySelect(item)}
                     />
                   ))}

@@ -6,6 +6,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -15,17 +17,21 @@ import {
   User,
   Menu,
   ChevronDown,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { handleEventUserTypeSelected } from "@/redux/eventuserReducer/eventuserReducer";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export default function HeaderEventuser() {
   const [loginUser, setLoginUser] = useState(null);
-  const [selectedUserType, setSelectedUserType] = useState(null);
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [selectedUserType, setSelectedUserType] = useState(null);  
+  // const [open, setOpen] = useState(false);
+  // const dropdownRef = useRef(null);
   const dispatch = useDispatch();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   // ADD THESE
   const pathname = usePathname();
@@ -60,18 +66,18 @@ export default function HeaderEventuser() {
   }, [dispatch]);
 
   // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+  //       setOpen(false);
+  //     }
+  //   };
 
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [open]);
+  //   if (open) {
+  //     document.addEventListener("mousedown", handleClickOutside);
+  //     return () => document.removeEventListener("mousedown", handleClickOutside);
+  //   }
+  // }, [open]);
 
   // Callbacks
   const handleLogout = useCallback(() => {
@@ -99,21 +105,21 @@ export default function HeaderEventuser() {
   }, [dispatch, pathname, router]);
 
   return (
-    <header className="bg-white">
-      <div className="flex items-center justify-between gap-4 container px-4 mx-auto">
+    <header className="bg-white border-b border-solid border-[#eee] py-2 relative z-50">
+      <div className="flex items-center justify-between gap-4 px-5 xl:px-[4vw] 2xl:px-[5vw] mx-auto">
         {/* Logo */}
         <div className="min-w-fit">
-          <div className="text-2xl font-bold text-gray-800">Logo</div>
+          <div className="text-2xl font-bold text-blue-600">Logo</div>
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center gap-6 flex-1 justify-center">
+        <div className="hidden md:flex md:items-center flex-col md:flex-row gap-2 md:gap-6 flex-1 justify-center md:static md:w-auto w-full top-12 p-5 md:p-0 left-0 fixed bg-white md:bg-transparent" style={{ display: mobileMenuOpen ? 'flex' : 'none' }}>
           {loginUser && (
-            <div className="px-6 py-2 border-gray-200">
+            <div className="py-2 border-gray-200">
               {hasMultipleUserTypes ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                  <DropdownMenuTrigger className="!py-0" asChild>
+                    <button className="!py-0 cursor-pointer flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
                       {selectedUserType?.typeName || "Select Type"}
                       <ChevronDown className="h-4 w-4" />
                     </button>
@@ -138,124 +144,49 @@ export default function HeaderEventuser() {
             </div>
           )}
 
-          <Link
-            href="/dashboard/eventuser"
-            className="text-gray-700 hover:text-gray-900 font-medium text-sm"
-          >
-            {selectedUserType?.typeName === "Exhibitor" ? "Shows" : "Event"}
-          </Link>
+          <Link href="/dashboard/eventuser" className="text-gray-700 hover:text-gray-900 font-medium text-sm">{selectedUserType?.typeName === "Exhibitor" ? "Shows" : "Event"}</Link>
 
           {selectedUserType && selectedUserType.typeName === "Exhibitor" && (
-            <Link
-              href="/dashboard/eventuser/company-teams"
-              className="text-gray-700 hover:text-gray-900 font-medium text-sm"
-            >
-              Directory
-            </Link>
+            <Link href="/dashboard/eventuser/company-teams" className="text-gray-700 hover:text-gray-900 font-medium text-sm">Directory</Link>
           )}
           
-          <Link
-            href="/dashboard/eventuser/payment"
-            className="text-gray-700 hover:text-gray-900 font-medium text-sm"
-          >
-            Payments
-          </Link>
+          <Link href="/dashboard/eventuser/payment" className="text-gray-700 hover:text-gray-900 font-medium text-sm">Payments</Link>
         </div>
+        <Button className={'!shadow-none border-0 !bg-transparent !p-0 md:hidden text-black ml-auto'} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <Menu className="size-5" />
+        </Button>
 
         {/* Company Name */}
-        <div className="min-w-fit text-right px-4 border-r border-gray-200">
-          <div className="text-sm font-semibold text-amber-600 capitalize">
-            {loginUser?.compayId?.company_name}
-          </div>
-        </div>
+        <Badge className="bg-orange-400 shadow-[0_0_0_4px_rgba(255,137,4,0.2)] text-[10px] xl:text-xs uppercase py-1 pl-2 pr-2 text-white flex flex-wrap gap-1.5 items-center">
+          <span className="size-2 xl:size-2.5 bg-white rounded-full"></span>
+          {loginUser?.compayId?.company_name}
+        </Badge>
 
-        {/* User Info */}
-        <div className="flex items-center gap-4 min-w-fit">
-          <div className="text-right">
-            <div className="text-xs text-gray-600">Welcome</div>
-            <div className="text-sm font-medium text-gray-800">
-              {displayName}
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs font-medium bg-transparent"
-          >
-            Non Member
-          </Button>
-
-          {/* Menu Dropdowns */}
-          <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
-            {/* Settings Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="p-2 hover:bg-gray-100 rounded transition">
-                  <Menu className="h-5 w-5 text-gray-700" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <User className="h-4 w-4" />
-                  <span>Account</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer">
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="gap-2 cursor-pointer text-destructive"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Profile Dropdown */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={toggleDropdown}
-                className="p-1 rounded-full hover:bg-gray-100 transition"
-                aria-label="User menu"
-              >
-                {loginUser?.image ? (
-                  <img
-                    src={loginUser.image}
-                    alt={displayName}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white font-semibold text-xs rounded-full">
-                    {userInitial}
-                  </span>
-                )}
-              </button>
-
-              {open && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border rounded shadow-lg z-10">
-                  <div className="p-3 border-b">
-                    <div className="font-semibold text-gray-900">
-                      {displayName}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-0.5">
-                      {loginUser?.email || "No email"}
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </button>
-                </div>
+        {/* User Info Menu Dropdowns */}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex flex-wrap items-center gap-1 outline-0 cursor-pointer">
+            <Avatar className={'2xl:size-9'}>
+              {loginUser?.image ? (
+                <AvatarImage src={loginUser.image} alt={displayName} />
+              ) : (
+                <AvatarFallback className={'bg-blue-600 text-white text-xs 2xl:text-sm'}>{userInitial}</AvatarFallback>
               )}
+            </Avatar>
+            <div className="text-left hidden md:flex flex-col">
+              <span className="inline-block text-xs text-gray-600">Welcome</span>
+              <h6 className="text-xs 2xl:text-sm font-medium text-gray-800">{displayName}</h6>
             </div>
-          </div>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel className={'text-sm pb-0'}>{displayName}</DropdownMenuLabel>
+            <DropdownMenuItem className={'pt-0 text-gray-500 hover:!text-gray-500 hover:!bg-transparent'}>{loginUser?.email || "No email"}</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleLogout} className={'cursor-pointer'}>
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
