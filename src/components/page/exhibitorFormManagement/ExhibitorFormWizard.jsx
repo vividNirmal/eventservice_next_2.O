@@ -182,13 +182,12 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
         <SheetHeader className="border-b border-gray-200 px-6 py-4 gap-0">
           <SheetTitle>
             {isEditMode ? 'Edit Exhibitor Form' : 'Add Exhibitor Form'}
-            {selectedConfiguration && !isEditMode && (
-              <span className="text-sm font-normal text-gray-500 block mt-1">
-                Configuration: {selectedConfiguration.configName}
+            {selectedConfiguration && (
+              <span className="text-sm font-normal text-gray-500">{selectedConfiguration?.configSlug}
               </span>
             )}
           </SheetTitle>
-          <SheetDescription>
+          <SheetDescription className={"hidden"}>
             Fill in the form details to {isEditMode ? 'update' : 'create'} an exhibitor form
           </SheetDescription>
         </SheetHeader>

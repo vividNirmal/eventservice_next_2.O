@@ -15,7 +15,6 @@ import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, postRequest, updateRequest, deleteRequest } from "@/service/viewService";
 import ExhibitorFormParticularSheet from "./ExhibitorFormParticularSheet";
-import { useParams } from "next/navigation";
 
 export default function ExhibitorFormParticularList ({eventId, exhibitorFormId}){
 
@@ -77,6 +76,8 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
     setIsCreating(true);
     try {
       formData.append("ExhibitorForm", exhibitorFormId);
+      formData.append("eventId", eventId);
+      formData.append("companyId", companyId);
       
       const res = await postRequest("exhibitor-form-particulars", formData, {
         headers: { "Content-Type": "multipart/form-data" }

@@ -139,6 +139,7 @@ const ExhibitorFormList = ({ eventId }) => {
 
   const openEditDialog = useCallback((form) => {
     setFormToEdit(form);
+    setSelectedConfiguration(form.ExhibitorFormConfiguration);
     setIsWizardOpen(true);
   }, []);
 

@@ -17,6 +17,7 @@ import { Loader2, Plus, Trash2, File, Upload, Image as ImageIcon, X, Download } 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { CustomCombobox } from '@/components/common/customcombox';
 
 const ExhibitorFormParticularSheet = ({
   isOpen,
@@ -30,6 +31,23 @@ const ExhibitorFormParticularSheet = ({
 }) => {
   const imageInputRef = useRef(null);
   const docInputRef = useRef(null);
+
+  // Define options for zones and venues (you can fetch these from API or keep static)
+  const ZONE_OPTIONS = [
+    { label: 'Zone A', value: 'Zone A' },
+    { label: 'Zone B', value: 'Zone B' },
+    { label: 'Zone C', value: 'Zone C' },
+    { label: 'Zone D', value: 'Zone D' },
+    { label: 'Zone E', value: 'Zone E' },
+  ];
+
+  const VENUE_OPTIONS = [
+    { label: 'Main Hall', value: 'Main Hall' },
+    { label: 'Conference Room', value: 'Conference Room' },
+    { label: 'Outdoor Area', value: 'Outdoor Area' },
+    { label: 'Exhibition Hall', value: 'Exhibition Hall' },
+    { label: 'Ballroom', value: 'Ballroom' },
+  ];
 
   const validationSchema = Yup.object({
     item_name: Yup.string()
@@ -66,9 +84,13 @@ const ExhibitorFormParticularSheet = ({
       venue: initialData?.venue || [],
       image: initialData?.image || "",
       imageFile: null,
-      imagePreview: initialData?.image ? `${process.env.NEXT_PUBLIC_API_URL}${initialData.image}` : "",
-      documents: initialData?.documents || [],
-      newDocuments: [],
+      imagePreview: initialData?.image ? `${initialData?.image}` : "",
+      documents: initialData?.documents?.map(doc => ({
+        ...doc,
+        isExisting: true,
+        nameChanged: false,
+        deleted: false
+      })) || [],
       status: initialData?.status || "active",
     },
     validationSchema,
@@ -91,32 +113,50 @@ const ExhibitorFormParticularSheet = ({
       // Handle image
       if (values.imageFile) {
         formData.append("image", values.imageFile);
-      } else if (values.image) {
-        formData.append("existingImage", values.image);
+      } else if (values.image && !initialData) {
+        // Only append existing image if it's a new record
+        formData.append("image", values.image);
       }
-      
-      // Handle documents
-      values.documents.forEach((doc, index) => {
-        if (!doc._id && !doc.deleted) {
-          // New document
-          formData.append(`documents[${index}][name]`, doc.name);
-          if (doc.file) {
-            formData.append(`documents[${index}][file]`, doc.file);
-          }
-        } else if (doc._id && !doc.deleted) {
-          // Existing document
-          formData.append(`documents[${index}][_id]`, doc._id);
-          formData.append(`documents[${index}][name]`, doc.name);
-          formData.append(`documents[${index}][path]`, doc.path);
-        }
-      });
 
-      // Mark deleted documents
-      values.documents.forEach((doc, index) => {
-        if (doc.deleted && doc._id) {
-          formData.append(`deletedDocuments[]`, doc._id);
+      // Handle documents with metadata approach (like ExhibitorForm)
+      if (values.documents && values.documents.length > 0) {
+        const documentsMetadata = [];
+        let fileIndex = 0;
+
+        values.documents.forEach((doc, index) => {
+          if (doc.deleted && doc._id) {
+            // Mark for deletion
+            documentsMetadata.push({
+              index,
+              action: 'delete',
+              _id: doc._id,
+              path: doc.path
+            });
+          } else if (doc.file) {
+            // New file upload
+            formData.append("documents_files", doc.file);
+            documentsMetadata.push({
+              index,
+              action: 'new',
+              name: doc.name || doc.fileName,
+              fileIndex: fileIndex++
+            });
+          } else if (doc._id) {
+            // Existing document
+            documentsMetadata.push({
+              index,
+              action: doc.nameChanged ? 'update' : 'keep',
+              _id: doc._id,
+              name: doc.name,
+              path: doc.path
+            });
+          }
+        });
+
+        if (documentsMetadata.length > 0) {
+          formData.append("documents_metadata", JSON.stringify(documentsMetadata));
         }
-      });
+      }
 
       await onSubmit(formData);
     },
@@ -192,12 +232,6 @@ const ExhibitorFormParticularSheet = ({
     formik.setFieldValue("documents", updatedDocs);
   };
 
-  const restoreDocument = (index) => {
-    const updatedDocs = [...formik.values.documents];
-    delete updatedDocs[index].deleted;
-    formik.setFieldValue("documents", updatedDocs);
-  };
-
   const updateDocumentName = (index, name) => {
     const updatedDocs = [...formik.values.documents];
     const isExisting = updatedDocs[index]._id;
@@ -205,7 +239,7 @@ const ExhibitorFormParticularSheet = ({
     updatedDocs[index] = { 
       ...updatedDocs[index], 
       name,
-      nameChanged: isExisting
+      nameChanged: isExisting ? true : updatedDocs[index].nameChanged
     };
     formik.setFieldValue("documents", updatedDocs);
   };
@@ -223,18 +257,6 @@ const ExhibitorFormParticularSheet = ({
     }
   };
 
-  // Handle zone/venue input
-  const handleArrayInput = (field, value) => {
-    if (value.trim()) {
-      formik.setFieldValue(field, [...formik.values[field], value.trim()]);
-    }
-  };
-
-  const removeArrayItem = (field, index) => {
-    const updatedArray = formik.values[field].filter((_, i) => i !== index);
-    formik.setFieldValue(field, updatedArray);
-  };
-
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
@@ -247,6 +269,7 @@ const ExhibitorFormParticularSheet = ({
   };
 
   const displayDocuments = formik.values.documents?.filter(doc => !doc.deleted) || [];
+  const deletedDocumentsCount = formik.values.documents?.filter(doc => doc.deleted).length || 0;
 
   return (
     <Sheet open={isOpen} onOpenChange={handleClose}>
@@ -367,88 +390,30 @@ const ExhibitorFormParticularSheet = ({
               </div>
             </div>
 
-            {/* Zones */}
+            {/* Zones - Using CustomCombobox */}
             <div className="flex flex-col gap-2">
               <Label>Zones</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter zone and press Enter"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleArrayInput('zones', e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={(e) => {
-                    const input = e.target.previousElementSibling;
-                    handleArrayInput('zones', input.value);
-                    input.value = '';
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {formik.values.zones.map((zone, index) => (
-                  <div key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm flex items-center gap-1">
-                    {zone}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem('zones', index)}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <CustomCombobox
+                name="zones"
+                options={ZONE_OPTIONS}
+                value={formik.values.zones || []}
+                onChange={(val) => formik.setFieldValue("zones", val)}
+                placeholder="Select zones"
+                multiSelect
+              />
             </div>
 
-            {/* Venue */}
+            {/* Venue - Using CustomCombobox */}
             <div className="flex flex-col gap-2">
               <Label>Venue</Label>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Enter venue and press Enter"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleArrayInput('venue', e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={(e) => {
-                    const input = e.target.previousElementSibling;
-                    handleArrayInput('venue', input.value);
-                    input.value = '';
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {formik.values.venue.map((venue, index) => (
-                  <div key={index} className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm flex items-center gap-1">
-                    {venue}
-                    <button
-                      type="button"
-                      onClick={() => removeArrayItem('venue', index)}
-                      className="text-green-600 hover:text-green-800"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <CustomCombobox
+                name="venue"
+                options={VENUE_OPTIONS}
+                value={formik.values.venue || []}
+                onChange={(val) => formik.setFieldValue("venue", val)}
+                placeholder="Select venues"
+                multiSelect
+              />
             </div>
 
             {/* Image Upload */}
@@ -631,10 +596,10 @@ const ExhibitorFormParticularSheet = ({
                 )}
               </div>
 
-              {formik.values.documents?.filter(doc => doc.deleted).length > 0 && (
+              {deletedDocumentsCount > 0 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <p className="text-sm text-yellow-800">
-                    {formik.values.documents.filter(doc => doc.deleted).length} document(s) marked for deletion. 
+                    {deletedDocumentsCount} document(s) marked for deletion. 
                     They will be removed when you save.
                   </p>
                 </div>
