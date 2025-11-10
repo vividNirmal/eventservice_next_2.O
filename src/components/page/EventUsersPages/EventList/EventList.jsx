@@ -1,21 +1,26 @@
 "use client";
 import { useEffect, useState } from "react";
-import { EventAttendeesCard, ExhibitorCard, CategoryCard } from "./EventAttendeesCard";
+import {
+  EventAttendeesCard,
+  ExhibitorCard,
+  CategoryCard,
+} from "./EventAttendeesCard";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
-import { getRequest } from "@/service/viewService";
+import { getRequest, postRequest } from "@/service/viewService";
 import { ChevronLeft } from "lucide-react";
 
 export default function UserEventList() {
   const { userType } = useSelector((state) => state.eventUser);
-  const [loading, setLoading] = useState(true);  
+  const [loading, setLoading] = useState(true);
   const [exhibitor, setExhibitor] = useState([]);
   const [categorizedEvents, setCategorizedEvents] = useState([]);
-  const [attendees,setAttendess] =useState([])
+  const [attendees, setAttendess] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [buttonLoader, setButtonLoader] = useState(false);
 
   useEffect(() => {
-    fetchForm();    
+    fetchForm();
   }, []);
 
   const fetchForm = async () => {
@@ -28,11 +33,11 @@ export default function UserEventList() {
             if (item.userType == "Exhibitor") {
               setExhibitor(item.data);
             }
-            if (item.userType == "Event Attendees") {                            
+            if (item.userType == "Event Attendees") {
               groupEventsByCategory(item.data);
             }
           });
-          setAttendess(response.data.attendasData?.data)
+          setAttendess(response.data.attendasData?.data);
         }
       } else {
         console.log("❌ API Response error or no data:", response);
@@ -43,7 +48,7 @@ export default function UserEventList() {
     } finally {
       setLoading(false);
     }
-  }; 
+  };
 
   const groupEventsByCategory = (events) => {
     const categoryMap = {};
@@ -73,6 +78,24 @@ export default function UserEventList() {
     setSelectedCategory(null);
   };
 
+  async function handleUserRegister(type, id) {
+    setButtonLoader(true);
+    try {
+      const formData = new FormData();
+      formData.append("type", type);
+      formData.append("id", id);
+      const responce = await postRequest("eventuser-event-attandes", formData);
+      if (responce.data) {        
+        
+        toast.success(responce.message);
+        setButtonLoader(false);
+      }
+    } catch (error) {
+      console.error("🚨 Error fetching form:", error);
+      toast.error("Failed to load form");
+    }
+  }
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -100,7 +123,7 @@ export default function UserEventList() {
                   title={pkg.title}
                   description={pkg.description}
                   price={pkg.price}
-                  onBuyNow={() => console.log(pkg._id)}
+                  onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
                 />
               ))}
             </div>
