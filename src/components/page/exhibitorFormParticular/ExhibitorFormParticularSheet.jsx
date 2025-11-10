@@ -124,12 +124,11 @@ const ExhibitorFormParticularSheet = ({
         let fileIndex = 0;
 
         values.documents.forEach((doc, index) => {
-          if (doc.deleted && doc._id) {
-            // Mark for deletion
+          if (doc.deleted && doc.path) {
+            // Mark for deletion - use path as identifier since we don't have _id in subdocuments
             documentsMetadata.push({
               index,
               action: 'delete',
-              _id: doc._id,
               path: doc.path
             });
           } else if (doc.file) {
@@ -141,12 +140,11 @@ const ExhibitorFormParticularSheet = ({
               name: doc.name || doc.fileName,
               fileIndex: fileIndex++
             });
-          } else if (doc._id) {
+          } else if (doc.path && !doc.deleted) {
             // Existing document
             documentsMetadata.push({
               index,
               action: doc.nameChanged ? 'update' : 'keep',
-              _id: doc._id,
               name: doc.name,
               path: doc.path
             });
@@ -155,6 +153,7 @@ const ExhibitorFormParticularSheet = ({
 
         if (documentsMetadata.length > 0) {
           formData.append("documents_metadata", JSON.stringify(documentsMetadata));
+          console.log("Documents metadata being sent:", documentsMetadata);
         }
       }
 
@@ -247,7 +246,7 @@ const ExhibitorFormParticularSheet = ({
   const downloadDocument = (doc) => {
     if (doc.path && !doc.path.startsWith('blob:')) {
       // Existing document - open in new tab
-      window.open(`${process.env.NEXT_PUBLIC_API_URL}${doc.path}`, '_blank');
+      window.open(`${doc.url}`, '_blank');
     } else if (doc.path && doc.path.startsWith('blob:')) {
       // New uploaded file - create download link
       const link = document.createElement('a');

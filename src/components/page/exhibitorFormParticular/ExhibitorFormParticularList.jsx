@@ -101,14 +101,10 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
     if (!editingParticular) return;
     setIsUpdating(true);
     try {
-      formData.append("ExhibitorForm", exhibitorFormId);
       
       const res = await updateRequest(
         `exhibitor-form-particulars/${editingParticular._id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" }
-        }
+        formData
       );
       
       if (res.status === 1) {
@@ -120,6 +116,7 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
         toast.error(res.message || "Failed to update particular");
       }
     } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update particular");
     } finally {
       setIsUpdating(false);
@@ -208,12 +205,8 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Image</TableHead>
-                  <TableHead>Item Name</TableHead>
-                  <TableHead>National Price</TableHead>
-                  <TableHead>International Price</TableHead>
-                  <TableHead>Purchase Limit</TableHead>
-                  <TableHead>Zones</TableHead>
+                  <TableHead>Particular Name</TableHead>
+                  <TableHead>Material Number</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -235,48 +228,8 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
                 ) : (
                   particulars.map((particular) => (
                     <TableRow key={particular._id}>
-                      <TableCell>
-                        {particular.image ? (
-                          <div className="w-10 h-10 rounded border overflow-hidden">
-                            <img 
-                              src={getImageUrl(particular.image)} 
-                              alt={particular.item_name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded border flex items-center justify-center bg-gray-100">
-                            <Image className="h-4 w-4 text-gray-400" />
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <div>
-                          <div>{particular.item_name}</div>
-                          {particular.material_number && (
-                            <div className="text-xs text-gray-500">
-                              Material: {particular.material_number}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatPrice(particular.national_price)}</TableCell>
-                      <TableCell>${particular.international_price}</TableCell>
-                      <TableCell>{particular.purachase_limit_per_order || "Unlimited"}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1 max-w-[150px]">
-                          {particular.zones?.slice(0, 2).map((zone, index) => (
-                            <Badge key={index} variant="secondary" className="text-xs">
-                              {zone}
-                            </Badge>
-                          ))}
-                          {particular.zones?.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{particular.zones.length - 2} more
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
+                      <TableCell className="font-medium">{particular.item_name || "N/A"}</TableCell>
+                      <TableCell>{particular?.material_number || "N/A"}</TableCell>
                       <TableCell>
                         <Badge 
                           variant={particular.status === "active" ? "default" : "secondary"}

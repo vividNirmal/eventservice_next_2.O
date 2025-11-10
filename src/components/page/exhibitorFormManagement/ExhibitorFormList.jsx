@@ -217,7 +217,7 @@ const ExhibitorFormList = ({ eventId }) => {
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle>Manage Form</CardTitle>
-                <CardDescription>
+                <CardDescription className={"hidden"}>
                   Empower your exhibitors with user-friendly platform to effortlessly get all custom forms for seamless data collection. Enhance their stall services by capturing crucial information. Simplify the exhibitor experience and ensure a successful event with our powerful Exhibitor Form Module.
                 </CardDescription>
               </div>
@@ -321,7 +321,7 @@ const ExhibitorFormList = ({ eventId }) => {
 
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-2 text-blue-600">
-                            <span className="font-medium">⏰ Deadline:</span>
+                            <span className="font-medium">Deadline:</span>
                             <span>
                               {form.basicInfo?.due_date 
                                 ? formatDate(form.basicInfo.due_date)
