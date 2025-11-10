@@ -18,6 +18,22 @@ import { CustomCombobox } from "@/components/common/customcombox";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 
+// Currency configuration
+export const CURRENCIES = [
+  { code: 'USD', symbol: '$', name: 'US Dollar' },
+  { code: 'INR', symbol: '₹', name: 'Indian Rupee' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'British Pound' },
+  { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
+  { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
+  { code: 'SGD', symbol: 'S$', name: 'Singapore Dollar' },
+  { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
+];
+
+ export const getCurrencySymbol = (currencyCode) => {
+    const currency = CURRENCIES.find(c => c.code === currencyCode);
+    return currency ? currency.symbol : '$';
+  };
 export function PackageFormDrawer({
   isOpen,
   onClose,
@@ -30,11 +46,15 @@ export function PackageFormDrawer({
   const [eventsByCategory, setEventsByCategory] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // Get currency symbol based on selected currency
+ 
+
   // Formik initialization
   const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
+      currency: "USD", // Default currency
       event_package: [
         {
           event_category: "",
@@ -46,6 +66,9 @@ export function PackageFormDrawer({
     validationSchema: Yup.object({
       title: Yup.string().required("Package name is required"),
       description: Yup.string().required("Package description is required"),
+      currency: Yup.string()
+        .oneOf(CURRENCIES.map(c => c.code), "Invalid currency")
+        .required("Currency is required"),
       event_package: Yup.array()
         .of(
           Yup.object({
@@ -85,13 +108,13 @@ export function PackageFormDrawer({
         const payload = {
           title: values.title,
           description: values.description,
+          currency: values.currency,
           event_package: values.event_package,
-          package_total_price: totalPrice,
+          package_total_price: totalPrice.toString(),
         };
                 
-        if (editPackage) {
-          payload.package_id = editPackage._id;
-          const response = await postRequest("update-package", payload);
+        if (editPackage) {          
+          const response = await postRequest(`update-package/${editPackage._id}`, payload);
           
           if (response.status === 1) {
             toast.success("Package updated successfully");
@@ -114,7 +137,7 @@ export function PackageFormDrawer({
     },
   });
 
-  // Calculate total price whenever event_package change
+  // Calculate total price whenever event_package changes
   useEffect(() => {
     calculateTotalPrice();
   }, [formik.values.event_package]);
@@ -147,6 +170,7 @@ export function PackageFormDrawer({
         formik.setValues({
           title: editPackage.title || "",
           description: editPackage.description || "",
+          currency: editPackage.currency || "USD",
           event_package: transformedEventPackage,
         });
       } else {
@@ -305,6 +329,14 @@ export function PackageFormDrawer({
     }
   };
 
+  // Handle currency change
+  const handleCurrencyChange = (value) => {
+    formik.setFieldValue("currency", value);
+  };
+
+  // Get current currency symbol
+  const currentCurrencySymbol = getCurrencySymbol(formik.values.currency);
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="sm:max-w-[1200px] xl:max-w-[1400px] w-full overflow-y-auto">
@@ -344,17 +376,39 @@ export function PackageFormDrawer({
               )}
             </div>
 
-            {/* Total Price Display - Moved to top */}
+            {/* Currency Selection */}
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">Package Total Price</Label>
-              <div className="h-11 px-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg flex items-center justify-between">
-                <span className="text-sm text-blue-600 font-medium">
-                  {formik.values.event_package.length} event{formik.values.event_package.length !== 1 ? 's' : ''}
-                </span>
-                <span className="text-2xl font-bold text-blue-900">
-                  ${totalPrice.toFixed(2)}
-                </span>
-              </div>
+              <Label htmlFor="currency" className="text-sm font-semibold">
+                Currency <span className="text-red-500">*</span>
+              </Label>
+              <CustomCombobox
+                name="currency"
+                value={formik.values.currency}
+                onChange={handleCurrencyChange}
+                onBlur={() => formik.setFieldTouched("currency", true)}
+                valueKey="code"
+                labelKey="name"
+                options={CURRENCIES.map(currency => ({
+                  ...currency,
+                  displayName: `${currency.symbol} ${currency.name} (${currency.code})`
+                }))}
+                placeholder="Select currency"
+                id="currency"
+                className="h-11"
+                renderOption={(option) => (
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-medium">{option.symbol}</span>
+                    <span className="text-sm text-slate-600">{option.name}</span>
+                    <span className="text-xs text-slate-400">{option.code}</span>
+                  </div>
+                )}
+              />
+              {formik.touched.currency && formik.errors.currency && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
+                  {formik.errors.currency}
+                </p>
+              )}
             </div>
           </div>
 
@@ -379,6 +433,34 @@ export function PackageFormDrawer({
                 {formik.errors.description}
               </p>
             )}
+          </div>
+
+          {/* Total Price Display with Dynamic Currency */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Package Total Price</Label>
+            <div className="h-14 px-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-lg font-bold text-blue-700">
+                    {currentCurrencySymbol}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-xs text-blue-600 font-medium block">
+                    {formik.values.event_package.length} event{formik.values.event_package.length !== 1 ? 's' : ''}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    {CURRENCIES.find(c => c.code === formik.values.currency)?.name}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-blue-900">
+                  {currentCurrencySymbol}{totalPrice.toFixed(2)}
+                </div>
+                <span className="text-xs text-slate-500">{formik.values.currency}</span>
+              </div>
+            </div>
           </div>
 
           {/* Event Bundles Section */}
@@ -478,13 +560,15 @@ export function PackageFormDrawer({
                           )}
                       </div>
 
-                      {/* Price */}
+                      {/* Price with Dynamic Currency Symbol */}
                       <div className="lg:col-span-3 space-y-1.5">
                         <Label htmlFor={`event_package[${index}].event_price`} className="text-xs font-medium text-slate-600">
                           Price <span className="text-red-500">*</span>
                         </Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">
+                            {currentCurrencySymbol}
+                          </span>
                           <Input
                             id={`event_package[${index}].event_price`}
                             name={`event_package[${index}].event_price`}
@@ -495,7 +579,7 @@ export function PackageFormDrawer({
                             value={bundle.event_price}
                             onChange={(e) => handlePriceChange(index, e)}
                             onBlur={formik.handleBlur}
-                            className="h-10 pl-7 bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                            className="h-10 pl-9 bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
                           />
                         </div>
                         {formik.touched.event_package?.[index]?.event_price &&

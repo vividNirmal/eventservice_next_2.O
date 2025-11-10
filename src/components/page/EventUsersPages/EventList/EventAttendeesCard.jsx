@@ -1,6 +1,7 @@
 "use client"
 import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
+import { getCurrencySymbol } from "../../eventAdminpages/package/addPackage";
 
 // Event Attendees Card (first image layout)
 export function EventAttendeesCard({
@@ -66,7 +67,8 @@ export function CategoryCard({ category, eventCount, onApply }) {
 }
 
 // Keep your existing ExhibitorCard component
-export function ExhibitorCard({ title, description, price, onBuyNow }) {
+export function ExhibitorCard({ title, description, price, onBuyNow,currency }) {
+  const currentCurrencySymbol = getCurrencySymbol(currency || 'INR');
   return (
     <div className="relative bg-white rounded-lg p-6 shadow-md overflow-hidden">
       <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400 to-amber-500 opacity-10 rounded-bl-3xl" />
@@ -85,7 +87,7 @@ export function ExhibitorCard({ title, description, price, onBuyNow }) {
             onClick={onBuyNow}
             className="bg-amber-400 text-foreground hover:bg-amber-500 gap-2 ml-auto"
           >
-            {price}
+            { `${currentCurrencySymbol} ${price}`}
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>

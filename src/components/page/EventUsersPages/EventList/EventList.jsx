@@ -26,7 +26,7 @@ export default function UserEventList() {
   const fetchForm = async () => {
     try {
       setLoading(true);
-      const response = await getRequest(`/eventuser-events`);
+      const response = await getRequest(`eventuser-events`);
       if (response.status === 1 && response.data) {
         if (response.data) {
           response.data.groupedData.map((item) => {
@@ -123,6 +123,7 @@ export default function UserEventList() {
                   title={pkg.title}
                   description={pkg.description}
                   price={pkg.price}
+                  currency = {pkg.currency}
                   onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
                 />
               ))}
