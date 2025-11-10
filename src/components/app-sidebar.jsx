@@ -14,6 +14,7 @@ import {
   Ticket,
   FolderMinusIcon,
   LayoutTemplate,
+  HandPlatter,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -129,6 +130,14 @@ export function AppSidebar({ ...props }) {
           { title: "Email", url: "/dashboard/email-template-management" },
           { title: "SMS", url: "/dashboard/sms-template-management" },
           { title: "Whatsapp", url: "/dashboard/whatsapp-template-management" },
+        ],
+        show: true,
+      },
+      {
+        title: "Exhibitor Settings",
+        icon: HandPlatter,
+        items: [
+          { title: "Exhibitor Form Configurations", url: "/dashboard/exhibitor-form-configurations" },
         ],
         show: true,
       },
