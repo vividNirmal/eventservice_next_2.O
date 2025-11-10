@@ -202,7 +202,7 @@ const StaticNavigation = ({ eventId = null }) => {
           id: 'exhibitor-forms',
           label: 'Exhibitor Forms',
           icon: FileText,
-          url: actualEventId ? `/dashboard/event-host/${actualEventId}/exhibitor-management/exhibitor-forms` : '/dashboard/exhibitor-management/exhibitor-forms',
+          url: actualEventId ? `/dashboard/event-host/${actualEventId}/exhibitor-forms` : '/dashboard/exhibitor-forms',
           description: 'Manage exhibitor forms',
           isActive: activeSection === 'exhibitor-forms',
         },

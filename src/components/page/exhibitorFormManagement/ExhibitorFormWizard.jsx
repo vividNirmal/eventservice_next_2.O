@@ -36,6 +36,18 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
       initializeEditData(editData);
     } else {
       resetForm();
+
+      // If we have a selected configuration for new form, use it
+      if (selectedConfiguration) {
+        // For example, you might want to set the form name based on configuration
+        setFormData(prev => ({
+          ...prev,
+          basicInfo: {
+            ...prev.basicInfo,
+            full_name: `${selectedConfiguration.configName}`
+          }
+        }));
+      }
     }
   }, [editData, initializeEditData, resetForm, selectedConfiguration, setFormData]);
 

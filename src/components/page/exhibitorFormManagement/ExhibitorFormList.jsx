@@ -35,8 +35,10 @@ import dynamic from 'next/dynamic';
 // const ExhibitorFormWizard = dynamic(() => import('./ExhibitorFormWizard'), { ssr: false });
 import ExhibitorFormWizard from './ExhibitorFormWizard';
 import { ExhibitorFormConfigurationModal } from './components/ExhibitorFormConfigurationModal';
+import { useRouter } from "next/navigation";
 
 const ExhibitorFormList = ({ eventId }) => {
+  const router = useRouter();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -202,6 +204,10 @@ const ExhibitorFormList = ({ eventId }) => {
     fetchForms();
   }, [fetchForms]);
 
+  const handleNavigateToParticulars = ((formId) => {
+    router.push(`/dashboard/event-host/${eventId}/exhibitor-forms/${formId}/exhibitor-forms-particular`);
+  });
+
   return (
     <>
       <Card>
@@ -336,16 +342,25 @@ const ExhibitorFormList = ({ eventId }) => {
                             </Badge>
                           )}
                         </div>
-                      </div>
 
-                      <div className="flex items-start gap-2">
                         <Button 
                           className="bg-blue-600 hover:bg-blue-700"
                           onClick={() => toast.info('Submission functionality coming soon')}
                         >
-                          📋 Submission
+                          Submission
                         </Button>
                         
+                        {form.ExhibitorFormConfiguration && form?.ExhibitorFormConfiguration?.hasParticulars && (
+                          <Button 
+                            className="bg-blue-600 hover:bg-blue-700"
+                            onClick={() => handleNavigateToParticulars(form?._id)}
+                          >
+                            Particular
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="flex items-start gap-2">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
