@@ -49,6 +49,11 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
         [...currentDocs, ...newDocs]
       );
     }
+    
+    // Reset input
+    if (docInputRef.current) {
+      docInputRef.current.value = '';
+    }
   };
 
   const removeDocument = (index) => {
@@ -56,7 +61,10 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
     
     if (updatedDocs[index].path && !updatedDocs[index].file) {
       // Existing document - mark for deletion
-      updatedDocs[index].deleted = true;
+      updatedDocs[index] = {
+        ...updatedDocs[index],
+        deleted: true
+      };
     } else {
       // New document - remove completely
       updatedDocs.splice(index, 1);
@@ -73,10 +81,12 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
 
   const updateDocumentName = (index, name) => {
     const updatedDocs = [...mediaInfo.supporting_documents];
+    const isExisting = updatedDocs[index].path && !updatedDocs[index].file;
+    
     updatedDocs[index] = { 
       ...updatedDocs[index], 
       name,
-      nameChanged: true // Mark that name was changed
+      nameChanged: isExisting // Only mark as changed if it's an existing document
     };
     handleInputChange('mediaInfo.supporting_documents', updatedDocs);
   };

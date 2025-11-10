@@ -76,11 +76,14 @@ export const useExhibitorForm = (editData = null) => {
     if (editData) {
       setIsEditMode(true);
       
-      // Transform supporting documents to include URLs and mark existing ones
+      // Transform supporting documents to track their state
       const transformedSupportingDocs = editData.mediaInfo?.supporting_documents?.map(doc => ({
-        ...doc,
-        url: doc.url, // Keep the URL for downloads
-        isExisting: true // Mark as existing document
+        name: doc.name,
+        path: doc.path,
+        url: doc.url,
+        isExisting: true, // Mark as existing
+        nameChanged: false, // Not changed yet
+        deleted: false // Not deleted
       })) || [];
       
       setFormData({

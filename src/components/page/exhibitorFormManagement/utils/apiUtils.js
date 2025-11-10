@@ -94,7 +94,7 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
   
   const companyId = localStorage.getItem('companyId');
 
-  // Always use FormData for updates to handle mixed data types
+  // Use FormData when there are files or in edit mode
   if (hasNewFiles || isEditMode) {
     const formDataToSend = new FormData();
     
@@ -107,38 +107,64 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Add notifications as JSON string
     formDataToSend.append('notifications', JSON.stringify(formData.notifications));
     
-    // Handle important instructions image
+    // Handle important instructions image - SIMPLIFIED
     if (formData.mediaInfo.important_instructions_image instanceof File) {
-      console.log('Appending new image file');
-      formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
-    } else if (formData.mediaInfo.important_instructions_image && isEditMode) {
-      // Send existing image path as string when not changed
-      console.log('Appending existing image path:', formData.mediaInfo.important_instructions_image);
       formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
     }
+    // No else needed - backend will preserve existing if no new file
     
     // Handle supporting documents
     if (formData.mediaInfo.supporting_documents && formData.mediaInfo.supporting_documents.length > 0) {
-      formData.mediaInfo.supporting_documents.forEach((doc, index) => {
-        if (doc.file) {
-          // New file upload
-          console.log(`Appending new document at index ${index}:`, doc.name);
-          formDataToSend.append(`supporting_documents[${index}][file]`, doc.file);
-          formDataToSend.append(`supporting_documents[${index}][name]`, doc.name || doc.fileName);
-        } else if (doc.path && isEditMode) {
-          // Existing document - only send name if it changed
-          if (doc.nameChanged) {
-            console.log(`Updating name for existing document at index ${index}:`, doc.name);
-            formDataToSend.append(`supporting_documents[${index}][name]`, doc.name);
-          }
-        }
+      if (isEditMode) {
+        // EDIT MODE: Use metadata approach
+        const supportingDocsMetadata = [];
         
-        // Mark deleted documents
-        if (doc.deleted) {
-          console.log(`Marking document at index ${index} for deletion`);
-          formDataToSend.append(`supporting_documents[${index}][deleted]`, 'true');
+        formData.mediaInfo.supporting_documents.forEach((doc, index) => {
+          if (doc.deleted) {
+            supportingDocsMetadata.push({
+              index,
+              action: 'delete',
+              path: doc.path
+            });
+          } else if (doc.file) {
+            // New file upload
+            formDataToSend.append(`supporting_documents_files`, doc.file);
+            supportingDocsMetadata.push({
+              index,
+              action: 'new',
+              name: doc.name || doc.fileName,
+              fileIndex: index
+            });
+          } else if (doc.path) {
+            // Existing document
+            supportingDocsMetadata.push({
+              index,
+              action: doc.nameChanged ? 'update' : 'keep',
+              name: doc.name,
+              path: doc.path
+            });
+          }
+        });
+        
+        formDataToSend.append('supporting_documents_metadata', JSON.stringify(supportingDocsMetadata));
+      } else {
+        // CREATE MODE: Simpler approach - all documents are new
+        const supportingDocsMetadata = [];
+        
+        formData.mediaInfo.supporting_documents.forEach((doc, index) => {
+          if (doc.file) {
+            formDataToSend.append('supporting_documents_files', doc.file);
+            supportingDocsMetadata.push({
+              index,
+              name: doc.name || doc.fileName
+            });
+          }
+        });
+        
+        if (supportingDocsMetadata.length > 0) {
+          formDataToSend.append('supporting_documents_metadata', JSON.stringify(supportingDocsMetadata));
         }
-      });
+      }
     }
 
     if (companyId && !isEditMode) {
@@ -162,29 +188,15 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       otherInfo: formData.otherInfo,
       notifications: formData.notifications,
       mediaInfo: {
-        important_instructions_image: formData.mediaInfo.important_instructions_image,
-        supporting_documents: formData.mediaInfo.supporting_documents?.map(doc => ({
-          name: doc.name,
-          path: doc.path,
-        })).filter(doc => doc.name && doc.path)
+        supporting_documents: []
       }
     };
-
-    // Remove preview fields
-    delete submitData.mediaInfo.important_instructions_image_preview;
 
     if (companyId && !isEditMode) {
       submitData.companyId = companyId;
     }
     if (eventId && !isEditMode) {
       submitData.eventId = eventId;
-    }
-
-    if (isEditMode) {
-      delete submitData.createdAt;
-      delete submitData.updatedAt;
-      delete submitData.__v;
-      delete submitData._id;
     }
 
     return submitData;
