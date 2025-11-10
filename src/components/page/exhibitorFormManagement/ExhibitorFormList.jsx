@@ -32,7 +32,9 @@ import { Plus, Search, Edit, Trash2, MoreVertical, CheckCircle2, XCircle } from 
 import { getRequest, deleteRequest, updateRequest } from '@/service/viewService';
 import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
-const ExhibitorFormWizard = dynamic(() => import('./ExhibitorFormWizard'), { ssr: false });
+// const ExhibitorFormWizard = dynamic(() => import('./ExhibitorFormWizard'), { ssr: false });
+import ExhibitorFormWizard from './ExhibitorFormWizard';
+import { ExhibitorFormConfigurationModal } from './components/ExhibitorFormConfigurationModal';
 
 const ExhibitorFormList = ({ eventId }) => {
   const [forms, setForms] = useState([]);
@@ -43,10 +45,12 @@ const ExhibitorFormList = ({ eventId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [formToDelete, setFormToDelete] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState('');
   const [formToEdit, setFormToEdit] = useState(null);
+  const [selectedConfiguration, setSelectedConfiguration] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
 
@@ -137,7 +141,13 @@ const ExhibitorFormList = ({ eventId }) => {
   }, []);
 
   const openAddDialog = useCallback(() => {
-    setFormToEdit(null);
+    // Open configuration selection modal instead of wizard directly
+    setIsConfigModalOpen(true);
+  }, []);
+
+  const handleConfigurationSelect = useCallback((configuration) => {
+    setSelectedConfiguration(configuration);
+    setIsConfigModalOpen(false);
     setIsWizardOpen(true);
   }, []);
 
@@ -182,11 +192,13 @@ const ExhibitorFormList = ({ eventId }) => {
   const handleWizardClose = useCallback(() => {
     setIsWizardOpen(false);
     setFormToEdit(null);
+    setSelectedConfiguration(null); // Reset selected configuration when wizard closes
   }, []);
 
   const handleWizardSuccess = useCallback(() => {
     setIsWizardOpen(false);
     setFormToEdit(null);
+    setSelectedConfiguration(null); // Reset selected configuration on success
     fetchForms();
   }, [fetchForms]);
 
@@ -289,6 +301,11 @@ const ExhibitorFormList = ({ eventId }) => {
                               <span className="mr-1">⚠</span> Required
                             </Badge>
                           )}
+                          {form.ExhibitorFormConfiguration && (
+                            <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
+                              Config: {form.ExhibitorFormConfiguration?.configName || 'N/A'}
+                            </Badge>
+                          )}
                         </div>
                         
                         <p className="text-sm text-gray-600 mb-4">
@@ -384,12 +401,21 @@ const ExhibitorFormList = ({ eventId }) => {
         </CardContent>
       </Card>
 
+      {/* Configuration Selection Modal */}
+      <ExhibitorFormConfigurationModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        onConfigurationSelect={handleConfigurationSelect}
+      />
+
+      {/* Exhibitor Form Wizard */}
       <ExhibitorFormWizard
         eventId={eventId}
         isOpen={isWizardOpen}
         onClose={handleWizardClose}
         onSuccess={handleWizardSuccess}
         editData={formToEdit}
+        selectedConfiguration={selectedConfiguration}
       />
     </>
   );

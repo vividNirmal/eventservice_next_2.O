@@ -24,7 +24,7 @@ import NotificationsStep from './steps/NotificationsStep';
 
 import { toast } from 'sonner';
 
-const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId }) => {
+const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, eventId, selectedConfiguration = null }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +37,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
     } else {
       resetForm();
     }
-  }, [editData, initializeEditData, resetForm]);
+  }, [editData, initializeEditData, resetForm, selectedConfiguration, setFormData]);
 
   const validateCurrentStep = useCallback(() => {
     const stepErrors = validateStep(currentStep, formData);
@@ -65,7 +65,14 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
     }
 
     setLoading(true);
-    const result = await submitExhibitorFormData(formData, isEditMode, editData, eventId);
+    
+    // Include the selected configuration in the form data
+    const formDataWithConfig = {
+      ...formData,
+      ExhibitorFormConfiguration: selectedConfiguration?._id
+    };
+
+    const result = await submitExhibitorFormData(formDataWithConfig, isEditMode, editData, eventId);
     setLoading(false);
 
     if (result.success) {
@@ -91,7 +98,14 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
     }
 
     setLoading(true);
-    const result = await submitExhibitorFormData(formData, isEditMode, editData, eventId);
+    
+    // Include the selected configuration in the form data
+    const formDataWithConfig = {
+      ...formData,
+      ExhibitorFormConfiguration: selectedConfiguration?._id
+    };
+
+    const result = await submitExhibitorFormData(formDataWithConfig, isEditMode, editData, eventId);
     setLoading(false);
 
     if (result.success) {
@@ -115,6 +129,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
             handleInputChange={handleInputChange}
             handleArrayFieldChange={handleArrayFieldChange}
             errors={errors}
+            selectedConfiguration={selectedConfiguration}
           />
         );
       case 2:
@@ -124,7 +139,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
             handleInputChange={handleInputChange}
             errors={errors}
             imageHandlers={imageHandlers}
-            isEditMode={isEditMode} // Add this line
+            isEditMode={isEditMode}
           />
         );
       case 3:
@@ -155,13 +170,18 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
         <SheetHeader className="border-b border-gray-200 px-6 py-4 gap-0">
           <SheetTitle>
             {isEditMode ? 'Edit Exhibitor Form' : 'Add Exhibitor Form'}
+            {selectedConfiguration && !isEditMode && (
+              <span className="text-sm font-normal text-gray-500 block mt-1">
+                Configuration: {selectedConfiguration.configName}
+              </span>
+            )}
           </SheetTitle>
           <SheetDescription>
             Fill in the form details to {isEditMode ? 'update' : 'create'} an exhibitor form
           </SheetDescription>
         </SheetHeader>
 
-        {/* Step Indicator - Now at the top */}
+        {/* Step Indicator */}
         <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
           <StepIndicator 
             currentStep={currentStep} 

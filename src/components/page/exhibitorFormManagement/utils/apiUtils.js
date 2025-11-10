@@ -107,7 +107,12 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Add notifications as JSON string
     formDataToSend.append('notifications', JSON.stringify(formData.notifications));
     
-    // Handle important instructions image - SIMPLIFIED
+    // Add ExhibitorFormConfiguration if present
+    if (formData.ExhibitorFormConfiguration) {
+      formDataToSend.append('ExhibitorFormConfiguration', formData.ExhibitorFormConfiguration);
+    }
+    
+    // Handle important instructions image
     if (formData.mediaInfo.important_instructions_image instanceof File) {
       formDataToSend.append('important_instructions_image', formData.mediaInfo.important_instructions_image);
     }
@@ -174,12 +179,6 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       formDataToSend.append('eventId', eventId);
     }
 
-    // Debug: Log all form data entries
-    console.log('FormData entries:');
-    for (let pair of formDataToSend.entries()) {
-      console.log(pair[0] + ', ' + (pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]));
-    }
-
     return formDataToSend;
   } else {
     // For non-file submissions
@@ -191,6 +190,11 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
         supporting_documents: []
       }
     };
+
+    // Add ExhibitorFormConfiguration if present
+    if (formData.ExhibitorFormConfiguration) {
+      submitData.ExhibitorFormConfiguration = formData.ExhibitorFormConfiguration;
+    }
 
     if (companyId && !isEditMode) {
       submitData.companyId = companyId;
