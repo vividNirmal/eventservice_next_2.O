@@ -9,18 +9,19 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function UserEventList() {
   const { userType } = useSelector((state) => state.eventUser);
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [exhibitor, setExhibitor] = useState([]);
   const [categorizedEvents, setCategorizedEvents] = useState([]);
   const [attendees, setAttendess] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [buttonLoader, setButtonLoader] = useState(false);
 
   useEffect(() => {
-    fetchForm();        
+    fetchForm();
   }, []);
 
   const fetchForm = async () => {
@@ -28,7 +29,7 @@ export default function UserEventList() {
       setLoading(true);
       const response = await getRequest(`eventuser-events`);
       if (response.status === 1 && response.data) {
-        if (response.data) {                              
+        if (response.data) {
           setCategorizedEvents(response.data.eventcategory);
           setAttendess(response.data.attendasData?.data);
         }
@@ -46,11 +47,9 @@ export default function UserEventList() {
   const groupEventsByCategory = (events) => {
     const categoryMap = {};
 
-    events.forEach((event) => {      
-      
+    events.forEach((event) => {
       const category = event.eventId?.event_category;
-      if (category) {        
-        
+      if (category) {
         const categoryId = category._id;
         if (!categoryMap[categoryId]) {
           categoryMap[categoryId] = {
@@ -66,8 +65,8 @@ export default function UserEventList() {
     setCategorizedEvents(Object.values(categoryMap));
   };
 
-  const handleCategorySelect = (categoryData) => {
-    setSelectedCategory(categoryData);
+  const handleCategorySelect = (id) => {
+    router.push(`/dashboard/eventuser/eventlist/${id}`);
   };
 
   const handleBackToCategories = () => {
@@ -81,8 +80,7 @@ export default function UserEventList() {
       formData.append("type", type);
       formData.append("id", id);
       const responce = await postRequest("eventuser-event-attandes", formData);
-      if (responce.data) {        
-        
+      if (responce.data) {
         toast.success(responce.message);
         setButtonLoader(false);
       }
@@ -104,8 +102,8 @@ export default function UserEventList() {
   }
 
   return (
-    <div className="">
-      <div className="max-w-7xl mx-auto py-12 relative z-20">
+    
+      <div className="max-w-7xl mx-auto py-12 relative z-20 w-full">
         {/* Event Attendees View */}
         {userType?.typeName === "Event Attendees" && (
           <section className="w-full">
@@ -118,55 +116,56 @@ export default function UserEventList() {
           </section>
         )}
 
-        {/* Exhibitor View - Category wise */}
-        {userType?.typeName === "Exhibitor" && (
-          <section className="w-full">
-            {!selectedCategory ? (
-              // Show Categories
-              <>
-                <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Event Categories</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categorizedEvents?.map((item) => (
-                    <CategoryCard
-                      key={item._id}
-                      category={item}
-                      eventCount={item.eventCount}
-                      status={item.status}
-                      onApply={() => handleCategorySelect(item)}
-                    />
-                  ))}
-                </div>
-              </>
-            ) : (
-              // Show Events of Selected Category
-              <>
-                <div className="mb-6 flex items-center gap-4">
-                  <button
-                    onClick={handleBackToCategories}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                    Back to Categories
-                  </button>
-                  <h2 className="text-2xl font-bold text-foreground">
-                    {selectedCategory.category.title} - Events
-                  </h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {selectedCategory.events?.map((show) => (
-                    <EventAttendeesCard
-                      key={show._id}
-                      title={show.eventId?.event_title}
-                      description={show.eventId?.event_description}
-                      onApply={() => console.log(show._id)}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </section>
-        )}
-      </div>
+      {/* Exhibitor View - Category wise */}
+      {userType?.typeName === "Exhibitor" && (
+        <section className="w-full">
+          {!selectedCategory ? (
+            // Show Categories
+            <>
+              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
+                Event Categories
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {categorizedEvents?.map((item) => (
+                  <CategoryCard
+                    key={item._id}
+                    category={item}
+                    eventCount={item.eventCount}
+                    status={item.status}
+                    onApply={() => handleCategorySelect(item._id)}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            // Show Events of Selected Category
+            <>
+              <div className="mb-6 flex items-center gap-4">
+                <button
+                  onClick={handleBackToCategories}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  Back to Categories
+                </button>
+                <h2 className="text-2xl font-bold text-foreground">
+                  {selectedCategory.category.title} - Events
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {selectedCategory.events?.map((show) => (
+                  <EventAttendeesCard
+                    key={show._id}
+                    title={show.eventId?.event_title}
+                    description={show.eventId?.event_description}
+                    onApply={() => console.log(show._id)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      )}
     </div>
   );
 }

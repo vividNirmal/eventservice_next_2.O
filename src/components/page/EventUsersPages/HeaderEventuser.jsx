@@ -66,26 +66,11 @@ export default function HeaderEventuser() {
       }
     }
   }, [dispatch]);
-
-  // Handle click outside
-  // useEffect(() => {
-  //   const handleClickOutside = (event) => {
-  //     if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-  //       setOpen(false);
-  //     }
-  //   };
-
-  //   if (open) {
-  //     document.addEventListener("mousedown", handleClickOutside);
-  //     return () => document.removeEventListener("mousedown", handleClickOutside);
-  //   }
-  // }, [open]);
-
-  // Callbacks
+  
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
     localStorage.removeItem("loginuser");
-    window.location.href = "/login";
+    window.location.href = "/dashboard/login";
   }, []);
 
   const toggleDropdown = useCallback(() => {

@@ -11,20 +11,19 @@ export function EventAttendeesCard({
   onApply,
 }) {
   return (
-    <div className="relative bg-white rounded-lg p-6 shadow-md overflow-hidden">
+    <div className="relative bg-white rounded-lg p-6 border-l-4 border-solid border-orange-400 shadow-md overflow-hidden">
       {/* Decorative gold line on the right */}
-      <div className="absolute right-0 top-0 w-1 h-full bg-gradient-to-b from-amber-400 to-transparent opacity-30" />
-
-      <div className="space-y-3">
+      <div className="absolute z-2 inset-0 bg-gradient-to-br from-orange-400/10 via-transparent to-transparent transition-opacity duration-300" />
+      <div className="space-y-3 relative z-10">
         <h3 className="text-lg font-bold text-foreground">{title}</h3>
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="text-amber-400">✓</span>
+        <div className="flex items-start gap-2 text-sm text-muted-foreground">
+          <span className="text-amber-400 shrink-0">✓</span>
           <span>{description}</span>
         </div>
 
-        <Button onClick={onApply} className="mt-4 bg-foreground text-primary-foreground hover:bg-foreground/90 gap-2">
-          Apply Now
+        <Button onClick={onApply} className="mt-4 bg-orange-400 border-orange-400 hover:text-white hover:bg-orange-400 hover:border-orange-400 gap-2">
+          Details
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
@@ -38,12 +37,10 @@ export function CategoryCard({ category, eventCount, onApply , status }) {
     <div className="relative group bg-white rounded-lg p-4 border border-solid border-orange-400 shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
       <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 via-transparent to-transparent transition-opacity duration-300" />
       <div className="space-y-4 relative z-10">
-        <div>
-          <h3 className="text-xl font-bold text-foreground mb-2">{category.title}</h3>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="inline-flex items-center justify-center w-8 h-8 bg-orange-400/10 text-orange-400 rounded-full font-semibold">{eventCount}</span>
-            <span>{eventCount === 1 ? "Event" : "Events"} Available</span>
-          </div>
+        <h3 className="text-xl font-bold text-foreground mb-2">{category.title}</h3>
+        <div className="flex items-start gap-2 text-sm text-zinc-700">
+          <span className="inline-flex items-center justify-center shrink-0 size-8 bg-orange-400/10 text-orange-400 rounded-full font-semibold">{eventCount}</span>
+          <span>{eventCount === 1 ? "Event" : "Events"} Available</span>
         </div>
         <div className="pt-4 border-t border-gray-200">
           <Button onClick={onApply} className="!text-white hover:bg-orange-400 bg-orange-400 border-orange-400 shadow-[0_0_0_4px_rgba(255,137,4,0.2)] gap-2">
