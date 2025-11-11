@@ -19,9 +19,6 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, errors }) => {
   const { basicInfo } = formData;
 
-   // ⚡ Helper to create a fresh copy of modules
-  const getModules = () => JSON.parse(JSON.stringify(textEditormodule.modules));
-
   return (
     <div>
       <div className="grid sm:grid-cols-2 gap-4">
@@ -75,7 +72,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
             theme="snow"
             value={basicInfo.form_description || ""}
             onChange={(value) => handleInputChange("basicInfo.form_description", value)}
-            modules={getModules()}
+            modules={textEditormodule.modules}
             className="!shadow-none w-full min-h-64 flex flex-col 
                        [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col 
                        [&>.ql-container>.ql-editor]:grow 
@@ -194,13 +191,13 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
 
       <div className="space-y-2">
         <Label htmlFor="payment_instructions">Payment Instructions</Label>
-        <div className="relative pb-3.5">
+        {/* <div className="relative pb-3.5">
           <ReactQuill 
             key="payment-instructions-editor"
             theme="snow"
             value={basicInfo.payment_instructions || ""}
             onChange={(value) => handleInputChange("basicInfo.payment_instructions", value)}
-            modules={getModules()}
+            modules={getPaymentInstructionsModules()}
             className="!shadow-none w-full min-h-64 flex flex-col 
                        [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col 
                        [&>.ql-container>.ql-editor]:grow 
@@ -208,7 +205,16 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
                        [&>.ql-container.ql-snow]:rounded-b-md 
                        [&>.ql-container.ql-snow]:flex-grow"
           />
-        </div>
+        </div> */}
+
+        <Textarea
+          id="payment_instructions"
+          value={basicInfo.payment_instructions}
+          onChange={(e) => handleInputChange('basicInfo.payment_instructions', e.target.value)}
+          placeholder="Enter payment instructions"
+          rows={4}
+          className={"w-full min-h-24 flex flex-col"}
+        />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4">

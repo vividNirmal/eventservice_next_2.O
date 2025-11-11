@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import dynamic from "next/dynamic";
 import { textEditormodule } from "@/lib/constant";
+import { ErrorMessage } from '../components/ErrorMessage';
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
@@ -14,8 +15,8 @@ const OtherInfoStep = ({ formData, handleInputChange, errors }) => {
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="space-y-2">
-        <Label>Terms and Conditions *</Label>
-        <div className="min-h-64 border rounded-md">
+        <Label>Terms and Conditions</Label>
+        <div className="relative pb-3.5">
           <ReactQuill 
             theme="snow" 
             value={otherInfo.terms_and_condition || ""} 
@@ -24,9 +25,7 @@ const OtherInfoStep = ({ formData, handleInputChange, errors }) => {
             className="!shadow-none w-full min-h-64 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-md [&>.ql-container.ql-snow]:rounded-b-md [&>.ql-container.ql-snow]:flex-grow"
           />
         </div>
-        {errors.terms_and_condition && (
-          <p className="text-red-500 text-xs mt-1">{errors.terms_and_condition}</p>
-        )}
+        <ErrorMessage error={errors.terms_and_condition} />
       </div>
 
       <div className="space-y-2">
