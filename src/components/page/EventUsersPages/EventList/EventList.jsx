@@ -16,7 +16,7 @@ export default function UserEventList() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [categorizedEvents, setCategorizedEvents] = useState([]);
-  const [attendees, setAttendess] = useState([]);
+  const [attendees, setAttendess] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [buttonLoader, setButtonLoader] = useState(false);
 
@@ -42,27 +42,6 @@ export default function UserEventList() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const groupEventsByCategory = (events) => {
-    const categoryMap = {};
-
-    events.forEach((event) => {
-      const category = event.eventId?.event_category;
-      if (category) {
-        const categoryId = category._id;
-        if (!categoryMap[categoryId]) {
-          categoryMap[categoryId] = {
-            category: category,
-            status: event?.approved,
-            events: [],
-          };
-        }
-        categoryMap[categoryId].events.push(event);
-      }
-    });
-
-    setCategorizedEvents(Object.values(categoryMap));
   };
 
   const handleCategorySelect = (id) => {
@@ -102,19 +81,42 @@ export default function UserEventList() {
   }
 
   return (
-    
-      <div className="max-w-7xl mx-auto py-12 relative z-20 w-full">
-        {/* Event Attendees View */}
-        {userType?.typeName === "Event Attendees" && (
-          <section className="w-full">
-            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Available Packages</h2>
-            <div className="space-y-4">
-              {attendees?.map((pkg) => (
-                <ExhibitorCard key={pkg._id} title={pkg.title} description={pkg.description} price={pkg.price} currency = {pkg.currency} onBuyNow={() => handleUserRegister(pkg.type, pkg._id)} />
-              ))}
-            </div>
-          </section>
-        )}
+    <div className="max-w-7xl mx-auto py-12 relative z-20 w-full">
+      {/* Event Attendees View */}
+      {userType?.typeName === "Event Attendees" && (
+        <section className="w-full">
+          <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
+            Available Packages
+          </h2>
+          <div className="space-y-4">
+            <h1> Single Show Registartion</h1>
+            {attendees?.event_tickets.map((pkg) => (
+              <ExhibitorCard
+                key={pkg._id}
+                title={pkg.title}
+                description={pkg.description}
+                price={pkg.price}
+                currency={pkg.currency}
+                dateRange = {pkg.dataRange}
+                onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
+              />
+            ))}
+          </div>
+          <div className="space-y-4">
+            <h1>Combo  Show Registartion</h1>
+            {attendees?.combo_tickets.map((pkg) => (
+              <ExhibitorCard
+                key={pkg._id}
+                title={pkg.title}
+                description={pkg.description}
+                price={pkg.price}
+                currency={pkg.currency}
+                onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Exhibitor View - Category wise */}
       {userType?.typeName === "Exhibitor" && (

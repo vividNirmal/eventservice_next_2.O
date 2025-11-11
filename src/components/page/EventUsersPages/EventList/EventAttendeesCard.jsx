@@ -54,7 +54,7 @@ export function CategoryCard({ category, eventCount, onApply , status }) {
 }
 
 // Keep your existing ExhibitorCard component
-export function ExhibitorCard({ title, description, price, onBuyNow, currency }) {
+export function ExhibitorCard({ title, description, price, onBuyNow, currency,dateRange }) {
   const currentCurrencySymbol = getCurrencySymbol(currency || 'INR');
   return (
     <div className="relative bg-white rounded-lg p-4 shadow-md overflow-hidden border-l-4 border-solid border-blue-600">
@@ -64,6 +64,13 @@ export function ExhibitorCard({ title, description, price, onBuyNow, currency })
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span className="text-xs lg:text-sm xl:text-base text-blue-500">✓</span>
             <span className="text-xs lg:text-sm xl:text-base">{description}</span>
+            {
+              dateRange && dateRange.map((date,index)=>(
+                <span key={index}>
+                Data : <span>{date?.startDate} - {date?.endDate} </span>
+                </span>
+              ))
+            }
           </div>
         </div>
         <div className="flex items-center w-fit">          

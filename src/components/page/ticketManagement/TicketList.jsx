@@ -386,9 +386,7 @@ const TicketList = ({ eventId }) => {
     setTicketToEdit(null); // null indicates add mode
     setIsTicketWizardOpen(true);
   }, [hasAvailableForms]);
-
-  // Search functionality with debouncing (500ms) - searches across all fields: 
-  // ticketName, userType, ticketCategory, status, description, serialNoPrefix
+  
   const handleSearch = useCallback((e) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset to first page when searching
