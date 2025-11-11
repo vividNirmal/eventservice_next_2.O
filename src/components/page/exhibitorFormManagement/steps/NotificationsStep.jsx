@@ -132,14 +132,15 @@ const NotificationsStep = ({ formData, handleInputChange, setFormData, eventId }
   }, []);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-3">
+      <h3 className='lg:text-lg text-base font-medium'>Notifications</h3>
       {CHANNELS.map(({ key, label, type }) => {
         const detail = getDetail(key);
         const tTypes = typesByChannel[type] || [];
         const isLoading = loadingByChannel[type];
 
         return (
-          <div key={key} className="space-y-4 border rounded-md px-4 py-2.5">
+          <div key={key} className="space-y-4 border rounded-md p-3 lg:p-4">
             <div className="flex items-center justify-between">
               <Label className={'font-medium mb-0'}>{label}</Label>
               <Switch checked={!!detail.enabled} onCheckedChange={(checked) => setChannelEnabled(key, checked, type)} />

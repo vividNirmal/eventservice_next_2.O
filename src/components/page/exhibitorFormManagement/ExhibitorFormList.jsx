@@ -217,9 +217,7 @@ const ExhibitorFormList = ({ eventId }) => {
             <div className="flex justify-between items-start">
               <div>
                 <CardTitle>Manage Form</CardTitle>
-                <CardDescription className={"hidden"}>
-                  Empower your exhibitors with user-friendly platform to effortlessly get all custom forms for seamless data collection. Enhance their stall services by capturing crucial information. Simplify the exhibitor experience and ensure a successful event with our powerful Exhibitor Form Module.
-                </CardDescription>
+                <CardDescription className={"hidden"}>Empower your exhibitors with user-friendly platform to effortlessly get all custom forms for seamless data collection. Enhance their stall services by capturing crucial information. Simplify the exhibitor experience and ensure a successful event with our powerful Exhibitor Form Module.</CardDescription>
               </div>
               <Button onClick={openAddDialog} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
@@ -283,7 +281,7 @@ const ExhibitorFormList = ({ eventId }) => {
           </AlertDialogContent>
         </AlertDialog>
 
-        <CardContent>
+        <CardContent className={'pt-5'}>
           {loading ? (
             <div className="text-center py-12">
               <p className="text-gray-500">Loading forms...</p>

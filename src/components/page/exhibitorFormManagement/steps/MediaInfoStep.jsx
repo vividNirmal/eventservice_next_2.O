@@ -111,7 +111,7 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
   const displayDocuments = mediaInfo.supporting_documents?.filter(doc => !doc.deleted) || [];
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4">
       {/* Important Instructions Image */}
       <div className="space-y-4">
         <Label className="text-lg font-semibold">Upload Important Instructions</Label>
@@ -215,7 +215,7 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
       {/* Supporting Documents Section */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <Label className="text-lg font-semibold">Upload Supporting Documents (PDF)</Label>
+          <Label className="text-lg font-semibold mb-0">Upload Supporting Documents (PDF)</Label>
           <Button
             type="button"
             variant="outline"
@@ -252,12 +252,10 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
             displayDocuments.map((doc, index) => {
               const originalIndex = mediaInfo.supporting_documents.findIndex(d => d === doc);
               return (
-                <Card key={originalIndex} className="relative">
-                  <CardHeader className="pb-3">
+                <Card key={originalIndex} className="relative p-4 2xl:p-4">
+                  <CardHeader className="px-0">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
-                      <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                        #{originalIndex + 1}
-                      </span>
+                      <span className="bg-blue-100 text-blue-800 rounded-full size-7 flex items-center justify-center text-xs">#{originalIndex + 1}</span>
                       {doc.isNew ? 'New Document' : 'Existing Document'}
                     </CardTitle>
                   </CardHeader>
@@ -297,7 +295,7 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
                             variant="ghost"
                             size="sm"
                             onClick={() => downloadDocument(doc)}
-                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            className="text-blue-600 border border-solid border-blue-600/15 hover:text-blue-700 hover:bg-blue-50"
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -307,7 +305,7 @@ const MediaInfoStep = ({ formData, handleInputChange, errors, imageHandlers, isE
                           variant="ghost"
                           size="sm"
                           onClick={() => removeDocument(originalIndex)}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="text-red-600 border border-solid border-red-600/15 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

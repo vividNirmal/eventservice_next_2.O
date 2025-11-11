@@ -13,7 +13,7 @@ const OtherInfoStep = ({ formData, handleInputChange, errors }) => {
   const { otherInfo } = formData;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div>
       <div className="space-y-2">
         <Label>Terms and Conditions</Label>
         <div className="relative pb-3.5">

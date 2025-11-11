@@ -84,108 +84,103 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         </div>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-4">
-        <div className="space-y-2">
-          <Label htmlFor="measurement_unit">Measurement Unit <sup className='text-red-500'>*</sup></Label>
-          <div className='relative pb-3.5'>
-            <Input
-              id="measurement_unit"
-              value={basicInfo.measurement_unit}
-              onChange={(e) => handleInputChange('basicInfo.measurement_unit', e.target.value)}
-              placeholder="Enter measurement unit"
-              className={errors.measurement_unit ? 'border-red-500' : ''}
-            />
-            <ErrorMessage error={errors.measurement_unit} />
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between">
+      <div className="grid gap-2 mb-4">
+        <div className='grid sm:grid-cols-2 gap-y-1 gap-x-4 pb-3'>
+          <div className="space-y-2">
+            <Label htmlFor="measurement_unit">Measurement Unit <sup className='text-red-500'>*</sup></Label>
+            <div className='relative pb-3.5'>
+              <Input
+                id="measurement_unit"
+                value={basicInfo.measurement_unit}
+                onChange={(e) => handleInputChange('basicInfo.measurement_unit', e.target.value)}
+                placeholder="Enter measurement unit"
+                className={errors.measurement_unit ? 'border-red-500' : ''}
+              />
+              <ErrorMessage error={errors.measurement_unit} />
+            </div>
+          </div>
+          <div className="space-y-2 pb-3.5">
+            <Label htmlFor="dependant_form">Dependant Form</Label>
+            <Select value={basicInfo.dependant_form} onValueChange={(value) => handleInputChange('basicInfo.dependant_form', value)}>
+              <SelectTrigger className={'w-full'}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DEPENDANT_FORMS.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2 pb-3.5">
+            <Label htmlFor="dependant_features">Dependant Features</Label>
+            <Select value={basicInfo.dependant_features} onValueChange={(value) => handleInputChange('basicInfo.dependant_features', value)}>
+              <SelectTrigger className={'w-full'}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DEPENDANT_FEATURES.map(option => (
+                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2 pb-3.5">
+            <Label>Payment Collection Mode</Label>
+            <Select value={basicInfo.payment_collection_mode} onValueChange={(value) => handleInputChange('basicInfo.payment_collection_mode', value)}>
+              <SelectTrigger className={'w-full'}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAYMENT_COLLECTION_MODE_OPTIONS.map(option => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {(basicInfo.payment_collection_mode === 'Offline' ||
+            basicInfo.payment_collection_mode === 'Both') && (
+            <div className="space-y-2">
+              <Label>Offline Payment Options</Label>
+              <CustomCombobox
+                name="offline_payment_option"
+                options={OFFLINE_PAYMENT_OPTIONS.map((opt) => ({
+                  label: opt,
+                  value: opt,
+                }))}
+                value={basicInfo.offline_payment_option || []}
+                onChange={(val) => handleInputChange('basicInfo.offline_payment_option', val)}
+                placeholder="Select offline payment options"
+                multiSelect
+              />
+            </div>
+          )}
+        </div>
+        <div className='grid sm:grid-cols-2 gap-4'>
+          <div className="flex items-center justify-between">
           <Label className={'mb-0'}>Allow Multiple Submission</Label>
           <Switch checked={basicInfo.allow_multiple_submission} onCheckedChange={(checked) => handleInputChange('basicInfo.allow_multiple_submission', checked)} />
-        </div>
-
-        <div className="flex items-center justify-between space-x-2">
-          <Label className={'mb-0'}>Mandatory Form</Label>
-          <Switch checked={basicInfo.is_mendatory} onCheckedChange={(checked) => handleInputChange('basicInfo.is_mendatory', checked)} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="dependant_form">Dependant Form</Label>
-          <Select value={basicInfo.dependant_form} onValueChange={(value) => handleInputChange('basicInfo.dependant_form', value)}>
-            <SelectTrigger className={'w-full'}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DEPENDANT_FORMS.map(option => (
-                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="dependant_features">Dependant Features</Label>
-          <Select value={basicInfo.dependant_features} onValueChange={(value) => handleInputChange('basicInfo.dependant_features', value)}>
-            <SelectTrigger className={'w-full'}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {DEPENDANT_FEATURES.map(option => (
-                <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center justify-between space-x-2">
-          <Label className={'mb-0'}>Limit Quantity For All</Label>
-          <Switch checked={basicInfo.limit_quantity_for_all} onCheckedChange={(checked) => handleInputChange('basicInfo.limit_quantity_for_all', checked)} />
-        </div>
-
-        <div className="flex items-center justify-between space-x-2">
-          <Label className={'mb-0'}>Payment Collection Required</Label>
-          <Switch checked={basicInfo.payment_collection_required} onCheckedChange={(checked) => handleInputChange('basicInfo.payment_collection_required', checked)} />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Payment Collection Mode</Label>
-          <Select value={basicInfo.payment_collection_mode} onValueChange={(value) => handleInputChange('basicInfo.payment_collection_mode', value)}>
-            <SelectTrigger className={'w-full'}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAYMENT_COLLECTION_MODE_OPTIONS.map(option => (
-                <SelectItem key={option} value={option}>{option}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Payment checkboxes with CustomCombobox */}
-        {(basicInfo.payment_collection_mode === 'Offline' ||
-          basicInfo.payment_collection_mode === 'Both') && (
-          <div className="space-y-2">
-            <Label>Offline Payment Options</Label>
-            <CustomCombobox
-              name="offline_payment_option"
-              options={OFFLINE_PAYMENT_OPTIONS.map((opt) => ({
-                label: opt,
-                value: opt,
-              }))}
-              value={basicInfo.offline_payment_option || []}
-              onChange={(val) => handleInputChange('basicInfo.offline_payment_option', val)}
-              placeholder="Select offline payment options"
-              multiSelect
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className={'mb-0'}>Mandatory Form</Label>
+            <Switch checked={basicInfo.is_mendatory} onCheckedChange={(checked) => handleInputChange('basicInfo.is_mendatory', checked)} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className={'mb-0'}>Limit Quantity For All</Label>
+            <Switch checked={basicInfo.limit_quantity_for_all} onCheckedChange={(checked) => handleInputChange('basicInfo.limit_quantity_for_all', checked)} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className={'mb-0'}>Payment Collection Required</Label>
+            <Switch checked={basicInfo.payment_collection_required} onCheckedChange={(checked) => handleInputChange('basicInfo.payment_collection_required', checked)} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label>TDS Applicable</Label>
+            <Switch
+              checked={basicInfo.tds_applicable}
+              onCheckedChange={(checked) => handleInputChange('basicInfo.tds_applicable', checked)}
             />
           </div>
-        )}
-
-        <div className="flex items-center justify-between space-x-2">
-          <Label>TDS Applicable</Label>
-          <Switch
-            checked={basicInfo.tds_applicable}
-            onCheckedChange={(checked) => handleInputChange('basicInfo.tds_applicable', checked)}
-          />
         </div>
       </div>
 
@@ -217,7 +212,7 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
         />
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="grid sm:grid-cols-2 gap-4 pt-2">
         <div className="space-y-2">
           <Label>Service Providers</Label>
           <CustomCombobox
