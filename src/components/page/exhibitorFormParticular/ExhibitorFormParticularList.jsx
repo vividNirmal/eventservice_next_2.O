@@ -15,6 +15,7 @@ import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, postRequest, updateRequest, deleteRequest } from "@/service/viewService";
 import ExhibitorFormParticularSheet from "./ExhibitorFormParticularSheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function ExhibitorFormParticularList ({eventId, exhibitorFormId}){
 
@@ -160,35 +161,57 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
       year: "numeric", month: "short", day: "numeric",
     });
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
-    return `${process.env.NEXT_PUBLIC_API_URL}${imagePath}`;
-  };
 
   return (
     <>
       <Card>
-        <CardHeader className="flex justify-between items-center">
-          <CardTitle>Exhibitor Form Particulars</CardTitle>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input 
-                placeholder="Search by item name" 
-                value={searchTerm} 
-                onChange={handleSearch} 
-                className="!pl-10 w-64" 
-              />
+        <CardHeader className="px-0">
+          <div className="flex justify-between items-center">
+            <CardTitle>Exhibitor Form Particulars</CardTitle>
+
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Show:</span>
+                <Select
+                  value={selectedLimit.toString()}
+                  onValueChange={(v) => {
+                    setSelectedLimit(Number(v));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dataLimits.map((limit) => (
+                      <SelectItem key={limit} value={limit.toString()}>
+                        {limit}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by item name"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="!pl-10 w-64"
+                />
+              </div>
+              <Button
+                onClick={() => { 
+                  setEditingParticular(null); 
+                  setIsSheetOpen(true); 
+                }}
+                disabled={!exhibitorFormId}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                 Add Particular
+              </Button>
             </div>
-            <Button 
-              onClick={() => { 
-                setEditingParticular(null); 
-                setIsSheetOpen(true); 
-              }}
-              disabled={!exhibitorFormId}
-            >
-              <Plus className="h-4 w-4 mr-2" /> Add Particular
-            </Button>
           </div>
         </CardHeader>
 

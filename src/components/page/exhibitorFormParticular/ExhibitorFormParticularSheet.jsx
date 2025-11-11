@@ -361,13 +361,12 @@ const ExhibitorFormParticularSheet = ({
               </div>
 
               <div className="flex flex-col gap-1">
-                <Label htmlFor="national_price">National Price (₹)</Label>
+                <Label htmlFor="national_price">National Price</Label>
                 <Input
                   id="national_price"
                   name="national_price"
                   type="number"
                   min="0"
-                  step="0.01"
                   value={formik.values.national_price}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -375,13 +374,12 @@ const ExhibitorFormParticularSheet = ({
               </div>
 
               <div className="flex flex-col gap-1">
-                <Label htmlFor="international_price">International Price ($)</Label>
+                <Label htmlFor="international_price">International Price</Label>
                 <Input
                   id="international_price"
                   name="international_price"
                   type="number"
                   min="0"
-                  step="0.01"
                   value={formik.values.international_price}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -403,7 +401,7 @@ const ExhibitorFormParticularSheet = ({
             </div>
 
             {/* Venue - Using CustomCombobox */}
-            <div className="flex flex-col gap-2">
+            {/* <div className="flex flex-col gap-2">
               <Label>Venue</Label>
               <CustomCombobox
                 name="venue"
@@ -413,7 +411,7 @@ const ExhibitorFormParticularSheet = ({
                 placeholder="Select venues"
                 multiSelect
               />
-            </div>
+            </div> */}
 
             {/* Image Upload */}
             <div className="space-y-4">
