@@ -93,7 +93,11 @@ export function UserFormDrawer({
             toast.success("User created successfully");
             onClose();
             refetch(true);
+          }else {
+            toast.error(response.message);
           }
+          
+          
         }
       } catch (err) {
         console.error(err);
