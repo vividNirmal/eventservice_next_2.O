@@ -33,9 +33,7 @@ export function EventAttendeesCard({
 }
 
 // Exhibitor Card (second image layout)
-export function CategoryCard({ category, eventCount, onApply , status }) {
-  console.log(status);
-  
+export function CategoryCard({ category, eventCount, onApply , status }) {    
   return (
     <div className="relative bg-white rounded-lg p-4 border border-solid border-blue-300 hover:border-blue-500 shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
       <div className="space-y-4 relative z-10">

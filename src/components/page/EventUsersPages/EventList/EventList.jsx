@@ -28,15 +28,8 @@ export default function UserEventList() {
       setLoading(true);
       const response = await getRequest(`eventuser-events`);
       if (response.status === 1 && response.data) {
-        if (response.data) {
-          response.data.groupedData.map((item) => {
-            if (item.userType == "Exhibitor") {
-              setExhibitor(item.data);
-            }
-            if (item.userType == "Event Attendees") {
-              groupEventsByCategory(item.data);
-            }
-          });
+        if (response.data) {                              
+          setCategorizedEvents(response.data.eventcategory);
           setAttendess(response.data.attendasData?.data);
         }
       } else {
@@ -53,8 +46,7 @@ export default function UserEventList() {
   const groupEventsByCategory = (events) => {
     const categoryMap = {};
 
-    events.forEach((event) => {
-      console.log(event);
+    events.forEach((event) => {      
       
       const category = event.eventId?.event_category;
       if (category) {        
@@ -136,9 +128,9 @@ export default function UserEventList() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {categorizedEvents?.map((item) => (
                     <CategoryCard
-                      key={item.category._id}
-                      category={item.category}
-                      eventCount={item.events.length}
+                      key={item._id}
+                      category={item}
+                      eventCount={item.eventCount}
                       status={item.status}
                       onApply={() => handleCategorySelect(item)}
                     />
