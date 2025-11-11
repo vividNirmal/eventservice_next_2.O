@@ -139,7 +139,7 @@ const ExhibitorFormList = ({ eventId }) => {
 
   const openEditDialog = useCallback((form) => {
     setFormToEdit(form);
-    setSelectedConfiguration(form.ExhibitorFormConfiguration);
+    setSelectedConfiguration(form.exhibitorFormConfigurationId);
     setIsWizardOpen(true);
   }, []);
 
@@ -293,75 +293,37 @@ const ExhibitorFormList = ({ eventId }) => {
               <p className="text-gray-500">No forms found</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-8">
               {forms.map((form) => (
-                <Card key={form._id} className="border-l-4 border-l-blue-500">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold text-blue-600">
-                            {form.basicInfo?.full_name}
-                          </h3>
-                          {form.basicInfo?.is_mendatory && (
-                            <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
-                              <span className="mr-1">⚠</span> Required
-                            </Badge>
-                          )}
-                          {form.ExhibitorFormConfiguration && (
-                            <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                              Config: {form.ExhibitorFormConfiguration?.configName || 'N/A'}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <p className="text-sm text-gray-600 mb-4">
-                          Form description
-                        </p>
+                <Card key={form._id} className="border-l-4 border-l-blue-500 relative shrink-0">
+                  <CardContent>
+                    <Badge className={'absolute left-4 bg-white text-sm px-4 py-1.5 text-blue-600 border border-solid border-blue-500 top-0 -translate-y-2/4'}>{`Form ${form.basicInfo?.form_number || "N/A"}`}</Badge>
+                    <div className="flex flex-col items-start">
+                      <div className='flex flex-row w-full'>
+                        <div className="flex-1 w-full">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold text-blue-600">
+                              {form.basicInfo?.full_name}
+                            </h3>
+                            {form.basicInfo?.is_mendatory && (
+                              <Badge variant="outline" className="bg-orange-50 text-orange-600 border-orange-200">
+                                <span className="mr-1">⚠</span> Required
+                              </Badge>
+                            )}
 
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-2 text-blue-600">
-                            <span className="font-medium">Deadline:</span>
-                            <span>
-                              {form.basicInfo?.due_date 
-                                ? formatDate(form.basicInfo.due_date)
-                                : 'Not set'}
-                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600">{form?.exhibitorFormConfigurationId?.configName || ''}</p>
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-2 text-blue-600">
+                              <span className="font-medium">Deadline:</span>
+                              <span>
+                                {form.basicInfo?.due_date 
+                                  ? formatDate(form.basicInfo.due_date)
+                                  : 'N/A'}
+                              </span>
+                            </div>
                           </div>
                         </div>
-
-                        <div className="flex items-center gap-2 mt-4">
-                          {form.status === 'published' ? (
-                            <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Published
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-gray-100 text-gray-700 flex items-center gap-1">
-                              <XCircle className="h-3 w-3" />
-                              Unpublished
-                            </Badge>
-                          )}
-                        </div>
-
-                        <Button 
-                          className="bg-blue-600 hover:bg-blue-700"
-                          onClick={() => toast.info('Submission functionality coming soon')}
-                        >
-                          Submission
-                        </Button>
-                        
-                        {form.ExhibitorFormConfiguration && form?.ExhibitorFormConfiguration?.hasParticulars && (
-                          <Button 
-                            className="bg-blue-600 hover:bg-blue-700"
-                            onClick={() => handleNavigateToParticulars(form?._id)}
-                          >
-                            Particular
-                          </Button>
-                        )}
-                      </div>
-
-                      <div className="flex items-start gap-2">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -395,6 +357,25 @@ const ExhibitorFormList = ({ eventId }) => {
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
+                      </div>
+                      <div className='w-full pt-2.5 mt-4 border-t border-solid border-zinc-200 flex flex-wrap justify-end items-center gap-4'>
+                        <div className="flex items-center gap-2 mr-auto">
+                          {form.status === 'published' ? (
+                            <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Published
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gray-100 text-gray-700 flex items-center gap-1">
+                              <XCircle className="h-3 w-3" />
+                              Unpublished
+                            </Badge>
+                          )}
+                        </div>
+                        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => toast.info('Submission functionality coming soon')} > Submission </Button>
+                        {form.exhibitorFormConfigurationId && form?.exhibitorFormConfigurationId?.hasParticulars && (
+                          <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => handleNavigateToParticulars(form?._id)}>Particular</Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>

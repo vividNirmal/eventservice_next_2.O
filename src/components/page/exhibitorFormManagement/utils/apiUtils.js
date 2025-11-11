@@ -107,9 +107,9 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
     // Add notifications as JSON string
     formDataToSend.append('notifications', JSON.stringify(formData.notifications));
     
-    // Add ExhibitorFormConfiguration if present
-    if (formData.ExhibitorFormConfiguration) {
-      formDataToSend.append('ExhibitorFormConfiguration', formData.ExhibitorFormConfiguration);
+    // Add exhibitorFormConfigurationId if present
+    if (formData.exhibitorFormConfigurationId) {
+      formDataToSend.append('exhibitorFormConfigurationId', formData.exhibitorFormConfigurationId);
     }
     
     // Handle important instructions image
@@ -191,9 +191,9 @@ export const prepareFormDataForSubmission = (formData, isEditMode, eventId) => {
       }
     };
 
-    // Add ExhibitorFormConfiguration if present
-    if (formData.ExhibitorFormConfiguration) {
-      submitData.ExhibitorFormConfiguration = formData.ExhibitorFormConfiguration;
+    // Add exhibitorFormConfigurationId if present
+    if (formData.exhibitorFormConfigurationId) {
+      submitData.exhibitorFormConfigurationId = formData.exhibitorFormConfigurationId;
     }
 
     if (companyId && !isEditMode) {

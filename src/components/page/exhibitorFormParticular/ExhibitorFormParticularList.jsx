@@ -51,7 +51,7 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: selectedLimit.toString(),
-        exhibitorForm: exhibitorFormId,
+        exhibitorFormId: exhibitorFormId,
         ...(searchTerm && { search: searchTerm }),
         ...(eventId && { eventId: eventId }),
         ...(companyId && { companyId: companyId }),
@@ -75,7 +75,7 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
   const handleCreate = async (formData) => {
     setIsCreating(true);
     try {
-      formData.append("ExhibitorForm", exhibitorFormId);
+      formData.append("exhibitorFormId", exhibitorFormId);
       formData.append("eventId", eventId);
       formData.append("companyId", companyId);
       

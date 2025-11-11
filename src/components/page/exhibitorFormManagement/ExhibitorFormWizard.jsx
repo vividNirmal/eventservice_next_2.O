@@ -81,7 +81,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
     // Include the selected configuration in the form data
     const formDataWithConfig = {
       ...formData,
-      ExhibitorFormConfiguration: selectedConfiguration?._id
+      exhibitorFormConfigurationId: selectedConfiguration?._id
     };
 
     const result = await submitExhibitorFormData(formDataWithConfig, isEditMode, editData, eventId);
@@ -114,7 +114,7 @@ const ExhibitorFormWizard = ({ isOpen, onClose, onSuccess, editData = null, even
     // Include the selected configuration in the form data
     const formDataWithConfig = {
       ...formData,
-      ExhibitorFormConfiguration: selectedConfiguration?._id
+      exhibitorFormConfigurationId: selectedConfiguration?._id
     };
 
     const result = await submitExhibitorFormData(formDataWithConfig, isEditMode, editData, eventId);

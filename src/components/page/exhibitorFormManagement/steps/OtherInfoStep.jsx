@@ -33,10 +33,12 @@ const OtherInfoStep = ({ formData, handleInputChange, errors }) => {
         <Label htmlFor="ofline_order_summary">Offline Order Summary</Label>
         <Textarea
           id="ofline_order_summary"
+          name="ofline_order_summary"
           value={otherInfo.ofline_order_summary}
           onChange={(e) => handleInputChange('otherInfo.ofline_order_summary', e.target.value)}
           placeholder="Enter offline order summary"
-          rows={4}
+          rows={15}
+          className={"font-mono text-sm bg-[#141d2b] text-white p-6 rounded-2xl grow min-h-60 overflow-auto custom-scroll"}
         />
       </div>
     </div>
