@@ -208,7 +208,7 @@ const EventCompanyTeamList = () => {
 
   return (
     <>
-      <Card className={'mx-auto max-w-7xl relative z-20'}>
+      <Card className={'mx-auto max-w-7xl w-full relative z-20 h-32 grow'}>
         <CardHeader className={'px-0'}>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <CardTitle>Company Team Members</CardTitle>
@@ -218,7 +218,7 @@ const EventCompanyTeamList = () => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className={'grow flex flex-col'}>
           {/* Filters Section */}
           <div className="space-y-4 mb-6">
             <div className="flex flex-wrap gap-3 items-center">
@@ -271,7 +271,7 @@ const EventCompanyTeamList = () => {
           </div>
 
           {/* Table */}
-          <div className="rounded-md border max-h-80 overflow-auto 2xl:max-h-full">
+          <div className="rounded-md border overflow-auto h-32 grow">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -302,7 +302,7 @@ const EventCompanyTeamList = () => {
                     <TableRow key={member._id}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
-                          <Avatar className="size-9 font-medium">
+                          <Avatar className="size-7 lg:size-8 2xl:size-9 font-medium">
                             {/* FIX: Use profilePictureUrl instead of profile_picture */}
                             {member.profilePictureUrl && (
                               <AvatarImage 
@@ -314,20 +314,20 @@ const EventCompanyTeamList = () => {
                                 }}
                               />
                             )}
-                            <AvatarFallback className={'bg-blue-600 text-white'}>{getInitials(member.first_name, member.last_name)}</AvatarFallback>
+                            <AvatarFallback className={'bg-blue-600 text-white text-xs 2xl:text-sm'}>{getInitials(member.first_name, member.last_name)}</AvatarFallback>
                           </Avatar>
-                          <div className="font-medium text-sm">{member.first_name} {member.last_name}</div>
+                          <div className="font-medium text-xs lg:text-sm">{member.first_name} {member.last_name}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col space-y-1">
                           <div className="flex items-center space-x-2">
-                            <Mail className="w-4 h-4 text-blue-600" />
-                            <span className="text-sm">{member.email}</span>
+                            <Mail className="size-3 lg:size-4 text-blue-600" />
+                            <span className="text-xs lg:text-sm">{member.email}</span>
                           </div>
                           <div className="flex items-center space-x-2">
-                            <Phone className="w-4 h-4 text-blue-600" />
-                            <span className="text-sm">{member.contact_no}</span>
+                            <Phone className="size-3 lg:size-4 text-blue-600" />
+                            <span className="text-xs lg:text-sm">{member.contact_no}</span>
                           </div>
                         </div>
                       </TableCell>
@@ -338,7 +338,7 @@ const EventCompanyTeamList = () => {
                         <span className="capitalize">{member.gender}</span>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm">
+                        <div className="text-xs lg:text-sm">
                           <div>{member.city?.name || "N/A"}, {member.state?.name || "N/A"}</div>
                           <div className="text-gray-500">{member.country?.name || "N/A"}</div>
                         </div>

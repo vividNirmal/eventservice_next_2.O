@@ -219,7 +219,7 @@ export function CustomCombobox({
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "w-full justify-between 2xl:h-auto",
+            "w-full justify-between 2xl:h-10",
             multiSelect ? "min-h-10 h-auto py-2" : "h-10",
             className
           )}
@@ -234,20 +234,11 @@ export function CustomCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="p-0 w-full min-w-[var(--radix-popover-trigger-width)]"
-        align="start"
-        style={{ width: triggerWidth > 0 ? triggerWidth : "auto" }}
-      >
+      <PopoverContent className="p-0 w-full min-w-[var(--radix-popover-trigger-width)]" align="start" style={{ width: triggerWidth > 0 ? triggerWidth : "auto" }}>
         <Command className="border-0">
           {search && (
             <div className="border-b">
-              <CommandInput
-                placeholder={searchPlaceholder}
-                className="h-9 border-0"
-                value={searchTerm}
-                onValueChange={setSearchTerm}
-              />
+              <CommandInput placeholder={searchPlaceholder} className="h-9 border-0" value={searchTerm} onValueChange={setSearchTerm} />
             </div>
           )}
           <CommandList className="max-h-[300px]">

@@ -105,7 +105,7 @@ export default function UserEventList() {
 
   return (
     <div className="">
-      <div className="max-w-7xl mx-auto px-4 py-12 relative -top-20 z-20">
+      <div className="max-w-7xl mx-auto py-12 relative z-20">
         {/* Event Attendees View */}
         {userType?.typeName === "Event Attendees" && (
           <section className="w-full">

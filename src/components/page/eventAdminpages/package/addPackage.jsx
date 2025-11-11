@@ -8,15 +8,17 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, ShieldHalf, Trash2 } from "lucide-react";
 import { CustomCombobox } from "@/components/common/customcombox";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Currency configuration
 export const CURRENCIES = [
@@ -339,306 +341,258 @@ export function PackageFormDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="sm:max-w-[1200px] xl:max-w-[1400px] w-full overflow-y-auto">
-        <SheetHeader className="pb-6 border-b">
-          <SheetTitle className="text-2xl font-bold">
-            {editPackage ? "Edit Package" : "Create New Package"}
-          </SheetTitle>
-          <SheetDescription className="text-base">
-            {editPackage
-              ? "Update package information and event bundles"
-              : "Create a new event package with multiple events"}
-          </SheetDescription>
+      <SheetContent className="w-full sm:max-w-lg lg:max-w-2xl gap-0">
+        <SheetHeader className="border-b pb-4">
+          <SheetTitle className="font-bold">{editPackage ? "Edit Package" : "Create New Package"}</SheetTitle>
+          <SheetDescription>{editPackage ? "Update package information and event bundles" : "Create a new event package with multiple events"}</SheetDescription>
         </SheetHeader>
 
-        <form onSubmit={formik.handleSubmit} className="space-y-8 py-6">
-          {/* Package Basic Info */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Package Name */}
-            <div className="space-y-2">
-              <Label htmlFor="title" className="text-sm font-semibold">
-                Package Name <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="Enter package name"
-                value={formik.values.title}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="h-11 bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-              />
-              {formik.touched.title && formik.errors.title && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
-                  <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
-                  {formik.errors.title}
-                </p>
-              )}
-            </div>
-
-            {/* Currency Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="currency" className="text-sm font-semibold">
-                Currency <span className="text-red-500">*</span>
-              </Label>
-              <CustomCombobox
-                name="currency"
-                value={formik.values.currency}
-                onChange={handleCurrencyChange}
-                onBlur={() => formik.setFieldTouched("currency", true)}
-                valueKey="code"
-                labelKey="name"
-                options={CURRENCIES.map(currency => ({
-                  ...currency,
-                  displayName: `${currency.symbol} ${currency.name} (${currency.code})`
-                }))}
-                placeholder="Select currency"
-                id="currency"
-                className="h-11"
-                renderOption={(option) => (
-                  <div className="flex items-center justify-between w-full">
-                    <span className="font-medium">{option.symbol}</span>
-                    <span className="text-sm text-slate-600">{option.name}</span>
-                    <span className="text-xs text-slate-400">{option.code}</span>
-                  </div>
+        <form onSubmit={formik.handleSubmit} className="p-4 pb-0 grow flex flex-col">
+          <ScrollArea className="h-32 grow pr-4">
+            {/* Package Basic Info */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+              {/* Package Name */}
+              <div className="space-y-2">
+                <Label htmlFor="title">
+                  Package Name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  name="title"
+                  placeholder="Enter package name"
+                  value={formik.values.title}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="h-11 bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                />
+                {formik.touched.title && formik.errors.title && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
+                    {formik.errors.title}
+                  </p>
                 )}
-              />
-              {formik.touched.currency && formik.errors.currency && (
+              </div>
+
+              {/* Currency Selection */}
+              <div className="space-y-2">
+                <Label htmlFor="currency">
+                  Currency <span className="text-red-500">*</span>
+                </Label>
+                <CustomCombobox
+                  name="currency"
+                  value={formik.values.currency}
+                  onChange={handleCurrencyChange}
+                  onBlur={() => formik.setFieldTouched("currency", true)}
+                  valueKey="code"
+                  labelKey="name"
+                  options={CURRENCIES.map(currency => ({
+                    ...currency,
+                    displayName: `${currency.symbol} ${currency.name} (${currency.code})`
+                  }))}
+                  placeholder="Select currency"
+                  id="currency"
+                  renderOption={(option) => (
+                    <div className="flex items-center justify-between w-full">
+                      <span className="font-medium">{option.symbol}</span>
+                      <span className="text-sm text-slate-600">{option.name}</span>
+                      <span className="text-xs text-slate-400">{option.code}</span>
+                    </div>
+                  )}
+                />
+                {formik.touched.currency && formik.errors.currency && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
+                    {formik.errors.currency}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Package Description */}
+            <div className="space-y-2 mt-4">
+              <Label htmlFor="description">Package Description <span className="text-red-500">*</span></Label>
+              <Textarea id="description" name="description" placeholder="Enter a detailed description of the package" value={formik.values.description} onChange={formik.handleChange} onBlur={formik.handleBlur} rows={4} className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 resize-none" />
+              {formik.touched.description && formik.errors.description && (
                 <p className="text-sm text-red-500 flex items-center gap-1">
                   <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
-                  {formik.errors.currency}
+                  {formik.errors.description}
                 </p>
               )}
             </div>
-          </div>
 
-          {/* Package Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-semibold">
-              Package Description <span className="text-red-500">*</span>
-            </Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="Enter a detailed description of the package"
-              value={formik.values.description}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              rows={4}
-              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 resize-none"
-            />
-            {formik.touched.description && formik.errors.description && (
-              <p className="text-sm text-red-500 flex items-center gap-1">
-                <span className="inline-block w-1 h-1 bg-red-500 rounded-full"></span>
-                {formik.errors.description}
-              </p>
-            )}
-          </div>
-
-          {/* Total Price Display with Dynamic Currency */}
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">Package Total Price</Label>
-            <div className="h-14 px-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-lg font-bold text-blue-700">
-                    {currentCurrencySymbol}
-                  </span>
+            {/* Event Bundles Section */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-3 border-b">
+                <div className="flex flex-col">
+                  <Label className="text-sm xl:text-lg font-semibold text-slate-800 m-0">
+                    Event Bundles <span className="text-red-500">*</span>
+                  </Label>
+                  <p className="text-xs lg:text-sm text-slate-500">Add events to this package</p>
                 </div>
-                <div>
-                  <span className="text-xs text-blue-600 font-medium block">
-                    {formik.values.event_package.length} event{formik.values.event_package.length !== 1 ? 's' : ''}
-                  </span>
-                  <span className="text-xs text-slate-500">
-                    {CURRENCIES.find(c => c.code === formik.values.currency)?.name}
-                  </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addEventBundle}
+                  className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Event
+                </Button>
+              </div>
+
+              {/* Event Bundle Items - One Row Layout */}
+              <div className="space-y-3">
+                {formik.values.event_package.map((bundle, index) => (
+                  <div key={index} className="group p-3 border-2 border-slate-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                    <div className="flex items-start gap-4">
+                      {/* Bundle Number */}
+                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
+                        {index + 1}
+                      </div>
+
+                      {/* Form Fields in One Row */}
+                      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        {/* Event Category */}
+                        <div className="lg:col-span-4 space-y-1.5">
+                          <Label htmlFor={`event_package[${index}].event_category`} className="text-xs font-medium text-slate-600">Event Category <sup className="text-red-500">*</sup></Label>
+                          <CustomCombobox
+                            name={`event_package[${index}].event_category`}
+                            value={bundle.event_category}
+                            onChange={(value) => handleCategoryChange(index, value)}
+                            onBlur={() =>
+                              formik.setFieldTouched(`event_package[${index}].event_category`, true)
+                            }
+                            valueKey="_id"
+                            labelKey="title"
+                            options={eventCategories}
+                            placeholder="Select category"
+                            id={`event_package[${index}].event_category`}
+                          />
+                          {formik.touched.event_package?.[index]?.event_category &&
+                            formik.errors.event_package?.[index]?.event_category && (
+                              <p className="text-xs text-red-500">
+                                {formik.errors.event_package[index].event_category}
+                              </p>
+                            )}
+                        </div>
+
+                        {/* Event */}
+                        <div className="lg:col-span-4 space-y-1.5">
+                          <Label htmlFor={`event_package[${index}].event_Id`} className="text-xs font-medium text-slate-600">
+                            Event <span className="text-red-500">*</span>
+                          </Label>
+                          <CustomCombobox
+                            name={`event_package[${index}].event_Id`}
+                            value={bundle.event_Id}
+                            onChange={(value) => handleEventChange(index, value)}
+                            onBlur={() =>
+                              formik.setFieldTouched(`event_package[${index}].event_Id`, true)
+                            }
+                            valueKey="_id"
+                            labelKey="eventName"
+                            options={getAvailableEventsForCategory(bundle.event_category, index)}
+                            placeholder={
+                              bundle.event_category
+                                ? "Select event"
+                                : "Select category first"
+                            }
+                            id={`event_package[${index}].event_Id`}
+                            disabled={!bundle.event_category}
+                          />
+                          {formik.touched.event_package?.[index]?.event_Id &&
+                            formik.errors.event_package?.[index]?.event_Id && (
+                              <p className="text-xs text-red-500">
+                                {formik.errors.event_package[index].event_Id}
+                              </p>
+                            )}
+                        </div>
+
+                        {/* Price with Dynamic Currency Symbol */}
+                        <div className="lg:col-span-3 space-y-1.5">
+                          <Label htmlFor={`event_package[${index}].event_price`} className="text-xs font-medium text-slate-600">
+                            Price <span className="text-red-500">*</span>
+                          </Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">
+                              {currentCurrencySymbol}
+                            </span>
+                            <Input
+                              id={`event_package[${index}].event_price`}
+                              name={`event_package[${index}].event_price`}
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0.00"
+                              value={bundle.event_price}
+                              onChange={(e) => handlePriceChange(index, e)}
+                              onBlur={formik.handleBlur}
+                              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                            />
+                          </div>
+                          {formik.touched.event_package?.[index]?.event_price &&
+                            formik.errors.event_package?.[index]?.event_price && (
+                              <p className="text-xs text-red-500">
+                                {formik.errors.event_package[index].event_price}
+                              </p>
+                            )}
+                        </div>
+
+                        {/* Delete Button */}
+                        <div className="lg:col-span-1 flex items-end pb-1">
+                          {formik.values.event_package.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeEventBundle(index)}
+                              className="h-10 w-10 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {typeof formik.errors.event_package === 'string' && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600 flex items-center gap-2">
+                    <span className="inline-block w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                    {formik.errors.event_package}
+                  </p>
+                </div>
+              )}
+            </div>
+
+          </ScrollArea>
+          {/* Total Price Display with Dynamic Currency */}
+          <div className="space-y-2 py-3">
+            <Label>Package Total Price</Label>
+            <div className="p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg flex items-end justify-between">
+              <div className="flex items-center gap-3">
+                <div className="size-7 lg:size-8 2xl:size-9 bg-blue-100 rounded-full text-xs 2xl:text-sm font-bold text-blue-700 flex items-center justify-center"><ShieldHalf className="size-5" /></div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-blue-600 font-medium block">{formik.values.event_package.length} event{formik.values.event_package.length !== 1 ? 's' : ''}</span>
+                  <span className="text-xs text-slate-500">{CURRENCIES.find(c => c.code === formik.values.currency)?.name}</span>
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-blue-900">
-                  {currentCurrencySymbol}{totalPrice.toFixed(2)}
-                </div>
-                <span className="text-xs text-slate-500">{formik.values.currency}</span>
+                <div className="text-lg md:text-xl 2xl:text-2xl font-bold text-blue-900">{currentCurrencySymbol}{totalPrice.toFixed(2)} <span className="text-xs text-slate-500">{formik.values.currency}</span></div>
               </div>
             </div>
           </div>
-
-          {/* Event Bundles Section */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center pb-3 border-b">
-              <div>
-                <Label className="text-lg font-semibold text-slate-800">
-                  Event Bundles <span className="text-red-500">*</span>
-                </Label>
-                <p className="text-sm text-slate-500 mt-1">
-                  Add events to this package
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addEventBundle}
-                className="flex items-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-              >
-                <Plus className="h-4 w-4" />
-                Add Event
-              </Button>
-            </div>
-
-            {/* Event Bundle Items - One Row Layout */}
-            <div className="space-y-3">
-              {formik.values.event_package.map((bundle, index) => (
-                <div
-                  key={index}
-                  className="group p-4 border-2 border-slate-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Bundle Number */}
-                    <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
-                      {index + 1}
-                    </div>
-
-                    {/* Form Fields in One Row */}
-                    <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
-                      {/* Event Category */}
-                      <div className="lg:col-span-4 space-y-1.5">
-                        <Label htmlFor={`event_package[${index}].event_category`} className="text-xs font-medium text-slate-600">
-                          Event Category <span className="text-red-500">*</span>
-                        </Label>
-                        <CustomCombobox
-                          name={`event_package[${index}].event_category`}
-                          value={bundle.event_category}
-                          onChange={(value) => handleCategoryChange(index, value)}
-                          onBlur={() =>
-                            formik.setFieldTouched(`event_package[${index}].event_category`, true)
-                          }
-                          valueKey="_id"
-                          labelKey="title"
-                          options={eventCategories}
-                          placeholder="Select category"
-                          id={`event_package[${index}].event_category`}
-                          className="h-10"
-                        />
-                        {formik.touched.event_package?.[index]?.event_category &&
-                          formik.errors.event_package?.[index]?.event_category && (
-                            <p className="text-xs text-red-500">
-                              {formik.errors.event_package[index].event_category}
-                            </p>
-                          )}
-                      </div>
-
-                      {/* Event */}
-                      <div className="lg:col-span-4 space-y-1.5">
-                        <Label htmlFor={`event_package[${index}].event_Id`} className="text-xs font-medium text-slate-600">
-                          Event <span className="text-red-500">*</span>
-                        </Label>
-                        <CustomCombobox
-                          name={`event_package[${index}].event_Id`}
-                          value={bundle.event_Id}
-                          onChange={(value) => handleEventChange(index, value)}
-                          onBlur={() =>
-                            formik.setFieldTouched(`event_package[${index}].event_Id`, true)
-                          }
-                          valueKey="_id"
-                          labelKey="eventName"
-                          options={getAvailableEventsForCategory(bundle.event_category, index)}
-                          placeholder={
-                            bundle.event_category
-                              ? "Select event"
-                              : "Select category first"
-                          }
-                          id={`event_package[${index}].event_Id`}
-                          disabled={!bundle.event_category}
-                          className="h-10"
-                        />
-                        {formik.touched.event_package?.[index]?.event_Id &&
-                          formik.errors.event_package?.[index]?.event_Id && (
-                            <p className="text-xs text-red-500">
-                              {formik.errors.event_package[index].event_Id}
-                            </p>
-                          )}
-                      </div>
-
-                      {/* Price with Dynamic Currency Symbol */}
-                      <div className="lg:col-span-3 space-y-1.5">
-                        <Label htmlFor={`event_package[${index}].event_price`} className="text-xs font-medium text-slate-600">
-                          Price <span className="text-red-500">*</span>
-                        </Label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">
-                            {currentCurrencySymbol}
-                          </span>
-                          <Input
-                            id={`event_package[${index}].event_price`}
-                            name={`event_package[${index}].event_price`}
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            placeholder="0.00"
-                            value={bundle.event_price}
-                            onChange={(e) => handlePriceChange(index, e)}
-                            onBlur={formik.handleBlur}
-                            className="h-10 pl-9 bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
-                          />
-                        </div>
-                        {formik.touched.event_package?.[index]?.event_price &&
-                          formik.errors.event_package?.[index]?.event_price && (
-                            <p className="text-xs text-red-500">
-                              {formik.errors.event_package[index].event_price}
-                            </p>
-                          )}
-                      </div>
-
-                      {/* Delete Button */}
-                      <div className="lg:col-span-1 flex items-end pb-1">
-                        {formik.values.event_package.length > 1 && (
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeEventBundle(index)}
-                            className="h-10 w-10 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {typeof formik.errors.event_package === 'string' && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600 flex items-center gap-2">
-                  <span className="inline-block w-1.5 h-1.5 bg-red-500 rounded-full"></span>
-                  {formik.errors.event_package}
-                </p>
-              </div>
-            )}
-          </div>
-
           {/* Form Actions */}
-          <div className="flex justify-end gap-3 pt-6 border-t">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={onClose}
-              className="min-w-[100px]"
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={loading}
-              className="min-w-[140px] bg-blue-600 hover:bg-blue-700"
-            >
+          <SheetFooter className="flex flex-row justify-end gap-3 border-t border-solid border-gray-300">
+            <Button type="button" variant="outline" onClick={onClose} className="min-w-[100px]">Cancel</Button>
+            <Button type="submit" disabled={loading} className="hover:text-white bg-blue-600 hover:bg-blue-700">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editPackage ? "Update Package" : "Create Package"}
             </Button>
-          </div>
+          </SheetFooter>
         </form>
       </SheetContent>
     </Sheet>

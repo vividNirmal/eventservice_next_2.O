@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CustomCombobox } from "@/components/common/customcombox";
 import { toast } from "sonner";
 import { getRequest, postRequest, updateRequest } from "@/service/viewService";
+import { cn } from "@/lib/utils";
 
 const EventCompanyTeamSheet = ({
   open,
@@ -355,8 +356,8 @@ const EventCompanyTeamSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl">
-        <SheetHeader>
+      <SheetContent className="w-full sm:max-w-lg lg:max-w-2xl gap-0">
+        <SheetHeader className={'border-b pb-4'}>
           <SheetTitle>
             {isCreating ? "Add Team Member" : "Edit Team Member"}
           </SheetTitle>
@@ -367,8 +368,8 @@ const EventCompanyTeamSheet = ({
           </SheetDescription>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-          <div className="space-y-6 py-4">
+        <ScrollArea className="h-32 grow pr-4">
+          <div className="space-y-6 p-4">
             {/* Profile Picture Section */}
             <div className="flex items-center space-x-4">
               <Avatar className="h-20 w-20">
@@ -376,6 +377,7 @@ const EventCompanyTeamSheet = ({
                   <AvatarImage
                     src={previewUrl}
                     alt={`${member.first_name} ${member.last_name}`}
+                    className={'object-cover'}
                     onError={(e) => {
                       // Fallback if image fails to load
                       e.target.style.display = 'none';
@@ -397,19 +399,16 @@ const EventCompanyTeamSheet = ({
                     className="hidden"
                   />
                 </Label>
-                <p className="text-xs text-muted-foreground mt-1">
-                  PNG or JPG (max. 5MB)
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">PNG or JPG (max. 5MB)</p>
               </div>
             </div>
 
             <Separator />
 
             {/* Personal Information */}
-            <div className="space-y-4">
+            <div className="space-y-1 lg:space-y-4">
               <h3 className="font-medium">Personal Information</h3>
-              
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">
                     First Name <span className="text-red-500">*</span>
@@ -424,7 +423,6 @@ const EventCompanyTeamSheet = ({
                     <p className="text-xs text-red-500">{errors.first_name}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="last_name">
                     Last Name <span className="text-red-500">*</span>
@@ -439,9 +437,6 @@ const EventCompanyTeamSheet = ({
                     <p className="text-xs text-red-500">{errors.last_name}</p>
                   )}
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="birth_date">
                     Birth Date <span className="text-red-500">*</span>
@@ -458,7 +453,6 @@ const EventCompanyTeamSheet = ({
                     <p className="text-xs text-red-500">{errors.birth_date}</p>
                   )}
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="gender">
                     Gender <span className="text-red-500">*</span>
@@ -467,7 +461,7 @@ const EventCompanyTeamSheet = ({
                     value={formData.gender}
                     onValueChange={(value) => handleFieldChange("gender", value)}
                   >
-                    <SelectTrigger className={errors.gender ? "border-red-500" : ""}>
+                    <SelectTrigger className={cn("w-full", errors.gender ? "border-red-500" : "")}>
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
@@ -480,36 +474,34 @@ const EventCompanyTeamSheet = ({
                     <p className="text-xs text-red-500">{errors.gender}</p>
                   )}
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="ownership">
-                  Role <span className="text-red-500">*</span>
-                </Label>
-                <Select
-                  value={formData.ownership}
-                  onValueChange={(value) => handleFieldChange("ownership", value)}
-                >
-                  <SelectTrigger className={errors.ownership ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="owner">Owner</SelectItem>
-                    <SelectItem value="employee">Employee</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.ownership && (
-                  <p className="text-xs text-red-500">{errors.ownership}</p>
-                )}
+                <div className="space-y-2">
+                  <Label htmlFor="ownership">
+                    Role <sup className="text-red-500">*</sup>
+                  </Label>
+                  <Select
+                    value={formData.ownership}
+                    onValueChange={(value) => handleFieldChange("ownership", value)}
+                  >
+                    <SelectTrigger className={cn("w-full", errors.ownership ? "border-red-500" : "")}>
+                      <SelectValue placeholder="Select role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="owner">Owner</SelectItem>
+                      <SelectItem value="employee">Employee</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.ownership && (
+                    <p className="text-xs text-red-500">{errors.ownership}</p>
+                  )}
+                </div>
               </div>
             </div>
 
             <Separator />
 
             {/* Contact Information */}
-            <div className="space-y-4">
+            <div className="space-y-1 lg:space-y-4">
               <h3 className="font-medium">Contact Information</h3>
-              
               <div className="space-y-2">
                 <Label htmlFor="email">
                   Email <span className="text-red-500">*</span>
@@ -525,7 +517,6 @@ const EventCompanyTeamSheet = ({
                   <p className="text-xs text-red-500">{errors.email}</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="contact_no">
                   Contact Number <span className="text-red-500">*</span>
@@ -546,19 +537,12 @@ const EventCompanyTeamSheet = ({
             <Separator />
 
             {/* Address Information */}
-            <div className="space-y-4">
+            <div className="space-y-1 lg:space-y-4">
               <h3 className="font-medium">Address Information</h3>
               
               <div className="space-y-2">
-                <Label htmlFor="address_line1">
-                  Address Line 1 <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="address_line1"
-                  value={formData.address_line1}
-                  onChange={(e) => handleFieldChange("address_line1", e.target.value)}
-                  className={errors.address_line1 ? "border-red-500" : ""}
-                />
+                <Label htmlFor="address_line1">Address Line 1 <sup className="text-red-500">*</sup></Label>
+                <Input id="address_line1" value={formData.address_line1} onChange={(e) => handleFieldChange("address_line1", e.target.value)} className={errors.address_line1 ? "border-red-500" : ""} />
                 {errors.address_line1 && (
                   <p className="text-xs text-red-500">{errors.address_line1}</p>
                 )}
@@ -566,18 +550,12 @@ const EventCompanyTeamSheet = ({
 
               <div className="space-y-2">
                 <Label htmlFor="address_line2">Address Line 2</Label>
-                <Input
-                  id="address_line2"
-                  value={formData.address_line2}
-                  onChange={(e) => handleFieldChange("address_line2", e.target.value)}
-                />
+                <Input id="address_line2" value={formData.address_line2} onChange={(e) => handleFieldChange("address_line2", e.target.value)} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="country">
-                    Country <span className="text-red-500">*</span>
-                  </Label>
+                  <Label htmlFor="country">Country <sup className="text-red-500">*</sup></Label>
                   <CustomCombobox
                     name="country"
                     value={formData.country}
@@ -591,15 +569,10 @@ const EventCompanyTeamSheet = ({
                     disabled={loadingLocations}
                     className={errors.country ? "border-red-500" : ""}
                   />
-                  {errors.country && (
-                    <p className="text-xs text-red-500">{errors.country}</p>
-                  )}
+                  {errors.country && (<p className="text-xs text-red-500">{errors.country}</p>)}
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="state">
-                    State <span className="text-red-500">*</span>
-                  </Label>
+                  <Label htmlFor="state">State <sup className="text-red-500">*</sup></Label>
                   <CustomCombobox
                     name="state"
                     value={formData.state}
@@ -622,7 +595,7 @@ const EventCompanyTeamSheet = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city">
-                    City <span className="text-red-500">*</span>
+                    City <sup className="text-red-500">*</sup>
                   </Label>
                   <CustomCombobox
                     name="city"
@@ -644,7 +617,7 @@ const EventCompanyTeamSheet = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="pincode">
-                    Pincode <span className="text-red-500">*</span>
+                    Pincode <sup className="text-red-500">*</sup>
                   </Label>
                   <Input
                     id="pincode"
@@ -663,9 +636,8 @@ const EventCompanyTeamSheet = ({
             <Separator />
 
             {/* PAN Information */}
-            <div className="space-y-4">
+            <div className="space-y-1 lg:space-y-4">
               <h3 className="font-medium">PAN Information (Optional)</h3>
-              
               <div className="space-y-2">
                 <Label htmlFor="pan_no">PAN Number</Label>
                 <Input
@@ -679,7 +651,6 @@ const EventCompanyTeamSheet = ({
                   <p className="text-xs text-red-500">{errors.pan_no}</p>
                 )}
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="pan_card">PAN Card Document</Label>
                 <div>
@@ -726,7 +697,7 @@ const EventCompanyTeamSheet = ({
           </div>
         </ScrollArea>
 
-        <SheetFooter className="flex flex-row justify-end gap-3">
+        <SheetFooter className="flex flex-row justify-end gap-3 border-t border-solid border-gray-300">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

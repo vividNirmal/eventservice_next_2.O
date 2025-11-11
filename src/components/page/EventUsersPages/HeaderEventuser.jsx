@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { handleEventUserTypeSelected } from "@/redux/eventuserReducer/eventuserReducer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export default function HeaderEventuser() {
   const [loginUser, setLoginUser] = useState(null);
@@ -31,7 +32,8 @@ export default function HeaderEventuser() {
   // const [open, setOpen] = useState(false);
   // const dropdownRef = useRef(null);
   const dispatch = useDispatch();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuRef = useOutsideClick(() => setMobileMenuOpen(false));
   
   // ADD THESE
   const pathname = usePathname();
@@ -113,7 +115,8 @@ export default function HeaderEventuser() {
         </div>
 
         {/* Navigation */}
-        <div className="hidden md:flex md:items-center flex-col md:flex-row gap-2 md:gap-6 flex-1 justify-center md:static md:w-auto w-full top-12 p-5 md:p-0 left-0 fixed bg-white md:bg-transparent" style={{ display: mobileMenuOpen ? 'flex' : 'none' }}>
+        <div ref={menuRef} className={cn("md:flex md:items-center flex-col md:flex-row gap-2 md:gap-6 flex-1 justify-center md:static md:w-auto w-full top-12 p-5 md:p-0 left-0 fixed bg-white md:bg-transparent", !mobileMenuOpen && "hidden")}
+        >
           {loginUser && (
             <div className="py-2 border-gray-200">
               {hasMultipleUserTypes ? (
@@ -190,4 +193,24 @@ export default function HeaderEventuser() {
       </div>
     </header>
   );
+}
+
+
+
+
+
+export function useOutsideClick(callback) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (ref.current && !ref.current.contains(event.target)) {
+        callback();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [callback]);
+
+  return ref;
 }
