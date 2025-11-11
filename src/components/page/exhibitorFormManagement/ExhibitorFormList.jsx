@@ -403,6 +403,7 @@ const ExhibitorFormList = ({ eventId }) => {
         isOpen={isConfigModalOpen}
         onClose={() => setIsConfigModalOpen(false)}
         onConfigurationSelect={handleConfigurationSelect}
+        eventId={eventId}
       />
 
       {/* Exhibitor Form Wizard */}

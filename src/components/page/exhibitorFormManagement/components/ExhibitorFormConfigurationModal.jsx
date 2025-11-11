@@ -25,16 +25,20 @@ export const ExhibitorFormConfigurationModal = ({
   isOpen,
   onClose,
   onConfigurationSelect,
+  eventId, // Add eventId prop
 }) => {
   const [configurations, setConfigurations] = useState([]);
+  const [availableConfigurations, setAvailableConfigurations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [usedConfigurationIds, setUsedConfigurationIds] = useState(new Set());
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && eventId) {
       fetchConfigurations();
+      fetchUsedConfigurations();
     }
-  }, [isOpen]);
+  }, [isOpen, eventId]);
 
   const fetchConfigurations = async () => {
     setLoading(true);
@@ -54,6 +58,42 @@ export const ExhibitorFormConfigurationModal = ({
     }
   };
 
+  const fetchUsedConfigurations = async () => {
+    if (!eventId) return;
+    
+    try {
+      // Fetch all forms for this event to get used configuration IDs
+      const companyId = localStorage.getItem('companyId');
+      const params = new URLSearchParams({
+        eventId: eventId,
+        ...(companyId && { companyId: companyId }),
+      });
+
+      const response = await getRequest(`exhibitor-forms?${params}`);
+      
+      if (response.status === 1) {
+        const forms = response.data.forms || [];
+        // Extract configuration IDs that are already used
+        const usedIds = new Set(
+          forms
+            .filter(form => form.exhibitorFormConfigurationId)
+            .map(form => form.exhibitorFormConfigurationId._id || form.exhibitorFormConfigurationId)
+        );
+        setUsedConfigurationIds(usedIds);
+      }
+    } catch (error) {
+      console.error("Error fetching used configurations:", error);
+    }
+  };
+
+  useEffect(() => {
+    // Filter available configurations whenever configurations or usedConfigurationIds change
+    const available = configurations.filter(
+      config => !usedConfigurationIds.has(config._id)
+    );
+    setAvailableConfigurations(available);
+  }, [configurations, usedConfigurationIds]);
+
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
@@ -69,8 +109,8 @@ export const ExhibitorFormConfigurationModal = ({
     onClose();
   };
 
-  // Filter configurations based on search term
-  const filteredConfigurations = configurations.filter(config =>
+  // Filter available configurations based on search term
+  const filteredConfigurations = availableConfigurations.filter(config =>
     config.configName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     config.formNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
     config.configSlug.toLowerCase().includes(searchTerm.toLowerCase())
@@ -86,7 +126,7 @@ export const ExhibitorFormConfigurationModal = ({
         <DialogHeader>
           <DialogTitle>Select Form Configuration</DialogTitle>
           <DialogDescription className={"hidden"}>
-            Choose a configuration template for your new exhibitor form. This will define the form structure and behavior.
+            Choose a configuration template for your new exhibitor form.
           </DialogDescription>
         </DialogHeader>
 
@@ -94,7 +134,7 @@ export const ExhibitorFormConfigurationModal = ({
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search configurations by name, form number..."
+            placeholder="Search available configurations by name, form number..."
             value={searchTerm}
             onChange={handleSearch}
             className="pl-10"
@@ -144,7 +184,11 @@ export const ExhibitorFormConfigurationModal = ({
                 ) : (
                   <TableRow>
                     <TableCell colSpan={4} className="text-center">
-                      {searchTerm ? "No configurations found matching your search" : "No configurations available"}
+                      {searchTerm 
+                        ? "No available configurations found matching your search" 
+                        : availableConfigurations.length === 0 && configurations.length > 0
+                        ? "All configurations are already in use for this event"
+                        : "No configurations available"}
                     </TableCell>
                   </TableRow>
                 )}
