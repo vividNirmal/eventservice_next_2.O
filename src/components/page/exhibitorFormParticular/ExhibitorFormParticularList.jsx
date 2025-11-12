@@ -27,6 +27,7 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
   const [editingParticular, setEditingParticular] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [particularToDelete, setParticularToDelete] = useState(null);
+  const [eventZones, setEventZones] = useState([]);
 
   // Pagination & search
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,6 +42,7 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
   useEffect(() => {
     if (exhibitorFormId) {
       fetchParticulars();
+      fetchEventZones();
     }
   }, [currentPage, selectedLimit, searchTerm, exhibitorFormId]);
 
@@ -70,6 +72,17 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
       toast.error("Failed to fetch particulars");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEventZones = async () => {
+    try {
+      const res = await getRequest(`event-zones?eventId=${eventId}&limit=0`);
+      if (res.status === 1) {
+        setEventZones(res.data.zones || []);
+      }
+    } catch (error) {
+      console.error("Error fetching event zones:", error);
     }
   };
 
@@ -230,6 +243,7 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
                 <TableRow>
                   <TableHead>Particular Name</TableHead>
                   <TableHead>Material Number</TableHead>
+                  <TableHead className="text-center">Total Allocated Assets</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -238,13 +252,13 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-6">
+                    <TableCell colSpan={6} className="text-center py-6">
                       <Loader2 className="animate-spin mx-auto" />
                     </TableCell>
                   </TableRow>
                 ) : particulars.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-6">
+                    <TableCell colSpan={6} className="text-center py-6">
                       {exhibitorFormId ? "No particulars found" : "Select an exhibitor form to view particulars"}
                     </TableCell>
                   </TableRow>
@@ -253,6 +267,15 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
                     <TableRow key={particular._id}>
                       <TableCell className="font-medium">{particular.item_name || "N/A"}</TableCell>
                       <TableCell>{particular?.material_number || "N/A"}</TableCell>
+                      <TableCell className="text-center">
+                        <span className={
+                          particular.totalAllocatedQuantity > 0 
+                            ? "text-green-600 font-medium" 
+                            : "text-gray-400"
+                        }>
+                          {particular.totalAllocatedQuantity || 0}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <Badge 
                           variant={particular.status === "active" ? "default" : "secondary"}
@@ -322,6 +345,9 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
             : "Create a new exhibitor form particular."
         }
         submitButtonText={editingParticular ? "Update" : "Create"}
+        eventId={eventId}
+        eventZones={eventZones}
+        exhibitorFormId={exhibitorFormId}
       />
 
       <DeleteConfirmationDialog
@@ -333,4 +359,4 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
       />
     </>
   );
-};
+}

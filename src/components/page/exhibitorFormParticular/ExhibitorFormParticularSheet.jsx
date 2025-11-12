@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { CustomCombobox } from '@/components/common/customcombox';
+import { getRequest } from "@/service/viewService";
 
 const ExhibitorFormParticularSheet = ({
   isOpen,
@@ -28,26 +29,88 @@ const ExhibitorFormParticularSheet = ({
   title,
   description,
   submitButtonText,
+  eventId,
+  eventZones = [],
+  exhibitorFormId,
 }) => {
   const imageInputRef = useRef(null);
   const docInputRef = useRef(null);
+  const [availableZones, setAvailableZones] = useState([]);
+  const [loadingZones, setLoadingZones] = useState(false);
 
-  // Define options for zones and venues (you can fetch these from API or keep static)
-  const ZONE_OPTIONS = [
-    { label: 'Zone A', value: 'Zone A' },
-    { label: 'Zone B', value: 'Zone B' },
-    { label: 'Zone C', value: 'Zone C' },
-    { label: 'Zone D', value: 'Zone D' },
-    { label: 'Zone E', value: 'Zone E' },
-  ];
+  useEffect(() => {
+    const fetchAvailableZones = async () => {
+      if (!eventId || !exhibitorFormId) return;
 
-  const VENUE_OPTIONS = [
-    { label: 'Main Hall', value: 'Main Hall' },
-    { label: 'Conference Room', value: 'Conference Room' },
-    { label: 'Outdoor Area', value: 'Outdoor Area' },
-    { label: 'Exhibition Hall', value: 'Exhibition Hall' },
-    { label: 'Ballroom', value: 'Ballroom' },
-  ];
+      setLoadingZones(true);
+      try {
+        // Get all particulars for this exhibitor form to check already assigned zones
+        const particularsRes = await getRequest(`exhibitor-form-particulars?exhibitorFormId=${exhibitorFormId}&eventId=${eventId}&limit=0`);
+        
+        let assignedZoneIds = new Set();
+        if (particularsRes.status === 1 && particularsRes.data.particulars) {
+          particularsRes.data.particulars.forEach(particular => {
+            // Skip the current particular if we're editing
+            if (initialData?._id && particular._id === initialData._id) return;
+            
+            // Collect zone IDs from other particulars
+            if (particular.zones && particular.zones.length > 0) {
+              particular.zones.forEach(zone => {
+                const zoneId = zone._id || zone;
+                assignedZoneIds.add(zoneId.toString());
+              });
+            }
+          });
+        }
+
+        // Get the form configuration ID from the exhibitor form
+        const formRes = await getRequest(`exhibitor-forms/${exhibitorFormId}`);
+        if (formRes.status === 1 && formRes.data) {
+          const formConfigId = formRes.data.exhibitorFormConfigurationId;
+          
+          // Get asset allocation for this form configuration
+          const assetRes = await getRequest(`exhibitor-form-assets-byConfig/${eventId}/${formConfigId}`);
+          if (assetRes.status === 1 && assetRes.data.asset) {
+            // Filter zones that have quantity > 0 AND are not already assigned to other particulars
+            const allocatedZones = assetRes.data.asset.zones
+              .filter(zone => {
+                const zoneId = zone.zoneId._id || zone.zoneId;
+                return zone.quantity > 0 && !assignedZoneIds.has(zoneId.toString());
+              })
+              .map(zone => ({
+                value: zone.zoneId._id || zone.zoneId,
+                label: zone.zoneName || zone.zoneId?.name || `Zone ${zone.zoneId}`,
+                quantity: zone.quantity
+              }));
+            
+            setAvailableZones(allocatedZones);
+          } else {
+            // If no asset allocation, use all event zones that are not already assigned
+            const filteredEventZones = eventZones
+              .filter(zone => !assignedZoneIds.has(zone._id.toString()))
+              .map(zone => ({
+                value: zone._id,
+                label: zone.name
+              }));
+            setAvailableZones(filteredEventZones);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching available zones:", error);
+        // Fallback to all event zones
+        setAvailableZones(eventZones.map(zone => ({
+          value: zone._id,
+          label: zone.name
+        })));
+      } finally {
+        setLoadingZones(false);
+      }
+    };
+
+    if (isOpen && eventId && exhibitorFormId) {
+      fetchAvailableZones();
+    }
+  }, [isOpen, eventId, exhibitorFormId, eventZones, initialData?._id]);
 
   const validationSchema = Yup.object({
     item_name: Yup.string()
@@ -80,7 +143,7 @@ const ExhibitorFormParticularSheet = ({
       national_price: initialData?.national_price || 0,
       international_price: initialData?.international_price || 0,
       material_number: initialData?.material_number || 0,
-      zones: initialData?.zones || [],
+      zones: initialData?.zones?.map(zone => zone._id || zone) || [],
       venue: initialData?.venue || [],
       image: initialData?.image || "",
       imageFile: null,
@@ -100,15 +163,14 @@ const ExhibitorFormParticularSheet = ({
       // Append basic fields
       formData.append("item_name", values.item_name.trim());
       formData.append("disclaimer", values.disclaimer.trim());
-      formData.append("purachase_limit_per_order", values.purachase_limit_per_order);
-      formData.append("national_price", values.national_price);
-      formData.append("international_price", values.international_price);
-      formData.append("material_number", values.material_number);
+      formData.append("purachase_limit_per_order", values.purachase_limit_per_order.toString());
+      formData.append("national_price", values.national_price.toString());
+      formData.append("international_price", values.international_price.toString());
+      formData.append("material_number", values.material_number.toString());
       formData.append("status", values.status);
       
-      // Append arrays
-      values.zones.forEach(zone => formData.append("zones[]", zone));
-      values.venue.forEach(venue => formData.append("venue[]", venue));
+      // Append zones as JSON string
+      formData.append("zones", JSON.stringify(values.zones));
       
       // Handle image
       if (values.imageFile) {
@@ -118,14 +180,14 @@ const ExhibitorFormParticularSheet = ({
         formData.append("image", values.image);
       }
 
-      // Handle documents with metadata approach (like ExhibitorForm)
+      // Handle documents with metadata approach
       if (values.documents && values.documents.length > 0) {
         const documentsMetadata = [];
         let fileIndex = 0;
 
         values.documents.forEach((doc, index) => {
           if (doc.deleted && doc.path) {
-            // Mark for deletion - use path as identifier since we don't have _id in subdocuments
+            // Mark for deletion
             documentsMetadata.push({
               index,
               action: 'delete',
@@ -153,7 +215,6 @@ const ExhibitorFormParticularSheet = ({
 
         if (documentsMetadata.length > 0) {
           formData.append("documents_metadata", JSON.stringify(documentsMetadata));
-          console.log("Documents metadata being sent:", documentsMetadata);
         }
       }
 
@@ -259,11 +320,13 @@ const ExhibitorFormParticularSheet = ({
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
+      setAvailableZones([]);
     }
   }, [isOpen]);
 
   const handleClose = () => {
     formik.resetForm();
+    setAvailableZones([]);
     onClose();
   };
 
@@ -367,6 +430,7 @@ const ExhibitorFormParticularSheet = ({
                   name="national_price"
                   type="number"
                   min="0"
+                  step="0.01"
                   value={formik.values.national_price}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -380,6 +444,7 @@ const ExhibitorFormParticularSheet = ({
                   name="international_price"
                   type="number"
                   min="0"
+                  step="0.01"
                   value={formik.values.international_price}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -387,17 +452,31 @@ const ExhibitorFormParticularSheet = ({
               </div>
             </div>
 
-            {/* Zones - Using CustomCombobox */}
+            {/* Zones - Using CustomCombobox with available zones */}
             <div className="flex flex-col gap-2">
-              <Label>Zones</Label>
-              <CustomCombobox
-                name="zones"
-                options={ZONE_OPTIONS}
-                value={formik.values.zones || []}
-                onChange={(val) => formik.setFieldValue("zones", val)}
-                placeholder="Select zones"
-                multiSelect
-              />
+              <Label>Available Zones</Label>
+              {loadingZones ? (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading available zones...
+                </div>
+              ) : (
+                <CustomCombobox
+                  name="zones"
+                  options={availableZones}
+                  value={formik.values.zones || []}
+                  onChange={(val) => formik.setFieldValue("zones", val)}
+                  placeholder="Select available zones"
+                  multiSelect
+                  disabled={availableZones.length === 0}
+                  emptyMessage={availableZones.length === 0 ? "No zones available for allocation" : "No zones found"}
+                />
+              )}
+              {availableZones.length === 0 && !loadingZones && (
+                <p className="text-sm text-yellow-600">
+                  No zones are available for allocation. Please allocate assets to zones first in the Assets Allocation section.
+                </p>
+              )}
             </div>
 
             {/* Venue - Using CustomCombobox */}
