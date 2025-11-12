@@ -1,3 +1,6 @@
+import { Quill } from "react-quill-new";
+import ImageResize from "quill-image-resize-module-react";
+
 export const sidebarmenu = [
   {
     id: 1,
@@ -566,6 +569,10 @@ export const sidebarmenu = [
   },
 ];
 
+if (typeof window !== "undefined" && Quill && !Quill.imports['modules/imageResize']) {
+  Quill.register("modules/imageResize", ImageResize);
+}
+
 export const textEditormodule = {
   modules: {
     toolbar: [
@@ -580,6 +587,10 @@ export const textEditormodule = {
       ["link", "image", "video"],
       ["clean"],
     ],
+    imageResize: {
+      displaySize: true,
+      modules: ["Resize", "DisplaySize", "Toolbar"],
+    },
     table: true,
   },
   formats: [
