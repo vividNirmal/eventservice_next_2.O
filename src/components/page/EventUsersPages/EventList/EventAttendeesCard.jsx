@@ -57,28 +57,25 @@ export function CategoryCard({ category, eventCount, onApply , status }) {
 export function ExhibitorCard({ title, description, price, onBuyNow, currency,dateRange }) {
   const currentCurrencySymbol = getCurrencySymbol(currency || 'INR');
   return (
-    <div className="relative bg-white rounded-lg p-4 shadow-md overflow-hidden border-l-4 border-solid border-blue-600">
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="md:grow md:w-fit">
-          <h3 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0">{title}</h3>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="relative h-full bg-white rounded-lg shadow-none border-b-8 pb-4 border-solid border-blue-600">
+      <div className="relative z-10 flex flex-col justify-center text-center">
+        <img src="/banner-img.png" className="rounded-t-lg w-full h-42 max-w-full object-cover object-center" alt="ticket img" />
+        <div className="p-4 flex flex-col items-center justify-center min-h-44 gap-2 text-sm text-center text-muted-foreground border-b border-dashed border-gray-300 mb-2 pb-2 relative before:size-4 before:absolute before:bottom-0 before:translate-y-1/2 before:rounded-full before:-left-2 before:bg-white after:size-4 after:absolute after:bottom-0 after:translate-y-1/2 after:rounded-full after:-right-2 after:bg-white">
+          <h4 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0">{title}</h4>
+          <div className="flex flex-row gap-2">
             <span className="text-xs lg:text-sm xl:text-base text-blue-500">✓</span>
             <span className="text-xs lg:text-sm xl:text-base">{description}</span>
-            {
-              dateRange && dateRange.map((date,index)=>(
-                <span key={index}>
-                Data : <span>{date?.startDate} - {date?.endDate} </span>
-                </span>
-              ))
-            }
           </div>
+          {
+            dateRange && dateRange.map((date,index)=>(
+              <span key={index} className="block"><b>Date</b> : <span>{date?.startDate} - {date?.endDate} </span></span>
+            ))
+          }
         </div>
-        <div className="flex items-center w-fit">          
-          <Button onClick={onBuyNow} className="text-white hover:text-white bg-blue-500 border border-solid border-blue-500 hover:bg-blue-600 gap-2 ml-auto">
-            { `${currentCurrencySymbol} ${price}`}
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
+        <Button onClick={onBuyNow} className="w-fit mx-auto text-white hover:text-white bg-blue-500 border border-solid border-blue-500 hover:bg-blue-600 gap-2">
+          { `${currentCurrencySymbol} ${price}`}
+          <ChevronRight className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );

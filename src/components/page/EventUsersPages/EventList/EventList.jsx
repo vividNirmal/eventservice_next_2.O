@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { getCurrencySymbol } from "../../eventAdminpages/package/addPackage";
 
 export default function UserEventList() {
   const { userType } = useSelector((state) => state.eventUser);
@@ -85,35 +87,40 @@ export default function UserEventList() {
       {/* Event Attendees View */}
       {userType?.typeName === "Event Attendees" && (
         <section className="w-full">
-          <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
-            Available Packages
-          </h2>
-          <div className="space-y-4">
-            <h1> Single Show Registartion</h1>
-            {attendees?.event_tickets.map((pkg) => (
-              <ExhibitorCard
-                key={pkg._id}
-                title={pkg.title}
-                description={pkg.description}
-                price={pkg.price}
-                currency={pkg.currency}
-                dateRange = {pkg.dataRange}
-                onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
-              />
-            ))}
+          <div className="bg-white p-6 rounded-2xl">
+            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground">Available Packages</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-2">
+              <h3 className="col-span-full">Single Show Registartion</h3>
+              {attendees?.event_tickets.map((pkg) => (
+                <ExhibitorCard
+                  key={pkg._id}
+                  title={pkg.title}
+                  description={pkg.description}
+                  price={pkg.price}
+                  currency={pkg.currency}
+                  dateRange={pkg.dataRange}
+                  onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
+                />
+              ))}
+            </div>
           </div>
-          <div className="space-y-4">
-            <h1>Combo  Show Registartion</h1>
-            {attendees?.combo_tickets.map((pkg) => (
-              <ExhibitorCard
-                key={pkg._id}
-                title={pkg.title}
-                description={pkg.description}
-                price={pkg.price}
-                currency={pkg.currency}
-                onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
-              />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-4 mt-8">
+            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground col-span-full mb-0">Combo Show Registartion</h2>
+            {
+              attendees?.combo_tickets.map((pkg) => (
+                <div className="flex flex-col bg-white p-4 rounded-xl" key={pkg._id}>
+                  <img src="/concert-banner.webp" className="rounded-lg w-full h-42 max-w-full object-cover object-center" alt="ticket img" />
+                  <div className="pt-4 flex flex-col gap-4">
+                    <div className="flex flex-col">
+                      <h3 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0.5">{pkg.title}</h3>
+                      <p className="text-sm text-gray-600">{pkg.description}</p>
+                    </div>
+                    <Button className={'p-4 rounded-md bg-white text-black border border-solid border-blue-500 hover:text-white hover:border-blue-600 hover:bg-blue-600'}>Visitor Registration {`${getCurrencySymbol(pkg.currency || 'INR')} ${pkg.price}`}</Button>
+                  </div>
+                </div>
+              ))
+            }
+
           </div>
         </section>
       )}
@@ -124,9 +131,7 @@ export default function UserEventList() {
           {!selectedCategory ? (
             // Show Categories
             <>
-              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
-                Event Categories
-              </h2>
+              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Event Categories</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {categorizedEvents?.map((item) => (
                   <CategoryCard
