@@ -85,21 +85,6 @@ export default function UserEventList() {
             <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground">
               Available Packages
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-2">
-              <h3 className="col-span-full">Single Show Registartion</h3>
-              {attendees?.event_tickets.map((pkg) => (
-                <ExhibitorCard
-                  key={pkg._id}
-                  title={pkg.title}
-                  description={pkg.description}
-                  price={pkg.price}
-                  currency={pkg.currency}
-                  dateRange={pkg.dataRange}
-                  onBuyNow={() => handleAction(pkg)}
-                />
-              ))}
-            </div>
-          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-4 mt-8">
             <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground col-span-full mb-0">
               Combo Show Registartion
@@ -134,6 +119,23 @@ export default function UserEventList() {
               </div>
             ))}
           </div>
+            
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-2 mt-5">
+              <h3 className="col-span-full">Single Show Registartion</h3>
+              {attendees?.event_tickets.map((pkg) => (
+                <ExhibitorCard
+                  key={pkg._id}
+                  title={pkg.title}
+                  description={pkg.description}
+                  price={pkg.price}
+                  currency={pkg.currency}
+                  dateRange={pkg.dataRange}
+                  onBuyNow={() => handleAction(pkg)}
+                />
+              ))}
+            </div>
         </section>
       )}
 
