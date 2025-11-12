@@ -12,12 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
-  LogOut,
-  Settings,
-  User,
+  LogOut,  
   Menu,
-  ChevronDown,
-  Building2,
+  ChevronDown,  
 } from "lucide-react";
 import Link from "next/link";
 import { useDispatch } from "react-redux";

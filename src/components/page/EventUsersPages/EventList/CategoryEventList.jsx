@@ -4,8 +4,10 @@ import { getRequest } from "@/service/viewService";
 import React, { useEffect, useState } from "react";
 import { EventAttendeesCard } from "./EventAttendeesCard";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CategoryEventList({ id }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [eventList, setEventList] = useState([]);
   const [eventNotRegister, setEventNotRegister] = useState("");
@@ -57,7 +59,9 @@ export default function CategoryEventList({ id }) {
                 key={show._id}
                 title={show.eventId?.event_title}
                 description={show.eventId?.event_description}
-                onApply={() => console.log(show._id)}
+                onApply={() => router.push(
+                        `/dashboard/eventuser/eventlist/event-details/${show.eventId._id}`
+                      )}
               />
             ))
           ) : (

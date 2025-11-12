@@ -12,6 +12,7 @@ import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "../../eventAdminpages/package/addPackage";
+import { PaymentPopup } from "../Payment/SumitPayment";
 
 export default function UserEventList() {
   const { userType } = useSelector((state) => state.eventUser);
@@ -21,6 +22,9 @@ export default function UserEventList() {
   const [attendees, setAttendess] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [buttonLoader, setButtonLoader] = useState(false);
+  const [paymentPopupOpen, setPaymentPopupOpen] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     fetchForm();
@@ -54,22 +58,12 @@ export default function UserEventList() {
     setSelectedCategory(null);
   };
 
-  async function handleUserRegister(type, id) {
-    setButtonLoader(true);
-    try {
-      const formData = new FormData();
-      formData.append("type", type);
-      formData.append("id", id);
-      const responce = await postRequest("eventuser-event-attandes", formData);
-      if (responce.data) {
-        toast.success(responce.message);
-        setButtonLoader(false);
-      }
-    } catch (error) {
-      console.error("🚨 Error fetching form:", error);
-      toast.error("Failed to load form");
+  const handleAction = (pkg) => {
+    if (pkg) {
+      setSelectedPackage(pkg);
+      setPaymentPopupOpen(true);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -88,7 +82,9 @@ export default function UserEventList() {
       {userType?.typeName === "Event Attendees" && (
         <section className="w-full">
           <div className="bg-white p-6 rounded-2xl">
-            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground">Available Packages</h2>
+            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground">
+              Available Packages
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-2">
               <h3 className="col-span-full">Single Show Registartion</h3>
               {attendees?.event_tickets.map((pkg) => (
@@ -99,28 +95,44 @@ export default function UserEventList() {
                   price={pkg.price}
                   currency={pkg.currency}
                   dateRange={pkg.dataRange}
-                  onBuyNow={() => handleUserRegister(pkg.type, pkg._id)}
+                  onBuyNow={() => handleAction(pkg)}
                 />
               ))}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-4 mt-8">
-            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground col-span-full mb-0">Combo Show Registartion</h2>
-            {
-              attendees?.combo_tickets.map((pkg) => (
-                <div className="flex flex-col bg-white p-4 rounded-xl" key={pkg._id}>
-                  <img src="/concert-banner.webp" className="rounded-lg w-full h-42 max-w-full object-cover object-center" alt="ticket img" />
-                  <div className="pt-4 flex flex-col gap-4">
-                    <div className="flex flex-col">
-                      <h3 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0.5">{pkg.title}</h3>
-                      <p className="text-sm text-gray-600">{pkg.description}</p>
-                    </div>
-                    <Button className={'p-4 rounded-md bg-white text-black border border-solid border-blue-500 hover:text-white hover:border-blue-600 hover:bg-blue-600'}>Visitor Registration {`${getCurrencySymbol(pkg.currency || 'INR')} ${pkg.price}`}</Button>
+            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground col-span-full mb-0">
+              Combo Show Registartion
+            </h2>
+            {attendees?.combo_tickets.map((pkg) => (
+              <div
+                className="flex flex-col bg-white p-4 rounded-xl"
+                key={pkg._id}
+              >
+                <img
+                  src="/concert-banner.webp"
+                  className="rounded-lg w-full h-42 max-w-full object-cover object-center"
+                  alt="ticket img"
+                />
+                <div className="pt-4 flex flex-col gap-4">
+                  <div className="flex flex-col">
+                    <h3 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0.5">
+                      {pkg.title}
+                    </h3>
+                    <p className="text-sm text-gray-600">{pkg.description}</p>
                   </div>
+                  <Button
+                    className={
+                      "p-4 rounded-md bg-white text-black border border-solid border-blue-500 hover:text-white hover:border-blue-600 hover:bg-blue-600"
+                    }
+                    onClick={() => handleAction(pkg)}
+                  >
+                    Visitor Registration{" "}
+                    {`${getCurrencySymbol(pkg.currency || "INR")} ${pkg.price}`}
+                  </Button>
                 </div>
-              ))
-            }
-
+              </div>
+            ))}
           </div>
         </section>
       )}
@@ -131,7 +143,9 @@ export default function UserEventList() {
           {!selectedCategory ? (
             // Show Categories
             <>
-              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Event Categories</h2>
+              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
+                Event Categories
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {categorizedEvents?.map((item) => (
                   <CategoryCard
@@ -165,13 +179,27 @@ export default function UserEventList() {
                     key={show._id}
                     title={show.eventId?.event_title}
                     description={show.eventId?.event_description}
-                    onApply={() => console.log(show._id)}
+                    onApply={() =>
+                      router.push(
+                        `/dashboard/eventuser/event-details/${show._id}`
+                      )
+                    }
                   />
                 ))}
               </div>
             </>
           )}
         </section>
+      )}
+
+      {/* payment popup */}
+      {selectedPackage && (
+        <PaymentPopup
+          open={paymentPopupOpen}
+          onOpenChange={setPaymentPopupOpen}
+          item={selectedPackage}
+          Success={(data) => setPaymentSuccess(data)}
+        />
       )}
     </div>
   );

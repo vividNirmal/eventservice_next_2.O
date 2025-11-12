@@ -8,6 +8,7 @@ import {
   CalendarDays,
   HomeIcon,
   LucidePackagePlus,
+  ImagePlayIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +55,15 @@ export default function EventAdminNavigation () {
       label: "Event Package",
       icon: LucidePackagePlus,
       url: "/dashboard/package",
+      show: true,
+      description: "Main dashboard",
+      isActive: activeSection === "dashboard",
+    },
+    {
+      id: "company ",
+      label: "Banners",
+      icon: ImagePlayIcon,
+      url: "/dashboard/company-banner",
       show: true,
       description: "Main dashboard",
       isActive: activeSection === "dashboard",
