@@ -11,21 +11,20 @@ export function EventAttendeesCard({
   onApply,
 }) {
   return (
-    <div className="relative bg-white rounded-lg p-6 border-l-4 border-solid border-orange-400 shadow-md overflow-hidden">
+    <div className="group relative bg-white border border-solid border-blue-500 rounded-lg p-6 shadow-md overflow-hidden cursor-pointer transition-all duration-200 ease-in hover:shadow-xl hover:-translate-y-1" onClick={onApply}>
       {/* Decorative gold line on the right */}
-      <div className="absolute z-2 inset-0 bg-gradient-to-br from-orange-400/10 via-transparent to-transparent transition-opacity duration-300" />
-      <div className="space-y-3 relative z-10">
-        <h3 className="text-lg font-bold text-foreground">{title}</h3>
+      <div className="absolute z-2 inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-blue-400/10 via-transparent to-transparent transition-opacity duration-300" />
+      <div className="relative z-10">
+        <Button className="!size-12 mb-4 shadow-none group-hover:bg-blue-500 hover:bg-blue-500 bg-white border-blue-500 hover:text-white gap-2 transition-all duration-200 ease-in">
+          <ChevronRight className="size-8 group-hover:text-white text-blue-500 transition-all duration-200 ease-in" />
+        </Button>
+        <h3 className="text-xl mb-2 font-bold text-zinc-900">{title}</h3>
+        <p className="flex items-start gap-2 text-sm leading-relaxed text-zinc-600">{description}</p>
 
-        <div className="flex items-start gap-2 text-sm text-muted-foreground">
-          <span className="text-amber-400 shrink-0">✓</span>
-          <span>{description}</span>
-        </div>
-
-        <Button onClick={onApply} className="mt-4 bg-orange-400 border-orange-400 hover:text-white hover:bg-orange-400 hover:border-orange-400 gap-2">
+        {/* <Button onClick={onApply} className="mt-4 bg-orange-400 border-orange-400 hover:text-white hover:bg-orange-400 hover:border-orange-400 gap-2">
           Details
           <ChevronRight className="w-4 h-4" />
-        </Button>
+        </Button> */}
       </div>
     </div>
   )
@@ -57,26 +56,24 @@ export function CategoryCard({ category, eventCount, onApply , status }) {
 export function ExhibitorCard({ title, description, price, onBuyNow, currency,dateRange }) {
   const currentCurrencySymbol = getCurrencySymbol(currency || 'INR');
   return (
-    <div className="relative h-full bg-white rounded-lg shadow-none border-b-8 pb-4 border-solid border-blue-600">
-      <div className="relative z-10 flex flex-col justify-center text-center">
-        <img src="/banner-img.png" className="rounded-t-lg w-full h-42 max-w-full object-cover object-center" alt="ticket img" />
-        <div className="p-4 flex flex-col items-center justify-center min-h-44 gap-2 text-sm text-center text-muted-foreground border-b border-dashed border-gray-300 mb-2 pb-2 relative before:size-4 before:absolute before:bottom-0 before:translate-y-1/2 before:rounded-full before:-left-2 before:bg-white after:size-4 after:absolute after:bottom-0 after:translate-y-1/2 after:rounded-full after:-right-2 after:bg-white">
-          <h4 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0">{title}</h4>
-          <div className="flex flex-row gap-2">
-            <span className="text-xs lg:text-sm xl:text-base text-blue-500">✓</span>
-            <span className="text-xs lg:text-sm xl:text-base">{description}</span>
-          </div>
-          {
-            dateRange && dateRange.map((date,index)=>(
-              <span key={index} className="block"><b>Date</b> : <span>{date?.startDate} - {date?.endDate} </span></span>
-            ))
-          }
+    <div className="overflow-hidden relative h-full bg-zinc-50 backdrop-shadow rounded-lg border-b-4 pb-4 border-solid border-blue-500 flex flex-col justify-center text-center">
+      <img src="/banner-img1.webp" className="rounded-t-lg w-full h-42 max-w-full object-cover object-center" alt="ticket img" />
+      <div className="p-4 flex flex-col items-center justify-center min-h-44 gap-2 text-sm text-center text-muted-foreground border-b-2 border-dashed border-gray-300 mb-2 pb-2 relative before:size-6 before:absolute before:bottom-0 before:translate-y-1/2 before:rounded-full before:-left-3 before:bg-white after:size-6 after:absolute after:bottom-0 after:translate-y-1/2 after:rounded-full after:-right-3 after:bg-white">
+        <h4 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0">{title}</h4>
+        <div className="flex flex-row gap-2">
+          <span className="text-xs lg:text-sm xl:text-base text-blue-500">✓</span>
+          <span className="text-xs lg:text-sm xl:text-base">{description}</span>
         </div>
-        <Button onClick={onBuyNow} className="w-fit mx-auto text-white hover:text-white bg-blue-500 border border-solid border-blue-500 hover:bg-blue-600 gap-2">
-          { `${currentCurrencySymbol} ${price}`}
-          <ChevronRight className="w-4 h-4" />
-        </Button>
+        {
+          dateRange && dateRange.map((date,index)=>(
+            <span key={index} className="block"><b>Date</b> : <span>{date?.startDate} - {date?.endDate} </span></span>
+          ))
+        }
       </div>
+      <Button onClick={onBuyNow} className="min-w-30 w-auto mx-auto text-white hover:text-white bg-blue-500 border border-solid border-blue-500 hover:bg-blue-600 gap-2">
+        { `${currentCurrencySymbol} ${price}`}
+        <ChevronRight className="w-4 h-4" />
+      </Button>
     </div>
   );
 }
