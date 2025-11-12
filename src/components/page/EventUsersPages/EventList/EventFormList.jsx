@@ -50,10 +50,10 @@ export default function EventFormList({ id }) {
     );
   }
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12 relative z-20">
+    <div className="max-w-7xl mx-auto px-4 py-12 relative z-20 w-full">
       <section className="w-full">
         <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
-          Event
+          Event Forms
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {eventList.length > 0 ? (
