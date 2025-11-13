@@ -548,36 +548,48 @@ export function PackageFormDrawer({
               <div className="space-y-3">
                 {formik.values.event_package.map((bundle, index) => (
                   <div key={index} className="group p-4 border-2 border-slate-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col gap-4">
                       {/* Bundle Number */}
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
-                        {index + 1}
+                      <div className="flex flex-wrap justify-between items-center">
+                        <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">{index + 1}</div>
+                          {formik.values.event_package.length > 1 && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeEventBundle(index)}
+                              className="h-10 w-10 p-0 text-red-500 border border-solid border-red-500/25 hover:text-red-700 hover:bg-red-50 duration-200"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                       </div>
-
                       {/* Form Fields */}
                       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
                         {/* Event Category */}
                         <div className="lg:col-span-3 space-y-1.5">
                           <Label htmlFor={`event_package[${index}].event_category`} className="text-xs font-medium text-slate-600">Event Shows <sup className="text-red-500">*</sup></Label>
-                          <CustomCombobox
-                            name={`event_package[${index}].event_category`}
-                            value={bundle.event_category}
-                            onChange={(value) => handleCategoryChange(index, value)}
-                            onBlur={() =>
-                              formik.setFieldTouched(`event_package[${index}].event_category`, true)
-                            }
-                            valueKey="_id"
-                            labelKey="title"
-                            options={eventCategories}
-                            placeholder="Select category"
-                            id={`event_package[${index}].event_category`}
-                          />
-                          {formik.touched.event_package?.[index]?.event_category &&
-                            formik.errors.event_package?.[index]?.event_category && (
-                              <p className="text-xs text-red-500">
-                                {formik.errors.event_package[index].event_category}
-                              </p>
-                            )}
+                          <div className="relative pb-3.5">
+                            <CustomCombobox
+                              name={`event_package[${index}].event_category`}
+                              value={bundle.event_category}
+                              onChange={(value) => handleCategoryChange(index, value)}
+                              onBlur={() =>
+                                formik.setFieldTouched(`event_package[${index}].event_category`, true)
+                              }
+                              valueKey="_id"
+                              labelKey="title"
+                              options={eventCategories}
+                              placeholder="Select category"
+                              id={`event_package[${index}].event_category`}
+                            />
+                            {formik.touched.event_package?.[index]?.event_category &&
+                              formik.errors.event_package?.[index]?.event_category && (
+                                <p className="text-xs text-red-500 absolute left-0 -bottom-1">
+                                  {formik.errors.event_package[index].event_category}
+                                </p>
+                              )}
+                          </div>
                         </div>
 
                         {/* Event */}
@@ -585,30 +597,32 @@ export function PackageFormDrawer({
                           <Label htmlFor={`event_package[${index}].event_Id`} className="text-xs font-medium text-slate-600">
                             Event <span className="text-red-500">*</span>
                           </Label>
-                          <CustomCombobox
-                            name={`event_package[${index}].event_Id`}
-                            value={bundle.event_Id}
-                            onChange={(value) => handleEventChange(index, value)}
-                            onBlur={() =>
-                              formik.setFieldTouched(`event_package[${index}].event_Id`, true)
-                            }
-                            valueKey="_id"
-                            labelKey="eventName"
-                            options={getAvailableEventsForCategory(bundle.event_category)}
-                            placeholder={
-                              bundle.event_category
-                                ? "Select event"
-                                : "Select category first"
-                            }
-                            id={`event_package[${index}].event_Id`}
-                            disabled={!bundle.event_category}
-                          />
-                          {formik.touched.event_package?.[index]?.event_Id &&
-                            formik.errors.event_package?.[index]?.event_Id && (
-                              <p className="text-xs text-red-500">
-                                {formik.errors.event_package[index].event_Id}
-                              </p>
-                            )}
+                          <div className="relative pb-3.5">
+                            <CustomCombobox
+                              name={`event_package[${index}].event_Id`}
+                              value={bundle.event_Id}
+                              onChange={(value) => handleEventChange(index, value)}
+                              onBlur={() =>
+                                formik.setFieldTouched(`event_package[${index}].event_Id`, true)
+                              }
+                              valueKey="_id"
+                              labelKey="eventName"
+                              options={getAvailableEventsForCategory(bundle.event_category)}
+                              placeholder={
+                                bundle.event_category
+                                  ? "Select event"
+                                  : "Select category first"
+                              }
+                              id={`event_package[${index}].event_Id`}
+                              disabled={!bundle.event_category}
+                            />
+                            {formik.touched.event_package?.[index]?.event_Id &&
+                              formik.errors.event_package?.[index]?.event_Id && (
+                                <p className="text-xs text-red-500 absolute left-0 -bottom-1">
+                                  {formik.errors.event_package[index].event_Id}
+                                </p>
+                              )}
+                          </div>
                         </div>
 
                         {/* Ticket Category */}
@@ -616,6 +630,7 @@ export function PackageFormDrawer({
                           <Label htmlFor={`event_package[${index}].ticket_category`} className="text-xs font-medium text-slate-600">
                             Ticket Type <span className="text-red-500">*</span>
                           </Label>
+                          <div className="relative pb-3.5">
                           <CustomCombobox
                             name={`event_package[${index}].ticket_category`}
                             value={bundle.ticket_category}
@@ -646,6 +661,7 @@ export function PackageFormDrawer({
                                 {formik.errors.event_package[index].ticket_category}
                               </p>
                             )}
+                          </div>
                         </div>
 
                         {/* Total Slots */}
@@ -653,6 +669,7 @@ export function PackageFormDrawer({
                           <Label htmlFor={`event_package[${index}].total_slots`} className="text-xs font-medium text-slate-600">
                             Slots <span className="text-red-500">*</span>
                           </Label>
+                          <div className="relative pb-3.5">
                           <Input
                             id={`event_package[${index}].total_slots`}
                             name={`event_package[${index}].total_slots`}
@@ -671,6 +688,7 @@ export function PackageFormDrawer({
                                 {formik.errors.event_package[index].total_slots}
                               </p>
                             )}
+                          </div>
                         </div>
 
                         {/* Price (Editable with Reset Option) */}
@@ -721,21 +739,6 @@ export function PackageFormDrawer({
                                 {formik.errors.event_package[index].event_price}
                               </p>
                             )}
-                        </div>
-
-                        {/* Delete Button */}
-                        <div className="lg:col-span-1 flex items-end pb-1">
-                          {formik.values.event_package.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeEventBundle(index)}
-                              className="h-10 w-10 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
                         </div>
                       </div>
                     </div>                   
