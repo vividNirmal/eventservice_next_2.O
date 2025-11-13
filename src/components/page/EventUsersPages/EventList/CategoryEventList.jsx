@@ -49,7 +49,9 @@ export default function CategoryEventList({ id }) {
   return (
     <div className="max-w-7xl w-full mx-auto px-4 py-12 relative z-20">
       <section className="w-full">
-        <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Exhibitor Form</h2>
+        <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
+          Exhibitor Event
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {eventList.length > 0 ? (
             eventList?.map((show) => (
@@ -57,9 +59,12 @@ export default function CategoryEventList({ id }) {
                 key={show._id}
                 title={show.eventId?.event_title}
                 description={show.eventId?.event_description}
-                onApply={() => router.push(
-                        `/dashboard/eventuser/eventlist/event-details/${show.eventId._id}`
-                      )}
+                onApply={() =>
+                  router.push(
+                    `/dashboard/eventuser/eventlist/event-details/${show.eventId._id}`
+                  )
+                }
+                date_time={show.eventId?.dateRanges}
               />
             ))
           ) : (

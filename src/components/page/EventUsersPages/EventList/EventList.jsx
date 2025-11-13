@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  EventAttendeesCard,
+import {  
   ExhibitorCard,
   CategoryCard,
 } from "./EventAttendeesCard";
@@ -142,11 +141,11 @@ export default function UserEventList() {
       {/* Exhibitor View - Category wise */}
       {userType?.typeName === "Exhibitor" && (
         <section className="w-full">
-          {!selectedCategory ? (
+          {!selectedCategory &&(
             // Show Categories
             <>
               <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
-                Event Categories
+                Event Shows
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {categorizedEvents?.map((item) => (
@@ -160,37 +159,7 @@ export default function UserEventList() {
                 ))}
               </div>
             </>
-          ) : (
-            // Show Events of Selected Category
-            <>
-              <div className="mb-6 flex items-center gap-4">
-                <button
-                  onClick={handleBackToCategories}
-                  className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                  Back to Categories
-                </button>
-                <h2 className="text-2xl font-bold text-foreground">
-                  {selectedCategory.category.title} - Events
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {selectedCategory.events?.map((show) => (
-                  <EventAttendeesCard
-                    key={show._id}
-                    title={show.eventId?.event_title}
-                    description={show.eventId?.event_description}
-                    onApply={() =>
-                      router.push(
-                        `/dashboard/eventuser/event-details/${show._id}`
-                      )
-                    }
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          ) }
         </section>
       )}
 

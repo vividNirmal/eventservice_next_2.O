@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { Upload, X, Save, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { toast } from 'sonner'; // or your toast library
+import { postRequest } from '@/service/viewService';
 
 export default function ImageUploadPage() {
   const [images, setImages] = useState({
-    image1: null,
-    image2: null,
-    image3: null
+    logo: null,
+    exhibitor_dashboard_banner: null,
+    attandess_dashboard_banner: null
   });
   const [isUploading, setIsUploading] = useState(false);
 
@@ -37,24 +39,44 @@ export default function ImageUploadPage() {
     }));
   };
 
-  const updateAllImages = () => {
-    const uploadedImages = Object.values(images).filter(img => img !== null);
+  const updateAllImages = async () => {
+    const uploadedImages = Object.entries(images).filter(([key, img]) => img !== null);
     
     if (uploadedImages.length === 0) {
-      alert('Please upload at least one image!');
+      toast.error('Please upload at least one image!');
       return;
     }
 
     setIsUploading(true);
-    
-    // Simulate upload
-    setTimeout(() => {
+
+    try {
+      const formData = new FormData();
+      
+      // Append all images to FormData
+      uploadedImages.forEach(([key, imageData]) => {
+        formData.append(key, imageData.file); 
+      });
+
+      // Add any additional metadata if needed
+      formData.append('imageCount', uploadedImages.length);
+
+      const response = await postRequest('/api/upload-images', formData); // Replace with your API endpoint
+      
+      if (response) {
+        toast.success(response.message || `Successfully updated ${uploadedImages.length} image(s)!`);
+                
+      } else {
+        toast.error(response.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error("Error during image upload:", error);
+      toast.error(error?.message || "An unexpected error occurred during upload.");
+    } finally {
       setIsUploading(false);
-      alert(`✓ Successfully updated ${uploadedImages.length} image(s)!`);
-    }, 1500);
+    }
   };
 
-  const ImageUploadBox = ({ imageKey, index }) => {
+  const ImageUploadBox = ({ imageKey, index,title }) => {
     const image = images[imageKey];
 
     return (
@@ -112,7 +134,7 @@ export default function ImageUploadPage() {
           // Upload Mode
           <label
             htmlFor={`upload-${imageKey}`}
-            className="grow flex flex-col items-center justify-center cursor-pointer rounded-xl group-hover:bg-gradient-to-br group-hover:from-blue-50 group-hover:to-indigo-50 transition-all duration-300"
+            className="h-96 flex flex-col items-center justify-center cursor-pointer rounded-xl group-hover:bg-gradient-to-br group-hover:from-blue-50 group-hover:to-indigo-50 transition-all duration-300"
           >
             <div className="relative">
               <div className="absolute inset-0 bg-blue-400 rounded-full blur-xl opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
@@ -121,7 +143,7 @@ export default function ImageUploadPage() {
               </div>
             </div>
             <p className="mt-6 text-base font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
-              Upload Image {index}
+              {title}
             </p>
             <p className="mt-2 text-sm text-gray-500">
               Click or drag to upload
@@ -155,11 +177,11 @@ export default function ImageUploadPage() {
 
         {/* Upload Grid */}
         <div className="flex flex-col mb-4">
-          {/* First Row - 2 Images */}
+          {/* First Row - 3 Images */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <ImageUploadBox imageKey="image1" index="1" />
-            <ImageUploadBox imageKey="image2" index="2" />
-            <ImageUploadBox imageKey="image3" index="3" />
+            <ImageUploadBox imageKey="logo" index="1" title={'Company Logo'} />
+            <ImageUploadBox imageKey="exhibitor_dashboard_banner" index="2" title={'Exihibitor Banner'} />
+            <ImageUploadBox imageKey="attandess_dashboard_banner" index="3" title={'Attandess Banner'} />
           </div>
         </div>
 
@@ -178,7 +200,7 @@ export default function ImageUploadPage() {
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                Update All Images
+                Update All Images ({uploadedCount})
               </>
             )}
           </Button>

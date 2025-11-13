@@ -79,7 +79,7 @@ export default function HeaderEventuser() {
     setSelectedUserType(type);
     dispatch(handleEventUserTypeSelected(type));
     
-    // Redirect if switching away from Exhibitor while on directory page
+    router.push("/dashboard/eventuser");
     if (
       type.typeName !== "Exhibitor" && 
       pathname === "/dashboard/eventuser/company-teams"
@@ -105,7 +105,7 @@ export default function HeaderEventuser() {
                 <DropdownMenu>
                   <DropdownMenuTrigger className="!py-0" asChild>
                     <button className="!py-0 cursor-pointer flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-                      {selectedUserType?.typeName || "Select Type"}
+                      {selectedUserType?.typeName == "Event Attendees" ? "Visitor" :selectedUserType?.typeName  || "Select Type"}
                       <ChevronDown className="h-4 w-4" />
                     </button>
                   </DropdownMenuTrigger>
@@ -116,7 +116,7 @@ export default function HeaderEventuser() {
                         onClick={() => handleUserTypeChange(type)}
                         className="cursor-pointer"
                       >
-                        {type.typeName}
+                        {type.typeName == "Event Attendees" ? 'Visitor' : type.typeName}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

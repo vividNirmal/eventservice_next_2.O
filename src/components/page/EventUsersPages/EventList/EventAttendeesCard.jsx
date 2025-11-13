@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 export function EventAttendeesCard({
   title,
   description,
+  date_time,
   onApply,
 }) {
   return (
@@ -20,7 +21,8 @@ export function EventAttendeesCard({
         </Button>
         <h3 className="text-xl mb-2 font-bold text-zinc-900">{title}</h3>
         <p className="flex items-start gap-2 text-sm leading-relaxed text-zinc-600">{description}</p>
-
+        <p className="flex items-start gap-2 text-sm leading-relaxed text-zinc-600">{`Event Time : ${date_time[0].startDate}  ${date_time[0].startTime} to ${date_time[0].endDate}  ${date_time[0].endTime}  ` }</p>
+        
         {/* <Button onClick={onApply} className="mt-4 bg-orange-400 border-orange-400 hover:text-white hover:bg-orange-400 hover:border-orange-400 gap-2">
           Details
           <ChevronRight className="w-4 h-4" />
