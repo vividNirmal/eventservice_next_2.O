@@ -475,7 +475,7 @@ const EventHostPage = () => {
         <div className="mb-4 flex flex-wrap items-center gap-4">
           <input type="text" placeholder="Search events..." value={searchQuery} onChange={handleSearch} className="w-2/4 grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2" />
           <Button className="w-fit h-10" onClick={handleAddEvent} size="lg">Add New Event</Button>
-          <Button className="w-fit h-10" onClick={()=>setCategoryModalOpen(true)} size="lg">Event category</Button>
+          <Button className="w-fit h-10" onClick={()=>setCategoryModalOpen(true)} size="lg">Add Event Shows </Button>
         </div>
         {/* Filter Buttons */}
         <div className="w-full space-y-4">

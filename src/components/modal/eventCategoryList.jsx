@@ -79,7 +79,7 @@ export function EventCategoryModal({ open, onOpenChange }) {
       });
       if (response.status == 1) {
         fetchCategory();
-        toast.success("Category deleted successfully");
+        toast.success("Shows deleted successfully");
       }
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -93,14 +93,14 @@ export function EventCategoryModal({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Event Categories</DialogTitle>
+          <DialogTitle>Event Shows</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Add Category Section */}
           <div className="flex gap-2">
             <Input
-              placeholder="Enter category name..."
+              placeholder="Enter Shows name..."
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
@@ -119,7 +119,7 @@ export function EventCategoryModal({ open, onOpenChange }) {
               ) : (
                 <>
                   <PlusIcon className="w-4 h-4" />
-                  Add Category
+                  Add Show
                 </>
               )}
             </Button>
@@ -129,7 +129,7 @@ export function EventCategoryModal({ open, onOpenChange }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Category Name</TableHead>
+                <TableHead>Shows Name</TableHead>
                 <TableHead>Created Date</TableHead>
                 <TableHead className="w-20">Action</TableHead>
               </TableRow>

@@ -455,7 +455,7 @@ export function PackageFormDrawer({
                       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
                         {/* Event Category */}
                         <div className="lg:col-span-4 space-y-1.5">
-                          <Label htmlFor={`event_package[${index}].event_category`} className="text-xs font-medium text-slate-600">Event Category <sup className="text-red-500">*</sup></Label>
+                          <Label htmlFor={`event_package[${index}].event_category`} className="text-xs font-medium text-slate-600">Event Shows <sup className="text-red-500">*</sup></Label>
                           <CustomCombobox
                             name={`event_package[${index}].event_category`}
                             value={bundle.event_category}

@@ -123,7 +123,6 @@ const EventModal = ({
     },
   ];
 
-  // Event categories
   const eventCategories = ["Career-Fair", "Webinar"];
 
   // Event format options (for step 2)
@@ -649,7 +648,7 @@ const EventModal = ({
                     {selectedEventFormat && (
                       <div className="w-full">
                         <Label className="pl-1 block mb-1 text-sm md:text-base font-semibold text-slate-700">
-                          Category
+                          Select Shows
                         </Label>
                         <CustomCombobox
                           name="event_category"
@@ -658,7 +657,7 @@ const EventModal = ({
                           valueKey="_id"
                           labelKey="title"
                           options={categories}
-                          placeholder={fetchLoading ? "Loading categories..." : "Select Category"}
+                          placeholder={fetchLoading ? "Loading categories..." : "Select shows"}
                           className="ln-autocomplete"
                           disabled={fetchLoading}
                           search= {categories.length >10 ? true : false}

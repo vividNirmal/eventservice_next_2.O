@@ -97,7 +97,7 @@ export default function HeaderEventuser() {
         </div>
 
         {/* Navigation */}
-        <div ref={menuRef} className={cn("md:flex md:items-center flex-col md:flex-row gap-2 md:gap-6 flex-1 justify-center md:static md:w-auto w-full top-12 p-5 md:p-0 left-0 fixed bg-white md:bg-transparent", !mobileMenuOpen && "hidden")}
+        <div ref={menuRef} className={cn("md:flex md:items-center flex-col md:flex-row gap-2 md:gap-6 flex-1 justify-center md:static md:w-auto w-full top-12 p-5 md:p-0 left-0 fixed bg-white md:bg-transparent", !mobileMenuOpen ? "hidden" :"flex")}
         >
           {loginUser && (
             <div className="py-2 border-gray-200">
