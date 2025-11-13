@@ -83,20 +83,20 @@ const EventCard = memo(({ event, onEdit, onCopy, onClick, isCopying }) => {
       if (isOngoing) {
         status = "Ongoing";
       } else {
-        // Check if all ranges are in the future (Incoming) or all in the past (Completed)
+        // Check if all ranges are in the future (Upcoming) or all in the past (Completed)
         const allFuture = event.dateRanges.every(range => {
           const rangeStart = new Date(`${range.startDate}T${range.startTime}:00`);
           return now < rangeStart;
         });
         
-        status = allFuture ? "Incoming" : "Completed";
+        status = allFuture ? "Upcoming" : "Completed";
       }
     } else {
       // Legacy single date range logic
       if (now >= eventStartDateTime && now <= eventEndDateTime) {
         status = "Ongoing";
       } else {
-        status = now < eventStartDateTime ? "Incoming" : "Completed";
+        status = now < eventStartDateTime ? "Upcoming" : "Completed";
       }
     }
 
@@ -237,7 +237,7 @@ const EventCard = memo(({ event, onEdit, onCopy, onClick, isCopying }) => {
             <span
               className={cn(
                 "inline-block px-2 py-1 rounded text-xs font-medium",
-                eventData.status === "Incoming"
+                eventData.status === "Upcoming"
                   ? "bg-blue-100 text-blue-700"
                   : "bg-green-200 text-green-700"
               )}
@@ -283,7 +283,7 @@ const EventHostPage = () => {
   }, [events, filter, getEventStatusMemo]);  
   const eventCounts = useMemo(() => {
     return {
-      Incoming: events.filter(e => getEventStatusMemo(e) === "Incoming").length,
+      Upcoming: events.filter(e => getEventStatusMemo(e) === "Upcoming").length,
       Completed: events.filter(e => getEventStatusMemo(e) === "Completed").length,
       Ongoing: events.filter(e => getEventStatusMemo(e) === "Ongoing").length,
     };
@@ -483,7 +483,7 @@ const EventHostPage = () => {
             <div className="flex flex-row items-center justify-between">
               <h3 className="font-semibold">Filter Events</h3>
               <div className="flex gap-2">
-                {["Ongoing", "Incoming", "Completed", "All"].map((option) => (
+                {["Ongoing", "Upcoming", "Completed", "All"].map((option) => (
                   <Button
                     key={option}
                     variant={filter === option ? "default" : "outline"}

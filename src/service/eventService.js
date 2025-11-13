@@ -79,7 +79,7 @@ export const getEventStatus = (event) => {
   if (now >= new Date(`${event.startDate}T${event.startTime}:00`) && now <= eventEndDateTime) {
     status = "Ongoing";
   } else {
-    status = now < eventEndDateTime ? "Incoming" : "Completed";
+    status = now < eventEndDateTime ? "Upcoming" : "Completed";
   }
 
   statusCache.set(cacheKey, status);

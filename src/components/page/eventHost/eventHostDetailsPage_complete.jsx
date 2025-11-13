@@ -102,7 +102,7 @@ const EventHostDetailsPage = ({ event }) => {
 
   const currentDate = new Date();
   const eventStartDate = new Date(event.start_date);
-  const status = currentDate < eventStartDate ? "Incoming" : "Ongoing";
+  const status = currentDate < eventStartDate ? "Upcoming" : "Ongoing";
 
   return (
     <div className="space-y-6">
@@ -321,7 +321,7 @@ const EventHostDetailsPage = ({ event }) => {
                   <TableCell>
                     <Badge
                       className={cn(
-                        status === "Incoming"
+                        status === "Upcoming"
                           ? "bg-blue-100 text-blue-700"
                           : "bg-green-200 text-green-700"
                       )}

@@ -121,7 +121,7 @@ const EventHostDetailsPage = ({ eventId }) => {
   const getEventStatus = (event) => {
     const now = new Date();
     const eventEndDateTime = new Date(`${event.endDate}T${event.endTime}:00`);
-    return now < eventEndDateTime ? "Incoming" : "Completed";
+    return now < eventEndDateTime ? "Upcoming" : "Completed";
   };
 
   // Format date
@@ -246,7 +246,7 @@ const EventHostDetailsPage = ({ eventId }) => {
         <div className="flex items-center gap-3">
           <Badge
             className={cn(
-              status === "Incoming"
+              status === "Upcoming"
                 ? "bg-blue-100 text-blue-700"
                 : "bg-green-200 text-green-700"
             )}

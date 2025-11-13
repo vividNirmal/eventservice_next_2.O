@@ -173,7 +173,7 @@ const EventHostDetailsPage = ({ eventId }) => {
         return currentDate < rangeStart;
       });
 
-      return allFuture ? "Incoming" : "Completed";
+      return allFuture ? "Upcoming" : "Completed";
     } else {
       // Legacy single date logic
       const eventStartDate = new Date(
@@ -184,7 +184,7 @@ const EventHostDetailsPage = ({ eventId }) => {
       if (currentDate >= eventStartDate && currentDate <= eventEndDate) {
         return "Ongoing";
       } else {
-        return currentDate < eventStartDate ? "Incoming" : "Completed";
+        return currentDate < eventStartDate ? "Upcoming" : "Completed";
       }
     }
   }, [event, eventDateInfo]);
@@ -604,7 +604,7 @@ const EventHostDetailsPage = ({ eventId }) => {
                     <TableCell>
                       <Badge
                         className={cn(
-                          status === "Incoming"
+                          status === "Upcoming"
                             ? "bg-blue-100 text-blue-700"
                             : status === "Ongoing"
                             ? "bg-green-100 text-green-700"
