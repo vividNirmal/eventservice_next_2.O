@@ -1,10 +1,10 @@
 "use client"
-import React, { useState } from 'react';
-import { Upload, X, Save, Check } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, X, Save, Check, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { toast } from 'sonner'; // or your toast library
-import { postRequest } from '@/service/viewService';
+import { toast } from 'sonner';
+import { postRequest, getRequest } from '@/service/viewService';
 
 export default function ImageUploadPage() {
   const [images, setImages] = useState({
@@ -13,10 +13,83 @@ export default function ImageUploadPage() {
     attandess_dashboard_banner: null
   });
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch existing images on component mount
+  useEffect(() => {
+    fetchCompanyImages();
+  }, []);
+
+  const fetchCompanyImages = async () => {
+    try {
+      setIsLoading(true);
+      const companyId = localStorage.getItem("companyId");
+      
+      if (!companyId) {
+        toast.error('Company ID not found in local storage');
+        return;
+      }
+
+      const response = await getRequest(`get-company-logo/${companyId}`);
+      
+      // Handle the nested response structure
+      if (response && response.data && response.data.images) {
+        const companyImages = response.data.images;
+        
+        // Set existing images with preview URLs
+        const updatedImages = {
+          logo: null,
+          exhibitor_dashboard_banner: null,
+          attandess_dashboard_banner: null
+        };
+
+        // Map the API response to our state
+        if (companyImages.logo) {
+          updatedImages.logo = {
+            file: null,
+            preview: companyImages.logo,
+            name: `Current logo`,
+            isExisting: true
+          };
+        }
+        if (companyImages.exhibitor_dashboard_banner) {
+          updatedImages.exhibitor_dashboard_banner = {
+            file: null,
+            preview: companyImages.exhibitor_dashboard_banner,
+            name: `Current exhibitor banner`,
+            isExisting: true
+          };
+        }
+        if (companyImages.attandess_dashboard_banner) {
+          updatedImages.attandess_dashboard_banner = {
+            file: null,
+            preview: companyImages.attandess_dashboard_banner,
+            name: `Current attendee banner`,
+            isExisting: true
+          };
+        }
+        
+        setImages(updatedImages);
+      } else {
+        console.warn("No images found in response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching company images:", error);
+      toast.error('Failed to load existing images');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleImageUpload = (e, imageKey) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
+      // Check file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be less than 10MB');
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImages(prev => ({
@@ -24,7 +97,8 @@ export default function ImageUploadPage() {
           [imageKey]: {
             file,
             preview: reader.result,
-            name: file.name
+            name: file.name,
+            isExisting: false
           }
         }));
       };
@@ -40,10 +114,11 @@ export default function ImageUploadPage() {
   };
 
   const updateAllImages = async () => {
-    const uploadedImages = Object.entries(images).filter(([key, img]) => img !== null);
+    const uploadedImages = Object.entries(images)
+      .filter(([key, img]) => img !== null && !img.isExisting);
     
     if (uploadedImages.length === 0) {
-      toast.error('Please upload at least one image!');
+      toast.error('Please upload at least one new image or make changes!');
       return;
     }
 
@@ -51,22 +126,28 @@ export default function ImageUploadPage() {
 
     try {
       const formData = new FormData();
+      const companyId = localStorage.getItem("companyId");
       
-      // Append all images to FormData
+      if (!companyId) {
+        toast.error('Company ID not found');
+        return;
+      }
+
+      // Append only new images to FormData
       uploadedImages.forEach(([key, imageData]) => {
-        formData.append(key, imageData.file); 
+        formData.append(key, imageData.file);
       });
-
-      // Add any additional metadata if needed
-      formData.append('imageCount', uploadedImages.length);
-
-      const response = await postRequest('/api/upload-images', formData); // Replace with your API endpoint
       
-      if (response) {
-        toast.success(response.message || `Successfully updated ${uploadedImages.length} image(s)!`);
-                
+      formData.append('company_id', companyId);
+
+      const response = await postRequest(`update-company-logo`, formData);
+      
+      if (response && response.status === 1) {
+        toast.success(response.message || 'Images updated successfully!');
+        // Refresh the images to get updated URLs
+        await fetchCompanyImages();
       } else {
-        toast.error(response.message || 'Upload failed');
+        toast.error(response?.message || 'Upload failed');
       }
     } catch (error) {
       console.error("Error during image upload:", error);
@@ -76,7 +157,7 @@ export default function ImageUploadPage() {
     }
   };
 
-  const ImageUploadBox = ({ imageKey, index,title }) => {
+  const ImageUploadBox = ({ imageKey, title }) => {
     const image = images[imageKey];
 
     return (
@@ -164,7 +245,18 @@ export default function ImageUploadPage() {
     );
   };
 
-  const uploadedCount = Object.values(images).filter(img => img !== null).length;
+  const uploadedCount = Object.values(images).filter(img => img !== null && !img.isExisting).length;
+
+  if (isLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
+          <p className="text-gray-600">Loading company images...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -177,11 +269,10 @@ export default function ImageUploadPage() {
 
         {/* Upload Grid */}
         <div className="flex flex-col mb-4">
-          {/* First Row - 3 Images */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <ImageUploadBox imageKey="logo" index="1" title={'Company Logo'} />
-            <ImageUploadBox imageKey="exhibitor_dashboard_banner" index="2" title={'Exihibitor Banner'} />
-            <ImageUploadBox imageKey="attandess_dashboard_banner" index="3" title={'Attandess Banner'} />
+            <ImageUploadBox imageKey="logo" title={'Company Logo'} />
+            <ImageUploadBox imageKey="exhibitor_dashboard_banner" title={'Exhibitor Banner'} />
+            <ImageUploadBox imageKey="attandess_dashboard_banner" title={'Attendee Banner'} />
           </div>
         </div>
 
@@ -200,18 +291,10 @@ export default function ImageUploadPage() {
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-                Update All Images ({uploadedCount})
+                Update Images
               </>
             )}
           </Button>
-        </div>
-
-        {/* Mobile Stats */}
-        <div className="md:hidden text-center">
-          <div className="inline-flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-lg">
-            <div className="text-xl font-bold text-blue-600">{uploadedCount}</div>
-            <div className="text-xs text-gray-600">/ 3 uploaded</div>
-          </div>
         </div>
       </div>
     </>
