@@ -8,16 +8,17 @@ import { Input } from "@/components/ui/input";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, Loader2, Image } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Loader2, ToggleLeft } from "lucide-react";
 import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, postRequest, updateRequest, deleteRequest } from "@/service/viewService";
 import ExhibitorFormParticularSheet from "./ExhibitorFormParticularSheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { ActionConfirmationDialog } from "@/components/common/ActionConfirmationDialog";
 
-export default function ExhibitorFormParticularList ({eventId, exhibitorFormId}){
+export default function ExhibitorFormParticularList({eventId, exhibitorFormId}){
 
   const [particulars, setParticulars] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -28,6 +29,11 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [particularToDelete, setParticularToDelete] = useState(null);
   const [eventZones, setEventZones] = useState([]);
+
+  // Status change states
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [particularToUpdate, setParticularToUpdate] = useState(null);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   // Pagination & search
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,6 +89,45 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
       }
     } catch (error) {
       console.error("Error fetching event zones:", error);
+    }
+  };
+
+  // Handle status change
+  const handleStatusChange = (particular) => {
+    setParticularToUpdate(particular);
+    setStatusDialogOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (!particularToUpdate) return;
+    
+    setStatusLoading(true);
+    try {
+      const newStatus = particularToUpdate.status === 'active' ? 'inactive' : 'active';
+      
+      const res = await updateRequest(
+        `exhibitor-form-particulars-status/${particularToUpdate._id}`,
+        { status: newStatus }
+      );
+      
+      if (res.status === 1) {
+        toast.success("Status updated successfully");
+        // Update local state
+        setParticulars(prev => 
+          prev.map(p => 
+            p._id === particularToUpdate._id ? { ...p, status: newStatus } : p
+          )
+        );
+      } else {
+        toast.error(res.message || "Failed to update status");
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+      toast.error("Failed to update status");
+    } finally {
+      setStatusLoading(false);
+      setStatusDialogOpen(false);
+      setParticularToUpdate(null);
     }
   };
 
@@ -277,12 +322,13 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={particular.status === "active" ? "default" : "secondary"}
-                          className={particular.status === "active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}
-                        >
-                          {particular.status}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={particular.status === "active"}
+                            onCheckedChange={() => handleStatusChange(particular)}
+                            disabled={statusLoading}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell>{formatDate(particular.createdAt)}</TableCell>
                       <TableCell className="text-right">
@@ -348,6 +394,18 @@ export default function ExhibitorFormParticularList ({eventId, exhibitorFormId})
         eventId={eventId}
         eventZones={eventZones}
         exhibitorFormId={exhibitorFormId}
+      />
+
+      {/* Status Confirmation Dialog using ActionConfirmationDialog */}
+      <ActionConfirmationDialog
+        isOpen={statusDialogOpen}
+        onClose={() => setStatusDialogOpen(false)}
+        onConfirm={confirmStatusChange}
+        title="Change Status"
+        description={`Are you sure you want to change the status of "${particularToUpdate?.item_name}" from ${particularToUpdate?.status} to ${particularToUpdate?.status === 'active' ? 'inactive' : 'active'}?`}
+        confirmButtonText={particularToUpdate?.status === 'active' ? 'Deactivate' : 'Activate'}
+        loading={statusLoading}
+        icon={ToggleLeft}
       />
 
       <DeleteConfirmationDialog

@@ -132,7 +132,6 @@ const ExhibitorFormParticularSheet = ({
       .integer("Material number must be a whole number"),
     zones: Yup.array().of(Yup.string()),
     venue: Yup.array().of(Yup.string()),
-    status: Yup.string().oneOf(["active", "inactive"]).default("active"),
   });
 
   const formik = useFormik({
@@ -154,7 +153,7 @@ const ExhibitorFormParticularSheet = ({
         nameChanged: false,
         deleted: false
       })) || [],
-      status: initialData?.status || "active",
+      // status: initialData?.status || "active",
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -167,7 +166,6 @@ const ExhibitorFormParticularSheet = ({
       formData.append("national_price", values.national_price.toString());
       formData.append("international_price", values.international_price.toString());
       formData.append("material_number", values.material_number.toString());
-      formData.append("status", values.status);
       
       // Append zones as JSON string
       formData.append("zones", JSON.stringify(values.zones));
@@ -680,21 +678,6 @@ const ExhibitorFormParticularSheet = ({
                   </p>
                 </div>
               )}
-            </div>
-
-            {/* Status */}
-            <div className="flex items-center justify-between border rounded-md p-3">
-              <Label htmlFor="status" className="text-sm">
-                Active Status
-              </Label>
-              <Switch
-                id="status"
-                name="status"
-                checked={formik.values.status === "active"}
-                onCheckedChange={(checked) =>
-                  formik.setFieldValue("status", checked ? "active" : "inactive")
-                }
-              />
             </div>
           </div>
 
