@@ -62,9 +62,9 @@ export default function RootLayout({ children }) {
       return (
         <div className="flex flex-col h-screen bg-[#F5F6FA]">
           <HeaderEventuser />
-          <div className="flex-1 flex flex-col overflow-auto custom-scroll px-4 pb-4 pt-[120px] relative">
+          <div className="flex-1 flex flex-col overflow-auto custom-scroll px-4 pb-4 pt-36 relative">
             <div className="max-w-full w-full rounded-b-2xl overflow-hidden fixed top-0 left-0 z-10">
-              <img src="/banner-image.png" className="max-w-full w-full h-60 object-cover" alt="banner image" />
+              <img src="/music-banner.webp" className="max-w-full w-full h-64 2xl:h-72 object-cover" alt="banner image" />
             </div>
             {children}
           </div>

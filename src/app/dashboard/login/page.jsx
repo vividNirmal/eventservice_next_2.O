@@ -138,18 +138,18 @@ export default function AdminLogin() {
   };
 
   const loginImg =
-    "/assets/login-img.png?height=300&width=300&text=Login+Image";
+    "/login-side-banner.svg?height=300&width=300&text=Login+Image";
 
   return (
     <>
       <DynamicTitle pageTitle="Login" />
       <section className="max-h-screen h-screen overflow-auto bg-white">
         <div className="flex flex-wrap gap-3 lg:gap-4 h-[inherit] pr-4">
-          <div className="w-full hidden lg:block lg:w-2/5 grow h-svh">
+          <div className="w-full hidden lg:block lg:w-2/5 grow h-svh content-center">
             <div className="flex justify-center items-center bg-white/20">
               <Image
-                src={loginImg || "/vercel.svg"}
-                className="block object-cover"
+                src={loginImg || "/login-side-banner.svg"}
+                className="block object-cover 2xl:w-2/4"
                 alt="login"
                 width={600}
                 height={600}

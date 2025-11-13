@@ -93,7 +93,8 @@ export default function HeaderEventuser() {
       <div className="flex items-center justify-between gap-4 px-5 xl:px-[4vw] 2xl:px-[5vw] mx-auto">
         {/* Logo */}
         <div className="min-w-fit">
-          <div className="text-2xl font-bold text-blue-600">Logo</div>
+          <img src="/music-logo.svg" className="block w-full max-w-44" alt="logo" />
+          {/* <div className="text-2xl font-bold text-blue-600">Logo</div> */}
         </div>
 
         {/* Navigation */}
