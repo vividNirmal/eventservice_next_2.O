@@ -14,11 +14,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, ShieldHalf, Trash2 } from "lucide-react";
+import { Loader2, Plus, ShieldHalf, Trash2, RefreshCw } from "lucide-react";
 import { CustomCombobox } from "@/components/common/customcombox";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Currency configuration
 export const CURRENCIES = [
@@ -32,10 +38,11 @@ export const CURRENCIES = [
   { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham' },
 ];
 
- export const getCurrencySymbol = (currencyCode) => {
-    const currency = CURRENCIES.find(c => c.code === currencyCode);
-    return currency ? currency.symbol : '$';
-  };
+export const getCurrencySymbol = (currencyCode) => {
+  const currency = CURRENCIES.find(c => c.code === currencyCode);
+  return currency ? currency.symbol : '$';
+};
+
 export function PackageFormDrawer({
   isOpen,
   onClose,
@@ -48,20 +55,20 @@ export function PackageFormDrawer({
   const [eventsByCategory, setEventsByCategory] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
 
-  // Get currency symbol based on selected currency
- 
-
   // Formik initialization
   const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
-      currency: "USD", // Default currency
+      currency: "USD",
       event_package: [
         {
           event_category: "",
           event_Id: "",
+          ticket_category: "",
+          total_slots: "",
           event_price: "",
+          unit_price: "", // Store the unit price for reference
         },
       ],
     },
@@ -76,6 +83,11 @@ export function PackageFormDrawer({
           Yup.object({
             event_category: Yup.string().required("Category is required"),
             event_Id: Yup.string().required("Event is required"),
+            ticket_category: Yup.string().required("Ticket category is required"),
+            total_slots: Yup.number()
+              .typeError("Slots must be a number")
+              .min(1, "Minimum 1 slot required")
+              .required("Total slots is required"),
             event_price: Yup.number()
               .typeError("Price must be a number")
               .min(0, "Price must be 0 or positive")
@@ -83,22 +95,19 @@ export function PackageFormDrawer({
           })
         )
         .min(1, "At least one event bundle is required")
-        .test("unique-events", "Each event can only be selected once", function (bundles) {
+        .test("unique-event-ticket", "Each event-ticket combination can only be selected once", function (bundles) {
           if (!bundles) return true;
           
-          const eventIds = bundles
-            .map((bundle) => bundle.event_Id)
-            .filter((event_Id) => event_Id !== "");
+          const combinations = bundles
+            .map((bundle) => `${bundle.event_Id}-${bundle.ticket_category}`)
+            .filter((combo) => combo !== "-");
           
-          const uniqueEventIds = new Set(eventIds);
+          const uniqueCombinations = new Set(combinations);
           
-          if (eventIds.length !== uniqueEventIds.size) {
-            const duplicates = eventIds.filter(
-              (item, index) => eventIds.indexOf(item) !== index
-            );
+          if (combinations.length !== uniqueCombinations.size) {
             return this.createError({
               path: "event_package",
-              message: `Duplicate events found. Each event can only be selected once.`,
+              message: `Duplicate event-ticket category combinations found. Each combination can only be selected once.`,
             });
           }
           
@@ -111,7 +120,13 @@ export function PackageFormDrawer({
           title: values.title,
           description: values.description,
           currency: values.currency,
-          event_package: values.event_package,
+          event_package: values.event_package.map(bundle => ({
+            event_category: bundle.event_category,
+            event_Id: bundle.event_Id,
+            ticketType: bundle.ticket_category,
+            ticketSlot: bundle.total_slots,
+            event_price: bundle.event_price,
+          })),
           package_total_price: totalPrice.toString(),
         };
                 
@@ -162,11 +177,13 @@ export function PackageFormDrawer({
   useEffect(() => {
     if (isOpen) {
       if (editPackage) {
-        // Transform the event_package data to match the form structure
         const transformedEventPackage = editPackage.event_package.map((bundle) => ({
           event_category: bundle.event_category?._id || bundle.event_category || "",
           event_Id: bundle.event_Id?._id || bundle.event_Id || "",
+          ticket_category: bundle.ticket_category || "",
+          total_slots: bundle.total_slots || "",
           event_price: bundle.event_price || "",
+          unit_price: bundle.unit_price || "",
         }));
 
         formik.setValues({
@@ -212,7 +229,6 @@ export function PackageFormDrawer({
       if (item.eventId && item.eventId.event_category) {
         const event_category = item.eventId.event_category;
         
-        // Add category to map
         if (!categoriesMap.has(event_category._id)) {
           categoriesMap.set(event_category._id, {
             _id: event_category._id,
@@ -220,7 +236,6 @@ export function PackageFormDrawer({
           });
         }
 
-        // Group events by category
         if (!eventsByCategoryMap[event_category._id]) {
           eventsByCategoryMap[event_category._id] = [];
         }
@@ -230,7 +245,7 @@ export function PackageFormDrawer({
           eventName: item.eventId.eventName,
           ticketName: item.ticketName,
           ticketAmount: item.ticketAmount,
-          defaultPrice: getDefaultPrice(item.ticketAmount),
+          ticketCategories: getTicketCategories(item.ticketAmount),
         });
       }
     });
@@ -239,40 +254,64 @@ export function PackageFormDrawer({
     setEventsByCategory(eventsByCategoryMap);
   }
 
-  // Extract default price from ticket amount
-  function getDefaultPrice(ticketAmount) {
+  // Extract ticket categories from businessSlabs
+  function getTicketCategories(ticketAmount) {
     if (ticketAmount.type === "free") {
-      return 0;
+      return [{ category: "Free", amount: 0 }];
     } else if (ticketAmount.type === "businessSlab" && ticketAmount.businessSlabs?.length > 0) {
-      const firstSlab = ticketAmount.businessSlabs[0];
-      if (firstSlab.categoryAmounts?.length > 0) {
-        return firstSlab.categoryAmounts[0].amount;
-      }
+      const categories = [];
+      ticketAmount.businessSlabs.forEach((slab) => {
+        if (slab.categoryAmounts?.length > 0) {
+          slab.categoryAmounts.forEach((catAmount) => {
+            // Avoid duplicates
+            if (!categories.find(c => c.category === catAmount.category)) {
+              categories.push({
+                category: catAmount.category,
+                amount: catAmount.amount,
+              });
+            }
+          });
+        }
+      });
+      return categories;
     }
-    return 0;
+    return [];
   }
 
-  // Get selected event IDs (excluding current index)
-  const getSelectedEventIds = (currentIndex) => {
+  // Get ticket categories for selected event
+  const getTicketCategoriesForEvent = (categoryId, eventId) => {
+    const events = eventsByCategory[categoryId] || [];
+    const selectedEvent = events.find((event) => event._id === eventId);
+    return selectedEvent?.ticketCategories || [];
+  };
+
+  // Get price for selected ticket category
+  const getPriceForTicketCategory = (categoryId, eventId, ticketCategory) => {
+    const categories = getTicketCategoriesForEvent(categoryId, eventId);
+    const category = categories.find((cat) => cat.category === ticketCategory);
+    return category?.amount || 0;
+  };
+
+  // Get selected event-ticket combinations (excluding current index)
+  const getSelectedCombinations = (currentIndex) => {
     return formik.values.event_package
-      .map((bundle, index) => (index !== currentIndex ? bundle.event_Id : null))
-      .filter((eventId) => eventId !== null && eventId !== "");
+      .map((bundle, index) => 
+        index !== currentIndex 
+          ? `${bundle.event_Id}-${bundle.ticket_category}` 
+          : null
+      )
+      .filter((combo) => combo !== null && combo !== "-");
   };
 
-  // Get available events for category (excluding already selected events)
-  const getAvailableEventsForCategory = (categoryId, currentIndex) => {
-    const allEvents = eventsByCategory[categoryId] || [];
-    const selectedEventIds = getSelectedEventIds(currentIndex);
-    
-    return allEvents.filter(
-      (event) => !selectedEventIds.includes(event._id)
-    );
+  // Get available events for category
+  const getAvailableEventsForCategory = (categoryId) => {
+    return eventsByCategory[categoryId] || [];
   };
 
-  // Check if an event is already selected
-  const isEventAlreadySelected = (eventId, currentIndex) => {
-    const selectedEventIds = getSelectedEventIds(currentIndex);
-    return selectedEventIds.includes(eventId);
+  // Check if event-ticket combination is already selected
+  const isCombinationAlreadySelected = (eventId, ticketCategory, currentIndex) => {
+    const selectedCombinations = getSelectedCombinations(currentIndex);
+    return selectedCombinations.includes(`${eventId}-${ticketCategory}`);
   };
 
   // Add new event bundle
@@ -282,7 +321,10 @@ export function PackageFormDrawer({
       {
         event_category: "",
         event_Id: "",
+        ticket_category: "",
+        total_slots: "",
         event_price: "",
+        unit_price: "",
       },
     ]);
   };
@@ -298,36 +340,86 @@ export function PackageFormDrawer({
   const handleCategoryChange = (index, value) => {
     formik.setFieldValue(`event_package[${index}].event_category`, value);
     formik.setFieldValue(`event_package[${index}].event_Id`, "");
+    formik.setFieldValue(`event_package[${index}].ticket_category`, "");
+    formik.setFieldValue(`event_package[${index}].total_slots`, "");
     formik.setFieldValue(`event_package[${index}].event_price`, "");
+    formik.setFieldValue(`event_package[${index}].unit_price`, "");
   };
 
   // Handle event change
   const handleEventChange = (index, value) => {
-    // Check if event is already selected
-    if (isEventAlreadySelected(value, index)) {
-      toast.error("This event is already selected in another bundle");
+    formik.setFieldValue(`event_package[${index}].event_Id`, value);
+    formik.setFieldValue(`event_package[${index}].ticket_category`, "");
+    formik.setFieldValue(`event_package[${index}].total_slots`, "");
+    formik.setFieldValue(`event_package[${index}].event_price`, "");
+    formik.setFieldValue(`event_package[${index}].unit_price`, "");
+  };
+
+  // Handle ticket category change
+  const handleTicketCategoryChange = (index, value) => {
+    const bundle = formik.values.event_package[index];
+    
+    // Check if combination already selected
+    if (isCombinationAlreadySelected(bundle.event_Id, value, index)) {
+      toast.error("This event-ticket category combination is already selected");
       return;
     }
 
-    formik.setFieldValue(`event_package[${index}].event_Id`, value);
+    formik.setFieldValue(`event_package[${index}].ticket_category`, value);
     
-    // Find the selected event and set default price
-    const categoryId = formik.values.event_package[index].event_category;
-    const events = eventsByCategory[categoryId] || [];
-    const selectedEvent = events.find((event) => event._id === value);
+    // Get unit price for selected ticket category
+    const unitPrice = getPriceForTicketCategory(
+      bundle.event_category,
+      bundle.event_Id,
+      value
+    );
     
-    if (selectedEvent) {
-      formik.setFieldValue(`event_package[${index}].event_price`, selectedEvent.defaultPrice);
+    formik.setFieldValue(`event_package[${index}].unit_price`, unitPrice);
+    
+    // Calculate and set total price based on slots
+    const slots = parseInt(bundle.total_slots) || 0;
+    const totalPrice = unitPrice * slots;
+    
+    formik.setFieldValue(`event_package[${index}].event_price`, totalPrice);
+  };
+
+  // Handle slots change
+  const handleSlotsChange = (index, e) => {
+    const value = e.target.value;
+    
+    // Allow only positive integers
+    if (value === "" || (/^\d+$/.test(value) && parseInt(value) > 0)) {
+      formik.setFieldValue(`event_package[${index}].total_slots`, value);
+      
+      // Auto-recalculate price based on unit price
+      const bundle = formik.values.event_package[index];
+      if (bundle.unit_price) {
+        const slots = parseInt(value) || 0;
+        const totalPrice = bundle.unit_price * slots;
+        formik.setFieldValue(`event_package[${index}].event_price`, totalPrice);
+      }
     }
   };
 
-  // Handle price change
+  // Handle manual price change
   const handlePriceChange = (index, e) => {
     const value = e.target.value;
     
-    // Allow empty string or valid numbers (including 0)
+    // Allow empty string or valid numbers (including decimals)
     if (value === "" || !isNaN(value)) {
       formik.setFieldValue(`event_package[${index}].event_price`, value);
+    }
+  };
+
+  // Reset price to auto-calculated value
+  const resetPriceToDefault = (index) => {
+    const bundle = formik.values.event_package[index];
+    
+    if (bundle.unit_price && bundle.total_slots) {
+      const slots = parseInt(bundle.total_slots) || 0;
+      const totalPrice = bundle.unit_price * slots;
+      formik.setFieldValue(`event_package[${index}].event_price`, totalPrice);
+      toast.success("Price reset to calculated value");
     }
   };
 
@@ -339,9 +431,20 @@ export function PackageFormDrawer({
   // Get current currency symbol
   const currentCurrencySymbol = getCurrencySymbol(formik.values.currency);
 
+  // Check if price has been manually modified
+  const isPriceModified = (index) => {
+    const bundle = formik.values.event_package[index];
+    if (!bundle.unit_price || !bundle.total_slots) return false;
+    
+    const expectedPrice = bundle.unit_price * parseInt(bundle.total_slots || 0);
+    const currentPrice = parseFloat(bundle.event_price) || 0;
+    
+    return Math.abs(expectedPrice - currentPrice) > 0.01; // Allow for small floating point differences
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-lg lg:max-w-2xl gap-0">
+      <SheetContent className="w-full sm:max-w-lg lg:max-w-4xl gap-0">
         <SheetHeader className="border-b pb-4">
           <SheetTitle className="font-bold">{editPackage ? "Edit Package" : "Create New Package"}</SheetTitle>
           <SheetDescription>{editPackage ? "Update package information and event bundles" : "Create a new event package with multiple events"}</SheetDescription>
@@ -427,7 +530,7 @@ export function PackageFormDrawer({
                   <Label className="text-sm xl:text-lg font-semibold text-slate-800 m-0">
                     Event Bundles <span className="text-red-500">*</span>
                   </Label>
-                  <p className="text-xs lg:text-sm text-slate-500">Add events to this package</p>
+                  <p className="text-xs lg:text-sm text-slate-500">Add events with ticket categories and slots</p>
                 </div>
                 <Button
                   type="button"
@@ -441,20 +544,20 @@ export function PackageFormDrawer({
                 </Button>
               </div>
 
-              {/* Event Bundle Items - One Row Layout */}
+              {/* Event Bundle Items */}
               <div className="space-y-3">
                 {formik.values.event_package.map((bundle, index) => (
-                  <div key={index} className="group p-3 border-2 border-slate-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200">
+                  <div key={index} className="group p-4 border-2 border-slate-200 rounded-lg bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200">
                     <div className="flex items-start gap-4">
                       {/* Bundle Number */}
                       <div className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
                         {index + 1}
                       </div>
 
-                      {/* Form Fields in One Row */}
+                      {/* Form Fields */}
                       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
                         {/* Event Category */}
-                        <div className="lg:col-span-4 space-y-1.5">
+                        <div className="lg:col-span-3 space-y-1.5">
                           <Label htmlFor={`event_package[${index}].event_category`} className="text-xs font-medium text-slate-600">Event Shows <sup className="text-red-500">*</sup></Label>
                           <CustomCombobox
                             name={`event_package[${index}].event_category`}
@@ -478,7 +581,7 @@ export function PackageFormDrawer({
                         </div>
 
                         {/* Event */}
-                        <div className="lg:col-span-4 space-y-1.5">
+                        <div className="lg:col-span-3 space-y-1.5">
                           <Label htmlFor={`event_package[${index}].event_Id`} className="text-xs font-medium text-slate-600">
                             Event <span className="text-red-500">*</span>
                           </Label>
@@ -491,7 +594,7 @@ export function PackageFormDrawer({
                             }
                             valueKey="_id"
                             labelKey="eventName"
-                            options={getAvailableEventsForCategory(bundle.event_category, index)}
+                            options={getAvailableEventsForCategory(bundle.event_category)}
                             placeholder={
                               bundle.event_category
                                 ? "Select event"
@@ -508,10 +611,90 @@ export function PackageFormDrawer({
                             )}
                         </div>
 
-                        {/* Price with Dynamic Currency Symbol */}
-                        <div className="lg:col-span-3 space-y-1.5">
-                          <Label htmlFor={`event_package[${index}].event_price`} className="text-xs font-medium text-slate-600">
-                            Price <span className="text-red-500">*</span>
+                        {/* Ticket Category */}
+                        <div className="lg:col-span-2 space-y-1.5">
+                          <Label htmlFor={`event_package[${index}].ticket_category`} className="text-xs font-medium text-slate-600">
+                            Ticket Type <span className="text-red-500">*</span>
+                          </Label>
+                          <CustomCombobox
+                            name={`event_package[${index}].ticket_category`}
+                            value={bundle.ticket_category}
+                            onChange={(value) => handleTicketCategoryChange(index, value)}
+                            onBlur={() =>
+                              formik.setFieldTouched(`event_package[${index}].ticket_category`, true)
+                            }
+                            valueKey="category"
+                            labelKey="category"
+                            options={getTicketCategoriesForEvent(bundle.event_category, bundle.event_Id)}
+                            placeholder={
+                              bundle.event_Id
+                                ? "Select ticket"
+                                : "Select event first"
+                            }
+                            id={`event_package[${index}].ticket_category`}
+                            disabled={!bundle.event_Id}
+                            renderOption={(option) => (
+                              <div className="flex items-center justify-between w-full">
+                                <span className="font-medium">{option.category}</span>
+                                <span className="text-xs text-slate-500">{currentCurrencySymbol}{option.amount}</span>
+                              </div>
+                            )}
+                          />
+                          {formik.touched.event_package?.[index]?.ticket_category &&
+                            formik.errors.event_package?.[index]?.ticket_category && (
+                              <p className="text-xs text-red-500">
+                                {formik.errors.event_package[index].ticket_category}
+                              </p>
+                            )}
+                        </div>
+
+                        {/* Total Slots */}
+                        <div className="lg:col-span-2 space-y-1.5">
+                          <Label htmlFor={`event_package[${index}].total_slots`} className="text-xs font-medium text-slate-600">
+                            Slots <span className="text-red-500">*</span>
+                          </Label>
+                          <Input
+                            id={`event_package[${index}].total_slots`}
+                            name={`event_package[${index}].total_slots`}
+                            type="number"
+                            min="1"
+                            placeholder="0"
+                            value={bundle.total_slots}
+                            onChange={(e) => handleSlotsChange(index, e)}
+                            onBlur={formik.handleBlur}
+                            className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                            disabled={!bundle.ticket_category}
+                          />
+                          {formik.touched.event_package?.[index]?.total_slots &&
+                            formik.errors.event_package?.[index]?.total_slots && (
+                              <p className="text-xs text-red-500">
+                                {formik.errors.event_package[index].total_slots}
+                              </p>
+                            )}
+                        </div>
+
+                        {/* Price (Editable with Reset Option) */}
+                        <div className="lg:col-span-2 space-y-1.5">
+                          <Label htmlFor={`event_package[${index}].event_price`} className="text-xs font-medium text-slate-600 flex items-center gap-1">
+                            Total Price <span className="text-red-500">*</span>
+                            {isPriceModified(index) && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <button
+                                      type="button"
+                                      onClick={() => resetPriceToDefault(index)}
+                                      className="ml-1 text-blue-600 hover:text-blue-800"
+                                    >
+                                      <RefreshCw className="h-3 w-3" />
+                                    </button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="text-xs">Reset to calculated price</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </Label>
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">
@@ -527,7 +710,9 @@ export function PackageFormDrawer({
                               value={bundle.event_price}
                               onChange={(e) => handlePriceChange(index, e)}
                               onBlur={formik.handleBlur}
-                              className="bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200"
+                              className={`bg-white/50 backdrop-blur-sm border-slate-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all duration-200 pl-8 ${
+                                isPriceModified(index) ? 'border-amber-300 bg-amber-50/50' : ''
+                              }`}
                             />
                           </div>
                           {formik.touched.event_package?.[index]?.event_price &&
@@ -553,7 +738,7 @@ export function PackageFormDrawer({
                           )}
                         </div>
                       </div>
-                    </div>
+                    </div>                   
                   </div>
                 ))}
               </div>
@@ -569,14 +754,17 @@ export function PackageFormDrawer({
             </div>
 
           </ScrollArea>
-          {/* Total Price Display with Dynamic Currency */}
+          
+          {/* Total Price Display */}
           <div className="space-y-2 py-3">
             <Label>Package Total Price</Label>
             <div className="p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg flex items-end justify-between">
               <div className="flex items-center gap-3">
                 <div className="size-7 lg:size-8 2xl:size-9 bg-blue-100 rounded-full text-xs 2xl:text-sm font-bold text-blue-700 flex items-center justify-center"><ShieldHalf className="size-5" /></div>
                 <div className="flex flex-col">
-                  <span className="text-sm text-blue-600 font-medium block">{formik.values.event_package.length} event{formik.values.event_package.length !== 1 ? 's' : ''}</span>
+                  <span className="text-sm text-blue-600 font-medium block">
+                    {formik.values.event_package.reduce((sum, bundle) => sum + (parseInt(bundle.total_slots) || 0), 0)} total slot{formik.values.event_package.reduce((sum, bundle) => sum + (parseInt(bundle.total_slots) || 0), 0) !== 1 ? 's' : ''}
+                  </span>
                   <span className="text-xs text-slate-500">{CURRENCIES.find(c => c.code === formik.values.currency)?.name}</span>
                 </div>
               </div>
@@ -585,6 +773,7 @@ export function PackageFormDrawer({
               </div>
             </div>
           </div>
+
           {/* Form Actions */}
           <SheetFooter className="flex flex-row justify-end gap-3 border-t border-solid border-gray-300">
             <Button type="button" variant="outline" onClick={onClose} className="min-w-[100px]">Cancel</Button>

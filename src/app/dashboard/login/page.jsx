@@ -144,12 +144,12 @@ export default function AdminLogin() {
     <>
       <DynamicTitle pageTitle="Login" />
       <section className="max-h-screen h-screen overflow-auto bg-white">
-        <div className="flex flex-wrap gap-3 lg:gap-4 h-[inherit] pr-4">
-          <div className="w-full hidden lg:block lg:w-2/5 grow h-svh content-center">
+        <div className="flex flex-wrap gap-3 lg:gap-4 h-[inherit] px-4">
+          <div className="w-full block lg:w-2/5 lg:grow lg:h-svh content-center">
             <div className="flex justify-center items-center bg-white/20">
               <Image
                 src={loginImg || "/login-side-banner.svg"}
-                className="block object-cover 2xl:w-2/4"
+                className="block object-cover h-auto 2xl:w-2/4"
                 alt="login"
                 width={600}
                 height={600}
@@ -158,7 +158,7 @@ export default function AdminLogin() {
           </div>
 
           <div className="rounded-xl shadow-[0_0_6px_rgba(0,0,0,0.12)] my-4 p-4 lg:pr-10 w-full lg:w-1/3 xl:w-1/4 flex flex-col justify-center">
-            <h1 className="text-center text-3xl xl:text-4xl font-semibold text-black mb-4">
+            <h1 className="text-center text-2xl lg:text-3xl xl:text-4xl font-semibold text-black mb-4">
               Welcome
               {domainConfig.brandName ? ` to ${domainConfig.brandName}` : ""}
             </h1>
