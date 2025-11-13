@@ -141,7 +141,7 @@ const UserRegisterEvent = () => {
         setEventStep(5); // Skip step 4 since face scan is now integrated
       } else {
         // Throw error with API response message
-        throw new Error(responce.message || "Failed to submit registration");
+        throw new Error(responce?.message || responce?.error || "Failed to submit registration");
       }
      
     } catch (err) {          

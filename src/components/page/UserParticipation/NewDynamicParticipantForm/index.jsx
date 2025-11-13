@@ -280,7 +280,7 @@ const NewDynamicParticipantForm = ({
         setFaceImage(null);
       } catch (error) {
         console.error("Submission error:", error);
-        toast.error("Failed to submit form");
+        // toast.error("Failed to submit form");
       } finally {
         setSubmitting(false);
       }
