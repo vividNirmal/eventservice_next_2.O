@@ -4,16 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { X, LogOut, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { getRequest, postRequest } from "@/service/viewService"; // Your API service
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "./ui/input";
+import {  postRequest } from "@/service/viewService"; // Your API service
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,8 +18,7 @@ import {
 import { Breadcrumbs } from "./breadcrumb";
 
 export default function Header() {
-  const router = useRouter();
-  // Get toggle function and mobile state from sidebar context
+  const router = useRouter();  
   const [loginUser, setLoginUser] = useState(null);
   const [emailStatus, setEmailStatus] = useState(false);
   const [statusPopupOpen, setStatusPopupOpen] = useState(false);
