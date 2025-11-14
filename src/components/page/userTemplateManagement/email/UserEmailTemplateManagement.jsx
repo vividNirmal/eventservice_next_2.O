@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
+import UserCampaignList from "../common/UserCampaignList";
 
 // Lazy load components
 const UserEmailTemplateList = dynamic(
@@ -46,6 +47,10 @@ const UserEmailTemplateManagement = ({ eventId }) => {
         );
       case "default-templates":
         return <DefaultTemplateList eventId={eventId} templateType={"email"} />;
+      case "campaign":
+        return (
+          <UserCampaignList eventId={eventId} templateType={"email"} />
+        );
       default:
         return null;
     }
@@ -65,6 +70,9 @@ const UserEmailTemplateManagement = ({ eventId }) => {
             </TabsTrigger>
             <TabsTrigger value="default-templates" className="px-6">
               Default Templates
+            </TabsTrigger>
+            <TabsTrigger value="campaign" className="px-6">
+              Campaign
             </TabsTrigger>
           </TabsList>
 
