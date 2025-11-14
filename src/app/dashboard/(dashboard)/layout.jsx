@@ -10,6 +10,7 @@ import StaticNavigation from "@/components/page/eventHost/StaticNavigation";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ThemedWrapper from "@/components/ThemedWrapper";
+import { CompanyImageProvider } from "@/contexts/CompanyImageContext";
 import HeaderBar from "@/components/header-bar";
 import { usePathname } from "next/navigation";
 import HeaderEventuser from "@/components/page/EventUsersPages/HeaderEventuser";
@@ -62,9 +63,9 @@ export default function RootLayout({ children }) {
       return (
         <div className="flex flex-col h-screen bg-[#F5F6FA]">
           <HeaderEventuser />
-          <div className="flex-1 flex flex-col overflow-auto custom-scroll px-4 pb-4 pt-36 relative">
+          <div className="flex-1 flex flex-col overflow-auto custom-scroll px-4 pb-4 relative pt-36 z-20">
             <div className="max-w-full w-full rounded-b-2xl overflow-hidden fixed top-0 left-0 z-10">
-              <img src="/music-banner.webp" className="max-w-full w-full h-64 2xl:h-72 object-cover" alt="banner image" />
+              {/* <img src="/music-banner.webp" className="max-w-full w-full h-64 2xl:h-72 object-cover" alt="banner image" /> */}
             </div>
             {children}
           </div>
@@ -127,21 +128,24 @@ export default function RootLayout({ children }) {
     <Suspense fallback={<Loader2 />}>
       <ThemeProvider>
         <ThemedWrapper>
-          {isSuperAdmin ? (
-            // SuperAdmin Layout with AppSidebar
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset className={"bg-transparent gap-5"}>
-                <HeaderBar />
-                <div className="flex flex-col flex-1 space-y-4 p-4 xl:p-6 bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] min-h-0 overflow-auto themed-content">
-                  {children}
-                </div>
-              </SidebarInset>
-            </SidebarProvider>
-          ) : (
+          {/* COMPANY IMAGE PROVIDER */}
+          <CompanyImageProvider>
+            {isSuperAdmin ? (
+              // SuperAdmin Layout with AppSidebar
+              <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset className={"bg-transparent gap-5"}>
+                  <HeaderBar />
+                  <div className="flex flex-col flex-1 space-y-4 p-4 xl:p-6 bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] min-h-0 overflow-auto themed-content">
+                    {children}
+                  </div>
+                </SidebarInset>
+              </SidebarProvider>
+            ) : (
             // Admin Layout
-            <>{ConditionHeder()}</>
-          )}
+              <>{ConditionHeder()}</>
+            )}
+          </CompanyImageProvider>
         </ThemedWrapper>
       </ThemeProvider>
     </Suspense>
