@@ -24,23 +24,25 @@ export const CompanyImageProvider = ({ children }) => {
 
   // Fetch company images only when needed
   const fetchCompanyImages = useCallback(async (forceRefresh = false) => {
-    // Don't fetch if already loading or if we have data and not forcing refresh
-    if (isLoading || (isInitialized && !forceRefresh)) {
+    // Prevent duplicate calls
+    if (isLoading || (isInitialized && !forceRefresh)) return;
+
+    const companyId = typeof window !== "undefined"
+      ? localStorage.getItem("companyId")
+      : null;
+
+    // IMPORTANT: Validate BEFORE setting loading
+    if (!companyId || companyId === "undefined") {
+      console.warn("No valid companyId found in localStorage");
       return;
     }
 
     try {
       setIsLoading(true);
-      const companyId = localStorage.getItem("companyId");
-      
-      if (!companyId) {
-        console.warn("No company ID found in localStorage");
-        return;
-      }
 
       const response = await getRequest(`get-company-logo/${companyId}`);
-      
-      if (response && response.status === 1 && response.data && response.data.images) {
+
+      if (response?.status === 1 && response?.data?.images) {
         setCompanyImages(response.data.images);
         setIsInitialized(true);
       }
