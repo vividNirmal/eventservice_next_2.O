@@ -27,7 +27,7 @@ const UserTypeModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <form onSubmit={formik.handleSubmit}>
-          <DialogHeader>
+          <DialogHeader className={'gap-1'}>
             <DialogTitle>{title}</DialogTitle>
             {description && (
               <DialogDescription>{description}</DialogDescription>
@@ -35,11 +35,9 @@ const UserTypeModal = ({
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="typeName" className="text-right">
-                Type Name *
-              </Label>
-              <div className="col-span-3">
+            <div className="flex items-center gap-4">
+              <Label className={'min-w-24'} htmlFor="typeName">Type Name *</Label>
+              <div className="w-2/4 grow relative pb-3.5">
                 <Input
                   id="typeName"
                   name="typeName"
@@ -54,17 +52,13 @@ const UserTypeModal = ({
                   placeholder="Enter user type name"
                 />
                 {formik.touched.typeName && formik.errors.typeName && (
-                  <div className="text-red-500 text-sm mt-1">
-                    {formik.errors.typeName}
-                  </div>
+                  <span className="absolute -bottom-1 left-0 text-red-500 text-xs mt-1">{formik.errors.typeName}</span>
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="order" className="text-right">
-                Order
-              </Label>
-              <div className="col-span-3">
+            <div className="flex items-center gap-4">
+              <Label className={'min-w-24'} htmlFor="order">Order</Label>
+              <div className="w-2/4 grow">
                 <Input
                   id="order"
                   name="order"
@@ -89,22 +83,9 @@ const UserTypeModal = ({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
+            <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>Cancel</Button>
             <Button type="submit" disabled={loading || !formik.isValid}>
-              {loading
-                ? mode === "add"
-                  ? "Creating..."
-                  : "Updating..."
-                : mode === "add"
-                ? "Create User Type"
-                : "Update User Type"}
+              {loading ? mode === "add" ? "Creating..." : "Updating..." : mode === "add" ? "Create User Type" : "Update User Type"}
             </Button>
           </DialogFooter>
         </form>

@@ -497,32 +497,24 @@ const TicketList = ({ eventId }) => {
   return (
     <>
       <Card>
-        <CardHeader className={'px-0'}>
+        <CardHeader className={'px-0 grow'}>
           <div className="flex flex-col space-y-4">
             <div className="flex justify-between items-start">
-              <div>
+              <div className='flex flex-col gap-1'>
                 <CardTitle>Tickets List</CardTitle>
                 <CardDescription>
                   Total {totalCount} tickets found
                   {(selectedStatus || searchTerm) && (
-                    <span className="text-blue-600 ml-2">
-                      (Filtered)
-                    </span>
+                    <span className="text-blue-600 ml-2">(Filtered)</span>
                   )}
                   {selectedTickets.size > 0 && (
-                    <span className="text-orange-600 ml-2">
-                      ({selectedTickets.size} selected)
-                    </span>
+                    <span className="text-orange-600 ml-2">({selectedTickets.size} selected)</span>
                   )}
                 </CardDescription>
               </div>
               <div className="flex items-center space-x-2">
                 {selectedTickets.size > 0 && (
-                  <Button 
-                    variant="destructive" 
-                    onClick={openBulkDeleteDialog}
-                    disabled={isBulkDeleting}
-                  >
+                  <Button variant="destructive" onClick={openBulkDeleteDialog} disabled={isBulkDeleting}>
                     <Trash2 className="h-4 w-4 mr-2" />
                     {isBulkDeleting ? 'Deleting...' : `Delete Selected (${selectedTickets.size})`}
                   </Button>
@@ -545,32 +537,10 @@ const TicketList = ({ eventId }) => {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-4">
-              {/* Limit Selector */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Show:</span>
-                <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dataLimits.map(limit => (
-                      <SelectItem key={limit} value={limit.toString()}>
-                        {limit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Search Input */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search tickets..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  className="!pl-10 w-64"
-                />
+              <div className="relative grow w-5/12">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-4" />
+                <Input placeholder="Search tickets..." value={searchTerm} onChange={handleSearch} className="!pl-10" />
               </div>
 
               {/* Status Filter */}
@@ -593,11 +563,7 @@ const TicketList = ({ eventId }) => {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      onClick={handleExportTickets}
-                      disabled={isExporting || totalCount === 0}
-                    >
+                    <Button variant="outline" onClick={handleExportTickets} disabled={isExporting || totalCount === 0}>
                       {isExporting ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
@@ -616,11 +582,7 @@ const TicketList = ({ eventId }) => {
 
               {/* Import Button */}
               <div className="flex items-center">
-                <Button 
-                  variant="outline" 
-                  onClick={() => document.getElementById('import-file').click()}
-                  disabled={isImporting}
-                >
+                <Button variant="outline" onClick={() => document.getElementById('import-file').click()} disabled={isImporting}>
                   {isImporting ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   ) : (
@@ -628,25 +590,26 @@ const TicketList = ({ eventId }) => {
                   )}
                   {isImporting ? 'Importing...' : 'Import'}
                 </Button>
-                <input
-                  id="import-file"
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                />
+                <input id="import-file" type="file" accept=".json" onChange={handleFileSelect} style={{ display: 'none' }} />
               </div>
 
               {/* Clear Filters Button */}
               {(selectedStatus || searchTerm) && (
-                <Button 
-                  variant="outline" 
-                  onClick={clearFilters}
-                  className="text-sm"
-                >
-                  Clear Filters
-                </Button>
+                <Button variant="outline" onClick={clearFilters} className="text-sm">Clear Filters</Button>
               )}
+              {/* Limit Selector */}
+              <div className="flex items-center space-x-2">
+                <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dataLimits.map(limit => (
+                      <SelectItem key={limit} value={limit.toString()}>{limit}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -656,18 +619,11 @@ const TicketList = ({ eventId }) => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Selected Tickets</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete <strong>{selectedTickets.size}</strong> selected ticket(s)? 
-                This action cannot be undone and will permanently remove all selected tickets and their data.
-              </AlertDialogDescription>
+              <AlertDialogDescription>Are you sure you want to delete <strong>{selectedTickets.size}</strong> selected ticket(s)? This action cannot be undone and will permanently remove all selected tickets and their data.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={isBulkDeleting}>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleBulkDelete}
-                disabled={isBulkDeleting}
-                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-              >
+              <AlertDialogAction onClick={handleBulkDelete} disabled={isBulkDeleting} className="bg-red-600 hover:bg-red-700 focus:ring-red-600">
                 {isBulkDeleting ? 'Deleting...' : 'Delete Selected'}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -679,19 +635,11 @@ const TicketList = ({ eventId }) => {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete "<strong>{ticketToDelete?.ticketName}</strong>"? 
-                This action cannot be undone and will permanently remove the ticket and all its data.
-              </AlertDialogDescription>
+              <AlertDialogDescription>Are you sure you want to delete "<strong>{ticketToDelete?.ticketName}</strong>"? This action cannot be undone and will permanently remove the ticket and all its data.</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleDeleteTicket}
-                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
-              >
-                Delete Ticket
-              </AlertDialogAction>
+              <AlertDialogAction onClick={handleDeleteTicket} className="bg-red-600 hover:bg-red-700 focus:ring-red-600">Delete Ticket</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -702,10 +650,7 @@ const TicketList = ({ eventId }) => {
             <AlertDialogHeader>
               <AlertDialogTitle>Import Tickets Preview</AlertDialogTitle>
               <AlertDialogDescription className="space-y-4">
-                <div>
-                  Review the data that will be imported to this event:
-                </div>
-                
+                <div>Review the data that will be imported to this event:</div>
                 {importPreviewData && (
                   <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-3">
                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -759,12 +704,7 @@ const TicketList = ({ eventId }) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={isImporting}>Cancel</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleImportTickets}
-                disabled={isImporting}
-              >
-                {isImporting ? 'Importing...' : 'Confirm Import'}
-              </AlertDialogAction>
+              <AlertDialogAction onClick={handleImportTickets} disabled={isImporting}>{isImporting ? 'Importing...' : 'Confirm Import'}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

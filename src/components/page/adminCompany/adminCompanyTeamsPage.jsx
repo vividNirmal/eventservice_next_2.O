@@ -106,7 +106,7 @@ function AdminCompanyTeamsPage({ id }) {
                 <Input
                   placeholder="Search members..."
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-10"
+                  className="!pl-10"
                 />
               </div>
               <Select

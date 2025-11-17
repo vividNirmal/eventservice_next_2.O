@@ -227,7 +227,10 @@ const EmailTypeList = () => {
         <CardHeader className={"flex flex-wrap items-center gap-3 rounded-xl border border-solid border-zinc-200 p-4 2xl:p-5 shadow-none"}>
           <CardTitle className={'p-0'}>Email Template Types</CardTitle>
           <CardDescription className={"hidden"}></CardDescription>
-          <div className="flex items-center space-x-3 ml-auto">
+        </CardHeader>
+        <CardContent className={"h-20 grow flex flex-col"}>
+          <div>
+            <div className="flex items-center space-x-3 ml-auto">
             {/* Add Button */}
             <Button onClick={() => setIsAddModalOpen(true)} className={'2xl:text-sm 2xl:h-10'}>
               <Plus className="h-4 w-4 mr-2" />
@@ -236,13 +239,13 @@ const EmailTypeList = () => {
           </div>
           <div className="relative w-60">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input placeholder="Search types" value={searchTerm} onChange={handleSearch} className="pl-10" />
+            <Input placeholder="Search types" value={searchTerm} onChange={handleSearch} className="!pl-10" />
           </div>
           <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger className="w-24">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent align="end">
               {dataLimits.map((limit) => (
                 <SelectItem key={limit} value={limit.toString()}>
                   {limit}
@@ -250,9 +253,7 @@ const EmailTypeList = () => {
               ))}
             </SelectContent>
           </Select>
-        </CardHeader>
-
-        <CardContent className={"h-20 grow flex flex-col"}>
+          </div>
           {loading ? (
             <div className="flex items-center justify-center h-32">
               <Loader2 className="h-8 w-8 animate-spin" />

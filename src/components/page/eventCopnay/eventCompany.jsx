@@ -235,7 +235,7 @@ export default function EventCompany() {
                 placeholder="Search "
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+                className="!pl-10"
               />
             </div>
             <Select

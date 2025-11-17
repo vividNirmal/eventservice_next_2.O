@@ -137,7 +137,7 @@ export const ExhibitorFormConfigurationModal = ({
             placeholder="Search available configurations by name, form number..."
             value={searchTerm}
             onChange={handleSearch}
-            className="pl-10"
+            className="!pl-10"
           />
         </div>
 

@@ -268,33 +268,24 @@ const UserTypeList = () => {
 
   return (
     <>
-      <Card>
+      <Card className={'grow'}>
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
               <CardTitle>User Types</CardTitle>
-              <CardDescription>
-                Total {totalCount} user types found
-              </CardDescription>
+              <CardDescription>Total {totalCount} user types found</CardDescription>
             </div>
             <div className="flex items-center space-x-4">
               {/* Limit Selector */}
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Show:
-                </span>
-                <Select
-                  value={selectedLimit.toString()}
-                  onValueChange={handleLimitChange}
-                >
+                <span className="text-sm text-gray-600 dark:text-gray-400">Show:</span>
+                <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
                   <SelectTrigger className="w-20">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {dataLimits.map((limit) => (
-                      <SelectItem key={limit} value={limit.toString()}>
-                        {limit}
-                      </SelectItem>
+                      <SelectItem key={limit} value={limit.toString()}>{limit}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -306,7 +297,7 @@ const UserTypeList = () => {
                   placeholder="Search user types..."
                   value={searchTerm}
                   onChange={handleSearch}
-                  className="pl-10 w-64"
+                  className="!pl-10 w-64"
                 />
               </div>
 
@@ -337,7 +328,7 @@ const UserTypeList = () => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteUserType}
-                className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                className="bg-red-600 hover:bg-red-700 focus:ring-red-600 border-red-600 hover:text-white"
               >
                 Delete User Type
               </AlertDialogAction>

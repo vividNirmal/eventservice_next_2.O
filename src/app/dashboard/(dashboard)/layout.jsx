@@ -78,7 +78,7 @@ export default function RootLayout({ children }) {
       return (
         <div className="flex flex-col h-screen bg-gray-50">
           <SimpleHeaderBar />
-          <div className="flex-1 overflow-auto p-4 xl:p-6">
+          <div className="flex flex-col grow overflow-auto p-4 xl:p-6">
             <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 min-h-0 themed-content">
               {children}
             </div>
@@ -93,7 +93,7 @@ export default function RootLayout({ children }) {
           <EventAdminNavigation  />
           <div className="flex-1 flex flex-col overflow-hidden">
             <SimpleHeaderBar />
-            <div className="flex-1 overflow-auto p-4 xl:p-6">{children}</div>
+            <div className="flex flex-col grow overflow-auto p-4 xl:p-6">{children}</div>
           </div>
         </div>
       );
@@ -106,7 +106,7 @@ export default function RootLayout({ children }) {
           <StaticNavigation eventId={eventId} />
           <div className="flex-1 flex flex-col overflow-hidden">
             <SimpleHeaderBar />
-            <div className="flex-1 overflow-auto p-4 xl:p-6">{children}</div>
+            <div className="flex flex-col grow overflow-auto p-4 xl:p-6">{children}</div>
           </div>
         </div>
       );
@@ -118,7 +118,7 @@ export default function RootLayout({ children }) {
         <StaticNavigation eventId={eventId} />
         <div className="flex-1 flex flex-col overflow-hidden">
           <SimpleHeaderBar />
-          <div className="flex-1 overflow-auto p-4 xl:p-6">{children}</div>
+          <div className="flex flex-col grow overflow-auto p-4 xl:p-6">{children}</div>
         </div>
       </div>
     );

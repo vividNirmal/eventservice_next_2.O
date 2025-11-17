@@ -290,7 +290,7 @@ const RegisteredEvent = () => {
                 placeholder="Search events by company, title, or slug..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+                className="!pl-10"
               />
             </div>
             <Select

@@ -40,29 +40,21 @@ const TicketManagement = ({ eventId }) => {
 
   return (
     <>
-      <Card>
+      <Card className={'grow'}>
         <CardHeader className={'px-0'}>
           <CardTitle>Ticket Management</CardTitle>
           {/* <CardDescription>Manage forms and tickets for your events</CardDescription> */}
         </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <CardContent className={'grow flex flex-col'}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full grow flex flex-col">
             <TabsList className="mb-2">
-              <TabsTrigger value="forms" className="px-6">
-                Forms
-              </TabsTrigger>
-              <TabsTrigger value="tickets" className="px-6">
-                Tickets
-              </TabsTrigger>
-              <TabsTrigger value="user-type-mapping" className="px-6">
-                User Type Mapping
-              </TabsTrigger>
+              <TabsTrigger value="forms" className="px-6">Forms</TabsTrigger>
+              <TabsTrigger value="tickets" className="px-6">Tickets</TabsTrigger>
+              <TabsTrigger value="user-type-mapping" className="px-6">User Type Mapping</TabsTrigger>
             </TabsList>
             
             {/* Only render the active tab content */}
-            <div className="space-y-4">
-              {activeTabContent}
-            </div>
+            <div className="space-y-4 grow flex flex-col">{activeTabContent}</div>
           </Tabs>
         </CardContent>
       </Card>

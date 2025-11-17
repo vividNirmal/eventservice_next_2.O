@@ -295,7 +295,7 @@ const FieldConstantList = () => {
                   placeholder="Search field constant..."
                   value={searchTerm}
                   onChange={handleSearch}
-                  className="pl-10 w-64"
+                  className="!pl-10 w-64"
                 />
               </div>
 

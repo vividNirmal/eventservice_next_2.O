@@ -438,10 +438,7 @@ const FormManagement = ({ eventId, isAdminForm = false }) => {
                     {!isAdminForm && (
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="editUserType" className="text-right">User Type *</Label>
-                        <Select
-                          value={editForm.userType}
-                          onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}
-                        >
+                        <Select value={editForm.userType} onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}>
                           <SelectTrigger className="col-span-3">
                             <SelectValue placeholder="Select user type" />
                           </SelectTrigger>

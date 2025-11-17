@@ -200,151 +200,136 @@ export default function FieldLists() {
 
   return (
     <>
-      <Card className={"gap-0 2xl:py-3 2xl:p-5 shadow-none"}>
-        <CardHeader className={"flex flex-wrap items-center px-0 gap-3"}>
+      <Card className={"gap-0 2xl:py-3 2xl:p-5 shadow-none grow border-0 !p-0"}>
+        <CardHeader className={"flex flex-col px-0 gap-3"}>
           <CardTitle>Default Fields Management</CardTitle>
           
           {/* Add Tabs for User/Admin Fields */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="user">User Default Fields</TabsTrigger>
               <TabsTrigger value="admin">Admin Default Fields</TabsTrigger>
             </TabsList>
           </Tabs>
-
-          <div className="flex items-center space-x-3 ml-auto">
-            {selectedUsers.size > 0 && (
-              <Button variant="destructive" size="sm" onClick={handleBulkDelete} className={'2xl:text-sm 2xl:h-10'}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Selected ({selectedUsers.size})
-              </Button>
-            )}
-            <Button onClick={handleAddUser} className={'2xl:text-sm 2xl:h-10'}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add {activeTab === 'admin' ? 'Admin' : 'User'} Field
-            </Button>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input 
-                placeholder="Search fields..." 
-                value={searchTerm} 
-                onChange={(e) => handleSearchChange(e.target.value)} 
-                className="pl-10" 
-              />
-            </div>
-            <Select
-              value={selectedLimit.toString()}
-              onValueChange={handleLimitChange}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {dataLimits.map((limit) => (
-                  <SelectItem key={limit} value={limit.toString()}>
-                    {limit}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
         </CardHeader>
-      </Card>
-      <CardContent className={"grow flex flex-col"}>
-        {loading ? (
-          <div className="flex items-center justify-center h-32">
-            <Loader2 className="h-8 w-8 animate-spin" />
+        <CardContent className={"grow flex flex-col rounded-xl border border-solid border-zinc-200 p-4 2xl:p-6 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)]"}>
+          <div className="flex flex-wrap justify-between pb-4 gap-3">
+            <div className="flex items-center space-x-3 grow">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input placeholder="Search fields..." value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} className="!pl-10" />
+              </div>
+              <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {dataLimits.map((limit) => (
+                    <SelectItem key={limit} value={limit.toString()}>{limit}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-3">
+              {selectedUsers.size > 0 && (
+                <Button variant="destructive" size="sm" onClick={handleBulkDelete} className={'2xl:text-sm 2xl:h-10'}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected ({selectedUsers.size})
+                </Button>
+              )}
+              <Button onClick={handleAddUser} className={'2xl:text-sm 2xl:h-10'}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add {activeTab === 'admin' ? 'Admin' : 'User'} Field
+              </Button>
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="flex-1 flex flex-col min-h-0">
-              <div className="rounded-lg border overflow-auto flex-1">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[50px]">
-                        <Checkbox
-                          checked={
-                            selectedUsers.size === fieldList.length &&
-                            fieldList.length > 0
-                          }
-                          onCheckedChange={handleSelectAll}
-                        />
-                      </TableHead>
-                      <TableHead>Sr.</TableHead>                      
-                      <TableHead>Field Name</TableHead>
-                      <TableHead>Field Type</TableHead>                      
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fieldList.length > 0 ? (
-                      fieldList.map((user, index) => (
-                        <TableRow key={user._id}>
-                          <TableCell>
-                            <Checkbox
-                              checked={selectedUsers.has(user._id)}
-                              onCheckedChange={() => handleSelectUser(user._id)}
-                            />
-                          </TableCell>
-                          <TableCell>{getSrNumber(index)}</TableCell>
-                          <TableCell className="font-medium">
-                            {user.fieldName}
-                          </TableCell>
-                          <TableCell>{user.fieldType}</TableCell>                          
-                          <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  onClick={() => handleEditUser(user)}
-                                >
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                  onClick={() => handleDeleteUser(user._id)}
-                                  className="text-red-600"
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="rounded-lg border overflow-auto flex-1">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]">
+                          <Checkbox checked={selectedUsers.size === fieldList.length && fieldList.length > 0} onCheckedChange={handleSelectAll} />
+                        </TableHead>
+                        <TableHead>Sr.</TableHead>                      
+                        <TableHead>Field Name</TableHead>
+                        <TableHead>Field Type</TableHead>                      
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {fieldList.length > 0 ? (
+                        fieldList.map((user, index) => (
+                          <TableRow key={user._id}>
+                            <TableCell>
+                              <Checkbox
+                                checked={selectedUsers.has(user._id)}
+                                onCheckedChange={() => handleSelectUser(user._id)}
+                              />
+                            </TableCell>
+                            <TableCell>{getSrNumber(index)}</TableCell>
+                            <TableCell className="font-medium">
+                              {user.fieldName}
+                            </TableCell>
+                            <TableCell>{user.fieldType}</TableCell>                          
+                            <TableCell className="text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditUser(user)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteUser(user._id)}
+                                    className="text-red-600"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={8} className="h-24 text-center">
+                            No {activeTab} fields found.
                           </TableCell>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={8} className="h-24 text-center">
-                          No {activeTab} fields found.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
-            </div>
-                {totalUsers > 0 && (
-                  <div className="mt-4">
-                    <CustomPagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      pageSize={selectedLimit}
-                      totalEntries={totalUsers}
-                    />
-                  </div>
-                )}
-          </>
-        )}
-      </CardContent>
+              {totalUsers > 0 && (
+                <div className="mt-4">
+                  <CustomPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    pageSize={selectedLimit}
+                    totalEntries={totalUsers}
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Field Form Drawer */}
       <FormFieldAddDrawer
