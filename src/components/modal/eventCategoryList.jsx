@@ -59,7 +59,7 @@ export function EventCategoryModal({ open, onOpenChange }) {
       });
       const data = await response.data;
       if (data) {
-        setCategories(data?.eventCategory);
+        fetchCategory()
         toast.success("Category added successfully");
       }
       setNewCategory("");
