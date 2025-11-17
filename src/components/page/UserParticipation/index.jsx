@@ -3,12 +3,13 @@ import React, { useEffect, useState } from "react";
 import ParticipanLogin from "./ParticipationLogin";
 import NewDynamicParticipantForm from "./NewDynamicParticipantForm";
 import QrPage from "./ParticipationQrcode";
-import {  userPostRequest } from "@/service/viewService";
+import { userPostRequest } from "@/service/viewService";
 import { useParams } from "next/navigation";
 import { usePreventHydrationMismatch } from "@/hooks/usePreventHydrationMismatch";
 import { toast } from "sonner";
 import TicketBooking from "./businessParticipant/BusinessParticipant";
 import FaceScannerFrom from "./FaceScanner/FaceScannerFrom";
+import { Layout1, Layout2 } from "./common/Layout";
 
 const UserRegisterEvent = () => {
   // Prevent hydration mismatch from browser extensions
@@ -34,6 +35,10 @@ const UserRegisterEvent = () => {
   const [businessForm, setBusinessFrom] = useState(null);  
   const [registerFormDataId, setRegisterFormDataId] = useState(null)
   const theme = ticketData?.theme || "theme1";
+  const themeLayouts = {
+    theme1: Layout1,
+    theme2: Layout2,
+  };
 
   useEffect(() => {
     // Handle new slug URL pattern: /[eventSlug]/registration
@@ -262,6 +267,9 @@ const UserRegisterEvent = () => {
     );
   };
 
+  // Choose layout based on theme
+  const LayoutComponent = themeLayouts[theme] || Layout1;
+
   return (
     <>
       {/* Show registration status error if present */}
@@ -277,29 +285,33 @@ const UserRegisterEvent = () => {
       )}
      
       {!registrationStatus?.status && eventStep === 2 && (
-        <NewDynamicParticipantForm
-          userEmail={userEmail}
-          eventData={eventData}
-          formData={formData}
-          faceScannerPermission={faceScanner}
-          eventHasFacePermission={eventHasFacePermission}
-          visitReason={visitReason}
-          companyVisit={companyVisit}
-          dynamicForm={dynamicForm}
-          formLoading={formLoading}
-          onFormSuccess={businessSetpsetup}
-          ticketData={ticketData}
-          theme={theme}
-        />      
+        <LayoutComponent ticketData={ticketData} eventData={eventData}>
+          <NewDynamicParticipantForm
+            userEmail={userEmail}
+            eventData={eventData}
+            formData={formData}
+            faceScannerPermission={faceScanner}
+            eventHasFacePermission={eventHasFacePermission}
+            visitReason={visitReason}
+            companyVisit={companyVisit}
+            dynamicForm={dynamicForm}
+            formLoading={formLoading}
+            onFormSuccess={businessSetpsetup}
+            ticketData={ticketData}
+          />
+        </LayoutComponent>
       )}
-       {!registrationStatus?.status && eventStep === 3 && (
-        <TicketBooking
-          businessData={ticketData}
-          businessForm={handleBUnessDate}
-          eventData={eventData}
-           theme={theme}
-        />
-      )}     
+      
+      {!registrationStatus?.status && eventStep === 3 && (
+        <LayoutComponent ticketData={ticketData} eventData={eventData}>
+          <TicketBooking
+            businessData={ticketData}
+            businessForm={handleBUnessDate}
+            eventData={eventData}
+          />
+        </LayoutComponent>
+      )}
+      
       {!registrationStatus?.status && eventStep === 4 && (
         <QrPage
           eventDetails={eventData}

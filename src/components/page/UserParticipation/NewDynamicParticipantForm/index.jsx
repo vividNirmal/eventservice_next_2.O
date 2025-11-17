@@ -4,11 +4,10 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FormRenderer } from "@/components/form-renderer/form-renderer";
 import { toast } from "sonner";
-import { Camera, CheckCircle2, UploadIcon, Loader2 } from "lucide-react";
+import { Camera, CheckCircle2, UploadIcon, Loader2, Eye, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Eye, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,7 +39,6 @@ const NewDynamicParticipantForm = ({
   formLoading = false,
   onFormSuccess,
   ticketData,
-  theme = 'theme1'
 }) => {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(null);
@@ -651,102 +649,88 @@ const NewDynamicParticipantForm = ({
   }
 
   return (
-    <div className="h-svh flex flex-wrap gap-5 p-4 bg-[#f7f9fc]">
-      <div className="w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden hidden lg:block">
-        <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Event" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
-        {eventData?.event_description && (
-          <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
-            <h2 className="text-white text-xl 2xl:text-2xl mb-3 font-bold">{eventData?.eventName}</h2>
-            <span className="h-px w-full block bg-linear-to-r from-white to-white/0 my-3"></span>
-            <p className="z-1 text-white text-sm 2xl:text-lg font-normal leading-normal">{eventData?.event_description}</p>
-          </div>
-        )}
-      </div>
-
-      <div className="w-2/5 grow flex flex-col p-1 pr-3 border border-solid border-zinc-200 shadow-[0_0_6px_0_rgba(0,55,255,25%)] rounded-xl bg-white">
-        <div className="h-96 grow overflow-auto custom-scroll">
-          <Card className={"rounded-none border-0 shadow-none !pb-0"}>
-            <CardHeader className={"px-0 2xl:px-0 border-b"}>
-              <CardTitle>Registration Form</CardTitle>
-              <CardDescription>Please fill in all required fields</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Render all form pages in sections */}
-              {form.pages.map((page, pageIndex) => (
-                <div key={pageIndex} className="space-y-4 bg-white">
-                  {form.pages.length > 1 && (
-                    <div>
-                      <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-danger bg-clip-text text-transparent">{page.name}</h3>
-                      {page.description && (
-                        <span className="text-sm text-muted-foreground">{page.description}</span>
-                      )}
-                    </div>
-                  )}
-                  <div className="flex flex-wrap gap-x-4 gap-y-2">
-                    {page.elements.map((element) => renderField(element))}
+    <>
+      <div className="h-96 grow overflow-auto custom-scroll">
+        <Card className={"rounded-none border-0 shadow-none !pb-0"}>
+          <CardHeader className={"px-0 2xl:px-0 border-b"}>
+            <CardTitle>Registration Form</CardTitle>
+            <CardDescription>Please fill in all required fields</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {form.pages.map((page, pageIndex) => (
+              <div key={pageIndex} className="space-y-4 bg-white">
+                {form.pages.length > 1 && (
+                  <div>
+                    <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-danger bg-clip-text text-transparent">{page.name}</h3>
+                    {page.description && (
+                      <span className="text-sm text-muted-foreground">{page.description}</span>
+                    )}
                   </div>
+                )}
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
+                  {page.elements.map((element) => renderField(element))}
                 </div>
-              ))}
+              </div>
+            ))}
 
-              {/* Face Scanner Section - Only show if required */}
-              {eventData?.with_face_scanner == 1 && (
-                <div className="space-y-4 border border-solid border-zinc-200 border-b-0 rounded-t-xl p-6 ">
-                  <h3 className="text-lg font-semibold flex items-center justify-center">
-                    <Camera className="size-5 mr-2 text-blue-500" />
-                    Face Verification
-                    <sup className="text-red-500">*</sup>
-                  </h3>
-                  <div className={cn("size-40 mx-auto flex items-center justify-center border-2 border-dashed overflow-hidden rounded-full text-gray-400", capturedImage ? "border-blue-600" : "border-gray-300")}>
-                    {
-                      capturedImage ? (
-                        <img src={capturedImage} alt="Captured" className="object-cover size-full block" />
-                      ) : "No image"
-                    }
-                  </div>
-                  <div className="flex flex-wrap items-center justify-center gap-4">
-                    <Button type="button" onClick={() => setFaceScannerPopup(true)} className="flex items-center gap-2" variant="outline">
-                      <Camera className="size-4" />
-                      Capture Face
-                    </Button>
-                    
-                    <Label htmlFor="face_image" className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors">
-                      <UploadIcon className="size-4" />
-                      Upload Image
-                      <input type="file" id="face_image" className="hidden" accept=".jpg, .jpeg, .png" onChange={onEventImageSelected} />
-                    </Label>
-                  </div>
-
-                  {capturedImage && (
-                    <p className="text-sm font-medium text-green-600 flex items-center justify-center gap-2">
-                      <CheckCircle2 className="size-4" />
-                      Image captured successfully
-                    </p>
-                  )}
+            {/* Face Scanner Section - Only show if required */}
+            {eventData?.with_face_scanner == 1 && (
+              <div className="space-y-4 border border-solid border-zinc-200 border-b-0 rounded-t-xl p-6 ">
+                <h3 className="text-lg font-semibold flex items-center justify-center">
+                  <Camera className="size-5 mr-2 text-blue-500" />
+                  Face Verification
+                  <sup className="text-red-500">*</sup>
+                </h3>
+                <div className={cn("size-40 mx-auto flex items-center justify-center border-2 border-dashed overflow-hidden rounded-full text-gray-400", capturedImage ? "border-blue-600" : "border-gray-300")}>
+                  {
+                    capturedImage ? (
+                      <img src={capturedImage} alt="Captured" className="object-cover size-full block" />
+                    ) : "No image"
+                  }
                 </div>
-              )}
-            </CardContent>
-          </Card>
-          <div className="shrink-0 flex items-center justify-center py-4 px-4 border-t">
-            <Button
-              type="button"
-              onClick={formik.handleSubmit}
-              disabled={submitting}
-              variant="formBtn"
-              className="w-full rounded-full max-w-fit"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Check className="size-4" />
-                  Submit Registration
-                </>
-              )}
-            </Button>
-          </div>
+                <div className="flex flex-wrap items-center justify-center gap-4">
+                  <Button type="button" onClick={() => setFaceScannerPopup(true)} className="flex items-center gap-2" variant="outline">
+                    <Camera className="size-4" />
+                    Capture Face
+                  </Button>
+                  
+                  <Label htmlFor="face_image" className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors">
+                    <UploadIcon className="size-4" />
+                    Upload Image
+                    <input type="file" id="face_image" className="hidden" accept=".jpg, .jpeg, .png" onChange={onEventImageSelected} />
+                  </Label>
+                </div>
+
+                {capturedImage && (
+                  <p className="text-sm font-medium text-green-600 flex items-center justify-center gap-2">
+                    <CheckCircle2 className="size-4" />
+                    Image captured successfully
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <div className="shrink-0 flex items-center justify-center py-4 px-4 border-t">
+          <Button
+            type="button"
+            onClick={formik.handleSubmit}
+            disabled={submitting}
+            variant="formBtn"
+            className="w-full rounded-full max-w-fit"
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Check className="size-4" />
+                Submit Registration
+              </>
+            )}
+          </Button>
         </div>
       </div>
 
@@ -757,7 +741,7 @@ const NewDynamicParticipantForm = ({
           <FaceScanner allowScan={stopScanner} onCameraError={onCameraError} onManualCapture={faceScannerData} newCaptureMode={true} />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 
