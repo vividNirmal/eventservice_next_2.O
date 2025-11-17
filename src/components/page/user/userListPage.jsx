@@ -30,6 +30,7 @@ import {
   Edit,
   Trash2,
   Loader2,
+  RotateCcwKey,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomPagination } from "@/components/common/pagination";
@@ -41,6 +42,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog";
 import { getRequest, postRequest } from "@/service/viewService";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 
 function UserList() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,6 +57,10 @@ function UserList() {
   const [editUser, setEditUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });
   const [statusDialog, setStatusDialog] = useState({ open: false, user: null });
+  const [passwordDialog, setPasswordDialog] = useState({
+    open: false,
+    user: null,
+  });
   const dataLimits = [10, 20, 30, 50];
 
   const fetchUsers = async () => {
@@ -168,6 +174,10 @@ function UserList() {
     }
   };
 
+  function handleChangePassword(user) {
+    setPasswordDialog({ open: true, user });
+  }
+
   const confirmStatusChange = async () => {
     try {
       const formData = new FormData();
@@ -181,7 +191,8 @@ function UserList() {
       }
     } catch (error) {
       toast.error("Failed to update user status");
-      console.error("Error updating user status:", error);}
+      console.error("Error updating user status:", error);
+    }
   };
 
   const getRoleBadge = (role) => {
@@ -308,6 +319,12 @@ function UserList() {
                                   Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
+                                  onClick={() => handleChangePassword(user)}
+                                >
+                                  <RotateCcwKey className="mr-2 h-4 w-4" />
+                                  Change Password
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
                                   onClick={() => handleDeleteUser(user._id)}
                                   className="text-red-600"
                                 >
@@ -330,17 +347,17 @@ function UserList() {
                 </Table>
               </div>
             </div>
-                {totalUsers > 0 && (
-                  <div className="mt-4">
-                    <CustomPagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      pageSize={selectedLimit}
-                      totalEntries={totalUsers}
-                    />
-                  </div>
-                )}
+            {totalUsers > 0 && (
+              <div className="mt-4">
+                <CustomPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                  pageSize={selectedLimit}
+                  totalEntries={totalUsers}
+                />
+              </div>
+            )}
           </>
         )}
       </CardContent>
@@ -375,6 +392,12 @@ function UserList() {
         onConfirm={confirmStatusChange}
         user={statusDialog.user}
         loading={loading}
+      />
+      {/* Password Change Dialog */}
+      <ChangePasswordDialog
+        isOpen={passwordDialog.open}
+        onClose={() => setPasswordDialog({ open: false, user: null })}
+        user={passwordDialog.user}
       />
     </>
   );
