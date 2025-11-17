@@ -29,7 +29,7 @@ export const Layout2 = ({ ticketData, eventData, children }) => {
       <div className='flex flex-col grow max-w-5xl w-full mx-auto'>
         {/* Top - Image with Description */}
         <div className="relative w-full h-64 overflow-hidden">
-          <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Event" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center" />
+          <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Event" width={1200} height={600} className="max-w-full w-full h-full object-center" />
           {eventData?.event_description && (
             <div className="absolute bottom-4 left-4 right-4 p-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
               <h2 className="text-white text-xl md:text-2xl mb-2 font-bold">{eventData?.eventName}</h2>
