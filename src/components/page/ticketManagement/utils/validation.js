@@ -26,6 +26,10 @@ export const validateBasicInfo = (formData) => {
     }
   }
 
+  if (!formData.theme) {
+    errors.theme = 'Please select any theme';
+  }
+
   // Validate startCount
   const startCount = formData.startCount || '0000';
   if (!/^[0-9]+$/.test(startCount)) {

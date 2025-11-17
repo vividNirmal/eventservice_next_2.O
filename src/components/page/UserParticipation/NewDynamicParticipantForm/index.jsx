@@ -39,7 +39,8 @@ const NewDynamicParticipantForm = ({
   dynamicForm,
   formLoading = false,
   onFormSuccess,
-  ticketData
+  ticketData,
+  theme = 'theme1'
 }) => {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(null);

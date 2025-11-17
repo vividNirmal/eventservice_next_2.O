@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { SafeImage } from '@/components/common/SafeImage';
 
-const TicketBooking = ({businessData,businessForm, eventData}) => {
+const TicketBooking = ({businessData,businessForm, eventData, theme = 'theme1'}) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPricing, setCurrentPricing] = useState([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());

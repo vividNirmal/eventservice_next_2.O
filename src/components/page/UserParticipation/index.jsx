@@ -33,6 +33,7 @@ const UserRegisterEvent = () => {
   const [registrationStatus, setRegistrationStatus] = useState(null); // For registration status errors
   const [businessForm, setBusinessFrom] = useState(null);  
   const [registerFormDataId, setRegisterFormDataId] = useState(null)
+  const theme = ticketData?.theme || "theme1";
 
   useEffect(() => {
     // Handle new slug URL pattern: /[eventSlug]/registration
@@ -329,6 +330,7 @@ const UserRegisterEvent = () => {
           businessData={ticketData}
           businessForm={handleBUnessDate}
           eventData={eventData}
+          theme={theme}
         />
       )}
       {!registrationStatus?.status && eventStep === 3 && (
@@ -344,6 +346,7 @@ const UserRegisterEvent = () => {
           formLoading={formLoading}
           onFormSuccess={handleFormSuccess}
           ticketData={ticketData}
+          theme={theme}
         />      
       )}
       {!registrationStatus?.status &&

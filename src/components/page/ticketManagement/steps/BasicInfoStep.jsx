@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle, CheckCircle2 } from 'lucide-react';
-import { USER_TYPE_OPTIONS, TICKET_CATEGORY_OPTIONS } from '../constants/ticketConstants';
+import { USER_TYPE_OPTIONS, TICKET_CATEGORY_OPTIONS, TICKET_THEMES } from '../constants/ticketConstants';
 
 const ErrorMessage = ({ error }) => {
   if (!error) return null;
@@ -197,13 +197,32 @@ const BasicInfoStep = ({ formData, handleInputChange, errors, availableForms, us
           </div>
           <ErrorMessage error={errors.startCount} />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="theme">Ticket Theme *</Label>
+          <div className='relative pb-3.5'>
+            <Select value={formData.theme} onValueChange={(value) => handleInputChange('theme', value)}>
+              <SelectTrigger className={`w-full ${errors.theme ? 'border-red-500' : null}`}>
+                <SelectValue placeholder="Select theme" />
+              </SelectTrigger>
+              <SelectContent className="w-full">
+                {TICKET_THEMES.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <ErrorMessage error={errors.theme} />
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="description">Ticket Description</Label>
         <Textarea
           id="description"
-          value={formData.description}
+          value={formData.description || ""}
           onChange={(e) => handleInputChange('description', e.target.value)}
           placeholder="Enter ticket description"
           rows={4}

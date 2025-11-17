@@ -15,6 +15,11 @@ export const TICKET_CATEGORY_OPTIONS = [
   'Standard'
 ];
 
+export const TICKET_THEMES= [
+  { value: 'theme1', label: 'Theme One' },
+  { value: 'theme2', label: 'Theme Two' },
+];
+
 export const TICKET_AMOUNT_TYPES = [
   { value: 'free', label: 'Free Ticket' },
   { value: 'dateSlab', label: 'Date-based Pricing' },
