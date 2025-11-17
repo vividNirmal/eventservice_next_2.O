@@ -68,19 +68,19 @@ const UserRegisterEvent = () => {
     if (emailData) {
       setUserEmail(emailData.email);
       setFaceScanner(emailData.face_scanner);
+      setEventStep(2);
 
-      if (ticketData?.ticketAmount?.type == "businessSlab") {
-        setEventStep(2);
-      } else {
-        setEventStep(3);
-      }
+      // if (ticketData?.ticketAmount?.type == "businessSlab") {
+      //   setEventStep(2);
+      // } else {
+      // }
       const evetRegsterUserData = emailData?.data
       
       if(evetRegsterUserData?.alreadyRegistered && evetRegsterUserData?.formRegistration){
         
         setQrEventDetails(evetRegsterUserData?.formRegistration.qrImage)  
         setRegisterFormDataId(evetRegsterUserData?.formRegistration?._id)
-        setEventStep(5);
+        setEventStep(4);
       }
       setFormData((prev) => ({
         ...prev,
@@ -90,6 +90,13 @@ const UserRegisterEvent = () => {
     }
   };
   
+  function businessSetpsetup (){
+    if (ticketData?.ticketAmount?.type == "businessSlab") {
+      setEventStep(3)
+    }else{
+      handleFormSuccess()
+    }
+  }
 
   const handleFormSuccess = async (response) => {
     try {
@@ -139,7 +146,8 @@ const UserRegisterEvent = () => {
       if (responce.status == 1) {
         setQrEventDetails(responce.data?.qrImageUrl);
         setRegisterFormDataId(responce?.data?.registrationId);
-        setEventStep(5); // Skip step 4 since face scan is now integrated
+
+        setEventStep(4); 
       } else {
         // Throw error with API response message
         throw new Error(responce?.message || responce?.error || "Failed to submit registration");
@@ -154,70 +162,12 @@ const UserRegisterEvent = () => {
     }    
   };
 
-  async function handelFaseScanner(faceData) {
-    try {
-      const formData = new FormData();
-      formData.append("email", userEmail);
-      formData.append("ticketId", ticketData?._id);
-      formData.append("eventId", eventData?._id);
-      // key Changes
-      formData.append("faceScan", faceData);
-      Object.entries(resolvedForm).forEach(([key, value]) => {
-        if (key === "email") {
-          return;
-        }
-        if (value instanceof File) {
-          formData.append(key, value);
-        } else if (Array.isArray(value)) {
-          // Handle arrays (e.g. multiple IDs, objects, etc.)
-          value.forEach((item, index) => {
-            if (typeof item === "object" && !(item instanceof File)) {
-              Object.entries(item).forEach(([subKey, subVal]) => {
-                formData.append(`${key}[${index}][${subKey}]`, subVal);
-              });
-            } else {
-              formData.append(`${key}[${index}]`, item);
-            }
-          });
-        } else if (typeof value === "object" && value !== null) {
-          // Handle nested objects
-          Object.entries(value).forEach(([subKey, subVal]) => {
-            formData.append(`${key}[${subKey}]`, subVal);
-          });
-        } else if (value !== undefined && value !== null) {
-          formData.append(key, value);
-        }
-      });
-      if(businessForm){
-        formData.append("businessData[category]", businessForm?.category);
-        formData.append("businessData[amount]", businessForm?.amount);
-      }
-      const responce = await userPostRequest("store-register-form", formData);
-      if (responce.status == 1) {
-        setQrEventDetails(responce.data?.qrImageUrl)
-        setRegisterFormDataId(responce?.data?.registrationId);
-        setEventStep(5);
-      } else {
-        // Show specific error message
-        const errorMessage = responce.message || "Face processing failed";
-        if (responce?.errorType == "FACE_PROCESSING_ERROR") {
-          toast.error(errorMessage);
-        } else {
-          toast.error(errorMessage);
-        }
-        throw new Error(errorMessage); // Throw error to prevent state update
-      }
-    } catch (err) {
-       console.error("Face scanner error:", err);
-      toast.error(err.message || "Failed to process face image");
-      throw err; // Re-throw to prevent further execution
-    }
-  }
+
 
   const handleBUnessDate = (data) => {
     if (data) {
       setBusinessFrom(data);
-      setEventStep(3);
+      handleFormSuccess()
     }
   };
 
@@ -325,15 +275,8 @@ const UserRegisterEvent = () => {
           onRegisterEmail={handleRegisterEmail}
         />
       )}
+     
       {!registrationStatus?.status && eventStep === 2 && (
-        <TicketBooking
-          businessData={ticketData}
-          businessForm={handleBUnessDate}
-          eventData={eventData}
-          theme={theme}
-        />
-      )}
-      {!registrationStatus?.status && eventStep === 3 && (
         <NewDynamicParticipantForm
           userEmail={userEmail}
           eventData={eventData}
@@ -344,17 +287,20 @@ const UserRegisterEvent = () => {
           companyVisit={companyVisit}
           dynamicForm={dynamicForm}
           formLoading={formLoading}
-          onFormSuccess={handleFormSuccess}
+          onFormSuccess={businessSetpsetup}
           ticketData={ticketData}
           theme={theme}
         />      
       )}
-      {!registrationStatus?.status &&
-        eventStep === 4 &&
-        eventData?.with_face_scanner == 1 && (
-          <FaceScannerFrom faceDate={handelFaseScanner} ticketData={ticketData} eventData={eventData} />
-        )}
-      {!registrationStatus?.status && eventStep === 5 && (
+       {!registrationStatus?.status && eventStep === 3 && (
+        <TicketBooking
+          businessData={ticketData}
+          businessForm={handleBUnessDate}
+          eventData={eventData}
+           theme={theme}
+        />
+      )}     
+      {!registrationStatus?.status && eventStep === 4 && (
         <QrPage
           eventDetails={eventData}
           formData={formData}
@@ -363,21 +309,7 @@ const UserRegisterEvent = () => {
           eventQr = {qrEventDetails}
           registerFormDataId={registerFormDataId}
         />
-      )}
-      {/* Debug Panel - Only shows in development */}
-      {/* <DebugPanel
-        formData={formData}
-        eventData={eventData}
-        userEmail={userEmail}
-        dynamicForm={dynamicForm}
-        eventHasFacePermission={eventHasFacePermission}
-        faceScannerPermission={faceScanner}
-        qrEventDetails={qrEventDetails}
-        currentStep={eventStep}
-        formId={formId}        
-        loading={loading}
-        formLoading={formLoading}
-      /> */}
+      )}      
     </>
   );
 };
