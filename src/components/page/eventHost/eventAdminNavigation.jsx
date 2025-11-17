@@ -9,10 +9,11 @@ import {
   HomeIcon,
   LucidePackagePlus,
   ImagePlayIcon,
+  UsersIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function EventAdminNavigation () {
+export default function EventAdminNavigation() {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
@@ -45,7 +46,7 @@ export default function EventAdminNavigation () {
       id: "event-host",
       label: "Event Host",
       icon: CalendarDays,
-      url:  "/dashboard/event-host",
+      url: "/dashboard/event-host",
       show: true,
       description: "Manage event hosting",
       isActive: activeSection === "event-host",
@@ -57,7 +58,7 @@ export default function EventAdminNavigation () {
       url: "/dashboard/package",
       show: true,
       description: "Main dashboard",
-      isActive: activeSection === "dashboard",
+      isActive: activeSection === "package",
     },
     {
       id: "company ",
@@ -66,7 +67,15 @@ export default function EventAdminNavigation () {
       url: "/dashboard/company-banner",
       show: true,
       description: "Main dashboard",
-      isActive: activeSection === "dashboard",
+      isActive: activeSection === "company",
+    },
+    {
+      id: "user_list",
+      label: "User List",
+      icon: UsersIcon,
+      url: "/dashboard/user-list",
+      show: true,
+      isActive: activeSection === "user_list",
     },
   ];
 
@@ -255,4 +264,4 @@ export default function EventAdminNavigation () {
       </div>
     </>
   );
-};
+}

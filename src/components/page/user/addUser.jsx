@@ -24,12 +24,17 @@ export function UserFormDrawer({
   refetch,
   loading = false,
 }) {
+  const loginuser = JSON.parse(localStorage.getItem('loginuser'));
   const [companyList, setCompanyList] = useState([]);
   const Role = [
     { value: "admin", title: "Admin" },
     { value: "manager", title: "Manager" },
     { value: "customer", title: "Customer" },
   ];
+
+  // Check if company field should be shown
+  const shouldShowCompanyField = loginuser?.role === "superadmin" || !loginuser?.company_id;
+
   const formik = useFormik({
     initialValues: {
       name: "",
@@ -37,7 +42,7 @@ export function UserFormDrawer({
       password: "",
       confirmPassword: "",
       role: "",
-      company_id: "",
+      company_id: loginuser?.company_id || "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
@@ -45,7 +50,10 @@ export function UserFormDrawer({
         .email("Invalid email address")
         .required("Email is required"),
       role: Yup.string().required("Role is required"),
-      company_id: Yup.string().required("Company is required"),
+      // Only validate company_id if it should be shown
+      ...(shouldShowCompanyField && {
+        company_id: Yup.string().required("Company is required"),
+      }),
       ...(editUser
         ? {} // In edit mode, password fields are optional
         : {
@@ -65,7 +73,10 @@ export function UserFormDrawer({
           formData.append("name", values.name);
           formData.append("email", values.email);
           formData.append("role", values.role);
-          formData.append("company_id", values.company_id);
+          
+          // Use loginuser's company_id if field is hidden, otherwise use selected value
+          const companyId = shouldShowCompanyField ? values.company_id : loginuser?.company_id;
+          formData.append("company_id", companyId);
 
           // Only append password if entered
           if (values.password) {
@@ -85,7 +96,10 @@ export function UserFormDrawer({
           formData.append("email", values.email);
           formData.append("password", values.password);
           formData.append("role", values.role);
-          formData.append("company_id", values.company_id);
+          
+          // Use loginuser's company_id if field is hidden, otherwise use selected value
+          const companyId = shouldShowCompanyField ? values.company_id : loginuser?.company_id;
+          formData.append("company_id", companyId);
 
           const response = await postRequest("save-admin-users", formData);
 
@@ -93,11 +107,9 @@ export function UserFormDrawer({
             toast.success("User created successfully");
             onClose();
             refetch(true);
-          }else {
+          } else {
             toast.error(response.message);
           }
-          
-          
         }
       } catch (err) {
         console.error(err);
@@ -109,6 +121,7 @@ export function UserFormDrawer({
   useEffect(() => {
     fetchCompanyList();
     formik.resetForm();
+    
     if (editUser) {
       formik.setValues({
         name: editUser.name || "",
@@ -116,8 +129,9 @@ export function UserFormDrawer({
         password: "",
         confirmPassword: "",
         role: editUser.role || "",
-        // company_id: editUser.company_id || "",
+        company_id: editUser.company_id || loginuser?.company_id || "",
       });
+      
       if (editUser.company_id && companyList) {
         const matchedCompany = companyList.find(
           (company) => company._id == editUser.company_id
@@ -126,7 +140,10 @@ export function UserFormDrawer({
           formik.setFieldValue("company_id", matchedCompany._id);
         }
       }
-    }
+    } else {
+      // Set default company_id for new user
+      formik.setFieldValue("company_id", loginuser?.company_id || "");
+    }      
   }, [editUser, isOpen]);
 
   async function fetchCompanyList() {
@@ -217,8 +234,9 @@ export function UserFormDrawer({
               </div>
             </>
           )}
+          
           <div className="space-y-2">
-            <Label htmlFor="company_id">Role</Label>
+            <Label htmlFor="role">Role</Label>
             <CustomCombobox
               name="role"
               value={formik.values.role}
@@ -230,29 +248,31 @@ export function UserFormDrawer({
               placeholder="Select User role"
               id="role"
             />
-          </div>
-          {formik.touched.role && formik.errors.role && (
-            <p className="text-sm text-red-500">{formik.errors.role}</p>
-          )}
-
-          {/* Uncomment if CustomCombobox and cities are defined */}
-          <div className="space-y-2">
-            <Label htmlFor="company_id">Company</Label>
-            <CustomCombobox
-              name="company_id"
-              value={formik.values.company_id}
-              onChange={(value) => formik.setFieldValue("company_id", value)}
-              onBlur={() => formik.setFieldTouched("company_id", true)}
-              valueKey="_id"
-              labelKey="company_name"
-              options={companyList || []}
-              placeholder="Select Company"
-              id="company_id"
-            />
-            {formik.touched.company_id && formik.errors.company_id && (
-              <p className="text-sm text-red-500">{formik.errors.company_id}</p>
+            {formik.touched.role && formik.errors.role && (
+              <p className="text-sm text-red-500">{formik.errors.role}</p>
             )}
           </div>
+          
+          {/* Conditionally render Company field */}
+          {shouldShowCompanyField && (
+            <div className="space-y-2">
+              <Label htmlFor="company_id">Company</Label>
+              <CustomCombobox
+                name="company_id"
+                value={formik.values.company_id}
+                onChange={(value) => formik.setFieldValue("company_id", value)}
+                onBlur={() => formik.setFieldTouched("company_id", true)}
+                valueKey="_id"
+                labelKey="company_name"
+                options={companyList || []}
+                placeholder="Select Company"
+                id="company_id"
+              />
+              {formik.touched.company_id && formik.errors.company_id && (
+                <p className="text-sm text-red-500">{formik.errors.company_id}</p>
+              )}
+            </div>
+          )}
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>
