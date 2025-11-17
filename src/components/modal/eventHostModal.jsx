@@ -175,6 +175,8 @@ const EventModal = ({
       organizer_email: initialData?.organizer_email || "",
       organizer_phone: initialData?.organizer_phone || "",
       with_face_scanner: initialData?.with_face_scanner || null,
+      event_entry_exit_device :initialData?.event_entry_exit_device || [],
+      instant_register : initialData?.instant_register || [],
       dateRanges: (() => {
         // If we have dateRanges array in initialData, use it
         if (
@@ -344,149 +346,175 @@ const EventModal = ({
     }
   };
 
-  const handleFinalSubmit = async (
-    eventDetailsValues = null,
-    eventDetailsExtraData = null
-  ) => {
-    setSubmitting(true);
-    setError(null);
+const handleFinalSubmit = async (
+  eventDetailsValues = null,
+  eventDetailsExtraData = null
+) => {
+  setSubmitting(true);
+  setError(null);        
+  try {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyId");
 
-    try {
-      const token = localStorage.getItem("token");
-      const companyId = localStorage.getItem("companyId");
+    // Combine form data from all steps
+    const formData = new FormData();
 
-      // Combine form data from all steps
-      const formData = new FormData();
-
-      // Add event host form fields
-      if (editMode && eventDetailsForm.values.event_id) {
-        formData.append("event_id", eventDetailsForm.values.event_id);
-      }
-
-      if (companyId != undefined) {
-        formData.append("company_id", companyId);
-      }
-
-      formData.append("eventName", eventDetailsForm.values.eventName);
-      formData.append("eventShortName", eventDetailsForm.values.eventShortName);
-      formData.append("eventTimeZone", eventDetailsForm.values.eventTimeZone);
-      
-      // Send dateRanges only - backend will handle legacy field population
-      if (
-        eventDetailsForm.values.dateRanges &&
-        eventDetailsForm.values.dateRanges.length > 0
-      ) {
-        formData.append(
-          "dateRanges",
-          JSON.stringify(eventDetailsForm.values.dateRanges)
-        );
-      }
-      
-      formData.append("event_type", selectedEventFormat);
-      formData.append("eventType", selectedEventType);
-      formData.append("location", locationForm.values.location);
-
-      // Handle eventCategory as array
-      selectedCategories.forEach((category) => {
-        formData.append("eventCategory[]", category);
-      });
-
-      // NEW: Add category field from CustomCombobox
-      if (selectedCategory) {
-        formData.append("event_category", selectedCategory);
-      }
-
-      const currentEventDetailsData = eventDetailsValues
-        ? { values: eventDetailsValues, extraData: eventDetailsExtraData }
-        : eventDetailsData;
-
-      // Add event details form data (now required)
-      if (currentEventDetailsData && currentEventDetailsData.values) {
-        const { values, extraData } = currentEventDetailsData;
-        
-        // Add event details fields
-        formData.append("company_name", values.company_name || "");
-        formData.append("event_slug", values.event_slug || "");
-        formData.append("event_description", values.event_description || "");
-        formData.append("google_map_url", values.google_map_url || "");
-        formData.append("organizer_name", values.organizer_name || "");
-        formData.append("organizer_email", values.organizer_email || "");
-        formData.append("organizer_phone", values.organizer_phone || "");
-        formData.append(
-          "with_face_scanner",
-          extraData?.faceScannerEnabled ? 1 : 0
-        );
-
-        // Handle date ranges
-        if (values.dateRanges && values.dateRanges.length > 0) {
-          const startDates = values.dateRanges.map((item) => item.start_date);
-          const endDates = values.dateRanges.map((item) => item.end_date);
-          startDates.forEach((element) => {
-            formData.append("start_date[]", element);
-          });
-          endDates.forEach((element) => {
-            formData.append("end_date[]", element);
-          });          
-        }
-
-        // Handle file uploads
-        if (values.event_image) {
-          formData.append("event_image", values.event_image);
-        }
-        if (values.event_logo) {
-          formData.append("event_logo", values.event_logo);
-        }
-        if (values.show_location_image) {
-          formData.append("show_location_image", values.show_location_image);
-        }
-        if (values.event_sponsor) {
-          formData.append("event_sponsor", values.event_sponsor);
-        }
-      } else {
-        throw new Error("Additional Event Details are required");
-      }
-            
-      const endpoint = editMode ? "update-event-host" : "save-event-host";
-
-      const response = await postRequest(`${endpoint}`, formData);
-
-      if (response.status == 1) {
-        toast.success(
-          editMode
-            ? "Event updated successfully!"
-            : "Event created successfully!"
-        );
-
-        // Call success callback to refresh parent component
-        if (onSuccess) {
-          onSuccess();
-        }
-
-        // Reset forms
-        eventDetailsForm.resetForm();
-        locationForm.resetForm();
-        setSelectedEventType("");
-        setSelectedEventFormat("");
-        setSelectedCategories([]);
-        setSelectedCategory("");
-        setEventDetailsData(null);
-
-        // Close modal
-        onClose();
-      } else {
-        throw new Error(
-          response.message ||
-            `Failed to ${editMode ? "update" : "create"} event`
-        );
-      }
-    } catch (err) {
-      setError(err.message);
-      toast.error(err.message || "Failed to create event. Please try again.");
-      console.error(`Error ${editMode ? "updating" : "creating"} event:`, err);
-    } finally {
-      setSubmitting(false);
+    // Add event host form fields
+    if (editMode && eventDetailsForm.values.event_id) {
+      formData.append("event_id", eventDetailsForm.values.event_id);
     }
-  };
+
+    if (companyId != undefined) {
+      formData.append("company_id", companyId);
+    }
+
+    formData.append("eventName", eventDetailsForm.values.eventName);
+    formData.append("eventShortName", eventDetailsForm.values.eventShortName);
+    formData.append("eventTimeZone", eventDetailsForm.values.eventTimeZone);
+    
+    // Send dateRanges only - backend will handle legacy field population
+    if (
+      eventDetailsForm.values.dateRanges &&
+      eventDetailsForm.values.dateRanges.length > 0
+    ) {
+      formData.append(
+        "dateRanges",
+        JSON.stringify(eventDetailsForm.values.dateRanges)
+      );
+    }
+    
+    formData.append("event_type", selectedEventFormat);
+    formData.append("eventType", selectedEventType);
+    formData.append("location", locationForm.values.location);
+
+    // Handle eventCategory as array
+    selectedCategories.forEach((category) => {
+      formData.append("eventCategory[]", category);
+    });
+
+    // NEW: Add category field from CustomCombobox
+    if (selectedCategory) {
+      formData.append("event_category", selectedCategory);
+    }
+
+    const currentEventDetailsData = eventDetailsValues
+      ? { values: eventDetailsValues, extraData: eventDetailsExtraData }
+      : eventDetailsData;
+
+    // Add event details form data (now required)
+    if (currentEventDetailsData && currentEventDetailsData.values) {
+      const { values, extraData } = currentEventDetailsData;
+      
+      // Add event details fields
+      formData.append("company_name", values.company_name || "");
+      formData.append("event_slug", values.event_slug || "");
+      formData.append("event_description", values.event_description || "");
+      formData.append("google_map_url", values.google_map_url || "");
+      formData.append("organizer_name", values.organizer_name || "");
+      formData.append("organizer_email", values.organizer_email || "");
+      formData.append("organizer_phone", values.organizer_phone || "");
+      
+      // Handle with_face_scanner (now comes from values instead of extraData)
+      formData.append(
+        "with_face_scanner",
+        values.with_face_scanner ? 1 : 0
+      );
+      
+      if (values.event_entry_exit_device && values.event_entry_exit_device.length > 0) {
+        // If it's already an array of strings
+        if (Array.isArray(values.event_entry_exit_device)) {
+          values.event_entry_exit_device.forEach((device) => {
+            formData.append("event_entry_exit_device[]", device);
+          });
+        } else {
+          // If it's a single value, convert to array
+          formData.append("event_entry_exit_device[]", values.event_entry_exit_device);
+        }
+      }
+
+       if (values.instant_register && values.instant_register.length > 0) {
+        // If it's already an array of strings
+        if (Array.isArray(values.instant_register)) {
+          values.instant_register.forEach((device) => {
+            formData.append("instant_register[]", device);
+          });
+        } else {
+          // If it's a single value, convert to array
+          formData.append("instant_register[]", values.instant_register);
+        }
+      }
+    
+
+      // Handle date ranges
+      if (values.dateRanges && values.dateRanges.length > 0) {
+        const startDates = values.dateRanges.map((item) => item.start_date);
+        const endDates = values.dateRanges.map((item) => item.end_date);
+        startDates.forEach((element) => {
+          formData.append("start_date[]", element);
+        });
+        endDates.forEach((element) => {
+          formData.append("end_date[]", element);
+        });          
+      }
+
+      // Handle file uploads
+      if (values.event_image) {
+        formData.append("event_image", values.event_image);
+      }
+      if (values.event_logo) {
+        formData.append("event_logo", values.event_logo);
+      }
+      if (values.show_location_image) {
+        formData.append("show_location_image", values.show_location_image);
+      }
+      if (values.event_sponsor) {
+        formData.append("event_sponsor", values.event_sponsor);
+      }
+    } else {
+      throw new Error("Additional Event Details are required");
+    }
+          
+    const endpoint = editMode ? "update-event-host" : "save-event-host";
+
+    const response = await postRequest(`${endpoint}`, formData);
+
+    if (response.status == 1) {
+      toast.success(
+        editMode
+          ? "Event updated successfully!"
+          : "Event created successfully!"
+      );
+
+      // Call success callback to refresh parent component
+      if (onSuccess) {
+        onSuccess();
+      }
+
+      // Reset forms
+      eventDetailsForm.resetForm();
+      locationForm.resetForm();
+      setSelectedEventType("");
+      setSelectedEventFormat("");
+      setSelectedCategories([]);
+      setSelectedCategory("");
+      setEventDetailsData(null);
+
+      // Close modal
+      onClose();
+    } else {
+      throw new Error(
+        response.message ||
+          `Failed to ${editMode ? "update" : "create"} event`
+      );
+    }
+  } catch (err) {
+    setError(err.message);
+    toast.error(err.message || "Failed to create event. Please try again.");
+    console.error(`Error ${editMode ? "updating" : "creating"} event:`, err);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

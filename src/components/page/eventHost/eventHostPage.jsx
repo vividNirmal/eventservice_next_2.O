@@ -385,7 +385,9 @@ const EventHostPage = () => {
       organizer_email: event.organizer_email || "",
       organizer_phone: event.organizer_phone || "",
       with_face_scanner: event.with_face_scanner || null,
-      event_category : event?.event_category|| null
+      event_category : event?.event_category|| null,
+      event_entry_exit_device : event?.event_entry_exit_device  || [],
+      instant_register :event?.instant_register|| []
     };
 
     
