@@ -113,7 +113,7 @@ export default function HeaderEventuser() {
           {/* Logo */}
           <div className="min-w-fit">
               <SafeImage
-                src={`${logo}`}
+                src={logo}
                 className="block w-full max-w-44 max-h-12 object-contain" 
                 alt="Company Logo"
                 placeholderSrc="/music-logo.svg"
@@ -203,7 +203,8 @@ export default function HeaderEventuser() {
       {currentBanner && (
         <div className="max-w-full w-full rounded-b-2xl overflow-hidden z-10 fixed top-0 left-0">
           <SafeImage
-            src={currentBanner} 
+            src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDbInhq87gcTFqoowmycMQtIEJ-KjNElcgpQ&s"}
+            mobileSrc={'/music-banner.webp'}
             className="max-w-full w-full h-64 2xl:h-72 object-cover" 
             alt={`${selectedUserType?.typeName} Banner` || "Banner"} 
             placeholderSrc="/music-banner.webp"

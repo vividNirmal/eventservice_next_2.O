@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus, Check, CheckCircle2, ArrowRight } from "lucide-react";
+import { Plus, Minus, Check, CheckCircle2, ArrowRight, CircleCheckBig, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { postRequest } from "@/service/viewService";
 import { toast } from "sonner";
 
-export function PaymentPopup({ open, onOpenChange, item,Success }) {
+export function PaymentPopup({ open, onOpenChange, item, Success }) {
   const [count, setCount] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const handleOpenChange = (newOpen) => {
@@ -63,200 +63,132 @@ export function PaymentPopup({ open, onOpenChange, item,Success }) {
   }
 
   if (showSuccess) {
-    return (  
+    return (
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
-        <DialogTitle></DialogTitle>
-        <DialogContent className="border-0 bg-gradient-to-br from-green-50 to-white backdrop-blur-xl shadow-2xl p-0 max-w-md rounded-3xl">
-          <div className="flex flex-col items-center justify-center py-12 px-8 text-center">
-            <div className="mb-6 relative">
-              <div className="absolute inset-0 bg-green-400 rounded-full blur-2xl opacity-30 animate-pulse" />
-              <CheckCircle2 className="w-20 h-20 text-green-500 relative z-10" />
+        <DialogContent className="flex flex-col h-full max-h-[70svh] sm:max-h-[68svh] w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden p-0 border-0 gap-0 outline-0 [&>button]:!text-white">
+          <DialogHeader className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 p-4">
+            <div className="bg-white rounded-full p-2 w-fit">
+              <CircleCheckBig className="size-7 text-green-600" />
             </div>
-
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">
-              Payment Successful!
-            </h2>
-            <p className="text-sm text-slate-600 mb-6">
-              Your transaction has been completed successfully
-            </p>
-
-            <div className="w-full bg-white border border-slate-200 rounded-xl p-4 mb-6 space-y-3">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-                <span className="text-sm text-slate-600">Package</span>
-                <span className="font-semibold text-slate-900">
-                  {item.title}
-                </span>
+            <DialogTitle className="text-2xl font-bold text-white mt-2">Payment Successful!</DialogTitle>
+            <DialogDescription className="text-green-100 text-sm">Your transaction has been completed successfully</DialogDescription>
+          </DialogHeader>
+          <div className="p-4 space-y-4 h-20 grow overflow-auto custom-scroll">
+            <div className="bg-slate-50 rounded-xl p-5 space-y-4">
+              <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+                <span className="text-slate-600 text-sm font-medium">Package</span>
+                <span className="font-semibold text-slate-900">{item.title}</span>
               </div>
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-                <span className="text-sm text-slate-600">Unit Price</span>
-                <span className="font-semibold text-slate-900">
-                  ₹{item.price.toLocaleString("en-IN")}
-                </span>
+              <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+                <span className="text-slate-600 text-sm font-medium">Unit Price</span>
+                <span className="font-semibold text-slate-900">₹{item.price.toLocaleString("en-IN")}</span>
               </div>
-              <div className="flex justify-between items-center pb-3 border-b border-slate-100">
-                <span className="text-sm text-slate-600">Quantity</span>
-                <span className="font-semibold text-slate-900">
-                  {count} unit(s)
-                </span>
+              <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+                <span className="text-slate-600 text-sm font-medium">Quantity</span>
+                <span className="font-semibold text-slate-900">{count} unit(s)</span>
               </div>
-              <div className="flex justify-between items-center pt-1">
-                <span className="text-sm font-semibold text-slate-900">
-                  Total Amount
-                </span>
-                <span className="text-xl font-bold text-green-600">
-                  ₹{totalAmount.toLocaleString("en-IN")}
-                </span>
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-slate-900 font-bold text-sm">Total Amount</span>
+                <span className="font-bold text-lg text-green-600">₹{(item.price * count).toLocaleString("en-IN")}</span>
               </div>
             </div>
-
-            <div className="w-full bg-green-50 border border-green-200 rounded-lg p-3 mb-6 flex items-start gap-2">
-              <Check className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-              <div className="text-left">
-                <p className="text-xs font-semibold text-green-900">
-                  Confirmed
-                </p>
-                <p className="text-xs text-green-700">
-                  A confirmation email has been sent to your registered email
-                </p>
+            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 flex gap-3">
+              <CircleCheckBig className="size-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-green-900 text-sm">Confirmed</p>
+                <p className="text-green-700 text-sm mt-1">A confirmation email has been sent to your registered email</p>
               </div>
             </div>
-
-            <Button
-              onClick={() => setShowSuccess(false)}
-              className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-3 rounded-lg mb-3"
-            >
-              <span className="flex items-center justify-center gap-2">
-                Back to Dashboard
-                <ArrowRight className="w-4 h-4" />
-              </span>
-            </Button>
-
-            {/* <Button
-              variant="outline"
-              className="w-full border-slate-300 hover:bg-slate-100 text-slate-900 font-semibold py-3 rounded-lg bg-transparent"
-            >
-              Download Receipt
-            </Button> */}
-
-            <div className="flex items-center justify-center gap-2 text-xs text-slate-600 mt-6">
-              <Check className="w-4 h-4 text-green-600" />
-              <span className="font-medium">
-                Secure transaction • 100% protected
-              </span>
+            <div className="flex items-center justify-center gap-2 text-green-600 text-sm bg-green-50 rounded-lg px-4 py-3">
+              <Shield className="size-4 flex-shrink-0" />
+              <span className="font-medium">Secure transaction • 100% protected</span>
             </div>
           </div>
+          <DialogFooter className="p-4 bg-slate-50 border-t border-slate-100">
+            <Button onClick={() => setShowSuccess(false)} className="w-full border-green-600 bg-green-600 hover:bg-green-700 text-white hover:text-white font-semibold py-2.5 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+              <span className="flex items-center justify-center gap-2">
+                Back to Dashboard
+                <Zap className="size-4" />
+              </span>
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     );
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>      
-    <DialogTitle></DialogTitle>
-      <DialogContent
-        className="border border-white/20 bg-gradient-to-br from-white/95 to-white/85 backdrop-blur-xl shadow-2xl p-0 max-w-md overflow-hidden"
-        showCloseButton={true}
-      >
-        {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-blue-40 p-6 border-b border-blue-100/50">
-          <h2 className="text-2xl font-bold text-slate-900">Payment Summary</h2>
-          <p className="text-sm text-slate-600 mt-1">Complete your purchase</p>
-        </div>
-
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="flex flex-col h-full max-h-[70svh] sm:max-h-[68svh] p-0 gap-0 w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border-0 outline-0" showCloseButton={true}>
+        <DialogHeader className="p-4 border-b border-slate-100 gap-1">
+          <DialogTitle className="text-2xl font-bold text-slate-900">Payment Summary</DialogTitle>
+          <DialogDescription className="text-sm text-slate-500">Complete your purchase</DialogDescription>
+        </DialogHeader>
         {/* Content Section */}
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-4 h-20 grow overflow-auto custom-scroll">
           {/* Item Details Card */}
-          <div className="bg-gradient-to-br from-slate-50 to-slate-40 rounded-xl border border-slate-200/60 p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                  Package
-                </p>
-                <h3 className="font-semibold text-slate-900 text-base mt-1">
-                  {item.title}
-                </h3>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <p className="text-xs font-semibold text-blue-600 tracking-wider">Package</p>
+                <h3 className="text-lg font-bold text-slate-900 mt-1">{item.title}</h3>
               </div>
+              <div className="bg-white rounded-lg p-2 border border-blue-100"><div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-md flex items-center justify-center text-white text-sm font-bold">₹</div></div>
             </div>
 
             {/* Price Row */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-end justify-between">
               <div>
-                <p className="text-xs text-slate-600 mb-1">Unit Price</p>
-                <p className="text-xl font-bold text-blue-600">
-                  ₹{item.price.toLocaleString("en-IN")}
-                </p>
+                <p className="text-xs text-slate-600 font-medium">Unit Price</p>
+                <p className="text-2xl font-bold text-blue-600 mt-1">₹{item.price.toLocaleString("en-IN")}</p>
               </div>
 
               {/* Count Controls - Enhanced */}
-              <div className="flex items-center gap-2 bg-white border border-slate-300/60 rounded-lg p-1 shadow-sm">
-                <button
-                  onClick={handleDecrement}
-                  className="p-1.5 hover:bg-slate-100 rounded-md transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="w-4 h-4 text-slate-600" />
+              <div className="flex items-center gap-2 bg-white rounded-lg border border-slate-200 px-3 py-2">
+                <button onClick={handleDecrement} className="p-1 hover:bg-slate-100 rounded transition-colors" aria-label="Decrease quantity">
+                  <Minus className="size-4 text-slate-600" />
                 </button>
-                <Input
-                  type="number"
-                  min="1"
-                  value={count}
-                  onChange={handleCountChange}
-                  className="w-14 text-center border-0 bg-transparent font-bold text-slate-900 focus:ring-0 p-0"
-                />
-                <button
-                  onClick={handleIncrement}
-                  className="p-1.5 hover:bg-slate-100 rounded-md transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="w-4 h-4 text-slate-600" />
+                <Input type="number" min="1" value={count} onChange={handleCountChange} className="w-8 !h-6 !p-0 !text-center border-0 shadow-none font-semibold text-slate-900" />
+                <button onClick={handleIncrement} className="p-1 hover:bg-slate-100 rounded transition-colors" aria-label="Increase quantity">
+                  <Plus className="size-4 text-slate-600" />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-px bg-gradient-to-r from-transparent via-slate-300/50 to-transparent" />
-
           {/* Summary Details */}
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-slate-600">Quantity</p>
-              <p className="font-semibold text-slate-900">
+            <div className="flex items-center justify-between text-sm">
+              <p className="text-slate-600 font-medium">Quantity</p>
+              <p className="text-slate-900 font-semibold">
                 {count} unit{count > 1 ? "s" : ""}
               </p>
             </div>
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-slate-600">Unit Price</p>
-              <p className="font-semibold text-slate-900">
+            {/* Divider */}
+            <div className="h-px bg-slate-100" />
+            <div className="flex items-center justify-between text-sm">
+              <p className="text-slate-600 font-medium">Unit Price</p>
+              <p className="text-slate-900 font-semibold">
                 ₹{item.price.toLocaleString("en-IN")}
               </p>
             </div>
           </div>
 
           {/* Grand Total - Premium Card */}
-          <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-5 text-white shadow-lg">
-            <p className="text-xs font-semibold uppercase tracking-wide text-blue-100 mb-2">
-              Grand Total
-            </p>
-            <p className="text-4xl font-bold text-white">
-              ₹{totalAmount.toLocaleString("en-IN")}
-            </p>
+          <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-5 text-white">
+            <p className="text-xs font-semibold tracking-wider text-slate-300 uppercase">Grand Total</p>
+            <p className="text-3xl font-bold mt-2">₹{totalAmount.toLocaleString("en-IN")}</p>
           </div>
-
-          {/* Pay Now Button */}
-          <Button
-            onClick={paymentComplited}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all shadow-lg hover:shadow-xl"
-          >
-            Proceed to Payment
-          </Button>
-
           {/* Trust Badge */}
-          <div className="flex items-center justify-center gap-1 text-xs text-slate-600">
-            <Check className="w-4 h-4 text-green-600" />
+          <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 rounded-lg px-4 py-3">
+            <Shield className="size-4 flex-shrink-0" />
             <span>Secure payment guaranteed</span>
           </div>
         </div>
+        <DialogFooter className={'px-6 py-5 bg-slate-50 border-t border-slate-100'}>
+          {/* Pay Now Button */}
+          <Button onClick={paymentComplited} className="w-full bg-blue-600 hover:bg-blue-700 !text-white font-semibold py-2.5 rounded-lg transition-all">Proceed to Payment</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -55,23 +55,9 @@ export const SafeImage = ({
 
   return (
     <picture>
-      {/* Mobile version (up to 768px) */}
-      <source srcSet={mobileImgSrc} media="(max-width: 768px)" />
-
-      {/* Desktop version (default fallback) */}
+      <source srcSet={mobileImgSrc} media="(min-width: 1025px)" />
       <source srcSet={imgSrc} media="(min-width: 769px)" />
-
-      {/* Fallback <img> tag */}
-      <img
-        {...props}
-        src={imgSrc}
-        alt={alt}
-        width={width}
-        height={height}
-        className={className}
-        onError={() => setImgSrc(placeholderSrc)}
-        loading="lazy"
-      />
+      <img {...props} src={imgSrc} alt={alt} width={width} height={height} className={className} onError={() => setImgSrc(placeholderSrc)} loading="lazy" />
     </picture>
   );
 };

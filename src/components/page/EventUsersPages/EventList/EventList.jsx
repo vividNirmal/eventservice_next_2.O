@@ -13,6 +13,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -86,56 +87,33 @@ export default function UserEventList() {
       {userType?.typeName === "Event Attendees" && (
         <section className="w-full">
           <div className="bg-white p-6 rounded-2xl">
-            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground">
-              Available Packages
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-4 mt-8">
-              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground col-span-full mb-0">
-                Combo Show Registartion
-              </h2>
+            <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-1">Available Packages</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-6 xl:gap-y-4">
+              <h3 className="text-base 2xl:text-lg font-semibold text-zinc-800 col-span-full">Single Show Registartion</h3>
               {attendees?.combo_tickets.map((pkg) => (
-                <div
-                  className="flex flex-col bg-white p-4 rounded-xl"
-                  key={pkg._id}
-                >
-                  <img
-                    src="/concert-banner.webp"
-                    className="rounded-lg w-full h-42 max-w-full object-cover object-center"
-                    alt="ticket img"
-                  />
-                  <div className="pt-4 flex flex-col gap-4">
+                <div className="flex flex-col bg-zinc-50 border border-solid border-zinc-200 p-4 rounded-xl group shadow-none hover:shadow-lg translate-y-0 hover:bg-white hover:-translate-y-1 transition-all duration-300 ease-linear" key={pkg._id}>
+                  <div className="overflow-hidden rounded-lg">
+                    <img src="/concert-banner.webp" className="w-full h-42 scale-100 group-hover:scale-110 max-w-full object-cover object-center transition-all duration-200 ease-in" alt="ticket img" />
+                  </div>
+                  <div className="pt-4 flex flex-col gap-4 grow">
                     <div className="flex flex-col">
-                      <h3 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0.5">
-                        {pkg.title}
-                      </h3>
+                      <h3 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0.5">{pkg.title}</h3>
                       <p className="text-sm text-gray-600">{pkg.description}</p>
                     </div>
-                    <Button
-                      variant={"ghost"}
-                      onClick={() => setSelectedPackageDetails(pkg)}
-                      className="  transition-colors text-sm font-medium cursor-pointer"
-                    >
-                      View More Details
-                    </Button>
-                    <Button
-                      className={
-                        "p-4 rounded-md bg-white text-black border border-solid border-blue-500 hover:text-white hover:border-blue-600 hover:bg-blue-600"
-                      }
-                      onClick={() => handleAction(pkg)}
-                    >
-                      Visitor Registration{" "}
-                      {`${getCurrencySymbol(pkg.currency || "INR")} ${
-                        pkg.price
-                      }`}
-                    </Button>
+                    <div className="flex xl:flex-row flex-col xl:items-center justify-between gap-2 xl:gap-4 mt-auto">
+                      <Button variant={"ghost"} onClick={() => setSelectedPackageDetails(pkg)} className="w-full xl:w-fit bg-blue-600 text-white border border-solid border-blue-600 hover:bg-white transition-colors cursor-pointer">View More Details</Button>
+                      <Button className={"rounded-md bg-white text-black border border-solid border-blue-500 hover:text-white hover:border-blue-600 hover:bg-blue-600 cursor-pointer xl:w-5/12 xl:grow"} onClick={() => handleAction(pkg)}>Visitor Registration{" "}
+                        {`${getCurrencySymbol(pkg.currency || "INR")} ${pkg.price}`}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 gap-y-2 mt-5">
-            <h3 className="col-span-full">Single Show Registartion</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-6 xl:gap-y-4 mt-8">
+            <h3 className="text-base 2xl:text-lg font-semibold text-zinc-800 col-span-full">Single Show Registartion</h3>
             {attendees?.event_tickets.map((pkg) => (
               <ExhibitorCard
                 key={pkg._id}
@@ -157,9 +135,7 @@ export default function UserEventList() {
           {!selectedCategory && (
             // Show Categories
             <>
-              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">
-                Event Shows
-              </h2>
+              <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Event Shows</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {categorizedEvents?.map((item) => (
                   <CategoryCard
@@ -186,40 +162,19 @@ export default function UserEventList() {
         />
       )}
 
-      <Dialog
-        open={!!selectedPackagedeatils}
-        onOpenChange={() => setSelectedPackageDetails(null)}
-      >
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
-              {selectedPackagedeatils?.title}
-            </DialogTitle>
-            <DialogDescription className="text-sm text-gray-600">
-              Package Details
-            </DialogDescription>
+      <Dialog open={!!selectedPackagedeatils} onOpenChange={() => setSelectedPackageDetails(null)}>
+        <DialogContent className="flex flex-col h-full max-h-[70svh] sm:max-h-[68svh] p-0 gap-0 w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden border-0 outline-0">
+          <DialogHeader className={'p-4 border-b border-slate-100 gap-1'}>
+            <DialogTitle className="text-xl font-bold">{selectedPackagedeatils?.title}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-600">Package Details</DialogDescription>
           </DialogHeader>
-
           {selectedPackagedeatils && (
-            <div className="space-y-4 mt-4">
-              {/* Description Section */}
-              <div className="space-y-3">
-                <div className="flex items-start gap-2">
-                  <div className="w-5 h-5 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg
-                      className="w-3 h-3 text-yellow-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-800 leading-relaxed">
+            <>
+              <div className="p-4 space-y-4 h-20 grow overflow-auto">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100 flex items-start gap-3 mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-circle-check-big w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 text-balance">
                       {selectedPackagedeatils.originalData?.event_package
                         ?.map((event, index) => {
                           const eventTitle = event.event_Id?.title || "Event";
@@ -232,58 +187,38 @@ export default function UserEventList() {
 
                           return `${eventTitle} ${categoryTitle} ${ticketCount} ${visitorText} Pass(${ticketType})`;
                         })
-                        .join(" & ")}
+                        .join(" & ")
+                      }
                     </p>
                   </div>
                 </div>
-
                 {selectedPackagedeatils.description && (
-                  <div className="mt-3 pt-3 border-t border-gray-200">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                      Description:
-                    </h4>
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      {selectedPackagedeatils.description}
-                    </p>
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-slate-900">Description:</h3>
+                    <p className="text-sm text-slate-600 leading-relaxed">{selectedPackagedeatils.description}</p>
                   </div>
                 )}
 
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                    Note:
-                  </h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    This package is event-specific, and it has an expiry date.
-                  </p>
+                {/* Description Section */}
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100 flex gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-clock w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <div>
+                    <p className="font-semibold text-slate-900 text-sm">Note:</p>
+                    <p className="text-sm text-slate-700 mt-1">This package is event-specific, and it has an expiry date.</p>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-5 text-white">
+                  <p className="text-xs font-semibold tracking-wider text-slate-300 uppercase">Package Price</p>
+                  <p className="text-3xl font-bold mt-2">₹{selectedPackagedeatils.price}</p>
                 </div>
               </div>
-
-              {/* Action Button */}
-              <Button
-                className="w-full py-3 rounded-md bg-yellow-500 text-white hover:bg-yellow-600 font-medium flex items-center justify-center gap-2"
-                onClick={() => {
-                  handleAction(selectedPackagedeatils);
-                  setSelectedPackageDetails(null);
-                }}
-              >
-                <span className="text-lg">₹{selectedPackagedeatils.price}</span>
-                <span>|</span>
-                <span>Buy Now</span>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Button>
-            </div>
+              <DialogFooter className={'px-6 py-5 bg-slate-50 border-t border-slate-100'}>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 !text-white font-semibold py-2.5 rounded-lg transition-all duration-300 ease-linear" onClick={() => {handleAction(selectedPackagedeatils); setSelectedPackageDetails(null);}}>Buy Now</Button>
+              </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>

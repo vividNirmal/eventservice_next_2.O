@@ -58,9 +58,9 @@ export function CategoryCard({ category, eventCount, onApply , status }) {
 export function ExhibitorCard({ title, description, price, onBuyNow, currency,dateRange }) {
   const currentCurrencySymbol = getCurrencySymbol(currency || 'INR');
   return (
-    <div className="overflow-hidden relative h-full bg-zinc-50 backdrop-shadow rounded-lg border-b-4 pb-4 border-solid border-blue-500 flex flex-col justify-center text-center">
+    <div className="overflow-hidden relative h-full bg-white backdrop-shadow rounded-lg border-b-4 pb-4 border-solid border-blue-500 flex flex-col justify-center text-center group translate-y-0 hover:-translate-y-1 transition-all duration-300 ease-linear">
       <img src="/banner-img1.webp" className="rounded-t-lg w-full h-42 max-w-full object-cover object-center" alt="ticket img" />
-      <div className="p-4 flex flex-col items-center justify-center min-h-44 gap-2 text-sm text-center text-muted-foreground border-b-2 border-dashed border-gray-300 mb-2 pb-2 relative before:size-6 before:absolute before:bottom-0 before:translate-y-1/2 before:rounded-full before:-left-3 before:bg-white after:size-6 after:absolute after:bottom-0 after:translate-y-1/2 after:rounded-full after:-right-3 after:bg-white">
+      <div className="p-4 flex flex-col items-center justify-center min-h-44 gap-2 text-sm text-center text-muted-foreground border-b-2 border-dashed border-gray-300 mb-2 pb-2 relative before:size-6 before:absolute before:bottom-0 before:translate-y-1/2 before:rounded-full before:-left-3 before:bg-[#F5F6FA] after:size-6 after:absolute after:bottom-0 after:translate-y-1/2 after:rounded-full after:-right-3 after:bg-[#F5F6FA]">
         <h4 className="text-base lg:text-lg xl:text-xl font-bold text-foreground mb-0">{title}</h4>
         <div className="flex flex-row gap-2">
           <span className="text-xs lg:text-sm xl:text-base text-blue-500">✓</span>
