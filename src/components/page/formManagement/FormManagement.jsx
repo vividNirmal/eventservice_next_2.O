@@ -54,7 +54,7 @@ const userTypeOptions = [
   'Accompanying'
 ];
 
-const FormManagement = ({ eventId }) => {
+const FormManagement = ({ eventId, isAdminForm = false }) => {
   const router = useRouter();
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -83,9 +83,11 @@ const FormManagement = ({ eventId }) => {
   const dataLimits = [10, 20, 30, 50];
 
   useEffect(() => {
-    fetchUserTypes();
+    if (!isAdminForm) {
+      fetchUserTypes();
+    }
     fetchForms();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, searchTerm, isAdminForm]);
 
   const fetchUserTypes = async () => {
     try {
@@ -113,7 +115,8 @@ const FormManagement = ({ eventId }) => {
         page: currentPage.toString(),
         limit: selectedLimit.toString(),
         ...(searchTerm && { search: searchTerm }),
-        ...(eventId && { eventId: eventId })
+        ...(eventId && !isAdminForm && { eventId: eventId }),
+        ...(isAdminForm && { isAdminForm: 'true' }),
       });
 
       const response = await getRequest(`forms?${params}`);
@@ -132,7 +135,7 @@ const FormManagement = ({ eventId }) => {
   };
 
   const handleAddForm = async () => {
-    if (!newForm.formName.trim() || !newForm.userType) {
+    if (!newForm.formName.trim() || (!isAdminForm && !newForm.userType)) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -142,14 +145,17 @@ const FormManagement = ({ eventId }) => {
       // Convert object to FormData for postRequest
       const formData = new FormData();
       formData.append('formName', newForm.formName);
-      formData.append('userType', newForm.userType);
-      // get the companyId from the local storage
-      const companyId = localStorage.getItem('companyId');
-      if (companyId) {
-        formData.append('companyId', companyId);
-      }
-      if (eventId) {
-        formData.append('eventId', eventId);
+      formData.append('isAdminForm', isAdminForm.toString());
+      
+      if (!isAdminForm) {
+        formData.append('userType', newForm.userType);
+        const companyId = localStorage.getItem('companyId');
+        if (companyId) {
+          formData.append('companyId', companyId);
+        }
+        if (eventId) {
+          formData.append('eventId', eventId);
+        }
       }
       
       const response = await postRequest('forms', formData);
@@ -191,25 +197,25 @@ const FormManagement = ({ eventId }) => {
   };
 
   const handleEditForm = async () => {
-    if (!editForm.formName.trim() || !editForm.userType) {
+    // Correct validation - userType only required for non-admin forms
+    if (!editForm.formName.trim() || (!isAdminForm && !editForm.userType)) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    // get the companyId from the local storage
-    const companyId = localStorage.getItem('companyId');
-
     setIsUpdatingForm(true);
     try {
-      // Explicitly create the payload to avoid any extra fields
+      // Correct payload logic - conditionally include userType based on isAdminForm
       const payload = {
         formName: editForm.formName,
-        userType: editForm.userType,
-        companyId: companyId || null
+        isAdminForm: isAdminForm,
+        ...(!isAdminForm && {
+          userType: editForm.userType,
+          companyId: localStorage.getItem('companyId') || null
+        })
       };
       
       console.log('Sending edit form data:', payload);
-      console.log('Form to edit ID:', formToEdit._id);
       
       const response = await updateRequest(`forms/${formToEdit._id}`, payload);
       
@@ -306,9 +312,11 @@ const FormManagement = ({ eventId }) => {
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div className='flex flex-col gap-1'>
-              <CardTitle>Forms List</CardTitle>
+              <CardTitle>
+                {isAdminForm ? 'Admin Forms' : 'Forms List'}
+              </CardTitle>
               <CardDescription>
-                Total {totalCount} forms found
+                Total {totalCount} {isAdminForm ? 'admin forms' : 'forms'} found
               </CardDescription>
             </div>
             <div className="flex items-center space-x-4">
@@ -343,14 +351,19 @@ const FormManagement = ({ eventId }) => {
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Form
+                    Add {isAdminForm ? 'Admin Form' : 'Form'}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add New Form</DialogTitle>
+                    <DialogTitle>
+                      Add New {isAdminForm ? 'Admin Form' : 'Form'}
+                    </DialogTitle>
                     <DialogDescription>
-                      Create a new form with basic information. You can add fields later.
+                      {isAdminForm 
+                        ? 'Create a new admin form. Admin forms don\'t require user type association.' 
+                        : 'Create a new form with basic information. You can add fields later.'
+                      }
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
@@ -366,26 +379,30 @@ const FormManagement = ({ eventId }) => {
                         placeholder="Enter form name"
                       />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="userType" className="text-right">
-                        User Type *
-                      </Label>
-                      <Select 
-                        value={newForm.userType} 
-                        onValueChange={(value) => setNewForm(prev => ({ ...prev, userType: value }))}
-                      >
-                        <SelectTrigger className="col-span-3">
-                          <SelectValue placeholder="Select user type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {userTypes?.map((type) => (
-                            <SelectItem key={type._id} value={type._id}>
-                              {type.typeName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    
+                    {/* Correct: Only show user type for non-admin forms */}
+                    {!isAdminForm && (
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="userType" className="text-right">
+                          User Type *
+                        </Label>
+                        <Select 
+                          value={newForm.userType} 
+                          onValueChange={(value) => setNewForm(prev => ({ ...prev, userType: value }))}
+                        >
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select user type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {userTypes?.map((type) => (
+                              <SelectItem key={type._id} value={type._id}>
+                                {type.typeName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsAddModalOpen(false)} disabled={isCreatingForm}>
@@ -403,31 +420,41 @@ const FormManagement = ({ eventId }) => {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Edit Form</DialogTitle>
-                    <DialogDescription>Update the form name and user type.</DialogDescription>
+                    <DialogDescription>
+                      {/* Use component's isAdminForm prop, not editForm.isAdminForm */}
+                      {isAdminForm 
+                        ? 'Update the admin form name.' 
+                        : 'Update the form name and user type.'
+                      }
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="editFormName" className="text-right">Form Name *</Label>
                       <Input id="editFormName" value={editForm.formName} onChange={(e) => setEditForm(prev => ({ ...prev, formName: e.target.value }))} className="col-span-3" placeholder="Enter form name" />
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="editUserType" className="text-right">User Type *</Label>
-                      <Select
-                        value={editForm.userType}
-                        onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}
-                      >
-                        <SelectTrigger className="col-span-3">
-                          <SelectValue placeholder="Select user type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {userTypes?.map((type) => (
-                            <SelectItem key={type._id} value={type._id}>
-                              {type.typeName}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    
+                    {/* Correct: Only show user type for non-admin forms */}
+                    {!isAdminForm && (
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="editUserType" className="text-right">User Type *</Label>
+                        <Select
+                          value={editForm.userType}
+                          onValueChange={(value) => setEditForm(prev => ({ ...prev, userType: value }))}
+                        >
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select user type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {userTypes?.map((type) => (
+                              <SelectItem key={type._id} value={type._id}>
+                                {type.typeName}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsEditModalOpen(false)} disabled={isUpdatingForm}>Cancel</Button>
@@ -466,7 +493,9 @@ const FormManagement = ({ eventId }) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Form Name</TableHead>
-                  <TableHead>User Type</TableHead>
+                  {/* Correct: Only show user type column for non-admin forms */}
+                  {!isAdminForm && <TableHead>User Type</TableHead>}
+                  <TableHead>Type</TableHead>
                   <TableHead>Form Fields</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -475,13 +504,13 @@ const FormManagement = ({ eventId }) => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={isAdminForm ? 5 : 6} className="text-center py-8">
                       Loading forms...
                     </TableCell>
                   </TableRow>
                 ) : forms.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={isAdminForm ? 5 : 6} className="text-center py-8">
                       No forms found
                     </TableCell>
                   </TableRow>
@@ -491,9 +520,19 @@ const FormManagement = ({ eventId }) => {
                       <TableCell className="font-medium">
                         {form.formName}
                       </TableCell>
+                      
+                      {/* Correct: Only show user type for non-admin forms */}
+                      {!isAdminForm && (
+                        <TableCell>
+                          <Badge className={getUserTypeBadgeColor(form.userType?.typeName)}>
+                            {form?.userType?.typeName}
+                          </Badge>
+                        </TableCell>
+                      )}
+                      
                       <TableCell>
-                        <Badge className={getUserTypeBadgeColor(form.userType)}>
-                          {form?.userType?.typeName}
+                        <Badge variant={form.isAdminForm ? "default" : "secondary"}>
+                          {form.isAdminForm ? 'Admin Form' : 'User Form'}
                         </Badge>
                       </TableCell>
                       <TableCell>

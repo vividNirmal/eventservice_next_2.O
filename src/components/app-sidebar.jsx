@@ -120,6 +120,7 @@ export function AppSidebar({ ...props }) {
           { title: "Default Fields", url: "/dashboard/default-fields" },
           { title: "User Types", url: "/dashboard/user-types" },
           { title: "Field Constants", url: "/dashboard/field-constant" },
+          { title: "Admin Forms", url: "/dashboard/admin-forms" },
         ],
         show: true,        
       },

@@ -1,8 +1,6 @@
-import FormManagement from '@/components/page/formManagement/FormManagement';
 import { TicketManagement } from '@/components/page/ticketManagement';
 
 export default function FormManagementPage() {
-  // return <FormManagement />;
   return <TicketManagement />;
 }
 

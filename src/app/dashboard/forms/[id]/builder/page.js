@@ -51,6 +51,7 @@ export default function FormBuilderPage() {
       allowMultipleSubmissions: false,
       requireAuth: false,
     },
+    isAdminForm: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -108,6 +109,7 @@ export default function FormBuilderPage() {
             allowMultipleSubmissions: false,
             requireAuth: false,
           },
+          isAdminForm: formData.isAdminForm || false,
           createdAt: formData.createdAt,
           updatedAt: formData.updatedAt,
         };
@@ -141,7 +143,7 @@ export default function FormBuilderPage() {
   };
 
   const autoSaveForm = async (formData) => {
-    if (!formData.formName.trim() || !formData.userType) {
+    if (!formData.formName.trim() || (!formData.isAdminForm && !formData.userType)) {
       return; // Don't auto-save if required fields are missing
     }
 
@@ -150,7 +152,7 @@ export default function FormBuilderPage() {
 
       const payload = {
         formName: formData.formName,
-        userType: formData.userType,
+        ...(formData.isAdminForm ? {} : { userType: formData.userType }), // Conditionally include userType
         formFields: formData.elements,
         settings: formData.settings,
       };
@@ -174,7 +176,7 @@ export default function FormBuilderPage() {
       return;
     }
 
-    if (!form.userType) {
+    if (!form.isAdminForm && !form.userType) {
       toast.error("Please select a user type");
       return;
     }
@@ -185,7 +187,8 @@ export default function FormBuilderPage() {
       // Prepare the form data for API
       const formData = {
         formName: form.formName,
-        userType: form.userType,
+        isAdminForm: form.isAdminForm,
+        ...(form.isAdminForm ? {} : { userType: form.userType }), // Conditionally include userType
         pages: form.pages,
         settings: form.settings,
       };

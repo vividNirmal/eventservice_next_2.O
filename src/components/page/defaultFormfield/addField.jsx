@@ -31,6 +31,7 @@ export function FormFieldAddDrawer({
   editUser = null,
   refetch,
   loading = false,
+  fieldType = "user"
 }) {
   const [userType, setUserTypes] = useState([]);
   const [constantFields, setConstantFields] = useState([]);
@@ -172,6 +173,7 @@ export function FormFieldAddDrawer({
       fieldRequiredIf: "",
       fieldConfigration: [],
       mapField:"",
+      isAdmin: fieldType === "admin",
     },
     validationSchema: Yup.object({
       fieldName: Yup.string().required("Name is required"),
@@ -295,6 +297,7 @@ export function FormFieldAddDrawer({
           // ===== ADD MODE =====
           formData.append("fieldName", values.fieldName);
           formData.append("fieldType", values.fieldType);
+          formData.append("isAdmin", fieldType === "admin" ? "true" : "false");
           if (values.isRequired == "yes") {
             formData.append("isRequired", true);
           } else {
@@ -376,6 +379,8 @@ export function FormFieldAddDrawer({
       } catch (err) {
         console.error(err);
         toast.error("Failed to process the request");
+      } finally {
+        setSubmitLoader(false);
       }
     },
   });
@@ -462,6 +467,13 @@ export function FormFieldAddDrawer({
         fieldRequiredIf: fieldRequiredIf,
         fieldConfigration: manualConfigurations,
         mapField: editUser.mapField || "",
+        isAdmin: editUser.isAdmin || false,
+      });
+    } else {
+      // For new fields, set isAdmin based on the fieldType prop
+      formik.setValues({
+        ...formik.initialValues,
+        isAdmin: fieldType === "admin",
       });
     }
   }, [editUser, isOpen]);

@@ -41,13 +41,13 @@ import { Switch } from "@/components/ui/switch";
 import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog";
 import { getRequest, postRequest } from "@/service/viewService";
 import { FormFieldAddDrawer } from "./addField";
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function FieldLists() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLimit, setSelectedLimit] = useState(10);
-  const [fieldList, sertFieldList] = useState([]);
+  const [fieldList, setFieldList] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -56,31 +56,39 @@ export default function FieldLists() {
   const [editUser, setEditUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });
   const [statusDialog, setStatusDialog] = useState({ open: false, user: null });
+  const [activeTab, setActiveTab] = useState("user"); // "user" or "admin"
+  
   const dataLimits = [10, 20, 30, 50];
 
-  const fetchUsers = async () => {
+  const fetchFields = async () => {
     setLoading(true);
     try {
-      const res = await getRequest(
-        `get-default-field-list?page=${currentPage}&pageSize=${selectedLimit}&searchQuery=${encodeURIComponent(
-          searchTerm
-        )}`
-      );
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: selectedLimit.toString(),
+        ...(searchTerm && { search: searchTerm }),
+        ...(activeTab === "admin" && { isAdmin: "true" }),
+        ...(activeTab === "user" && { isAdmin: "false" }),
+      });
+
+      const res = await getRequest(`get-default-field-list?${params}`);
       if (res.status === 1) {
-        sertFieldList(res.data?.fields || []);
+        setFieldList(res.data?.fields || []);
         setTotalUsers(res.data.totalData);
         setTotalPages(res.data.totalPages);
         // setCurrentPage(res.data.currentPage);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching fields:", error);
+      toast.error("Failed to fetch fields");
     } finally {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    fetchUsers();
-  }, [currentPage, selectedLimit, searchTerm]);
+    fetchFields();
+  }, [currentPage, selectedLimit, searchTerm, activeTab]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
@@ -142,11 +150,10 @@ export default function FieldLists() {
       setDeleteDialog({ open: true, users: Array.from(selectedUsers) });
     }
   };
- 
 
   const handleFormSubmit = async (formData) => {
     if (formData) {
-      fetchUsers();
+      fetchFields();
     }
   };
 
@@ -156,13 +163,13 @@ export default function FieldLists() {
       formData.append("filed_ids[]", deleteDialog.users);
       const result = await postRequest("default-fields/delete", formData);
       if (result.status == 1) {
-        toast.success("Users deleted successfully");
+        toast.success("Fields deleted successfully");
         setSelectedUsers(new Set());
-        fetchUsers();
+        fetchFields();
         setDeleteDialog({ open: false, users: [] });
       }
     } catch (error) {
-      toast.error("Failed to delete users");
+      toast.error("Failed to delete fields");
     }
   };
 
@@ -195,7 +202,16 @@ export default function FieldLists() {
     <>
       <Card className={"gap-0 2xl:py-3 2xl:p-5 shadow-none"}>
         <CardHeader className={"flex flex-wrap items-center px-0 gap-3"}>
-          <CardTitle>Field List</CardTitle>
+          <CardTitle>Default Fields Management</CardTitle>
+          
+          {/* Add Tabs for User/Admin Fields */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="user">User Default Fields</TabsTrigger>
+              <TabsTrigger value="admin">Admin Default Fields</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <div className="flex items-center space-x-3 ml-auto">
             {selectedUsers.size > 0 && (
               <Button variant="destructive" size="sm" onClick={handleBulkDelete} className={'2xl:text-sm 2xl:h-10'}>
@@ -205,13 +221,18 @@ export default function FieldLists() {
             )}
             <Button onClick={handleAddUser} className={'2xl:text-sm 2xl:h-10'}>
               <Plus className="h-4 w-4 mr-2" />
-              Add Default Field
+              Add {activeTab === 'admin' ? 'Admin' : 'User'} Field
             </Button>
           </div>
           <div className="flex items-center space-x-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input placeholder="Search" value={searchTerm} onChange={(e) => handleSearchChange(e.target.value)} className="pl-10" />
+              <Input 
+                placeholder="Search fields..." 
+                value={searchTerm} 
+                onChange={(e) => handleSearchChange(e.target.value)} 
+                className="pl-10" 
+              />
             </div>
             <Select
               value={selectedLimit.toString()}
@@ -302,7 +323,7 @@ export default function FieldLists() {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={8} className="h-24 text-center">
-                          No users found.
+                          No {activeTab} fields found.
                         </TableCell>
                       </TableRow>
                     )}
@@ -325,13 +346,14 @@ export default function FieldLists() {
         )}
       </CardContent>
 
-      {/* User Form Drawer */}
+      {/* Field Form Drawer */}
       <FormFieldAddDrawer
         isOpen={showDrawer}
         onClose={() => setShowDrawer(false)}
         refetch={handleFormSubmit}
         editUser={editUser}
         loading={loading}
+        fieldType={activeTab}
       />
 
       {/* Delete Confirmation Dialog */}
@@ -339,11 +361,11 @@ export default function FieldLists() {
         isOpen={deleteDialog.open}
         onClose={() => setDeleteDialog({ open: false, users: [] })}
         onConfirm={confirmDelete}
-        title={deleteDialog.users.length > 1 ? "Delete Users" : "Delete User"}
+        title={deleteDialog.users.length > 1 ? "Delete Fields" : "Delete Field"}
         description={
           deleteDialog.users.length > 1
-            ? `Are you sure you want to delete ${deleteDialog.users.length} users? This action cannot be undone.`
-            : "Are you sure you want to delete this user? This action cannot be undone."
+            ? `Are you sure you want to delete ${deleteDialog.users.length} fields? This action cannot be undone.`
+            : "Are you sure you want to delete this field? This action cannot be undone."
         }
         loading={loading}
       />

@@ -154,8 +154,8 @@ function ElementGroup({ elements, searchTerm }) {
 
     const searchLower = searchTerm.toLowerCase();
     return (
-      element.fieldName.toLowerCase().includes(searchLower) ||
-      element.fieldType.toLowerCase().includes(searchLower) ||
+      element.fieldName?.toLowerCase().includes(searchLower) ||
+      element.fieldType?.toLowerCase().includes(searchLower) ||
       element.keywords?.some((keyword) =>
         keyword.toLowerCase().includes(searchLower)
       )
@@ -181,6 +181,7 @@ function ElementGroup({ elements, searchTerm }) {
 export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [defaultElement, setDefaultElement] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Make sidebar droppable but reject all drops
   const { setNodeRef: setSidebarRef, isOver } = useDroppable({
@@ -193,20 +194,31 @@ export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
 
   useEffect(() => {
     elementFtch();
-  }, []);
+  }, [form?.userType, form?.isAdminForm]);
 
   const elementFtch = async () => {
     try {
-      const element = await getApiWithParam(
-        "get-default-userType",
-        `${form?.userType}`
-      );
+      setLoading(true);
+      let element;
+      
+      // Choose API endpoint based on form type
+      if (form?.isAdminForm) {
+        element = await getApiWithParam("get-default-admin", "");
+      } else {
+        element = await getApiWithParam("get-default-userType", `${form?.userType}`);
+      }
+      
       if (element.status == 1) {
         setDefaultElement(element.data.field);
+      } else {
+        setDefaultElement([]);
       }
     } catch (err) {
-      console.error("🚨 Error fetching form:", err);
-      toast.error("Failed to load form");
+      console.error("🚨 Error fetching form elements:", err);
+      toast.error("Failed to load form elements");
+      setDefaultElement([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -216,8 +228,8 @@ export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
     const searchLower = searchTerm.toLowerCase();
     return defaultElement.filter(
       (element) =>
-        element.fieldName.toLowerCase().includes(searchLower) ||
-        element.fieldType.toLowerCase().includes(searchLower) ||
+        element.fieldName?.toLowerCase().includes(searchLower) ||
+        element.fieldType?.toLowerCase().includes(searchLower) ||
         element.keywords?.some((keyword) =>
           keyword.toLowerCase().includes(searchLower)
         )
@@ -239,7 +251,7 @@ export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
       <Card className="border-0 rounded-none 2xl:p-4 grow">
         <CardHeader className="px-0">
           <CardTitle className="text-sm font-semibold text-gray-700">
-            Form Elements
+            {form?.isAdminForm ? 'Admin Form Elements' : 'Form Elements'} {/* Dynamic title */}
           </CardTitle>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-4" />
@@ -252,7 +264,12 @@ export function ElementSidebar({ form, onCreateelemet, currentPageIndex }) {
           </div>
         </CardHeader>
         <CardContent className="p-0 flex flex-col grow">
-          {searchResults ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <span className="ml-2 text-sm text-gray-600">Loading elements...</span>
+            </div>
+          ) : searchResults ? (
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3">
                 Search Results ({searchResults.length})
