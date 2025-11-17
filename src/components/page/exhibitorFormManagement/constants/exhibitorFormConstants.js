@@ -63,7 +63,7 @@ export const INITIAL_FORM_DATA = {
     measurement_unit: "",
     allow_multiple_submission: false,
     is_mendatory: false,
-    dependant_form: "form1",
+    dependant_form: null,
     dependant_features: "feature1",
     limit_quantity_for_all: false,
     payment_collection_required: false,

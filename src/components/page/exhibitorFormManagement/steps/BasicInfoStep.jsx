@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 import dynamic from "next/dynamic";
 import { textEditormodule } from "@/lib/constant";
 import { CustomCombobox } from '@/components/common/customcombox';
+import { getRequest } from '@/service/viewService';
 
 // Dynamically import ReactQuill
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -18,6 +19,26 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 
 const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, errors }) => {
   const { basicInfo } = formData;
+  const [adminForms, setAdminForms] = useState([]);
+
+  // Fetch admin forms on component mount
+  useEffect(() => {
+    const fetchAdminForms = async () => {
+      try {
+        const response = await getRequest('forms?page=1&limit=0&isAdminForm=true');
+        if (response.status === 1) {
+          setAdminForms(response.data.forms || []);
+        } else {
+          console.error('Failed to fetch admin forms:', response.message);
+        }
+      } catch (error) {
+        console.error('Error fetching admin forms:', error);
+      } finally {
+      }
+    };
+
+    fetchAdminForms();
+  }, []);
 
   return (
     <div>
@@ -102,13 +123,25 @@ const BasicInfoStep = ({ formData, handleInputChange, handleArrayFieldChange, er
           </div>
           <div className="space-y-2 pb-3.5">
             <Label htmlFor="dependant_form">Dependant Form</Label>
-            <Select value={basicInfo.dependant_form} onValueChange={(value) => handleInputChange('basicInfo.dependant_form', value)}>
+            <Select 
+              value={basicInfo.dependant_form || "none"} 
+              onValueChange={(value) => {
+                if (value === "none") {
+                  handleInputChange('basicInfo.dependant_form', null);
+                } else {
+                  handleInputChange('basicInfo.dependant_form', value);
+                }
+              }}
+            >
               <SelectTrigger className={'w-full'}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {DEPENDANT_FORMS.map(option => (
-                  <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                <SelectItem value="none">None</SelectItem>
+                {adminForms.map(form => (
+                  <SelectItem key={form._id} value={form._id}>
+                    {form?.formName}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
