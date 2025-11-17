@@ -12,7 +12,7 @@ export function EventAttendeesCard({
   onApply,
 }) {
   return (
-    <div className="group relative bg-white border border-solid border-blue-500 rounded-lg p-6 shadow-md overflow-hidden cursor-pointer transition-all duration-200 ease-in hover:shadow-xl hover:-translate-y-1" onClick={onApply}>
+    <div className="group relative bg-white border border-solid border-blue-500 rounded-lg p-5 shadow-md overflow-hidden cursor-pointer transition-all duration-200 ease-in hover:shadow-xl hover:-translate-y-1" onClick={onApply}>
       {/* Decorative gold line on the right */}
       <div className="absolute z-2 inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-blue-400/10 via-transparent to-transparent transition-opacity duration-300" />
       <div className="relative z-10">
@@ -21,7 +21,7 @@ export function EventAttendeesCard({
         </Button>
         <h3 className="text-xl mb-2 font-bold text-zinc-900">{title}</h3>
         <p className="flex items-start gap-2 text-sm leading-relaxed text-zinc-600">{description}</p>
-        <p className="flex items-start gap-2 text-sm leading-relaxed text-zinc-600">{`Event Time : ${date_time[0].startDate}  ${date_time[0].startTime} to ${date_time[0].endDate}  ${date_time[0].endTime}  ` }</p>
+        <p className="flex items-start gap-1 text-sm leading-relaxed text-zinc-600 mt-2"><b>Event Time :</b> {`${date_time[0].startDate}  ${date_time[0].startTime}`} <b>to</b> {`${date_time[0].endDate}  ${date_time[0].endTime}`}</p>
         
         {/* <Button onClick={onApply} className="mt-4 bg-orange-400 border-orange-400 hover:text-white hover:bg-orange-400 hover:border-orange-400 gap-2">
           Details
@@ -35,21 +35,21 @@ export function EventAttendeesCard({
 // Exhibitor Card (second image layout)
 export function CategoryCard({ category, eventCount, onApply , status }) {    
   return (
-    <div className="relative group bg-white rounded-lg p-4 border border-solid border-orange-400 shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-400/10 via-transparent to-transparent transition-opacity duration-300" />
-      <div className="space-y-4 relative z-10">
-        <h3 className="text-xl font-bold text-foreground mb-2">{category.title}</h3>
-        <div className="flex items-start gap-2 text-sm text-zinc-700">
-          <span className="inline-flex items-center justify-center shrink-0 size-8 bg-orange-400/10 text-orange-400 rounded-full font-semibold">{eventCount}</span>
-          <span>{eventCount === 1 ? "Event" : "Events"} Available</span>
-        </div>
-        <div className="pt-4 border-t border-gray-200">
-          <Button onClick={onApply} className="!text-white hover:bg-orange-400 bg-orange-400 border-orange-400 shadow-[0_0_0_4px_rgba(255,137,4,0.2)] gap-2">
-            View Events 
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
+    <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-slate-100 hover:border-blue-200 hover:scale-105 p-6 space-y-6">
+      {/* Header with Title */}
+      <h3 className="text-2xl font-bold text-slate-900 mb-2">{category.title}</h3>
+
+      {/* Status Badge */}
+      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100 flex items-center gap-3">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-sm">{eventCount}</div>
+        <p className="text-sm font-medium text-slate-700">{eventCount === 1 ? "Event" : "Events"} Available</p>
       </div>
+
+      {/* CTA Button */}
+      <button onClick={onApply} className="cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+        <span>View Events</span>
+        <ChevronRight className="w-4 h-4" />
+      </button>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { ExhibitorCard, CategoryCard } from "./EventAttendeesCard";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
-import { ChevronLeft } from "lucide-react";
+import { CheckCircle, ChevronLeft, Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "../../eventAdminpages/package/addPackage";
@@ -171,8 +171,8 @@ export default function UserEventList() {
           {selectedPackagedeatils && (
             <>
               <div className="p-4 space-y-4 h-20 grow overflow-auto">
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-100 flex items-start gap-3 mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-circle-check-big w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 flex items-start gap-3 mb-4">
+                  <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-slate-900 text-balance">
                       {selectedPackagedeatils.originalData?.event_package
@@ -201,16 +201,13 @@ export default function UserEventList() {
 
                 {/* Description Section */}
                 <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-100 flex gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-clock w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
+                  <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-slate-900 text-sm">Note:</p>
                     <p className="text-sm text-slate-700 mt-1">This package is event-specific, and it has an expiry date.</p>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-5 text-white">
+                <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-4 text-white">
                   <p className="text-xs font-semibold tracking-wider text-slate-300 uppercase">Package Price</p>
                   <p className="text-3xl font-bold mt-2">₹{selectedPackagedeatils.price}</p>
                 </div>

@@ -4,7 +4,7 @@ import { getRequest } from "@/service/viewService";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { CheckCircle, ChevronRight } from "lucide-react";
 import moment from "moment";
 
 export default function EventFormList({ id }) {
@@ -57,18 +57,15 @@ export default function EventFormList({ id }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {eventList.length > 0 ? (
             eventList?.map((show) => (
-              <div className="relative bg-white rounded-lg p-6 border-l-4 border-solid border-orange-400 shadow-md overflow-hidden">
+              <div className="relative bg-white rounded-lg p-6 border-l-4 border-solid border-blue-500 shadow-md overflow-hidden">
                 {/* Decorative gold line on the right */}
-                <div className="absolute z-2 inset-0 bg-gradient-to-br from-orange-400/10 via-transparent to-transparent transition-opacity duration-300" />
+                <div className="absolute z-2 inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent transition-opacity duration-300" />
                 <div className="space-y-3 relative z-10">
-                  <h3 className="text-lg font-bold text-foreground">
-                    {show.basicInfo?.full_name}
-                  </h3>
-                  <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                    End Date : {moment(show.basicInfo?.due_date).format('DD/MM/YYYY')}
-                  </div>
-                  <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                    <span className="text-amber-400 shrink-0">✓</span>
+                  <h3 className="text-lg font-bold text-foreground">{show.basicInfo?.full_name}</h3>
+                  <span className="text-sm font-semibold mb-2 block">End Date :</span>
+                  <span className="flex items-start gap-2 text-sm text-muted-foreground">{moment(show.basicInfo?.due_date).format('DD/MM/YYYY')}</span>
+                  <div className="bg-blue-500/5 rounded-xl p-4 border border-blue-500/30 flex items-center gap-3">
+                    <CheckCircle className="size-5 text-blue-400 flex-shrink-0" />
                     <div
                       dangerouslySetInnerHTML={{
                         __html: show.basicInfo?.form_description,
@@ -77,13 +74,10 @@ export default function EventFormList({ id }) {
                     />
                   </div>
 
-                  <Button
-                    onClick={() => console.log(show._id)}
-                    className="mt-4 bg-orange-400 border-orange-400 hover:text-white hover:bg-orange-400 hover:border-orange-400 gap-2"
-                  >
-                    Apply Now
+                  <button onClick={() => console.log(show._id)} className="cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-auto">
+                    <span>Apply Now</span>
                     <ChevronRight className="w-4 h-4" />
-                  </Button>
+                  </button>
                 </div>
               </div>
             ))
