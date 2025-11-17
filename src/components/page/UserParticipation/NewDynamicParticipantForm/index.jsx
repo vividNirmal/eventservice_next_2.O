@@ -656,7 +656,7 @@ const NewDynamicParticipantForm = ({
             <CardTitle>Registration Form</CardTitle>
             <CardDescription>Please fill in all required fields</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             {form.pages.map((page, pageIndex) => (
               <div key={pageIndex} className="space-y-4 bg-white">
                 {form.pages.length > 1 && (
@@ -675,13 +675,13 @@ const NewDynamicParticipantForm = ({
 
             {/* Face Scanner Section - Only show if required */}
             {eventData?.with_face_scanner == 1 && (
-              <div className="space-y-4 border border-solid border-zinc-200 border-b-0 rounded-t-xl p-6 ">
-                <h3 className="text-lg font-semibold flex items-center justify-center">
+              <div className="space-y-4 border border-solid border-zinc-200 border-b-0 rounded-t-xl p-4">
+                <h3 className="text-base lg:text-lg font-semibold flex items-center justify-center">
                   <Camera className="size-5 mr-2 text-blue-500" />
                   Face Verification
                   <sup className="text-red-500">*</sup>
                 </h3>
-                <div className={cn("size-40 mx-auto flex items-center justify-center border-2 border-dashed overflow-hidden rounded-full text-gray-400", capturedImage ? "border-blue-600" : "border-gray-300")}>
+                <div className={cn("text-sm size-32 lg:size-40 mx-auto flex items-center justify-center border-2 border-dashed overflow-hidden rounded-full text-gray-400", capturedImage ? "border-blue-600" : "border-gray-300")}>
                   {
                     capturedImage ? (
                       <img src={capturedImage} alt="Captured" className="object-cover size-full block" />
@@ -712,13 +712,7 @@ const NewDynamicParticipantForm = ({
           </CardContent>
         </Card>
         <div className="shrink-0 flex items-center justify-center py-4 px-4 border-t">
-          <Button
-            type="button"
-            onClick={formik.handleSubmit}
-            disabled={submitting}
-            variant="formBtn"
-            className="w-full rounded-full max-w-fit"
-          >
+          <Button type="button" onClick={formik.handleSubmit} disabled={submitting} variant="formBtn" className="w-full rounded-full max-w-fit">
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
