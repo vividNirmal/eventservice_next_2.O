@@ -16,8 +16,8 @@ const EVENT_ENTRY_EXIT_DEVICES = [
 ];
 
 const INSTANT_REGISTER_OPTIONS = [
-  { id: 1, name: "Basic Entry (Name & Mobile Entry)", value: "Name and Number Entry Only" },
-  { id: 2, name: " Face Verify (Name, Mobile & Face Entry)", value: "Name Number and Face" }
+  { id: 1, name: "Basic Entry (Name & Mobile Entry)", value: "Basic Entry " },
+  { id: 2, name: " Face Verify (Name, Mobile & Face Entry)", value: "Face Verify Entry " }
 ];
 
 // Validation schema
