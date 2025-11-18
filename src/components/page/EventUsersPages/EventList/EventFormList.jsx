@@ -62,9 +62,8 @@ export default function EventFormList({ id }) {
                 <div className="absolute z-2 inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent transition-opacity duration-300" />
                 <div className="space-y-3 relative z-10">
                   <h3 className="text-lg font-bold text-foreground">{show.basicInfo?.full_name}</h3>
-                  <span className="text-sm font-semibold mb-2 block">End Date :</span>
-                  <span className="flex items-start gap-2 text-sm text-muted-foreground">{moment(show.basicInfo?.due_date).format('DD/MM/YYYY')}</span>
-                  <div className="bg-blue-500/5 rounded-xl p-4 border border-blue-500/30 flex items-center gap-3">
+                  <span className="text-sm font-semibold block mb-4">End Date : <span className="text-sm text-muted-foreground">{moment(show.basicInfo?.due_date).format('DD/MM/YYYY')}</span></span>
+                  <div className="flex items-center gap-3 mb-6">
                     <CheckCircle className="size-5 text-blue-400 flex-shrink-0" />
                     <div
                       dangerouslySetInnerHTML={{

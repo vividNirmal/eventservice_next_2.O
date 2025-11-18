@@ -66,30 +66,30 @@ export function PaymentPopup({ open, onOpenChange, item, Success }) {
     return (
       <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
         <DialogContent className="flex flex-col h-full max-h-[70svh] sm:max-h-[68svh] w-full sm:max-w-sm bg-white rounded-2xl shadow-2xl overflow-hidden p-0 border-0 gap-0 outline-0 [&>button]:!text-white">
-          <DialogHeader className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 p-4">
+          <DialogHeader className="gap-1 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 p-4">
             <div className="bg-white rounded-full p-2 w-fit">
               <CircleCheckBig className="size-7 text-green-600" />
             </div>
             <DialogTitle className="text-2xl font-bold text-white mt-2">Payment Successful!</DialogTitle>
             <DialogDescription className="text-green-100 text-sm">Your transaction has been completed successfully</DialogDescription>
           </DialogHeader>
-          <div className="p-4 space-y-4 h-20 grow overflow-auto custom-scroll">
-            <div className="bg-slate-50 rounded-xl p-5 space-y-4">
-              <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+          <div className="p-4 space-y-3 h-20 grow overflow-auto custom-scroll">
+            <div className="bg-slate-50 rounded-xl p-3 space-y-3">
+              <div className="flex justify-between items-center pb-3 border-b border-slate-200">
                 <span className="text-slate-600 text-sm font-medium">Package</span>
-                <span className="font-semibold text-slate-900">{item.title}</span>
+                <span className="font-semibold text-sm text-slate-900">{item.title}</span>
               </div>
-              <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+              <div className="flex justify-between items-center pb-3 border-b border-slate-200">
                 <span className="text-slate-600 text-sm font-medium">Unit Price</span>
-                <span className="font-semibold text-slate-900">₹{item.price.toLocaleString("en-IN")}</span>
+                <span className="font-semibold text-sm text-slate-900">₹{item.price.toLocaleString("en-IN")}</span>
               </div>
-              <div className="flex justify-between items-center pb-4 border-b border-slate-200">
+              <div className="flex justify-between items-center pb-3 border-b border-slate-200">
                 <span className="text-slate-600 text-sm font-medium">Quantity</span>
-                <span className="font-semibold text-slate-900">{count} unit(s)</span>
+                <span className="font-semibold text-sm text-slate-900">{count} unit(s)</span>
               </div>
-              <div className="flex justify-between items-center pt-2">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-900 font-bold text-sm">Total Amount</span>
-                <span className="font-bold text-lg text-green-600">₹{(item.price * count).toLocaleString("en-IN")}</span>
+                <span className="font-bold text-base text-green-600">₹{(item.price * count).toLocaleString("en-IN")}</span>
               </div>
             </div>
             <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 flex gap-3">
