@@ -29,18 +29,44 @@ export default function AdminLogin() {
     }
   }, []);
 
-  useEffect(() => {
-    const host = window.location.hostname; // ngglobal.localhost
-    const parts = host.split(".");
+useEffect(() => {
+  const getSubdomainFromHost = (hostname) => {
+    const parts = hostname.toLowerCase().split('.');
+    const isLocalhost = hostname.includes('localhost') || hostname.includes('127.0.0.1');
 
-    if (parts.length > 1) {
-      setSubdomain(parts[0]); // "ngglobal"
+    if (isLocalhost) {
+      return parts.length > 1 && parts[0] !== 'www' ? parts[0] : null;
     }
 
-    // Set domain config for branding
-    const config = getDomainConfig();
-    setDomainConfig(config);
-  }, []);
+    // Get root domain from environment or auto-detect
+    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+    
+    if (rootDomain) {
+      // Remove root domain from hostname to get subdomain
+      const rootParts = rootDomain.split('.');
+      const domainMatch = parts.slice(-rootParts.length).join('.') === rootDomain;
+      
+      if (domainMatch && parts.length > rootParts.length) {
+        const sub = parts[0];
+        return sub !== 'www' ? sub : null;
+      }
+    } else {
+      // Auto-detect: assume last 2 parts are root domain (example.com)
+      // or last 3 for ccTLDs (example.co.uk)
+      if (parts.length > 2) {
+        const sub = parts[0];
+        return sub !== 'www' ? sub : null;
+      }
+    }
+
+    return null;
+  };
+
+  const detectedSubdomain = getSubdomainFromHost(window.location.hostname);
+  
+  setSubdomain(detectedSubdomain);
+  setDomainConfig(getDomainConfig(detectedSubdomain));
+}, []);
 
   // Form state
   const [formData, setFormData] = useState({
