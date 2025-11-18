@@ -94,6 +94,10 @@ export const useExhibitorForm = (editData = null) => {
           important_instructions_image: editData.mediaInfo?.important_instructions_image,
           important_instructions_image_preview: editData.mediaInfo?.important_instructions_image_url || null,
           supporting_documents: transformedSupportingDocs
+        },
+        basicInfo: {
+          ...editData.basicInfo,
+          due_date: editData?.basicInfo?.due_date ? new Date(editData?.basicInfo?.due_date).toISOString().slice(0, 10) : null,
         }
       });
     } else {

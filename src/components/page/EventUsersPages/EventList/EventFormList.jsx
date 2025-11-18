@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ChevronRight } from "lucide-react";
 import moment from "moment";
+import { useRouter } from "next/navigation";
 
 export default function EventFormList({ id }) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [eventList, setEventList] = useState([]);
   const [eventNotRegister, setEventNotRegister] = useState("");
@@ -36,6 +38,16 @@ export default function EventFormList({ id }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleApply = (show) => {
+    const formId = show?.basicInfo?.dependant_form;
+    const exhibitorFormId = show?._id;
+    if (!formId) {
+      toast.error("Form ID is missing");
+      return;
+    }
+    router.push(`/dashboard/eventuser/eventlist/exhibitor-application/${formId}?exhibitorFormId=${exhibitorFormId}`)
   };
 
   if (loading) {
@@ -73,7 +85,7 @@ export default function EventFormList({ id }) {
                     />
                   </div>
 
-                  <button onClick={() => console.log(show._id)} className="cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-auto">
+                  <button onClick={() => handleApply(show)} className="cursor-pointer w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl mt-auto">
                     <span>Apply Now</span>
                     <ChevronRight className="w-4 h-4" />
                   </button>
