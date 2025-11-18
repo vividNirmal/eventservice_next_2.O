@@ -308,7 +308,7 @@ const FormManagement = ({ eventId, isAdminForm = false }) => {
 
   return (
     <>
-      <Card>
+      <Card className={'grow'}>
         <CardHeader className={"px-0"}>
           <div className="flex justify-between items-center">
             <div className='flex flex-col gap-1'>

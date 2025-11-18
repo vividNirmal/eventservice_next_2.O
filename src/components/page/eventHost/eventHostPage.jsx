@@ -475,16 +475,16 @@ const EventHostPage = () => {
       <div className="flex-1">
         {/* Search Bar */}
         <div className="mb-4 flex flex-wrap items-center gap-4">
-          <input type="text" placeholder="Search events..." value={searchQuery} onChange={handleSearch} className="w-2/4 grow px-4 py-2 border border-gray-300 rounded-lg focus:ring-2" />
+          <input type="text" placeholder="Search events..." value={searchQuery} onChange={handleSearch} className="w-2/4 grow px-4 py-2 border border-gray-300 rounded-lg outline-none" />
           <Button className="w-fit h-10" onClick={handleAddEvent} size="lg">Add New Event</Button>
           <Button className="w-fit h-10" onClick={()=>setCategoryModalOpen(true)} size="lg">Add Event Shows </Button>
         </div>
         {/* Filter Buttons */}
         <div className="w-full space-y-4">
-          <Card className="p-2">
-            <div className="flex flex-row items-center justify-between">
+          <Card className="p-4 2xl:p-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
               <h3 className="font-semibold">Filter Events</h3>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {["Ongoing", "Upcoming", "Completed", "All"].map((option) => (
                   <Button
                     key={option}
@@ -517,7 +517,7 @@ const EventHostPage = () => {
         <div className="flex flex-wrap gap-5 mt-5">
           <div className="w-2/4 grow">
             {/* Events Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredEvents.map((event) => (
                 <EventCard
                   key={event._id}

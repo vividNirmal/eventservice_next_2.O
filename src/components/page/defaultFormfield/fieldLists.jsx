@@ -332,37 +332,13 @@ export default function FieldLists() {
       </Card>
 
       {/* Field Form Drawer */}
-      <FormFieldAddDrawer
-        isOpen={showDrawer}
-        onClose={() => setShowDrawer(false)}
-        refetch={handleFormSubmit}
-        editUser={editUser}
-        loading={loading}
-        fieldType={activeTab}
-      />
+      <FormFieldAddDrawer isOpen={showDrawer} onClose={() => setShowDrawer(false)} refetch={handleFormSubmit} editUser={editUser} loading={loading} fieldType={activeTab} />
 
       {/* Delete Confirmation Dialog */}
-      <DeleteConfirmationDialog
-        isOpen={deleteDialog.open}
-        onClose={() => setDeleteDialog({ open: false, users: [] })}
-        onConfirm={confirmDelete}
-        title={deleteDialog.users.length > 1 ? "Delete Fields" : "Delete Field"}
-        description={
-          deleteDialog.users.length > 1
-            ? `Are you sure you want to delete ${deleteDialog.users.length} fields? This action cannot be undone.`
-            : "Are you sure you want to delete this field? This action cannot be undone."
-        }
-        loading={loading}
-      />
+      <DeleteConfirmationDialog isOpen={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, users: [] })} onConfirm={confirmDelete} title={deleteDialog.users.length > 1 ? "Delete Fields" : "Delete Field"} description={deleteDialog.users.length > 1 ? `Are you sure you want to delete ${deleteDialog.users.length} fields? This action cannot be undone.` : "Are you sure you want to delete this field? This action cannot be undone."} loading={loading} />
 
       {/* Status Confirmation Dialog */}
-      <StatusConfirmationDialog
-        isOpen={statusDialog.open}
-        onClose={() => setStatusDialog({ open: false, user: null })}
-        onConfirm={confirmStatusChange}
-        user={statusDialog.user}
-        loading={loading}
-      />
+      <StatusConfirmationDialog isOpen={statusDialog.open} onClose={() => setStatusDialog({ open: false, user: null })} onConfirm={confirmStatusChange} user={statusDialog.user} loading={loading} />
     </>
   );
 }

@@ -250,7 +250,7 @@ const WhatsappTemplateList = () => {
   return (
     <>
       <Card className={"gap-0 !border-0 !p-0 shadow-none h-20 grow flex flex-col"}>
-        <CardHeader className={"flex flex-wrap items-center gap-3 rounded-xl border border-solid border-zinc-200 p-4 2xl:p-5 shadow-none"}>
+        <CardHeader className={"flex flex-wrap items-center gap-3 border-0 p-0"}>
           <CardTitle>Whatsapp Templates</CardTitle>
           <CardDescription className={"display-none"}></CardDescription>
           <div className="flex items-center space-x-3 ml-auto">

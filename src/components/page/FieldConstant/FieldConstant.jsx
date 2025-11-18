@@ -257,53 +257,34 @@ const FieldConstantList = () => {
 
   return (
     <>
-      <Card>
-        <CardHeader className={"px-0"}>
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col gap-1">
-              <CardTitle>Field Constant</CardTitle>
-              <CardDescription>
-                Total {totalCount} field constant found
-              </CardDescription>
+      <Card className={'grow'}>
+        <CardHeader className={"px-0 flex justify-between items-center"}>
+          <div className="flex flex-col gap-1">
+            <CardTitle>Field Constant</CardTitle>
+            <CardDescription>Total {totalCount} field constant found</CardDescription>
+          </div>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input placeholder="Search field constant..." value={searchTerm} onChange={handleSearch} className="!pl-10 w-64" />
             </div>
-            <div className="flex items-center space-x-4">
-              {/* Limit Selector */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Show:
-                </span>
-                <Select
-                  value={selectedLimit.toString()}
-                  onValueChange={handleLimitChange}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dataLimits.map((limit) => (
-                      <SelectItem key={limit} value={limit.toString()}>
-                        {limit}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  placeholder="Search field constant..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  className="!pl-10 w-64"
-                />
-              </div>
-
-              {/* ✅ Add Field constant Button */}
-              <Button onClick={() => setIsAddModalOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Field Constant
-              </Button>
+            {/* ✅ Add Field constant Button */}
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Field Constant
+            </Button>
+            {/* Limit Selector */}
+            <div className="flex items-center space-x-2">
+              <Select value={selectedLimit.toString()} onValueChange={handleLimitChange}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {dataLimits.map((limit) => (
+                    <SelectItem key={limit} value={limit.toString()}>{limit}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>

@@ -24,7 +24,7 @@ const FieldConstant = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={'p-4'}>
         <form onSubmit={formik.handleSubmit}>
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -33,12 +33,10 @@ const FieldConstant = ({
             )}
           </DialogHeader>
 
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="param_name" className="text-right">
-                Param Name
-              </Label>
-              <div className="col-span-3">
+          <div className="grid gap-4 pt-4 pb-6">
+            <div className="flex flex-row items-center gap-2">
+              <Label htmlFor="param_name" className="min-w-24">Param Name</Label>
+              <div className="relative pb-3.5 w-2/4 grow">
                 <Input
                   id="param_name"
                   name="param_name"
@@ -53,7 +51,7 @@ const FieldConstant = ({
                   placeholder="Enter user type name"
                 />
                 {formik.touched.param_name && formik.errors.param_name && (
-                  <div className="text-red-500 text-sm mt-1">
+                  <div className="text-red-500 text-xs mt-1 absolute left-0 -bottom-1">
                     {formik.errors.param_name}
                   </div>
                 )}

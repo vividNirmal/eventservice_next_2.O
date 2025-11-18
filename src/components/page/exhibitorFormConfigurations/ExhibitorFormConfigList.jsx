@@ -128,7 +128,7 @@ const ExhibitorFormConfigList = () => {
   return (
     <>
       <Card>
-        <CardHeader className="flex justify-between items-center">
+        <CardHeader className="flex justify-between items-center p-0">
           <CardTitle>Exhibitor Form Configurations</CardTitle>
           <div className="flex items-center gap-4">
             <div className="relative">

@@ -283,7 +283,7 @@ export default function EventDetailsForm({
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               rows={3}
-              className={`w-full px-3 py-2 border rounded-md ${
+              className={`w-full px-3 py-2 border rounded-md text-sm ${
                 formik.touched.event_description &&
                 formik.errors.event_description
                   ? "border-red-500"
