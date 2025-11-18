@@ -32,8 +32,9 @@ const UserRegisterEvent = () => {
   const [formLoading, setFormLoading] = useState(false); // Loading state for form
   const [resolvedForm, setResolvedForm] = useState(null); // For short URL resolved form_id
   const [registrationStatus, setRegistrationStatus] = useState(null); // For registration status errors
-  const [businessForm, setBusinessFrom] = useState(null);  
-  const [registerFormDataId, setRegisterFormDataId] = useState(null)
+  const [businessForm, setBusinessFrom] = useState(null);
+  const [registerFormDataId, setRegisterFormDataId] = useState(null);
+  const [formregisterLoader, setFormrgisterLoader] = useState(false);
   const theme = ticketData?.theme || "theme1";
   const themeLayouts = {
     theme1: Layout1,
@@ -58,7 +59,7 @@ const UserRegisterEvent = () => {
       if (response.status == 1) {
         setEventData(response?.data.event);
         setTicketData(response?.data.ticket);
-        setDynamicForm(response?.data.ticket?.registrationFormId);        
+        setDynamicForm(response?.data.ticket?.registrationFormId);
       } else {
         toast.error(response.message || "Failed to save job.");
       }
@@ -68,8 +69,7 @@ const UserRegisterEvent = () => {
     }
   }
 
-  const handleRegisterEmail = (emailData) => {    
-    
+  const handleRegisterEmail = (emailData) => {
     if (emailData) {
       setUserEmail(emailData.email);
       setFaceScanner(emailData.face_scanner);
@@ -79,12 +79,14 @@ const UserRegisterEvent = () => {
       //   setEventStep(2);
       // } else {
       // }
-      const evetRegsterUserData = emailData?.data
-      
-      if(evetRegsterUserData?.alreadyRegistered && evetRegsterUserData?.formRegistration){
-        
-        setQrEventDetails(evetRegsterUserData?.formRegistration.qrImage)  
-        setRegisterFormDataId(evetRegsterUserData?.formRegistration?._id)
+      const evetRegsterUserData = emailData?.data;
+
+      if (
+        evetRegsterUserData?.alreadyRegistered &&
+        evetRegsterUserData?.formRegistration
+      ) {
+        setQrEventDetails(evetRegsterUserData?.formRegistration.qrImage);
+        setRegisterFormDataId(evetRegsterUserData?.formRegistration?._id);
         setEventStep(4);
       }
       setFormData((prev) => ({
@@ -94,18 +96,19 @@ const UserRegisterEvent = () => {
       }));
     }
   };
-  
-  function businessSetpsetup (data){
+
+  function businessSetpsetup(data) {
     if (ticketData?.ticketAmount?.type == "businessSlab") {
-      setEventStep(3)
-    }else{
-      setResolvedForm(data)
-      handleFormSuccess(data)
+      setEventStep(3);
+    } else {
+      setResolvedForm(data);
+      handleFormSuccess(data);
     }
   }
 
   const handleFormSuccess = async (response) => {
     try {
+      setFormrgisterLoader(true);
       // dyanamic FormDate convert
       const formData = new FormData();
       formData.append("email", userEmail);
@@ -120,7 +123,7 @@ const UserRegisterEvent = () => {
           formData.append("faceScan", value);
           return;
         }
-        
+
         if (value instanceof File) {
           formData.append(key, value);
         } else if (Array.isArray(value)) {
@@ -143,37 +146,39 @@ const UserRegisterEvent = () => {
           formData.append(key, value);
         }
       });
-       if(businessForm){
+      if (businessForm) {
         formData.append("businessData[category]", businessForm?.category);
         formData.append("businessData[amount]", businessForm?.amount);
       }
-      
+
       const responce = await userPostRequest("store-register-form", formData);
       if (responce.status == 1) {
+        setFormrgisterLoader(false);
         setQrEventDetails(responce.data?.qrImageUrl);
         setRegisterFormDataId(responce?.data?.registrationId);
 
-        setEventStep(4); 
+        setEventStep(4);
       } else {
         // Throw error with API response message
-        throw new Error(responce?.message || responce?.error || "Failed to submit registration");
+        throw new Error(
+          responce?.message ||
+            responce?.error ||
+            "Failed to submit registration"
+        );
       }
-     
-    } catch (err) {          
+    } catch (err) {
       console.error("Registration error:", err);
       // Show specific error message from API
       const errorMessage = err.message || "Failed to submit registration";
       toast.error(errorMessage);
       throw err; // Re-throw to let form know submission failed
-    }    
+    }
   };
-
-
 
   const handleBUnessDate = (data) => {
     if (data) {
       setBusinessFrom(data);
-      handleFormSuccess(resolvedForm)
+      handleFormSuccess(resolvedForm);
     }
   };
 
@@ -225,7 +230,9 @@ const UserRegisterEvent = () => {
             )}
           </div>
 
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">{isNotStarted ? "Registration Not Started" : "Registration Closed"}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            {isNotStarted ? "Registration Not Started" : "Registration Closed"}
+          </h1>
           <p className="text-gray-600 mb-6">{message}</p>
 
           {data.registrationFilterDate && isNotStarted && (
@@ -262,7 +269,12 @@ const UserRegisterEvent = () => {
             </div>
           )}
 
-          <button onClick={() => window.location.reload()} className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors">Refresh Page</button>
+          <button
+            onClick={() => window.location.reload()}
+            className="w-full bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+          >
+            Refresh Page
+          </button>
         </div>
       </div>
     );
@@ -276,7 +288,7 @@ const UserRegisterEvent = () => {
       {/* Show registration status error if present */}
       {registrationStatus?.status === "error" && <RegistrationStatusError />}
       {/* Show normal flow only if no registration status error */}
-      {!registrationStatus?.status && eventStep === 1 && (        
+      {!registrationStatus?.status && eventStep === 1 && (
         <ParticipanLogin
           eventData={eventData}
           ticketData={ticketData}
@@ -284,25 +296,34 @@ const UserRegisterEvent = () => {
           onRegisterEmail={handleRegisterEmail}
         />
       )}
-     
-      {!registrationStatus?.status && eventStep === 2 && (
-        <LayoutComponent ticketData={ticketData} eventData={eventData}>
-          <NewDynamicParticipantForm
-            userEmail={userEmail}
-            eventData={eventData}
-            formData={formData}
-            faceScannerPermission={faceScanner}
-            eventHasFacePermission={eventHasFacePermission}
-            visitReason={visitReason}
-            companyVisit={companyVisit}
-            dynamicForm={dynamicForm}
-            formLoading={formLoading}
-            onFormSuccess={businessSetpsetup}
-            ticketData={ticketData}
-          />
-        </LayoutComponent>
-      )}
-      
+
+      {!registrationStatus?.status &&
+        eventStep === 2 &&
+        (formregisterLoader ? (
+          <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50   ">            
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mb-4"></div>                         
+          </div>
+        ) : (
+          <>
+            <LayoutComponent ticketData={ticketData} eventData={eventData}>
+              <NewDynamicParticipantForm
+                userEmail={userEmail}
+                eventData={eventData}
+                formData={formData}
+                faceScannerPermission={faceScanner}
+                eventHasFacePermission={eventHasFacePermission}
+                visitReason={visitReason}
+                companyVisit={companyVisit}
+                dynamicForm={dynamicForm}
+                formLoading={formregisterLoader}
+                onFormSuccess={businessSetpsetup}
+                ticketData={ticketData}
+                
+              />
+            </LayoutComponent>
+          </>
+        ))}
+
       {!registrationStatus?.status && eventStep === 3 && (
         <LayoutComponent ticketData={ticketData} eventData={eventData}>
           <TicketBooking
@@ -312,17 +333,17 @@ const UserRegisterEvent = () => {
           />
         </LayoutComponent>
       )}
-      
+
       {!registrationStatus?.status && eventStep === 4 && (
         <QrPage
           eventDetails={eventData}
           formData={formData}
           eventData={eventData}
           token={"After_Pass_Data"}
-          eventQr = {qrEventDetails}
+          eventQr={qrEventDetails}
           registerFormDataId={registerFormDataId}
         />
-      )}      
+      )}
     </>
   );
 };

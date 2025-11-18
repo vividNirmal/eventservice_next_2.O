@@ -4,7 +4,16 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FormRenderer } from "@/components/form-renderer/form-renderer";
 import { toast } from "sonner";
-import { Camera, CheckCircle2, UploadIcon, Loader2, Eye, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import {
+  Camera,
+  CheckCircle2,
+  UploadIcon,
+  Loader2,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+} from "lucide-react";
 import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -36,13 +45,13 @@ const NewDynamicParticipantForm = ({
   faceScannerPermission,
   eventHasFacePermission,
   dynamicForm,
-  formLoading = false,
+  formLoading ,
   onFormSuccess,
   ticketData,
 }) => {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(null);
-  
+
   // Face scanner states
   const [stopScanner, setStopScanner] = useState(true);
   const [capturedImage, setCapturedImage] = useState(null);
@@ -51,11 +60,15 @@ const NewDynamicParticipantForm = ({
   const [face, setFace] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {        
-    if (dynamicForm) {      
+  useEffect(() => {
+    if (dynamicForm) {
       fetchForm();
     }
   }, [dynamicForm]);
+  useEffect(() => {
+    
+    setLoading(formLoading);
+  }, [formLoading]);
 
   const fetchForm = async () => {
     if (!dynamicForm) {
@@ -68,7 +81,7 @@ const NewDynamicParticipantForm = ({
       const response = await userGetRequest(`/forms/${dynamicForm}`);
       if (response.status === 1 && response.data) {
         setForm(response.data.form);
-      } else {        
+      } else {
       }
     } catch (error) {
       console.error("🚨 Error fetching form:", error);
@@ -102,7 +115,8 @@ const NewDynamicParticipantForm = ({
     const values = {};
     const schemaFields = {};
 
-    if (!form?.pages) return { initialValues: {}, validationSchema: Yup.object() };
+    if (!form?.pages)
+      return { initialValues: {}, validationSchema: Yup.object() };
 
     // Combine all pages' elements
     form.pages.forEach((page) => {
@@ -247,7 +261,7 @@ const NewDynamicParticipantForm = ({
 
     return {
       initialValues: values,
-      validationSchema: Yup.object().shape(schemaFields)
+      validationSchema: Yup.object().shape(schemaFields),
     };
   }, [form]);
 
@@ -270,9 +284,9 @@ const NewDynamicParticipantForm = ({
         if (face) {
           submissionData.faceScan = face;
         }
-        
+
         await onFormSuccess(submissionData);
-        
+
         formik.resetForm();
         setCapturedImage(null);
         setFace(null);
@@ -294,14 +308,13 @@ const NewDynamicParticipantForm = ({
   const onEventImageSelected = (event) => {
     const inputElement = event.target;
     const allowedExtensions = [
-  "image/png",
-  "image/jpeg",
-  "image/jpg",
-  "image/webp",
-  "image/x-webp", // add this
-  "application/octet-stream", // optional fallback
-];
-
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+      "image/x-webp", // add this
+      "application/octet-stream", // optional fallback
+    ];
 
     if (inputElement.files && inputElement.files.length > 0) {
       const file = inputElement.files[0];
@@ -339,13 +352,18 @@ const NewDynamicParticipantForm = ({
     const imageToProcess = imageData || faceImage;
 
     if (!imageToProcess) {
-      toast.error("Please position your face in the camera to capture an image");
+      toast.error(
+        "Please position your face in the camera to capture an image"
+      );
       return;
     }
 
     let faceImageFile;
     try {
-      if (imageToProcess.startsWith("blob:") || imageToProcess.startsWith("http")) {
+      if (
+        imageToProcess.startsWith("blob:") ||
+        imageToProcess.startsWith("http")
+      ) {
         const resp = await fetch(imageToProcess);
         const blob = await resp.blob();
         faceImageFile = new File([blob], "faceImage.png", {
@@ -372,7 +390,9 @@ const NewDynamicParticipantForm = ({
       } else {
         const resp = await fetch("data:image/png;base64," + imageToProcess);
         const blob = await resp.blob();
-        faceImageFile = new File([blob], "faceImage.png", { type: "image/png" });
+        faceImageFile = new File([blob], "faceImage.png", {
+          type: "image/png",
+        });
       }
     } catch (error) {
       console.error("Error converting image:", error);
@@ -447,17 +467,28 @@ const NewDynamicParticipantForm = ({
                     parsedOption = option;
                   }
                 }
-                const optionValue = parsedOption.value || Object.keys(parsedOption)[0] || parsedOption;
-                const optionLabel = parsedOption.label || Object.values(parsedOption)[0] || parsedOption;
+                const optionValue =
+                  parsedOption.value ||
+                  Object.keys(parsedOption)[0] ||
+                  parsedOption;
+                const optionLabel =
+                  parsedOption.label ||
+                  Object.values(parsedOption)[0] ||
+                  parsedOption;
 
                 return (
                   <div key={idx} className="inline-flex items-center space-x-2">
                     <RadioGroupItem
-                      className={"data-[state=checked]:[&>span>svg]:fill-blue-500 data-[state=checked]:[&>span>svg]:text-blue-500"}
+                      className={
+                        "data-[state=checked]:[&>span>svg]:fill-blue-500 data-[state=checked]:[&>span>svg]:text-blue-500"
+                      }
                       value={optionValue}
                       id={`${fieldName}-${idx}`}
                     />
-                    <Label htmlFor={`${fieldName}-${idx}`} className="font-normal cursor-pointer mb-0">
+                    <Label
+                      htmlFor={`${fieldName}-${idx}`}
+                      className="font-normal cursor-pointer mb-0"
+                    >
                       {optionLabel}
                     </Label>
                   </div>
@@ -478,14 +509,24 @@ const NewDynamicParticipantForm = ({
                   }
                 }
 
-                const optionValue = parsedOption.value || Object.keys(parsedOption)[0] || parsedOption;
-                const optionLabel = parsedOption.label || Object.values(parsedOption)[0] || parsedOption;
-                const isChecked = Array.isArray(value) ? value.includes(optionValue) : value === optionValue;
+                const optionValue =
+                  parsedOption.value ||
+                  Object.keys(parsedOption)[0] ||
+                  parsedOption;
+                const optionLabel =
+                  parsedOption.label ||
+                  Object.values(parsedOption)[0] ||
+                  parsedOption;
+                const isChecked = Array.isArray(value)
+                  ? value.includes(optionValue)
+                  : value === optionValue;
 
                 return (
                   <div key={idx} className="inline-flex items-center gap-4">
                     <Checkbox
-                      className={"data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"}
+                      className={
+                        "data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                      }
                       id={`${fieldName}-${idx}`}
                       checked={isChecked}
                       onCheckedChange={(checked) => {
@@ -500,7 +541,10 @@ const NewDynamicParticipantForm = ({
                         formik.setFieldValue(fieldName, newValue);
                       }}
                     />
-                    <Label htmlFor={`${fieldName}-${idx}`} className="font-normal cursor-pointer mb-0">
+                    <Label
+                      htmlFor={`${fieldName}-${idx}`}
+                      className="font-normal cursor-pointer mb-0"
+                    >
                       {optionLabel}
                     </Label>
                   </div>
@@ -514,7 +558,11 @@ const NewDynamicParticipantForm = ({
               <Input
                 type="file"
                 id={fieldName}
-                accept={fileType ? fileType.map((type) => `.${type}`).join(",") : undefined}
+                accept={
+                  fileType
+                    ? fileType.map((type) => `.${type}`).join(",")
+                    : undefined
+                }
                 onChange={(e) => {
                   const file = e.target.files[0];
                   formik.setFieldValue(fieldName, file);
@@ -540,7 +588,11 @@ const NewDynamicParticipantForm = ({
               onBlur={() => formik.setFieldTouched(fieldName, true)}
               placeholder={placeHolder}
               theme="snow"
-              className={error ? "border-red-500" : "[&>div]:bg-white w-full min-h-52 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"}
+              className={
+                error
+                  ? "border-red-500"
+                  : "[&>div]:bg-white w-full min-h-52 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"
+              }
             />
           );
         case "hidden":
@@ -603,7 +655,10 @@ const NewDynamicParticipantForm = ({
         key={_id}
         className={cn(
           "flex flex-col gap-1 grow",
-          (fieldType === "textarea" || fieldType === "html" || fieldType === "radio" || fieldType === "checkbox")
+          fieldType === "textarea" ||
+            fieldType === "html" ||
+            fieldType === "radio" ||
+            fieldType === "checkbox"
             ? "w-full"
             : "w-full lg:w-5/12"
         )}
@@ -654,16 +709,22 @@ const NewDynamicParticipantForm = ({
         <Card className={"rounded-none border-0 shadow-none !pb-0"}>
           <CardHeader className={"px-0 2xl:px-0 border-b"}>
             <CardTitle>Registration Form</CardTitle>
-            <CardDescription>Please fill in all required fields</CardDescription>
+            <CardDescription>
+              Please fill in all required fields
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {form.pages.map((page, pageIndex) => (
               <div key={pageIndex} className="space-y-4 bg-white">
                 {form.pages.length > 1 && (
                   <div>
-                    <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-danger bg-clip-text text-transparent">{page.name}</h3>
+                    <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-danger bg-clip-text text-transparent">
+                      {page.name}
+                    </h3>
                     {page.description && (
-                      <span className="text-sm text-muted-foreground">{page.description}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {page.description}
+                      </span>
                     )}
                   </div>
                 )}
@@ -681,23 +742,46 @@ const NewDynamicParticipantForm = ({
                   Face Verification
                   <sup className="text-red-500">*</sup>
                 </h3>
-                <div className={cn("text-sm size-32 lg:size-40 mx-auto flex items-center justify-center border-2 border-dashed overflow-hidden rounded-full text-gray-400", capturedImage ? "border-blue-600" : "border-gray-300")}>
-                  {
-                    capturedImage ? (
-                      <img src={capturedImage} alt="Captured" className="object-cover size-full block" />
-                    ) : "No image"
-                  }
+                <div
+                  className={cn(
+                    "text-sm size-32 lg:size-40 mx-auto flex items-center justify-center border-2 border-dashed overflow-hidden rounded-full text-gray-400",
+                    capturedImage ? "border-blue-600" : "border-gray-300"
+                  )}
+                >
+                  {capturedImage ? (
+                    <img
+                      src={capturedImage}
+                      alt="Captured"
+                      className="object-cover size-full block"
+                    />
+                  ) : (
+                    "No image"
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-4">
-                  <Button type="button" onClick={() => setFaceScannerPopup(true)} className="flex items-center gap-2" variant="outline">
+                  <Button
+                    type="button"
+                    onClick={() => setFaceScannerPopup(true)}
+                    className="flex items-center gap-2"
+                    variant="outline"
+                  >
                     <Camera className="size-4" />
                     Capture Face
                   </Button>
-                  
-                  <Label htmlFor="face_image" className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors">
+
+                  <Label
+                    htmlFor="face_image"
+                    className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+                  >
                     <UploadIcon className="size-4" />
                     Upload Image
-                    <input type="file" id="face_image" className="hidden" accept=".jpg, .jpeg, .png" onChange={onEventImageSelected} />
+                    <input
+                      type="file"
+                      id="face_image"
+                      className="hidden"
+                      accept=".jpg, .jpeg, .png"
+                      onChange={onEventImageSelected}
+                    />
                   </Label>
                 </div>
 
@@ -712,7 +796,13 @@ const NewDynamicParticipantForm = ({
           </CardContent>
         </Card>
         <div className="shrink-0 flex items-center justify-center py-4 px-4 border-t">
-          <Button type="button" onClick={formik.handleSubmit} disabled={submitting} variant="formBtn" className="w-full rounded-full max-w-fit">
+          <Button
+            type="button"
+            onClick={formik.handleSubmit}
+            disabled={submitting}
+            variant="formBtn"
+            className="w-full rounded-full max-w-fit"
+          >
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -729,10 +819,18 @@ const NewDynamicParticipantForm = ({
       </div>
 
       {/* Face Scanner Popup */}
-      <Dialog open={faceScannerPopup} onOpenChange={() => setFaceScannerPopup(false)}>
-        <DialogTitle className={'sr-only'}>Face Scanner</DialogTitle>
+      <Dialog
+        open={faceScannerPopup}
+        onOpenChange={() => setFaceScannerPopup(false)}
+      >
+        <DialogTitle className={"sr-only"}>Face Scanner</DialogTitle>
         <DialogContent className="sm:max-w-[425px] p-0 flex-col">
-          <FaceScanner allowScan={stopScanner} onCameraError={onCameraError} onManualCapture={faceScannerData} newCaptureMode={true} />
+          <FaceScanner
+            allowScan={stopScanner}
+            onCameraError={onCameraError}
+            onManualCapture={faceScannerData}
+            newCaptureMode={true}
+          />
         </DialogContent>
       </Dialog>
     </>
