@@ -95,11 +95,12 @@ const UserRegisterEvent = () => {
     }
   };
   
-  function businessSetpsetup (){
+  function businessSetpsetup (data){
     if (ticketData?.ticketAmount?.type == "businessSlab") {
       setEventStep(3)
     }else{
-      handleFormSuccess()
+      setResolvedForm(data)
+      handleFormSuccess(data)
     }
   }
 
@@ -172,7 +173,7 @@ const UserRegisterEvent = () => {
   const handleBUnessDate = (data) => {
     if (data) {
       setBusinessFrom(data);
-      handleFormSuccess()
+      handleFormSuccess(resolvedForm)
     }
   };
 
