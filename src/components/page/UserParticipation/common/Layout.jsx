@@ -7,7 +7,7 @@ export const Layout1 = ({ ticketData, eventData, children }) => {
     <div className="h-svh flex flex-col lg:flex-row gap-4 p-4 bg-[#f7f9fc]">
       {/* Left Side - Image with Description */}
       <div className="w-full lg:w-1/3 relative rounded-2xl max-h-[calc(100svh_-_32px)] overflow-hidden lg:after:hidden after:block after:w-full after:pt-64">
-        <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Event" width={1200} height={600} className="max-w-full w-full h-full object-cover object-center absolute top-0 left-0" />
+        <SafeImage src={ticketData?.desktopBannerImageUrl} mobileSrc={ticketData?.mobileBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Event" width={1200} height={600} className="max-w-full w-full h-full object-center absolute top-0 left-0" />
         {eventData?.event_description && (
           <div className="absolute bottom-0 left-0 right-0 p-3 xl:p-4 m-4 rounded-lg bg-white/10 backdrop-blur-lg border border-solid border-white/15">
             <h2 className="text-white text-xl 2xl:text-2xl mb-3 font-bold">{eventData?.eventName}</h2>
