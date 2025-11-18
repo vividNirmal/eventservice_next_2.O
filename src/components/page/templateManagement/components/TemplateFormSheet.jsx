@@ -676,12 +676,26 @@ export const TemplateFormSheet = ({
                       modules={textEditormodule.modules}
                       className="w-full min-h-72 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-xl [&>.ql-container.ql-snow]:rounded-b-xl [&>.ql-container.ql-snow]:flex-grow"
                     />
-                    <p className="text-zinc-600 text-xs leading-normal border border-solid border-zinc-200 bg-zinc-100 p-0.5 px-1.5 rounded-full w-fit mt-1">
+                    <p className="text-zinc-600 text-xs leading-loose border border-solid border-zinc-200 bg-zinc-100 p-2 rounded-md w-fit mt-1">
                       Use{" "}
                       <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
                         {"{{fieldName}}"}
                       </code>{" "}
                       for dynamic data.
+                      <br />
+                      And use{" "}
+                      <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                        {"{{eventName}}"}
+                      </code>
+                      ,{" "}
+                      <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                        {"{{companyName}}"}
+                      </code>{" "}
+                      and{" "}
+                      <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                        {"{{badgeNo}}"}
+                      </code>{" "}
+                      for dynamic Event name, Company name and Badge No. respectively.
                     </p>
                   </div>
                   {formik.touched.content && formik.errors.content && (

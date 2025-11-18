@@ -526,7 +526,7 @@ export default function CreateUserTemplate({
 
                     <div className="flex flex-col gap-1">
                       <Label htmlFor="content">HTML Content *</Label>
-                      <div className="min-h-64 border rounded-md">
+                      <div className="min-h-64 ">
                         <ReactQuill
                           id="content"
                           name="content"
@@ -539,8 +539,26 @@ export default function CreateUserTemplate({
                           modules={textEditormodule.modules}
                           className="w-full min-h-64 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-md [&>.ql-container.ql-snow]:rounded-b-md [&>.ql-container.ql-snow]:flex-grow"
                         />
-                        <p className="text-zinc-600 text-xs leading-normal border border-solid border-zinc-200 bg-zinc-100 p-0.5 px-1.5 rounded-full w-fit mt-1">
-                          Use <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">{"{{fieldName}}"}</code> for dynamic data.
+                        <p className="text-zinc-600 text-xs leading-loose border border-solid border-zinc-200 bg-zinc-100 p-2 rounded-md w-full mt-1">
+                          Use{" "}
+                          <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                            {"{{fieldName}}"}
+                          </code>{" "}
+                          for dynamic data.
+                          <br />
+                          And use{" "}
+                          <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                            {"{{eventName}}"}
+                          </code>
+                          ,{" "}
+                          <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                            {"{{companyName}}"}
+                          </code>{" "}
+                          and{" "}
+                          <code className="bg-zinc-500 rounded-full px-1 py-0.5 text-white font-mono text-xs leading-none">
+                            {"{{badgeNo}}"}
+                          </code>{" "}
+                          for dynamic Event name, Company name and Badge No. respectively.
                         </p>
                       </div>
                       {formik.touched.content && formik.errors.content && (
