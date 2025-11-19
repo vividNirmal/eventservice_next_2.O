@@ -327,37 +327,17 @@ const ExhibitorApplicationForm = ({ formId }) => {
       switch (fieldType) {
         case "textarea":
           return (
-            <Textarea
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              placeholder={placeHolder}
-              rows={4}
-              className={cn("bg-white", error ? "border-red-500" : "")}
-            />
+            <Textarea id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} placeholder={placeHolder} rows={4} className={cn("bg-white", error ? "border-red-500" : "")} />
           );
 
         case "select":
           return (
-            <DynamicSelect
-              element={element}
-              value={value}
-              onChange={(val) => formik.setFieldValue(fieldName, val)}
-              onBlur={() => formik.setFieldTouched(fieldName, true)}
-              error={error}
-              formValues={formik.values}
-            />
+            <DynamicSelect element={element} value={value} onChange={(val) => formik.setFieldValue(fieldName, val)} onBlur={() => formik.setFieldTouched(fieldName, true)} error={error} formValues={formik.values} />
           );
 
         case "radio":
           return (
-            <RadioGroup
-              className="flex flex-col mt-2 space-y-2"
-              value={value}
-              onValueChange={(val) => formik.setFieldValue(fieldName, val)}
-            >
+            <RadioGroup className="flex flex-col mt-2 space-y-2" value={value} onValueChange={(val) => formik.setFieldValue(fieldName, val)}>
               {fieldOptions?.map((option, idx) => {
                 let parsedOption = option;
                 if (typeof option === "string") {
@@ -378,16 +358,8 @@ const ExhibitorApplicationForm = ({ formId }) => {
 
                 return (
                   <div key={idx} className="flex items-center space-x-2">
-                    <RadioGroupItem
-                      value={optionValue}
-                      id={`${fieldName}-${idx}`}
-                    />
-                    <Label
-                      htmlFor={`${fieldName}-${idx}`}
-                      className="font-normal cursor-pointer mb-0"
-                    >
-                      {optionLabel}
-                    </Label>
+                    <RadioGroupItem value={optionValue} id={`${fieldName}-${idx}`} />
+                    <Label htmlFor={`${fieldName}-${idx}`} className="font-normal cursor-pointer mb-0">{optionLabel}</Label>
                   </div>
                 );
               })}
@@ -492,26 +464,12 @@ const ExhibitorApplicationForm = ({ formId }) => {
 
         case "hidden":
           return (
-            <Input
-              type="hidden"
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-            />
+            <Input type="hidden" id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} />
           );
 
         case "date":
           return (
-            <Input
-              type="date"
-              id={fieldName}
-              name={fieldName}
-              value={value}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className={cn("bg-white", error ? "border-red-500" : "")}
-            />
+            <Input type="date" id={fieldName} name={fieldName} value={value} onChange={formik.handleChange} onBlur={formik.handleBlur} className={cn("bg-white", error ? "border-red-500" : "")} />
           );
 
         case "password":
@@ -652,70 +610,45 @@ const ExhibitorApplicationForm = ({ formId }) => {
 
   // Main Form
   return (
-    <div className="w-full">
-      <Card className="shadow-lg">
-        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <CardTitle className="text-2xl">{form?.formName || "Form"}</CardTitle>
-            </div>
+    <div className="w-full max-w-6xl mx-auto">
+      <Card className="shadow-lg !p-0 overflow-hidden !gap-0">
+        <CardHeader className="border-b bg-gradient-to-r from-blue-50 to-indigo-50 flex items-center justify-center !p-4 relative">
+          <Button onClick={() => router.back()} className="flex items-center gap-2 size-9 2xl:size-10 bg-white text-black absolute left-8 top-1/2 -translate-1/2">
+            <ArrowLeft className="size-4 2xl:size-5" />
+          </Button>
+          <div>
+            <CardTitle className="text-2xl">{form?.formName || "Form"}</CardTitle>
           </div>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <form onSubmit={formik.handleSubmit} className="space-y-8">
+        <CardContent className="p-4">
+          <form onSubmit={formik.handleSubmit} className="space-y-6">
             {form.pages.map((page, pageIndex) => (
               <div key={pageIndex} className="space-y-6">
                 {form.pages.length > 1 && (
                   <div className="border-b pb-3">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {page.name}
-                    </h3>
+                    <h3 className="text-lg font-semibold text-gray-900">{page.name}</h3>
                     {page.description && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {page.description}
-                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">{page.description}</p>
                     )}
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
-                  {page.elements.map((element) => renderField(element))}
-                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">{page.elements.map((element) => renderField(element))}</div>
               </div>
             ))}
 
-            <div className="flex items-center justify-end gap-4 pt-6 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.back()}
-                disabled={submitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={submitting}
-                className="min-w-[150px]"
-              >
+            <div className="flex items-center justify-end gap-4 pt-4 border-t">
+              <Button type="button" variant="outline" onClick={() => router.back()} disabled={submitting}>Cancel</Button>
+              <Button type="submit" disabled={submitting} className="min-w-[150px]">
                 {submitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     Submitting...
                   </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4 mr-2" />
+                    <Send className="size-4" />
                     Submit Form
                   </>
                 )}
