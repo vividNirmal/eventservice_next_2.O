@@ -45,7 +45,7 @@ export const TemplateTypeSheet = ({
       .oneOf(["ticket"], "Please select a valid module"),
     actionType: Yup.string()
       .required("Action type is required")
-      .oneOf(["welcome", "approve", "disapprove", "suspend", "onboard", "notify"], "Please select a valid action type"),
+      .oneOf(["welcome", "approve", "disapprove", "suspend", "onboard", "notify", "reminder"], "Please select a valid action type"),
   });
 
   const formik = useFormik({
@@ -95,6 +95,7 @@ export const TemplateTypeSheet = ({
     { value: "suspend", label: "Suspend" },
     { value: "onboard", label: "Onboard" },
     { value: "notify", label: "Notify" },
+    { value: "reminder", label: "Reminder" }
   ];
 
   return (

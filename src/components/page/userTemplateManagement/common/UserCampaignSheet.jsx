@@ -80,8 +80,8 @@ export const UserCampaignSheet = ({
         formData.append("companyId", localStorage.getItem("companyId"));
 
          if (values.scheduled && values.scheduledAt) {
-  formData.append("scheduledAt", new Date(values.scheduledAt).toISOString());
-}
+          formData.append("scheduledAt", new Date(values.scheduledAt).toISOString());
+        }
         if (excelFile) {
           formData.append("excelFile", excelFile);
         }
@@ -101,6 +101,10 @@ export const UserCampaignSheet = ({
             `Campaign ${initialData ? "updated" : "created"} successfully`
           );
           onSuccess();
+          
+          formik.resetForm();
+          setExcelFile(null);
+
           onClose();
         } else {
           toast.error(

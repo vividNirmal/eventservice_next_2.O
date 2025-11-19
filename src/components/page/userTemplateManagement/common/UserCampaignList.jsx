@@ -132,6 +132,8 @@ export const UserCampaignList = ({ eventId }) => {
       pending: { variant: "secondary", label: "Pending" },
       completed: { variant: "success", label: "Completed" },
       failed: { variant: "destructive", label: "Failed" },
+      processing: { variant: "secondary", label: "Processing" },
+      paused: { variant: "secondary", label: "Paused" },
     };
     const config = statusConfig[status] || statusConfig.pending;
     return <Badge variant={config.variant}>{config.label}</Badge>;
