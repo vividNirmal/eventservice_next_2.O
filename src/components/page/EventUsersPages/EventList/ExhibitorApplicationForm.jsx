@@ -249,7 +249,6 @@ const ExhibitorApplicationForm = ({ formId }) => {
         const formData = new FormData();
         // formData.append("formId", formId);
 
-        // Add exhibitorFormId to the form data
         if (exhibitorFormId) {
           formData.append("exhibitorFormId", exhibitorFormId);
         } else {
@@ -281,7 +280,7 @@ const ExhibitorApplicationForm = ({ formId }) => {
           }
         });
 
-        const response = await postRequest("store-exhibitor-form", formData);
+        const response = await postRequest("store-exhibitor-application", formData);
 
         if (response.status === 1) {
           setSubmitSuccess(true);
@@ -290,7 +289,7 @@ const ExhibitorApplicationForm = ({ formId }) => {
           
           // Redirect after 2 seconds
           setTimeout(() => {
-            router.push("/dashboard/eventuser/eventlist");
+            router.back();
           }, 2000);
         } else {
           throw new Error(
@@ -298,7 +297,7 @@ const ExhibitorApplicationForm = ({ formId }) => {
           );
         }
       } catch (error) {
-        console.error("Form submission error:", error);
+        console.log("Form submission error:", error);
         toast.error(error.message || "Failed to submit form");
       } finally {
         setSubmitting(false);

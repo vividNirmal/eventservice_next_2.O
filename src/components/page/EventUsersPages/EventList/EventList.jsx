@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AppliedExhibitorApplications } from "./common/AppliedExhibitorApplications"
 
 export default function UserEventList() {
   const { userType } = useSelector((state) => state.eventUser);
@@ -136,7 +137,9 @@ export default function UserEventList() {
             // Show Categories
             <>
               <h2 className="text-base lg:text-lg 2xl:text-xl font-bold text-foreground mb-6 bg-white w-fit px-4 py-2 rounded-md">Event Shows</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {/* Categories Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {categorizedEvents?.map((item) => (
                   <CategoryCard
                     key={item._id}
@@ -147,6 +150,9 @@ export default function UserEventList() {
                   />
                 ))}
               </div>
+
+              {/* Applied Exhibitor Applications Table */}
+              <AppliedExhibitorApplications />
             </>
           )}
         </section>

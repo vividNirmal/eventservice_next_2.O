@@ -40,14 +40,39 @@ export default function EventFormList({ id }) {
     }
   };
 
-  const handleApply = (show) => {
+  const handleApply = async (show) => {
     const formId = show?.basicInfo?.dependant_form;
     const exhibitorFormId = show?._id;
-    if (!formId) {
+    
+    if (!exhibitorFormId) {
       toast.error("Form ID is missing");
       return;
     }
-    router.push(`/dashboard/eventuser/eventlist/exhibitor-application/${formId}?exhibitorFormId=${exhibitorFormId}`)
+
+    if (!formId) {
+      toast.error("No application form found for this exhibitor form");
+      return;
+    }
+
+    try {
+      // CHECK IF USER ALREADY APPLIED
+      const check = await getRequest(
+        `resolve-exhibitor-application/${exhibitorFormId}`
+      );
+
+      if (check?.status === 1 && check?.data?.hasApplied) {
+        toast.success("You have already applied for this form.");
+        return;
+      }
+
+      // NOT APPLIED → PROCEED
+      router.push(
+        `/dashboard/eventuser/eventlist/exhibitor-application/${formId}?exhibitorFormId=${exhibitorFormId}`
+      );
+    } catch (error) {
+      console.log("Error checking application:", error);
+      toast.error("Failed to verify application status");
+    }
   };
 
   if (loading) {
