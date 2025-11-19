@@ -4,6 +4,7 @@ import * as faceapi from "face-api.js";
 import { Button } from "@/components/ui/button";
 import { SwitchCameraIcon, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 let modelsLoadedPromise = null;
 const preloadModels = () => {
@@ -326,9 +327,7 @@ const FaceScanner = ({
           <div className="absolute inset-0 z-30 flex items-center justify-center text-white bg-gray-900">
             <div>
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-              <p className="text-sm">
-                {isLoading ? "Loading camera..." : "Processing..."}
-              </p>
+              <p className="text-sm">{isLoading ? "Loading camera..." : "Processing..."}</p>
             </div>
           </div>
         ) : !hasCamera ? (
@@ -337,48 +336,25 @@ const FaceScanner = ({
               <AlertCircle className="h-8 w-8 mx-auto mb-2" />
               <p className="text-sm font-medium mb-2">Camera Error</p>
               <p className="text-xs mb-3">Please allow camera access and refresh the page</p>
-              <Button
-                onClick={() => window.location.reload()}
-                className="text-xs px-3 py-1 bg-red-600 text-white hover:bg-red-700"
-              >
-                Refresh Page
-              </Button>
+              <Button onClick={() => window.location.reload()} className="text-xs px-3 py-1 bg-red-600 text-white hover:bg-red-700">Refresh Page</Button>
             </div>
           </div>
         ) : (
           <>
-            <Button
-              variant="ghost"
-              onClick={toggleCamera}
-              className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden"
-            >
+            <Button variant="ghost" onClick={toggleCamera} className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden">
               <SwitchCameraIcon />
             </Button>
-
-            <div
-              className={`absolute top-2 right-2 w-3 h-3 rounded-full z-20 ${
-                faceDetected ? "bg-green-500" : "bg-red-500"
-              }`}
-            ></div>
+            <div className={cn("absolute top-2 right-2 w-3 h-3 rounded-full z-20", faceDetected ? "bg-green-500" : "bg-red-500")}></div>
 
             {!videoReady && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
                 <div className="text-white text-xs">Preparing camera...</div>
               </div>
             )}
-
-            <img
-              src="/assets/images/mask-image.svg"
-              className="!w-[75%] h-auto block m-auto absolute z-20 top-[100px] left-2/4 -translate-x-2/4 opacity-50"
-              alt="mask"
-              loading="lazy"
-            />
-
+            <img src="/assets/images/mask-image.svg" className="!w-[75%] h-auto block m-auto absolute z-20 top-[100px] left-2/4 -translate-x-2/4 opacity-50" alt="mask" loading="lazy" />
             <div className="absolute bottom-2 left-2 right-2 z-20">
               {faceNotmatch && (
-                <p className="text-xs mt-1 px-2 py-1 bg-orange-500/80 text-white rounded">
-                  Face not recognized - try again
-                </p>
+                <p className="text-xs mt-1 px-2 py-1 bg-orange-500/80 text-white rounded">Face not recognized - try again</p>
               )}
             </div>
           </>
@@ -387,17 +363,7 @@ const FaceScanner = ({
 
       {/* Button - Shows in capture mode */}
       {hasCamera && videoReady && (captureMode || newCaptureMode) && (
-        <Button
-          onClick={handleManualCapture}
-          disabled={!allowScan}
-          className={`font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg ${
-            allowScan 
-              ? "bg-white text-black hover:shadow-xl hover:bg-gray-100" 
-              : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-60"
-          }`}
-        >
-          {newCaptureMode ? "Capture Face" : `Check ${scannerType == 0 ? "In" : "Out"}`}
-        </Button>
+        <Button onClick={handleManualCapture} disabled={!allowScan} className={cn("font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg", allowScan ? "bg-white text-black hover:shadow-xl hover:bg-gray-100" : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-60")}>{newCaptureMode ? "Capture Face" : `Check ${scannerType == 0 ? "In" : "Out"}`}</Button>
       )}
     </div>
   );
