@@ -17,17 +17,54 @@ const ReactQuill = dynamic(() => import("react-quill-new"), {
 
 const validationSchema = Yup.object({
   title: Yup.string().required("Title is required"),
-  description: Yup.string().required("Description is required"),
+  description: Yup.string()
+    .required("Description is required")
+    .test('is-empty', 'Content is required', (value) => {
+      if (!value) return false;
+      
+      // Remove HTML tags and check if there's actual text content
+      const textContent = value.replace(/<[^>]*>/g, '').trim();
+      return textContent.length > 0;
+    }),
 });
 
 export default function AboutSectionForm() {
-  const [aboutSection, setAboutSection] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchAboutSection();
-  }, []);
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      description: "",
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      setSaving(true);
+      try {
+        const companyId = localStorage.getItem("companyId") || "";
+
+        const payload = {
+          title: values.title,
+          description: values.description,
+          companyId,
+        };
+
+        const response = await postRequest("save-about-section", payload);
+
+        if (response.status === 1) {
+          toast.success(response.message || "About section saved successfully!");
+          await fetchAboutSection(); // refresh
+        } else {
+          toast.error(response.message || "Failed to save about section");
+        }
+      } catch (error) {
+        console.error("Failed to save about section:", error);
+        toast.error("Failed to save about section.");
+      } finally {
+        setSaving(false);
+      }
+    },
+  });
 
   const fetchAboutSection = async () => {
     setLoading(true);
@@ -39,63 +76,32 @@ export default function AboutSectionForm() {
       }
 
       const response = await getRequest(`get-about-section/${companyId}`);
+
       if (response.status === 1) {
-        if (response.data.aboutSection) {
-          setAboutSection(response.data.aboutSection);
+        const sec = response.data.aboutSection;
+
+        if (sec) {
           formik.setValues({
-            title: response.data.aboutSection.title || "",
-            description: response.data.aboutSection.description || "",
+            title: sec.title || "",
+            description: sec.description || "",
           });
         } else {
-          // No about section exists yet
-          setAboutSection(null);
           formik.resetForm();
         }
       } else {
         toast.error(response.message || "Failed to fetch about section");
       }
     } catch (error) {
-      console.error("Failed to fetch about section:", error);
+      console.error("Fetch error:", error);
       toast.error("Failed to fetch about section");
     } finally {
       setLoading(false);
     }
   };
 
-  const formik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-    },
-    validationSchema: validationSchema,
-    onSubmit: async (values) => {
-      setSaving(true);
-      try {
-        const companyId = localStorage.getItem("companyId") || "";
-        
-        const payload = {
-          title: values.title,
-          description: values.description,
-          companyId: companyId
-        };
-
-        const response = await postRequest("save-about-section", payload);
-
-        if (response.status === 1) {
-          toast.success(response.message || "About section saved successfully!");
-          // Refresh the data
-          await fetchAboutSection();
-        } else {
-          toast.error(response.message || "Failed to save about section");
-        }
-      } catch (error) {
-        console.error("Failed to save about section details:", error);
-        toast.error("Failed to save about section details.");
-      } finally {
-        setSaving(false);
-      }
-    },
-  });
+  useEffect(() => {
+    fetchAboutSection();
+  }, []);
 
   if (loading) {
     return (
@@ -113,50 +119,56 @@ export default function AboutSectionForm() {
           Manage your company's about section. This content will be displayed on your website.
         </CardDescription>
       </CardHeader>
+
       <CardContent>
         <form onSubmit={formik.handleSubmit} noValidate>
           <div className="space-y-6">
+
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
-              <Input
-                id="title"
-                name="title"
-                type="text"
-                maxLength={250}
-                placeholder="Enter about section title"
-                value={formik.values.title}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={formik.touched.title && formik.errors.title ? "border-red-500" : ""}
-              />
-              {formik.touched.title && formik.errors.title && (
-                <p className="text-red-500 text-sm">{formik.errors.title}</p>
-              )}
+              <div className="relative">
+                <Input
+                  id="title"
+                  name="title"
+                  type="text"
+                  maxLength={250}
+                  placeholder="Enter about section title"
+                  value={formik.values.title}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className={formik.touched.title && formik.errors.title ? "border-red-500" : ""}
+                />
+                {formik.touched.title && formik.errors.title && (
+                  <p className="text-red-500 text-sm absolute">{formik.errors.title}</p>
+                )}
+              </div>
             </div>
 
             {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Content *</Label>
-              <ReactQuill
-                id="description"
-                name="description"
-                theme="snow"
-                value={formik.values.description}
-                onChange={(value) => formik.setFieldValue("description", value)}
-                onBlur={() => formik.setFieldTouched("description", true)}
-                modules={textEditormodule.modules}
-                className="min-h-48 [&>.ql-container.ql-snow]:min-h-32"
-              />
-              {formik.touched.description && formik.errors.description && (
-                <p className="text-red-500 text-sm mt-1">{formik.errors.description}</p>
-              )}
+              <div className="relative">
+                <ReactQuill
+                  id="description"
+                  name="description"
+                  theme="snow"
+                  value={formik.values.description}
+                  onChange={(value) => formik.setFieldValue("description", value)}
+                  onBlur={() => formik.setFieldTouched("description", true)}
+                  modules={textEditormodule.modules}
+                  className="w-full min-h-64 flex flex-col [&>.ql-container.ql-snow]:flex [&>.ql-container.ql-snow]:flex-col [&>.ql-container>.ql-editor]:grow [&>.ql-toolbar.ql-snow]:rounded-t-md [&>.ql-container.ql-snow]:rounded-b-md [&>.ql-container.ql-snow]:flex-grow"
+                />
+                {formik.touched.description && formik.errors.description && (
+                  <p className="text-red-500 text-sm mt-1 absolute">{formik.errors.description}</p>
+                )}
+              </div>
             </div>
 
             {/* Save Button */}
             <div className="flex justify-end">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={saving || !formik.dirty}
                 className="min-w-32"
                 size="lg"
@@ -169,6 +181,7 @@ export default function AboutSectionForm() {
                 ) : "Save About Section"}
               </Button>
             </div>
+
           </div>
         </form>
       </CardContent>
