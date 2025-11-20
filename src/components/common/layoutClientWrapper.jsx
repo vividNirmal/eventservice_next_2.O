@@ -10,12 +10,12 @@ export default function LayoutClientWrapper({ children }) {
 
   return (
     <>
-      {!shouldHide && <UserHeader />}
+      {/* {!shouldHide && <UserHeader />} */}
       <section className="">
         <div className="">
           {children}
         </div>
-        {!shouldHide && <Footer />}
+        {/* {!shouldHide && <Footer />} */}
       </section>
     </>
   );
