@@ -97,9 +97,9 @@ export default function DataSectionForm() {
             ...badge,
             imagePreview: badge.imageUrl || badge.image, // Use imageUrl from API for preview
             imageFile: undefined // No file initially for existing badges
-            }));
+          }));
         
-            setBadges(badgesWithPreviews);
+          setBadges(badgesWithPreviews);
             //   setBadges(section.badges || []);
         } else {
           formik.resetForm();
@@ -120,7 +120,7 @@ export default function DataSectionForm() {
     fetchDataSection();
   }, []);
 
-  const handleBadgeImageUpload = (file, isNewBadge= false, index) => {
+  const handleBadgeImageUpload = (file, isNewBadge = false, index) => {
     const reader = new FileReader();
     reader.onloadend = () => {
       if (isNewBadge) {
@@ -208,9 +208,9 @@ export default function DataSectionForm() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className={"p-0"}>
         <CardTitle>Data Section</CardTitle>
-        <CardDescription>
+        <CardDescription className={"hidden"}>
           Manage your company's data section with title and badges. Only title is required.
         </CardDescription>
       </CardHeader>
@@ -239,207 +239,200 @@ export default function DataSectionForm() {
               </div>
             </div>
 
-            {/* Existing Badges */}
-            {badges.length > 0 && (
-              <div className="space-y-2">
-                <Label>Badges ({badges.length})</Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {badges.map((badge, index) => (
-                    <Card key={index} className="relative">
-                      <CardContent className="p-4">
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2 h-8 w-8"
-                          onClick={() => handleRemoveBadge(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-
-                        <div className="space-y-3">
-                          {/* Badge Image */}
-                          <div>
-                            <Label className="text-xs">Image</Label>
-                            <label
-                              htmlFor={`badge-image-${index}`}
-                              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                            >
-                              {badge.imagePreview || badge.imageUrl || badge.image ? (
-                                <div className="relative group w-full h-full flex items-center justify-center p-2">
-                                  <img
-                                    src={badge.imagePreview || badge.imageUrl || badge.image}
-                                    alt={badge.label}
-                                    className="max-h-full max-w-full object-contain rounded-md"
-                                  />
-                                  <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      handleRemoveBadgeImage(index);
-                                    }}
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              ) : (
-                                <div className="flex flex-col items-center justify-center">
-                                  <UploadCloud className="w-6 h-6 mb-2 text-gray-500" />
-                                  <p className="text-xs text-gray-500">Upload image</p>
-                                </div>
-                              )}
-                              <input
-                                id={`badge-image-${index}`}
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleBadgeImageUpload(file, false, index);
-                                }}
-                              />
-                            </label>
-                          </div>
-
-                          {/* Badge Value */}
-                          <div>
-                            <Label className="text-xs">Value</Label>
-                            <Input
-                              placeholder="Enter value"
-                              value={badge.value}
-                              onChange={(e) => {
-                                const updatedBadges = [...badges];
-                                updatedBadges[index] = { ...badge, value: e.target.value };
-                                setBadges(updatedBadges);
-                              }}
-                            />
-                          </div>
-
-                          {/* Badge Label */}
-                          <div>
-                            <Label className="text-xs">Label</Label>
-                            <Input
-                              placeholder="Enter label"
-                              value={badge.label}
-                              onChange={(e) => {
-                                const updatedBadges = [...badges];
-                                updatedBadges[index] = { ...badge, label: e.target.value };
-                                setBadges(updatedBadges);
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Add New Badge */}
+            {/* Badges Section */}
             <div className="space-y-2">
-              <Label>Add New Badge</Label>
-              <Card className="border-dashed border-2">
-                <CardContent className="p-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    {/* New Badge Image */}
-                    <div>
-                      <Label className="text-xs">Image *</Label>
-                      <label
-                        htmlFor="new-badge-image"
-                        className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              <Label>Badges {badges.length > 0 && `(${badges.length})`}</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Existing Badges */}
+                {badges.map((badge, index) => (
+                  <Card key={index} className="relative">
+                    <CardContent className="p-4">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 h-8 w-8 z-10"
+                        onClick={() => handleRemoveBadge(index)}
                       >
-                        {newBadge.imagePreview ? (
-                          <div className="relative group w-full h-full flex items-center justify-center p-2">
-                            <img
-                              src={newBadge.imagePreview}
-                              alt="New badge"
-                              className="max-h-full max-w-full object-contain rounded-md"
-                            />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon"
-                              className="absolute top-1 right-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                handleRemoveNewBadgeImage();
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+
+                      <div className="space-y-3">
+                        {/* Badge Image */}
+                        <div>
+                          <Label className="text-xs">Image</Label>
+                          <label
+                            htmlFor={`badge-image-${index}`}
+                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                          >
+                            {badge.imagePreview || badge.imageUrl || badge.image ? (
+                              <div className="relative group w-full h-full flex items-center justify-center p-2">
+                                <img
+                                  src={badge.imagePreview || badge.imageUrl || badge.image}
+                                  alt={badge.label}
+                                  className="max-h-full max-w-full object-contain rounded-md"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    handleRemoveBadgeImage(index);
+                                  }}
+                                >
+                                  <X className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center">
+                                <UploadCloud className="w-6 h-6 mb-2 text-gray-500" />
+                                <p className="text-xs text-gray-500">Upload image</p>
+                              </div>
+                            )}
+                            <input
+                              id={`badge-image-${index}`}
+                              type="file"
+                              className="hidden"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleBadgeImageUpload(file, false, index);
                               }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <UploadCloud className="w-8 h-8 mb-3 text-gray-500" />
-                            <p className="text-xs text-gray-500">
-                              <span className="font-semibold">Click to upload</span> or drag and drop
-                            </p>
-                            <p className="text-xs text-gray-400">PNG, JPG or GIF</p>
-                          </div>
+                            />
+                          </label>
+                        </div>
+
+                        {/* Badge Value */}
+                        <div>
+                          <Label className="text-xs">Value</Label>
+                          <Input
+                            placeholder="Enter value"
+                            value={badge.value}
+                            onChange={(e) => {
+                              const updatedBadges = [...badges];
+                              updatedBadges[index] = { ...badge, value: e.target.value };
+                              setBadges(updatedBadges);
+                            }}
+                          />
+                        </div>
+
+                        {/* Badge Label */}
+                        <div>
+                          <Label className="text-xs">Label</Label>
+                          <Input
+                            placeholder="Enter label"
+                            value={badge.label}
+                            onChange={(e) => {
+                              const updatedBadges = [...badges];
+                              updatedBadges[index] = { ...badge, label: e.target.value };
+                              setBadges(updatedBadges);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Add New Badge Card */}
+                <Card className="border-dashed border-2 hover:border-gray-400 transition-colors">
+                  <CardContent className="p-4 h-full">
+                    <div className="space-y-3">
+                      {/* New Badge Image */}
+                      <div>
+                        <Label className="text-xs">Image *</Label>
+                        <label
+                          htmlFor="new-badge-image"
+                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                        >
+                          {newBadge.imagePreview ? (
+                            <div className="relative group w-full h-full flex items-center justify-center p-2">
+                              <img
+                                src={newBadge.imagePreview}
+                                alt="New badge"
+                                className="max-h-full max-w-full object-contain rounded-md"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handleRemoveNewBadgeImage();
+                                }}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center">
+                              <UploadCloud className="w-6 h-6 mb-2 text-gray-500" />
+                              <p className="text-xs text-gray-500">Upload image</p>
+                            </div>
+                          )}
+                          <input
+                            id="new-badge-image"
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleBadgeImageUpload(file, true);
+                            }}
+                          />
+                        </label>
+                        {badgeErrors.image && (
+                          <p className="text-red-500 text-xs mt-1">{badgeErrors.image}</p>
                         )}
-                        <input
-                          id="new-badge-image"
-                          type="file"
-                          className="hidden"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleBadgeImageUpload(file, true);
-                          }}
+                      </div>
+
+                      {/* New Badge Value */}
+                      <div>
+                        <Label htmlFor="new-badge-value" className="text-xs">Value *</Label>
+                        <Input
+                          id="new-badge-value"
+                          placeholder="Enter badge value"
+                          value={newBadge.value || ""}
+                          onChange={(e) => setNewBadge({ ...newBadge, value: e.target.value })}
+                          className={badgeErrors.value ? "border-red-500" : ""}
                         />
-                      </label>
-                      {badgeErrors.image && (
-                        <p className="text-red-500 text-xs mt-1">{badgeErrors.image}</p>
-                      )}
-                    </div>
+                        {badgeErrors.value && (
+                          <p className="text-red-500 text-xs mt-1">{badgeErrors.value}</p>
+                        )}
+                      </div>
 
-                    {/* New Badge Value */}
-                    <div>
-                      <Label htmlFor="new-badge-value">Value *</Label>
-                      <Input
-                        id="new-badge-value"
-                        placeholder="Enter badge value"
-                        value={newBadge.value || ""}
-                        onChange={(e) => setNewBadge({ ...newBadge, value: e.target.value })}
-                        className={badgeErrors.value ? "border-red-500" : ""}
-                      />
-                      {badgeErrors.value && (
-                        <p className="text-red-500 text-xs mt-1">{badgeErrors.value}</p>
-                      )}
-                    </div>
+                      {/* New Badge Label */}
+                      <div>
+                        <Label htmlFor="new-badge-label" className="text-xs">Label *</Label>
+                        <Input
+                          id="new-badge-label"
+                          placeholder="Enter badge label"
+                          value={newBadge.label || ""}
+                          onChange={(e) => setNewBadge({ ...newBadge, label: e.target.value })}
+                          className={badgeErrors.label ? "border-red-500" : ""}
+                        />
+                        {badgeErrors.label && (
+                          <p className="text-red-500 text-xs mt-1">{badgeErrors.label}</p>
+                        )}
+                      </div>
 
-                    {/* New Badge Label */}
-                    <div>
-                      <Label htmlFor="new-badge-label">Label *</Label>
-                      <Input
-                        id="new-badge-label"
-                        placeholder="Enter badge label"
-                        value={newBadge.label || ""}
-                        onChange={(e) => setNewBadge({ ...newBadge, label: e.target.value })}
-                        className={badgeErrors.label ? "border-red-500" : ""}
-                      />
-                      {badgeErrors.label && (
-                        <p className="text-red-500 text-xs mt-1">{badgeErrors.label}</p>
-                      )}
+                      {/* Add Badge Button */}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddBadge}
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Badge
+                      </Button>
                     </div>
-
-                    {/* Add Badge Button */}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleAddBadge}
-                      className="w-full"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Badge
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
 
             {/* Save Button */}
