@@ -10,6 +10,11 @@ import {
   LucidePackagePlus,
   ImagePlayIcon,
   UsersIcon,
+  ImageUp,
+  StarHalf,
+  ChartPie,
+  Star,
+  BookOpenCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -76,6 +81,41 @@ export default function EventAdminNavigation() {
       url: "/dashboard/user-list",
       show: true,
       isActive: activeSection === "user_list",
+    },
+    {
+      id: 'webContent',
+      label: "Web Content Management",
+      icon: ImageUp,
+      show: true,
+      description: 'Manage web content of company',
+      isExpandable: true,
+      isExpanded: expandedSections.webContent,
+      subItems: [
+        {
+          id: 'hero-section',
+          label: 'Hero Section',
+          icon: Star,
+          url: '/dashboard/hero-section',
+          description: 'Manage exhibitor forms',
+          isActive: activeSection === 'hero-section',
+        },
+        {
+          id: 'about-section',
+          label: 'About Section',
+          icon: BookOpenCheck,
+          url: '/dashboard/about-section',
+          description: 'Manage exhibitor form assets',
+          isActive: activeSection === 'about-section',
+        },
+        {
+          id: 'data-section',
+          label: 'Data Section',
+          icon: ChartPie,
+          url: '/dashboard/data-section',
+          description: 'Manage data section',
+          isActive: activeSection === 'data-section',
+        },
+      ]
     },
   ];
 
