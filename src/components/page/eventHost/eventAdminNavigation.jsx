@@ -115,6 +115,14 @@ export default function EventAdminNavigation() {
           description: 'Manage data section',
           isActive: activeSection === 'data-section',
         },
+        {
+          id: 'reason-section',
+          label: 'Reason Section',
+          icon: ChartPie,
+          url: '/dashboard/reason-section',
+          description: 'Manage reson section',
+          isActive: activeSection === 'reason-section',
+        },
       ]
     },
   ];

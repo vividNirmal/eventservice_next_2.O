@@ -1,7 +1,7 @@
 import DataSectionForm from "@/components/page/webContentManagement/dataSection/DataSectionForm";
 import React from "react";
 
-export default async function AboutSectionFormPage() {
+export default async function DataSectionFormPage() {
   return <DataSectionForm />;
 }
 
