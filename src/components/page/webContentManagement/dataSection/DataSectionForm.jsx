@@ -208,7 +208,7 @@ export default function DataSectionForm() {
 
   return (
     <Card>
-      <CardHeader className={"p-0"}>
+      <CardHeader className="px-0">
         <CardTitle>Data Section</CardTitle>
         <CardDescription className={"hidden"}>
           Manage your company's data section with title and badges. Only title is required.

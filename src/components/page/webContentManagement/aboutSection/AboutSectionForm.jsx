@@ -113,9 +113,9 @@ export default function AboutSectionForm() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="px-0">
         <CardTitle>About Section</CardTitle>
-        <CardDescription>
+        <CardDescription className={"hidden"}>
           Manage your company's about section. This content will be displayed on your website.
         </CardDescription>
       </CardHeader>
