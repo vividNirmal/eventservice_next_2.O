@@ -6,6 +6,6 @@ export default async function HeroSectionListPage() {
 }
 
 export const metadata = {
-  title: 'Hero Section Management - Dashboard',
+  title: 'Hero Section Management - Dashboard 100',
   description: 'Manage hero section for company',
 };
