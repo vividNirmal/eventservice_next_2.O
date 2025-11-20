@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 
 export default async function Home() {
   // Redirect to login page for root domain access
-  redirect("/dashboard/login");
+  // redirect("/dashboard/login");
 
   return (
     <LayoutClientWrapper>
