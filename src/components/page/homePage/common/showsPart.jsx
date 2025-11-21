@@ -1,6 +1,7 @@
 "use client";
 import { getRequest } from "@/service/viewService";
-import { Ticket } from "lucide-react";
+import {  Ticket } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function ShowsSection({ company_id }) {
@@ -33,7 +34,8 @@ export function ShowsSection({ company_id }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {showsData.map((item, index) => (
-            <div
+            <Link
+                href={`/show-event/${item._id}`}
               key={index}
               className="group relative bg-background p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1  rounded-lg border border-border/50 overflow-hidden cursor-pointer"
             >
@@ -49,7 +51,7 @@ export function ShowsSection({ company_id }) {
                   {item.title}
                 </h3>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

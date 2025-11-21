@@ -68,8 +68,8 @@ export default function Homepage() {
 
         // Fetch company details by subdomain
         const companyResponse = await userGetRequest(`company/subdomain/${subdomain}`);
-        
         if (companyResponse?.status === 1 && companyResponse?.data?.company) {          
+          sessionStorage.setItem('comapany', companyResponse?.data?.company);
           
           setCompanyData(companyResponse.data.company);
           const companyId = companyResponse.data.company._id;
