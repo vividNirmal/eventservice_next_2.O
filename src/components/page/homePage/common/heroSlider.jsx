@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 
 const defaultHeroData = [
@@ -34,24 +35,14 @@ export default function HeroSlider({ heroData = defaultHeroData }) {
   const currentHero = safeHeroData[currentSlide] || defaultHeroData;
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+    <section className="relative min-h-[calc(100svh_-_60px)] flex items-center justify-center overflow-hidden pt-20">
       {/* Background Image Slider */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
 
         <div className="hero-slider">
           {safeHeroData.map((hero, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentSlide ? "opacity-100" : "opacity-0"
-              }`}
-              style={{
-                backgroundImage: `url('${hero.imageUrl || hero.image}')`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-              }}
-            ></div>
+            <div key={index} className={cn("absolute inset-0 transition-opacity duration-1000", index === currentSlide ? "opacity-100" : "opacity-0")} style={{backgroundImage: `url('${hero.imageUrl || hero.image}')`, backgroundSize: "cover", backgroundPosition: "center",}}></div>
           ))}
         </div>
 
@@ -78,12 +69,8 @@ export default function HeroSlider({ heroData = defaultHeroData }) {
       <div className="container mx-auto px-4 relative z-20">
         <div className="max-w-4xl mx-auto text-center">
           <div className="text-white space-y-8">
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance">
-              {currentHero.title}
-            </h1>
-            <p className="text-xl md:text-2xl text-white/95 leading-relaxed text-pretty max-w-3xl mx-auto">
-              {currentHero.description}
-            </p>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-balance">{currentHero.title}</h1>
+            <p className="text-xl md:text-2xl text-white/95 leading-relaxed text-pretty max-w-3xl mx-auto">{currentHero.description}</p>
           </div>
         </div>
       </div>

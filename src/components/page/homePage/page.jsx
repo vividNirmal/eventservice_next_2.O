@@ -9,6 +9,9 @@ import HeroSlider from "./common/heroSlider";
 import { ShowsSection } from "./common/showsPart";
 import ContactPart from "./common/contactPart";
 import PartnerPart from "./common/partnerPart";
+import OurSuccess from "./common/ourSuccess";
+import { LogIn } from "lucide-react";
+import KeyReasons from "./common/KeyReasons";
 
 
 
@@ -130,15 +133,15 @@ export default function Homepage() {
             </div>
             <div className="w-2/4 grow">
               <nav className="flex flex-row items-center justify-end">
-                <ul className="flex flex-wrap items-center justify-end gap-4">
+                <ul className="flex flex-wrap items-center justify-end gap-3 xl:gap-4">
                   <li>
-                    <Link href={'/'} className="block text-zinc-700 hover:text-black text-base font-semibold">Exhibitors</Link>
+                    <Link href={'/'} className="block text-zinc-700 hover:text-black text-sm xl:text-base font-semibold">Exhibitors</Link>
                   </li>
                   <li>
-                    <Link href={'/'} className="block text-zinc-700 hover:text-black text-base font-semibold">Visitor</Link>
+                    <Link href={'/'} className="block text-zinc-700 hover:text-black text-sm xl:text-base font-semibold">Visitor</Link>
                   </li>
-                  <li className="ml-6">
-                    <Link href={'/'} className="btn-donate">Login</Link>
+                  <li className="md:ml-6">
+                    <Link href={'/'} className="btn-donate login-btn !flex justify-center items-center">Login</Link>
                   </li>
                 </ul>
               </nav>
@@ -152,6 +155,11 @@ export default function Homepage() {
 
       {/* About Section */}
       <AboutPart aboutData={aboutData} />
+
+      <OurSuccess />
+      
+      <KeyReasons/>
+
       {/* show setion */}
       <ShowsSection company_id={companyData?._id} />
 

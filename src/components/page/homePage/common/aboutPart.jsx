@@ -14,7 +14,7 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
   const data = aboutData || defaultAboutData;
 
   return (
-    <section id="about" className="py-12 sm:py-16 lg:py-24">
+    <section id="about" className="py-8 md:py-12 sm:py-16 lg:py-24">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           <div className="space-y-4 sm:space-y-6">

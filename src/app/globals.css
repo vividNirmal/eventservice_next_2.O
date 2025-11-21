@@ -401,3 +401,6 @@ body{
 @media (min-width: 992px){.container{max-width:960px}}
 @media (min-width: 1200px){.container{max-width:1080px}}
 @media (min-width: 1399px){.container{max-width:1320px}}
+@media(max-width: 480px){
+  .login-btn{padding: 8px 14px;font-size: 14px;min-height: auto;min-width: auto;}
+}
