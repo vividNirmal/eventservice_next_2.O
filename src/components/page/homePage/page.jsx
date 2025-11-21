@@ -7,6 +7,8 @@ import { userGetRequest } from "@/service/viewService";
 import AboutPart from "./common/aboutPart";
 import HeroSlider from "./common/heroSlider";
 import { ShowsSection } from "./common/showsPart";
+import ContactPart from "./common/contactPart";
+import PartnerPart from "./common/partnerPart";
 
 
 
@@ -19,6 +21,7 @@ export default function Homepage() {
   const [companyData, setCompanyData] = useState(null);
   const [heroData, setHeroData] = useState(null);
   const [aboutData, setAboutData] = useState(null);
+  const [partnerData, setPartnerData] = useState(null);
   const [subdomain, setSubdomain] = useState("");
 
   // Get subdomain from hostname
@@ -83,6 +86,12 @@ export default function Homepage() {
           if (aboutResponse?.status === 1) {
             setAboutData(aboutResponse.data.aboutSection);
           }
+
+          // Fetch partner section
+          const partnerResponse = await userGetRequest(`get-partner-section/${companyId}`);
+          if (partnerResponse?.status === 1) {
+            setPartnerData(partnerResponse.data.partnerSection);
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -145,6 +154,12 @@ export default function Homepage() {
       <AboutPart aboutData={aboutData} />
       {/* show setion */}
       <ShowsSection company_id={companyData?._id} />
+
+      {/* Partner Section */}
+      <PartnerPart partnerData={partnerData} />
+
+      {/* Contact Us Section */}
+      <ContactPart companyData={companyData} />
     </>
   );
 }

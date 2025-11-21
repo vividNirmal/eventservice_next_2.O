@@ -48,10 +48,10 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
                 <div className="size-10 sm:size-12 rounded-full bg-blue-gradient flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div>
+                {/* <div>
                   <div className="text-xl sm:text-2xl font-bold text-zinc-700">21st</div>
                   <div className="text-xs sm:text-sm text-muted-foreground">Edition in 2025</div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
