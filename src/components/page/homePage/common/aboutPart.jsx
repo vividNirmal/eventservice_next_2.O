@@ -25,9 +25,10 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black leading-tight text-balance">
               {data.title}
             </h2>
-            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-              {data.description}
-            </p>
+            <div
+              className="text-base sm:text-lg text-muted-foreground leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: data.description }}
+            ></div>
             <Button size="lg" className="btn-donate !flex items-center">
               Register to visit
               <ChevronRight className="w-4 h-4 ml-2" />

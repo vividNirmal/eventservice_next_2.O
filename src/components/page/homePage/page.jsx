@@ -109,7 +109,7 @@ export default function Homepage() {
             <div className="w-fit">
               <Link href={'/'} className="block w-fit">
                 <img 
-                  src={companyData?.logoUrl || "/clean-show.png"} 
+                  src={companyData?.logo || "/clean-show.png"} 
                   className="max-w-3xs block w-full" 
                   alt="logo" 
                 />
