@@ -9,23 +9,23 @@ const defaultPartnerData = {
   partners: [
     {
       name: "Partner 1",
-      imageUrl: "https://via.placeholder.com/200x100/cccccc/969696?text=Partner+1"
+      imageUrl: "https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg"
     },
     {
       name: "Partner 2", 
-      imageUrl: "https://via.placeholder.com/200x100/cccccc/969696?text=Partner+2"
+      imageUrl: "https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg"
     },
     {
       name: "Partner 3",
-      imageUrl: "https://via.placeholder.com/200x100/cccccc/969696?text=Partner+3"
+      imageUrl: "https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg"
     },
     {
       name: "Partner 4",
-      imageUrl: "https://via.placeholder.com/200x100/cccccc/969696?text=Partner+4"
+      imageUrl: "https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg"
     },
     {
       name: "Partner 5",
-      imageUrl: "https://via.placeholder.com/200x100/cccccc/969696?text=Partner+5"
+      imageUrl: "https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg"
     }
   ]
 };
@@ -94,7 +94,7 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
         {/* Section Header */}
         <div className="text-center mb-12"> 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
-            {data.title || "Our Partners"}
+            {data?.title || "Our Partners"}
           </h2>
         </div>
 
@@ -107,22 +107,22 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
               className="overflow-hidden whitespace-nowrap"
             >
               <div className="scroll-content inline-flex gap-8 items-center py-4">
-                {partners.map((partner, index) => (
+                {partners?.map((partner, index) => (
                   <div
-                    key={`${partner._id || index}-${index}`}
+                    key={`${partner?._id || index}-${index}`}
                     className="inline-block flex-shrink-0"
                   >
                     <div className="group cursor-pointer">
                       <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 w-52 h-36 flex items-center justify-center border border-gray-100 group-hover:border-blue-200">
                         <img
-                          src={partner.imageUrl || partner.image}
-                          alt={partner.name}
+                          src={partner?.imageUrl || partner?.image}
+                          alt={partner?.name}
                           className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 group-hover:scale-105"
                           loading="lazy"
                         />
                       </div>
                       <p className="text-center mt-3 text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
-                        {partner.name}
+                        {partner?.name}
                       </p>
                     </div>
                   </div>
@@ -140,14 +140,14 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
               partners.length === 4 ? 'grid-cols-2 md:grid-cols-4 max-w-5xl' :
               'grid-cols-2 md:grid-cols-3 lg:grid-cols-5 max-w-6xl'
             }`}>
-              {partners.map((partner, index) => (
+              {partners?.map((partner, index) => (
                 <div
-                  key={`${partner._id || index}`}
+                  key={`${partner?._id || index}`}
                   className="group cursor-pointer"
                 >
                   <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 h-36 flex items-center justify-center border border-gray-100 group-hover:border-blue-200">
                     <img
-                      src={partner.imageUrl || partner.image}
+                      src={partner?.imageUrl || partner?.image}
                       alt={partner?.name}
                       className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 group-hover:scale-105"
                       loading="lazy"

@@ -9,9 +9,9 @@ export default function ContactPart({ companyData }) {
   const title =
     "CONTACT US FOR VISITORS OR SHOW RELATED QUERIES";
 
-  const name = companyData.owner_name || "Contact Person";
-  const phone = companyData.phone || companyData.contact_number || "+91 00000 00000";
-  const email = companyData.email_one || companyData.email_two || "info@example.com";
+  const name = companyData?.owner_name || "Contact Person";
+  const email_one = companyData?.email_one || "info@example.com";
+  const email_two = companyData?.email_two || "info@example.com";
 
   return (
     <section className="py-16 bg-white">
@@ -30,28 +30,28 @@ export default function ContactPart({ companyData }) {
         {/* CONTACT DETAILS */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-lg text-zinc-700">
 
-          {/* PHONE */}
+          {/* EMAIL ONE */}
           <div className="flex items-center gap-2">
-            <Phone className="w-5 h-5" />
+            <Mail className="w-5 h-5" />
             <a 
-              href={`tel:${phone}`}
+              href={`mailto:${email_one}`} 
               className="hover:text-black"
             >
-              {phone}
+              {email_one}
             </a>
           </div>
 
           {/* SEPARATOR */}
           <span className="hidden md:block text-zinc-600">|</span>
 
-          {/* EMAIL */}
+          {/* EMAIL TWO */}
           <div className="flex items-center gap-2">
             <Mail className="w-5 h-5" />
             <a 
-              href={`mailto:${email}`} 
+              href={`mailto:${email_two}`} 
               className="hover:text-black"
             >
-              {email}
+              {email_two}
             </a>
           </div>
         </div>
