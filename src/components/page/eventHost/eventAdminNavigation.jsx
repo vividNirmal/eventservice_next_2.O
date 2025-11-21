@@ -123,6 +123,14 @@ export default function EventAdminNavigation() {
           description: 'Manage reson section',
           isActive: activeSection === 'reason-section',
         },
+        {
+          id: 'partner-section',
+          label: 'Partner Section',
+          icon: ChartPie,
+          url: '/dashboard/partner-section',
+          description: 'Manage partner section',
+          isActive: activeSection === 'partner-section',
+        },
       ]
     },
   ];
