@@ -1,8 +1,8 @@
-import HeroSectionList from "@/components/page/webContentManagement/heroSection/HeroSectionList";
+import HeroSectionForm from "@/components/page/webContentManagement/heroSection/HeroSectionForm";
 import React from "react";
 
 export default async function HeroSectionListPage() {
-  return <HeroSectionList />;
+  return <HeroSectionForm />;
 }
 
 export const metadata = {
