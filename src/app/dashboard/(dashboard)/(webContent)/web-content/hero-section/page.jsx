@@ -1,7 +1,7 @@
 import HeroSectionForm from "@/components/page/webContentManagement/heroSection/HeroSectionForm";
 import React from "react";
 
-export default async function HeroSectionListPage() {
+export default async function HeroSectionFormPage() {
   return <HeroSectionForm />;
 }
 
