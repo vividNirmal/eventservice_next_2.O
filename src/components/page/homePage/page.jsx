@@ -6,6 +6,9 @@ import Autoplay from "embla-carousel-autoplay";
 import { userGetRequest } from "@/service/viewService";
 import AboutPart from "./common/aboutPart";
 import HeroSlider from "./common/heroSlider";
+import { ShowsSection } from "./common/showsPart";
+
+
 
 export default function Homepage() {
   const plugin = useRef(
@@ -63,7 +66,8 @@ export default function Homepage() {
         // Fetch company details by subdomain
         const companyResponse = await userGetRequest(`company/subdomain/${subdomain}`);
         
-        if (companyResponse?.status === 1 && companyResponse?.data?.company) {
+        if (companyResponse?.status === 1 && companyResponse?.data?.company) {          
+          
           setCompanyData(companyResponse.data.company);
           const companyId = companyResponse.data.company._id;
 
@@ -139,6 +143,8 @@ export default function Homepage() {
 
       {/* About Section */}
       <AboutPart aboutData={aboutData} />
+      {/* show setion */}
+      <ShowsSection company_id={companyData?._id} />
     </>
   );
 }

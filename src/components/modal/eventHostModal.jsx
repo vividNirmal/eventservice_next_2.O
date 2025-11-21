@@ -100,6 +100,7 @@ const EventModal = ({
   const [selectedCategory, setSelectedCategory] = useState(
     editMode ? initialData?.event_category?._id || "" : ""
   );
+  const [companyId, setCompanyId] = useState("");
 
   // Event type options
   const eventTypes = [
@@ -141,7 +142,9 @@ const EventModal = ({
   async function fetchCategory() {
     setFetchLoading(true);
     try {
-      const response = await getRequest("get-event-category");
+      const response = await getRequest(
+        `get-event-category?companyId=${companyId}`
+      );
       if (response.data) {
         setCategories(response.data.eventCategories);
       }
@@ -151,8 +154,8 @@ const EventModal = ({
     } finally {
       setFetchLoading(false);
     }
-  }  
-  
+  }
+
   // Form for event details
   const eventDetailsForm = useFormik({
     initialValues: {
@@ -175,8 +178,8 @@ const EventModal = ({
       organizer_email: initialData?.organizer_email || "",
       organizer_phone: initialData?.organizer_phone || "",
       with_face_scanner: initialData?.with_face_scanner || null,
-      event_entry_exit_device :initialData?.event_entry_exit_device || [],
-      instant_register : initialData?.instant_register || [],
+      event_entry_exit_device: initialData?.event_entry_exit_device || [],
+      instant_register: initialData?.instant_register || [],
       dateRanges: (() => {
         // If we have dateRanges array in initialData, use it
         if (
@@ -222,7 +225,7 @@ const EventModal = ({
       show_location_image: initialData?.show_location_image || null,
       event_sponsor: initialData?.event_sponsor || null,
       face_scanner_enabled: initialData?.with_face_scanner === 1 ? true : false,
-      event_category : initialData?.event_category || ""
+      event_category: initialData?.event_category || "",
     },
     validationSchema: eventDetailsSchema,
     onSubmit: (values) => {
@@ -230,8 +233,6 @@ const EventModal = ({
     },
     enableReinitialize: true,
   });
-  
-  
 
   // Form for location
   const locationForm = useFormik({
@@ -247,41 +248,44 @@ const EventModal = ({
 
   // Updated useEffect to always start from step 1:
   useEffect(() => {
-  if (isOpen) {
-    if (editMode) {
-      // Start from step 1 even in edit mode
-      setCurrentStep(1);
-      setSelectedEventType(initialData?.eventType || "in-person");
-      setSelectedEventFormat(initialData?.event_type || "Conference");
-      setSelectedCategories(initialData?.eventCategory || ["Career-Fair"]);
-      // FIX: Change from initialData?.category to initialData?.event_category
-      setSelectedCategory(
-        typeof initialData?.event_category === 'object' 
-          ? initialData?.event_category?._id || "" 
-          : initialData?.event_category || ""
-      );
+    if (isOpen) {
+      if (editMode) {
+        // Start from step 1 even in edit mode
+        setCurrentStep(1);
+        setSelectedEventType(initialData?.eventType || "in-person");
+        setSelectedEventFormat(initialData?.event_type || "Conference");
+        setSelectedCategories(initialData?.eventCategory || ["Career-Fair"]);
+        // FIX: Change from initialData?.category to initialData?.event_category
+        setSelectedCategory(
+          typeof initialData?.event_category === "object"
+            ? initialData?.event_category?._id || ""
+            : initialData?.event_category || ""
+        );
+      } else {
+        // Reset for add mode
+        setCurrentStep(1);
+        setSelectedEventType("");
+        setSelectedEventFormat("");
+        setSelectedCategories([]);
+        setSelectedCategory("");
+      }
+      setError(null);
     } else {
-      // Reset for add mode
+      // Reset when closing
       setCurrentStep(1);
       setSelectedEventType("");
       setSelectedEventFormat("");
       setSelectedCategories([]);
       setSelectedCategory("");
+      setError(null);
     }
-    setError(null);
-  } else {
-    // Reset when closing
-    setCurrentStep(1);
-    setSelectedEventType("");
-    setSelectedEventFormat("");
-    setSelectedCategories([]);
-    setSelectedCategory("");
-    setError(null);
-  }
-}, [isOpen, editMode, initialData]);
+  }, [isOpen, editMode, initialData]);
 
   // NEW: Fetch categories when modal opens or when reaching step 2
   useEffect(() => {
+    const company_id = localStorage.getItem("companyId");
+
+    setCompanyId(company_id);
     if (isOpen && currentStep === 2 && categories.length === 0) {
       fetchCategory();
     }
@@ -346,175 +350,177 @@ const EventModal = ({
     }
   };
 
-const handleFinalSubmit = async (
-  eventDetailsValues = null,
-  eventDetailsExtraData = null
-) => {
-  setSubmitting(true);
-  setError(null);        
-  try {
-    const token = localStorage.getItem("token");
-    const companyId = localStorage.getItem("companyId");
+  const handleFinalSubmit = async (
+    eventDetailsValues = null,
+    eventDetailsExtraData = null
+  ) => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const token = localStorage.getItem("token");
+      const companyId = localStorage.getItem("companyId");
 
-    // Combine form data from all steps
-    const formData = new FormData();
+      // Combine form data from all steps
+      const formData = new FormData();
 
-    // Add event host form fields
-    if (editMode && eventDetailsForm.values.event_id) {
-      formData.append("event_id", eventDetailsForm.values.event_id);
-    }
+      // Add event host form fields
+      if (editMode && eventDetailsForm.values.event_id) {
+        formData.append("event_id", eventDetailsForm.values.event_id);
+      }
 
-    if (companyId != undefined) {
-      formData.append("company_id", companyId);
-    }
+      if (companyId != undefined) {
+        formData.append("company_id", companyId);
+      }
 
-    formData.append("eventName", eventDetailsForm.values.eventName);
-    formData.append("eventShortName", eventDetailsForm.values.eventShortName);
-    formData.append("eventTimeZone", eventDetailsForm.values.eventTimeZone);
-    
-    // Send dateRanges only - backend will handle legacy field population
-    if (
-      eventDetailsForm.values.dateRanges &&
-      eventDetailsForm.values.dateRanges.length > 0
-    ) {
-      formData.append(
-        "dateRanges",
-        JSON.stringify(eventDetailsForm.values.dateRanges)
-      );
-    }
-    
-    formData.append("event_type", selectedEventFormat);
-    formData.append("eventType", selectedEventType);
-    formData.append("location", locationForm.values.location);
+      formData.append("eventName", eventDetailsForm.values.eventName);
+      formData.append("eventShortName", eventDetailsForm.values.eventShortName);
+      formData.append("eventTimeZone", eventDetailsForm.values.eventTimeZone);
 
-    // Handle eventCategory as array
-    selectedCategories.forEach((category) => {
-      formData.append("eventCategory[]", category);
-    });
+      // Send dateRanges only - backend will handle legacy field population
+      if (
+        eventDetailsForm.values.dateRanges &&
+        eventDetailsForm.values.dateRanges.length > 0
+      ) {
+        formData.append(
+          "dateRanges",
+          JSON.stringify(eventDetailsForm.values.dateRanges)
+        );
+      }
 
-    // NEW: Add category field from CustomCombobox
-    if (selectedCategory) {
-      formData.append("event_category", selectedCategory);
-    }
+      formData.append("event_type", selectedEventFormat);
+      formData.append("eventType", selectedEventType);
+      formData.append("location", locationForm.values.location);
 
-    const currentEventDetailsData = eventDetailsValues
-      ? { values: eventDetailsValues, extraData: eventDetailsExtraData }
-      : eventDetailsData;
+      // Handle eventCategory as array
+      selectedCategories.forEach((category) => {
+        formData.append("eventCategory[]", category);
+      });
 
-    // Add event details form data (now required)
-    if (currentEventDetailsData && currentEventDetailsData.values) {
-      const { values, extraData } = currentEventDetailsData;
-      
-      // Add event details fields
-      formData.append("company_name", values.company_name || "");
-      formData.append("event_slug", values.event_slug || "");
-      formData.append("event_description", values.event_description || "");
-      formData.append("google_map_url", values.google_map_url || "");
-      formData.append("organizer_name", values.organizer_name || "");
-      formData.append("organizer_email", values.organizer_email || "");
-      formData.append("organizer_phone", values.organizer_phone || "");
-      
-      // Handle with_face_scanner (now comes from values instead of extraData)
-      formData.append(
-        "with_face_scanner",
-        values.with_face_scanner ? 1 : 0
-      );
-      
-      if (values.event_entry_exit_device && values.event_entry_exit_device.length > 0) {
-        // If it's already an array of strings
-        if (Array.isArray(values.event_entry_exit_device)) {
-          values.event_entry_exit_device.forEach((device) => {
-            formData.append("event_entry_exit_device[]", device);
-          });
-        } else {
-          // If it's a single value, convert to array
-          formData.append("event_entry_exit_device[]", values.event_entry_exit_device);
+      // NEW: Add category field from CustomCombobox
+      if (selectedCategory) {
+        formData.append("event_category", selectedCategory);
+      }
+
+      const currentEventDetailsData = eventDetailsValues
+        ? { values: eventDetailsValues, extraData: eventDetailsExtraData }
+        : eventDetailsData;
+
+      // Add event details form data (now required)
+      if (currentEventDetailsData && currentEventDetailsData.values) {
+        const { values, extraData } = currentEventDetailsData;
+
+        // Add event details fields
+        formData.append("company_name", values.company_name || "");
+        formData.append("event_slug", values.event_slug || "");
+        formData.append("event_description", values.event_description || "");
+        formData.append("google_map_url", values.google_map_url || "");
+        formData.append("organizer_name", values.organizer_name || "");
+        formData.append("organizer_email", values.organizer_email || "");
+        formData.append("organizer_phone", values.organizer_phone || "");
+
+        // Handle with_face_scanner (now comes from values instead of extraData)
+        formData.append("with_face_scanner", values.with_face_scanner ? 1 : 0);
+
+        if (
+          values.event_entry_exit_device &&
+          values.event_entry_exit_device.length > 0
+        ) {
+          // If it's already an array of strings
+          if (Array.isArray(values.event_entry_exit_device)) {
+            values.event_entry_exit_device.forEach((device) => {
+              formData.append("event_entry_exit_device[]", device);
+            });
+          } else {
+            // If it's a single value, convert to array
+            formData.append(
+              "event_entry_exit_device[]",
+              values.event_entry_exit_device
+            );
+          }
         }
-      }
 
-       if (values.instant_register && values.instant_register.length > 0) {
-        // If it's already an array of strings
-        if (Array.isArray(values.instant_register)) {
-          values.instant_register.forEach((device) => {
-            formData.append("instant_register[]", device);
-          });
-        } else {
-          // If it's a single value, convert to array
-          formData.append("instant_register[]", values.instant_register);
+        if (values.instant_register && values.instant_register.length > 0) {
+          // If it's already an array of strings
+          if (Array.isArray(values.instant_register)) {
+            values.instant_register.forEach((device) => {
+              formData.append("instant_register[]", device);
+            });
+          } else {
+            // If it's a single value, convert to array
+            formData.append("instant_register[]", values.instant_register);
+          }
         }
-      }
-    
 
-      // Handle date ranges
-      if (values.dateRanges && values.dateRanges.length > 0) {
-        const startDates = values.dateRanges.map((item) => item.start_date);
-        const endDates = values.dateRanges.map((item) => item.end_date);
-        startDates.forEach((element) => {
-          formData.append("start_date[]", element);
-        });
-        endDates.forEach((element) => {
-          formData.append("end_date[]", element);
-        });          
+        // Handle date ranges
+        if (values.dateRanges && values.dateRanges.length > 0) {
+          const startDates = values.dateRanges.map((item) => item.start_date);
+          const endDates = values.dateRanges.map((item) => item.end_date);
+          startDates.forEach((element) => {
+            formData.append("start_date[]", element);
+          });
+          endDates.forEach((element) => {
+            formData.append("end_date[]", element);
+          });
+        }
+
+        // Handle file uploads
+        if (values.event_image) {
+          formData.append("event_image", values.event_image);
+        }
+        if (values.event_logo) {
+          formData.append("event_logo", values.event_logo);
+        }
+        if (values.show_location_image) {
+          formData.append("show_location_image", values.show_location_image);
+        }
+        if (values.event_sponsor) {
+          formData.append("event_sponsor", values.event_sponsor);
+        }
+      } else {
+        throw new Error("Additional Event Details are required");
       }
 
-      // Handle file uploads
-      if (values.event_image) {
-        formData.append("event_image", values.event_image);
+      const endpoint = editMode ? "update-event-host" : "save-event-host";
+
+      const response = await postRequest(`${endpoint}`, formData);
+
+      if (response.status == 1) {
+        toast.success(
+          editMode
+            ? "Event updated successfully!"
+            : "Event created successfully!"
+        );
+
+        // Call success callback to refresh parent component
+        if (onSuccess) {
+          onSuccess();
+        }
+
+        // Reset forms
+        eventDetailsForm.resetForm();
+        locationForm.resetForm();
+        setSelectedEventType("");
+        setSelectedEventFormat("");
+        setSelectedCategories([]);
+        setSelectedCategory("");
+        setEventDetailsData(null);
+
+        // Close modal
+        onClose();
+      } else {
+        throw new Error(
+          response.message ||
+            `Failed to ${editMode ? "update" : "create"} event`
+        );
       }
-      if (values.event_logo) {
-        formData.append("event_logo", values.event_logo);
-      }
-      if (values.show_location_image) {
-        formData.append("show_location_image", values.show_location_image);
-      }
-      if (values.event_sponsor) {
-        formData.append("event_sponsor", values.event_sponsor);
-      }
-    } else {
-      throw new Error("Additional Event Details are required");
+    } catch (err) {
+      setError(err.message);
+      toast.error(err.message || "Failed to create event. Please try again.");
+      console.error(`Error ${editMode ? "updating" : "creating"} event:`, err);
+    } finally {
+      setSubmitting(false);
     }
-          
-    const endpoint = editMode ? "update-event-host" : "save-event-host";
-
-    const response = await postRequest(`${endpoint}`, formData);
-
-    if (response.status == 1) {
-      toast.success(
-        editMode
-          ? "Event updated successfully!"
-          : "Event created successfully!"
-      );
-
-      // Call success callback to refresh parent component
-      if (onSuccess) {
-        onSuccess();
-      }
-
-      // Reset forms
-      eventDetailsForm.resetForm();
-      locationForm.resetForm();
-      setSelectedEventType("");
-      setSelectedEventFormat("");
-      setSelectedCategories([]);
-      setSelectedCategory("");
-      setEventDetailsData(null);
-
-      // Close modal
-      onClose();
-    } else {
-      throw new Error(
-        response.message ||
-          `Failed to ${editMode ? "update" : "create"} event`
-      );
-    }
-  } catch (err) {
-    setError(err.message);
-    toast.error(err.message || "Failed to create event. Please try again.");
-    console.error(`Error ${editMode ? "updating" : "creating"} event:`, err);
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -685,12 +691,16 @@ const handleFinalSubmit = async (
                           valueKey="_id"
                           labelKey="title"
                           options={categories}
-                          placeholder={fetchLoading ? "Loading categories..." : "Select shows"}
+                          placeholder={
+                            fetchLoading
+                              ? "Loading categories..."
+                              : "Select shows"
+                          }
                           className="ln-autocomplete"
                           disabled={fetchLoading}
-                          search= {categories.length >10 ? true : false}
+                          search={categories.length > 10 ? true : false}
                         />
-                      
+
                         {!selectedCategory && (
                           <p className="text-xs text-gray-500 mt-1">
                             Please select a category

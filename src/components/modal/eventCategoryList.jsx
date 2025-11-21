@@ -28,17 +28,21 @@ export function EventCategoryModal({ open, onOpenChange }) {
   const [newCategory, setNewCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(false);
+  
 
+  
   useEffect(() => {
     if (open) {
-      fetchCategory();
+      const storedCompanyId = localStorage.getItem("companyId");     
+      fetchCategory(storedCompanyId);
     }
   }, [open]);
 
-  async function fetchCategory() {
+  async function fetchCategory(company_id) {
     setFetchLoading(true);
-    try {
-      const responce = await getRequest("get-event-category");
+    try {     
+
+      const responce = await getRequest(`get-event-category?companyId=${company_id}`);
       if (responce.data) {
         setCategories(responce.data.eventCategories);
       }
