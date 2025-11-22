@@ -6,12 +6,16 @@ import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export default function EventDetails({ evenId }) {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [eventImageError, setEventImageError] = useState(false)
   const [logoImageError, setLogoImageError] = useState(false)
+  const [loadingButton, setLoadingButton] = useState(null)
+  const router = useRouter()
 
   useEffect(() => {
     fetchEvent()
@@ -28,6 +32,52 @@ export default function EventDetails({ evenId }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Handler for Visitor Register button
+  const handleVisitorRegister = async () => {
+    setLoadingButton('visitor')
+    try {
+      const response = await userGetRequest(`ticket/get-registration-url/${evenId}?userType=Event Attendee`)
+      
+      if (response?.status === 1 && response?.data?.registrationUrl) {
+        const registrationUrl = response.data.registrationUrl
+        router.push(registrationUrl)
+      } else {
+        toast.error(response?.message || 'No registration available for Event Attendee')
+        setLoadingButton(null) 
+      }
+    } catch (error) {
+      toast.error('Failed to get registration URL')
+      setLoadingButton(null)
+    }
+    // Don't reset loadingButton here if redirect is successful - page will navigate away
+  }
+
+  // Handler for Exhibitor Register button
+  const handleExhibitorRegister = async () => {
+    setLoadingButton('exhibitor')
+    try {
+      const response = await userGetRequest(`ticket/get-registration-url/${evenId}?userType=Exhibitor`)
+      
+      if (response?.status === 1 && response?.data?.registrationUrl) {
+        const registrationUrl = response.data.registrationUrl
+        router.push(registrationUrl)
+        
+      } else {
+        toast.error(response?.message || 'No registration available for Exhibitor')
+        setLoadingButton(null)
+      }
+    } catch (error) {
+      console.error('Error fetching exhibitor registration URL:', error)
+      toast.error('Failed to get registration URL')
+      setLoadingButton(null)
+    }
+  }
+
+  // Handler for Login button
+  const handleLogin = () => {
+    router.push('/dashboard/login')
   }
 
   const handleEventImageError = () => {
@@ -109,24 +159,29 @@ export default function EventDetails({ evenId }) {
             <div className="grid gap-4 sm:grid-cols-3 pt-4">
               <Button
                 size="lg"
-                className="w-full h-14 text-base gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
+                onClick={handleVisitorRegister}
+                disabled={loadingButton === 'visitor'}
+                className="w-full h-14 text-base gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <UserPlus className="h-5 w-5" />
-                Visitor Register
+                {loadingButton === 'visitor' ? 'Loading...' : 'Visitor Register'}
               </Button>
 
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full h-14 text-base gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-transparent"
+                onClick={handleExhibitorRegister}
+                disabled={loadingButton === 'exhibitor'}
+                className="w-full h-14 text-base gap-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 shadow-md hover:shadow-lg transition-all hover:-translate-y-1 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Building2 className="h-5 w-5" />
-                Exhibitor Register
+                {loadingButton === 'exhibitor' ? 'Loading...' : 'Exhibitor Register'}
               </Button>
 
               <Button
                 size="lg"
                 variant="secondary"
+                onClick={handleLogin}
                 className="w-full h-14 text-base gap-2 bg-slate-800 text-white hover:bg-slate-900 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 <LogIn className="h-5 w-5" />
