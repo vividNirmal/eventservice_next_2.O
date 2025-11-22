@@ -92,9 +92,9 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
     <section className="py-8 md:py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div class="text-center mb-8 xl:mb-12">
-          <h2 class="text-2xl md:text-3xl font-bold tracking-wide text-black">{data?.title || "Our Partners"}</h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
+        <div className="text-center mb-8 xl:mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-wide text-black">{data?.title || "Our Partners"}</h2>
+          <div className="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
         </div>
 
         {/* Partners Display */}

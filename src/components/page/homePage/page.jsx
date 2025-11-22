@@ -25,6 +25,8 @@ export default function Homepage() {
   const [heroData, setHeroData] = useState(null);
   const [aboutData, setAboutData] = useState(null);
   const [partnerData, setPartnerData] = useState(null);
+  const [dataData, setDataData] = useState(null);
+  const [reasonData, setReasonData] = useState(null);
   const [subdomain, setSubdomain] = useState("");
 
   // Get subdomain from hostname
@@ -88,6 +90,18 @@ export default function Homepage() {
           const aboutResponse = await userGetRequest(`get-about-section/${companyId}`);
           if (aboutResponse?.status === 1) {
             setAboutData(aboutResponse.data.aboutSection);
+          }
+
+          // Fetch data section
+          const dataResponse = await userGetRequest(`get-data-section/${companyId}`);
+          if (dataResponse?.status === 1) {
+            setDataData(dataResponse.data.dataSection);
+          }
+
+          // Fetch key reasons section
+          const reasonResponse = await userGetRequest(`get-reason-section/${companyId}`);
+          if (reasonResponse?.status === 1) {
+            setReasonData(reasonResponse.data.reasonSection);
           }
 
           // Fetch partner section
@@ -156,9 +170,9 @@ export default function Homepage() {
       {/* About Section */}
       <AboutPart aboutData={aboutData} />
 
-      <OurSuccess />
+      <OurSuccess dataData={dataData} />
       
-      <KeyReasons/>
+      <KeyReasons reasonData={reasonData} />
 
       {/* show setion */}
       <ShowsSection company_id={companyData?._id} />
