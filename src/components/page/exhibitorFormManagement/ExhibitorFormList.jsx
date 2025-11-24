@@ -210,7 +210,8 @@ const ExhibitorFormList = ({ eventId }) => {
   });
 
   const handleNavigateToApplications = ((formId) => {
-    router.push(`/dashboard/event-host/${eventId}/exhibitor-forms/${formId}/exhibitor-forms-application`);
+    toast.info('Submission functionality coming soon')
+    // router.push(`/dashboard/event-host/${eventId}/exhibitor-forms/${formId}/exhibitor-forms-application`);
   });
 
   return (
