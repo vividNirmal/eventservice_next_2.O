@@ -1,5 +1,5 @@
 "use client";
-import { getRequest } from "@/service/viewService";
+import { userGetRequest } from "@/service/viewService";
 import { Clapperboard } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -11,7 +11,7 @@ export function ShowsSection({ company_id }) {
   }, []);
   async function fetchshows() {
     try {
-      const responce = await getRequest(
+      const responce = await userGetRequest(
         `get-event-category?companyId=${company_id}`
       );
       setShowsData(responce.data.eventCategories);
