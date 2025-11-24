@@ -209,6 +209,10 @@ const ExhibitorFormList = ({ eventId }) => {
     router.push(`/dashboard/event-host/${eventId}/exhibitor-forms/${formId}/exhibitor-forms-particular`);
   });
 
+  const handleNavigateToApplications = ((formId) => {
+    router.push(`/dashboard/event-host/${eventId}/exhibitor-forms/${formId}/exhibitor-forms-application`);
+  });
+
   return (
     <>
       <Card>
@@ -370,7 +374,7 @@ const ExhibitorFormList = ({ eventId }) => {
                             </Badge>
                           )}
                         </div>
-                        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => toast.info('Submission functionality coming soon')} > Submission </Button>
+                        <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => handleNavigateToApplications(form?._id)}> Submission </Button>
                         {form.exhibitorFormConfigurationId && form?.exhibitorFormConfigurationId?.hasParticulars && (
                           <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => handleNavigateToParticulars(form?._id)}>Particular</Button>
                         )}
