@@ -38,13 +38,13 @@ export default function EventDetails({ evenId }) {
   const handleVisitorRegister = async () => {
     setLoadingButton('visitor')
     try {
-      const response = await userGetRequest(`ticket/get-registration-url/${evenId}?userType=Event Attendee`)
+      const response = await userGetRequest(`ticket/get-registration-url/${evenId}?userType=Event Attendees`)
       
       if (response?.status === 1 && response?.data?.registrationUrl) {
         const registrationUrl = response.data.registrationUrl
         router.push(registrationUrl)
       } else {
-        toast.error(response?.message || 'No registration available for Event Attendee')
+        toast.error(response?.message || 'No registration available for Event Attendees')
         setLoadingButton(null) 
       }
     } catch (error) {

@@ -22,15 +22,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormBuilder } from "@/components/form-builder/form-builder";
 import FormPreview from "@/components/form-builder/form-preview";
 
-const userTypeOptions = [
-  "Event Attendee",
-  "Exhibiting Company",
-  "Sponsor",
-  "Speaker",
-  "Service Provider",
-  "Accompanying",
-];
-
 /**
  * Form Builder Page Component
  */

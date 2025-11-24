@@ -45,15 +45,6 @@ import { Plus, Search, Edit, Trash2, Copy, FileText, Settings } from 'lucide-rea
 import { getRequest, postRequest, updateRequest, deleteRequest } from '@/service/viewService';
 import { toast } from 'sonner';
 
-const userTypeOptions = [
-  'Event Attendee',
-  'Exhibiting Company', 
-  'Sponsor',
-  'Speaker',
-  'Service Provider',
-  'Accompanying'
-];
-
 const FormManagement = ({ eventId, isAdminForm = false }) => {
   const router = useRouter();
   const [forms, setForms] = useState([]);
@@ -296,7 +287,7 @@ const FormManagement = ({ eventId, isAdminForm = false }) => {
 
   const getUserTypeBadgeColor = (userType) => {
     const colors = {
-      'Event Attendee': 'bg-blue-100 text-blue-800',
+      'Event Attendees': 'bg-blue-100 text-blue-800',
       'Exhibiting Company': 'bg-green-100 text-green-800',
       'Sponsor': 'bg-purple-100 text-purple-800',
       'Speaker': 'bg-orange-100 text-orange-800',

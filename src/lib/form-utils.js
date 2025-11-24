@@ -173,7 +173,7 @@ export const createDefaultElement = (type) => {
       return {
         ...baseElement,
         options: [
-          { label: 'Event Attendee', value: 'attendee' },
+          { label: 'Event Attendees', value: 'attendee' },
           { label: 'Speaker', value: 'speaker' },
           { label: 'Sponsor', value: 'sponsor' },
           { label: 'Exhibitor', value: 'exhibitor' },

@@ -1,5 +1,5 @@
 export const USER_TYPE_OPTIONS = [
-  'Event Attendee',
+  'Event Attendees',
   'Exhibiting Company',
   'Sponsor',
   'Speaker',

@@ -430,7 +430,7 @@ const TicketList = ({ eventId }) => {
   // Memoize badge color functions to prevent recalculation
   const getUserTypeBadgeColor = useMemo(() => {
     const colors = {
-      'Event Attendee': 'bg-blue-100 text-blue-800',
+      'Event Attendees': 'bg-blue-100 text-blue-800',
       'Exhibiting Company': 'bg-green-100 text-green-800',
       'Sponsor': 'bg-purple-100 text-purple-800',
       'Speaker': 'bg-orange-100 text-orange-800',
