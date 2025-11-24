@@ -14,7 +14,7 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
   const data = aboutData || defaultAboutData;
 
   return (
-    <section id="about" className="py-8 md:py-12 sm:py-16 lg:py-24">
+    <section id="about" className="py-8 md:py-12 xl:py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           <div className="space-y-4 sm:space-y-6">
@@ -22,13 +22,8 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
               <Badge className="size-5 text-black border-black/20" />
               <span>About the Show</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black leading-tight text-balance">
-              {data.title}
-            </h2>
-            <div
-              className="text-base sm:text-lg text-muted-foreground leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: data.description }}
-            ></div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-black leading-tight text-balance">{data.title}</h2>
+            <div className="text-sm sm:text-base lg:text-lg text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: data.description }}></div>
             <Button size="lg" className="btn-donate !flex items-center">
               Register to visit
               <ChevronRight className="w-4 h-4 ml-2" />
@@ -37,11 +32,7 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
 
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-              <img 
-                src={data.imageUrl || data.image} 
-                alt="Exhibition" 
-                className="w-full h-full object-cover" 
-              />
+              <img src={data.imageUrl || data.image} alt="Exhibition" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 rounded-xl p-4 shadow-xl max-w-[200px] sm:max-w-xs bg-white">
               <div className="flex items-start gap-3 sm:gap-4">

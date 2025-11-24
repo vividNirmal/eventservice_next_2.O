@@ -34,46 +34,35 @@ export default function KeyReasons({ reasonData = defaultReasonData }) {
 
   return (
     <>
-      <section className="py-8 md:py-12 sm:py-16 lg:py-24">
+      <section className="py-8 md:py-12 xl:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Title */}
           <div className="text-center mb-8 lg:mb-12">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">
-              {data?.title}
-            </h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">{data?.title}</h2>
+            <div class="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
             {data.description && (
-              <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="mt-4 text-base lg:text-lg text-gray-600 max-w-3xl mx-auto">
                 {data?.description}
               </p>
             )}
           </div>
 
-          {/* Content Grid */}
-          <div className="grid lg:grid-cols-2 gap-6">
-            {/* Left Image */}
-            <div className="flex items-center justify-center">
-              <img 
-                src={data?.imageUrl || data?.image} 
-                alt={data?.title || "KEY REASONS"} 
-                className="max-w-full h-auto rounded-lg shadow-lg object-cover"
-              />
-            </div>
+        </div>
+        {/* Content Grid */}
+        <div className="grid lg:grid-cols-2 gap-10">
+          {/* Left Image */}
+          <div className="flex items-center justify-center">
+            <img src={data?.imageUrl || data?.image} alt={data?.title || "KEY REASONS"} className="max-w-full h-full rounded-lg shadow-lg object-cover" />
+          </div>
 
-            {/* Right Info Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-12 lg:py-16 2xl:py-24">
-              {infoItems?.map((item, index) => (
-                <div key={item._id || index} className="flex flex-col gap-3">
-                  <img 
-                    src={item?.imageUrl || "/handshake.png"} 
-                    className="max-w-full h-auto w-24 block" 
-                    alt="icon" 
-                  />
-                  <h3 className="text-base lg:text-lg text-left text-zinc-800">
-                    {item?.info_description}
-                  </h3>
-                </div>
-              ))}
-            </div>
+          {/* Right Info Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:py-12 lg:py-16 2xl:py-20 px-4 lg:pr-24">
+            {infoItems?.map((item, index) => (
+              <div key={item._id || index} className="flex flex-col gap-3">
+                <img src={item?.imageUrl || "/handshake.png"} className="max-w-full h-auto w-24 block" alt="icon" />
+                <h3 className="text-sm sm:text-base xl:text-lg text-left text-zinc-800">{item?.info_description}</h3>
+              </div>
+            ))}
           </div>
         </div>
       </section>

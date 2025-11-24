@@ -9,7 +9,7 @@ import HeroSlider from "./common/heroSlider";
 import { ShowsSection } from "./common/showsPart";
 import ContactPart from "./common/contactPart";
 import PartnerPart from "./common/partnerPart";
-import OurSuccess from "./common/ourSuccess";
+import OurSuccess from "./common/ourSuccess/ourSuccess";
 import { LogIn } from "lucide-react";
 import KeyReasons from "./common/KeyReasons";
 
