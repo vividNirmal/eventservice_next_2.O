@@ -14,11 +14,11 @@ export default function ContactPart({ companyData }) {
   const email_two = companyData?.email_two || "info@example.com";
 
   return (
-    <section className="py-8 md:py-12 xl:py-16 bg-white">
+    <section className="py-8 md:py-12 bg-white">
       <div className="container mx-auto px-5 text-center">
         <div className="text-center mb-8 xl:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">{title}</h2>
-          <div class="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
         </div>
         <h3 className="text-xl md:text-2xl font-semibold text-black mb-4">{name}</h3>
         <div className="flex flex-wrap items-center justify-center gap-3 lg:gap-6 text-sm md:text-base lg:text-lg text-zinc-700">

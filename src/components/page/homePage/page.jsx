@@ -140,7 +140,7 @@ export default function Homepage() {
               <Link href={'/'} className="block w-fit">
                 <img 
                   src={companyData?.logo || "/clean-show.png"} 
-                  className="max-w-3xs block w-full" 
+                  className="max-w-3xs block w-full max-h-12 object-contain" 
                   alt="logo" 
                 />
               </Link>

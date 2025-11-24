@@ -21,6 +21,7 @@ export default function DataSectionForm() {
   const [newBadge, setNewBadge] = useState({
     image: "",
     value: "",
+    suffix: "",
     label: "",
     imagePreview: "",
   });
@@ -43,7 +44,8 @@ export default function DataSectionForm() {
         // Append existing badges (without files)
         const existingBadges = badges.map(badge => ({
           image: badge.image,
-          value: badge.value,
+          value: Number(badge.value),  // Convert to number
+          suffix: badge.suffix || "",  // Include suffix
           label: badge.label,
           _id: badge._id
         }));
@@ -95,6 +97,7 @@ export default function DataSectionForm() {
         
           const badgesWithPreviews = (section.badges || []).map(badge => ({
             ...badge,
+            suffix: badge.suffix || "",
             imagePreview: badge.imageUrl || badge.image, // Use imageUrl from API for preview
             imageFile: undefined // No file initially for existing badges
           }));
@@ -151,6 +154,9 @@ export default function DataSectionForm() {
     if (!newBadge.value || newBadge.value.trim() === "") {
       errors.value = "Value is required";
     }
+    if (newBadge.suffix && newBadge.suffix.length > 50) {
+      errors.suffix = "Suffix must not exceed 50 characters";
+    }
     if (!newBadge.label || newBadge.label.trim() === "") {
       errors.label = "Label is required";
     }
@@ -161,12 +167,12 @@ export default function DataSectionForm() {
 
   const handleAddBadge = () => {
     if (!validateNewBadge()) {
-      toast.error("Please fill all badge fields");
+      toast.error("Please fill all required badge fields");
       return;
     }
 
     setBadges([...badges, newBadge]);
-    setNewBadge({ image: "", value: "", label: "", imagePreview: "" });
+    setNewBadge({ image: "", value: "", suffix: "", label: "", imagePreview: "" });
     setBadgeErrors({});
     formik.setFieldTouched("title", true);
     toast.success("Badge added");
@@ -304,23 +310,41 @@ export default function DataSectionForm() {
                           </label>
                         </div>
 
-                        {/* Badge Value */}
-                        <div>
-                          <Label className="text-xs">Value</Label>
-                          <Input
-                            placeholder="Enter value"
-                            value={badge.value}
-                            onChange={(e) => {
-                              const updatedBadges = [...badges];
-                              updatedBadges[index] = { ...badge, value: e.target.value };
-                              setBadges(updatedBadges);
-                            }}
-                          />
+                        <div className="grid grid-cols-2 gap-2">
+                          {/* Badge Value */}
+                          <div>
+                            <Label className="text-xs">Value *</Label>
+                            <Input
+                              type="number"
+                              placeholder="100"
+                              value={badge.value}
+                              onChange={(e) => {
+                                const updatedBadges = [...badges];
+                                updatedBadges[index] = { ...badge, value: e.target.value };
+                                setBadges(updatedBadges);
+                              }}
+                            />
+                          </div>
+
+                          {/* Badge Suffix */}
+                          <div>
+                            <Label className="text-xs">Suffix</Label>
+                            <Input
+                              placeholder="+ , %"
+                              maxLength={50}
+                              value={badge.suffix || ""}
+                              onChange={(e) => {
+                                const updatedBadges = [...badges];
+                                updatedBadges[index] = { ...badge, suffix: e.target.value };
+                                setBadges(updatedBadges);
+                              }}
+                            />
+                          </div>
                         </div>
 
                         {/* Badge Label */}
                         <div>
-                          <Label className="text-xs">Label</Label>
+                          <Label className="text-xs">Label *</Label>
                           <Input
                             placeholder="Enter label"
                             value={badge.label}
@@ -389,19 +413,38 @@ export default function DataSectionForm() {
                         )}
                       </div>
 
-                      {/* New Badge Value */}
-                      <div>
-                        <Label htmlFor="new-badge-value" className="text-xs">Value *</Label>
-                        <Input
-                          id="new-badge-value"
-                          placeholder="Enter badge value"
-                          value={newBadge.value || ""}
-                          onChange={(e) => setNewBadge({ ...newBadge, value: e.target.value })}
-                          className={badgeErrors.value ? "border-red-500" : ""}
-                        />
-                        {badgeErrors.value && (
-                          <p className="text-red-500 text-xs mt-1">{badgeErrors.value}</p>
-                        )}
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* New Badge Value */}
+                        <div>
+                          <Label htmlFor="new-badge-value" className="text-xs">Value *</Label>
+                          <Input
+                            id="new-badge-value"
+                            type="number"
+                            placeholder="100"
+                            value={newBadge.value || ""}
+                            onChange={(e) => setNewBadge({ ...newBadge, value: e.target.value })}
+                            className={badgeErrors.value ? "border-red-500" : ""}
+                          />
+                          {badgeErrors.value && (
+                            <p className="text-red-500 text-xs mt-1">{badgeErrors.value}</p>
+                          )}
+                        </div>
+
+                        {/* New Badge Suffix (NEW) */}
+                        <div>
+                          <Label htmlFor="new-badge-suffix" className="text-xs">Suffix</Label>
+                          <Input
+                            id="new-badge-suffix"
+                            placeholder="+ , %"
+                            maxLength={50}
+                            value={newBadge.suffix || ""}
+                            onChange={(e) => setNewBadge({ ...newBadge, suffix: e.target.value })}
+                            className={badgeErrors.suffix ? "border-red-500" : ""}
+                          />
+                          {badgeErrors.suffix && (
+                            <p className="text-red-500 text-xs mt-1">{badgeErrors.suffix}</p>
+                          )}
+                        </div>
                       </div>
 
                       {/* New Badge Label */}

@@ -34,12 +34,12 @@ export default function KeyReasons({ reasonData = defaultReasonData }) {
 
   return (
     <>
-      <section className="py-8 md:py-12 xl:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Title */}
           <div className="text-center mb-8 lg:mb-12">
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-black">{data?.title}</h2>
-            <div class="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
+            <div className="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
             {data.description && (
               <p className="mt-4 text-base lg:text-lg text-gray-600 max-w-3xl mx-auto">
                 {data?.description}

@@ -6,37 +6,43 @@ const defaultDataData = {
   title: "Our success is in our numbers",
   badges: [
     {
-      value: "170+",
+      value: 170,
+      suffix: "+",
       label: "Exhibitors",
       image: "/placeholder-icon.png",
       imageUrl: "/placeholder-icon.png"
     },
     {
-      value: "600+",
+      value: 600,
+      suffix: "+",
       label: "Brands",
       image: "/placeholder-icon.png",
       imageUrl: "/placeholder-icon.png"
     },
     {
-      value: "10,000+",
+      value: 60,
+      suffix: "%",
       label: "Trade Visitors",
       image: "/placeholder-icon.png",
       imageUrl: "/placeholder-icon.png"
     },
     {
-      value: "90+",
+      value: 90,
+      suffix: "+",
       label: "New Launches",
       image: "/placeholder-icon.png",
       imageUrl: "/placeholder-icon.png"
     },
     {
-      value: "100+",
+      value: 100,
+      suffix: "+",
       label: "Eminent Speakers",
       image: "/placeholder-icon.png",
       imageUrl: "/placeholder-icon.png"
     },
     {
-      value: "500+",
+      value: 500,
+      suffix: "%",
       label: "Delegates",
       image: "/placeholder-icon.png",
       imageUrl: "/placeholder-icon.png"
@@ -49,13 +55,13 @@ export default function OurSuccess({ dataData = defaultDataData }) {
   const badges = data.badges || defaultDataData.badges;
   return (
     <>
-      <section className="py-8 md:py-12 xl:py-16 bg-no-repeat bg-cover relative before:z-2 before:w-full before:h-full before:top-0 before:left-0 before:absolute before:opacity-40 before:bg-gradient-to-b before:from-[#1f75ff] before:via-[#61daff] before:to-[#1f75ff]" style={{backgroundImage: "url('https://images.pexels.com/photos/9246494/pexels-photo-9246494.jpeg')"}}>
+      <section className="py-8 md:py-12 bg-no-repeat bg-cover relative before:z-2 before:w-full before:h-full before:top-0 before:left-0 before:absolute before:opacity-40 before:bg-gradient-to-b before:from-[#1f75ff] before:via-[#61daff] before:to-[#1f75ff]" style={{backgroundImage: "url('https://images.pexels.com/photos/9246494/pexels-photo-9246494.jpeg')"}}>
         <div className="container mx-auto px-2.5 relative z-10">
           {/* Section Title (optional) */}
           {data.title && (
             <div className="text-center mb-8 xl:mb-12">
               <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white">{data.title}</h2>
-              <div class="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
+              <div className="w-24 h-1 bg-gradient-to-r from-[#1f75ff] to-[#61daff] mx-auto mt-4 rounded-full"></div>
             </div>
           )}
 
@@ -72,7 +78,7 @@ export default function OurSuccess({ dataData = defaultDataData }) {
                   
                   {/* Badge Value */}
                   <h2 className="font-bold text-2xl lg:text-3xl 2xl:text-4xl bg-gradient-to-r from-[#1f75ff] to-[#61daff] bg-clip-text text-transparent">
-                    <Counter end={99} suffix="%" duration={3} />
+                    <Counter end={badge?.value || 90} suffix={badge?.suffix || "%"} duration={3} />
                   </h2>
                   
                   {/* Badge Label */}

@@ -89,7 +89,7 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
   }
 
   return (
-    <section className="py-8 md:py-12 xl:py-16 bg-gradient-to-b from-white to-gray-50">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-8 xl:mb-12">
