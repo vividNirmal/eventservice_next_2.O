@@ -180,12 +180,25 @@ export function FormBuilder({ form, onFormChange }) {
 
   const handleDeletePage = useCallback(
     (pageIndex) => {
-      const updatedPages = form.pages.filter((_, index) => index !== pageIndex);
+      let updatedPages = form.pages.filter((_, index) => index !== pageIndex);
+      
+      // If all pages are deleted, create a default placeholder page
+      if (updatedPages.length === 0) {
+        updatedPages = [{
+          _id: generateId(),
+          name: "Page 1",
+          description: "Default page",
+          elements: []
+        }];
+        toast.info("A default page has been created");
+      }
+      
       onFormChange({
         ...form,
         pages: updatedPages,
       });
 
+      // Adjust current page index
       if (currentPageIndex >= updatedPages.length) {
         setCurrentPageIndex(Math.max(updatedPages.length - 1, 0));
       }

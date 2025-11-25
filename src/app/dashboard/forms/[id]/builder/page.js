@@ -20,7 +20,7 @@ import { generateId } from "@/lib/form-utils";
 import { getRequest } from "@/service/viewService";
 import { Textarea } from "@/components/ui/textarea";
 import { FormBuilder } from "@/components/form-builder/form-builder";
-import FormPreview from "@/components/form-builder/form-preview";
+import { PreviewConfirmationModal } from "@/components/form-builder/components/PreviewConfirmationModal";
 
 /**
  * Form Builder Page Component
@@ -54,6 +54,10 @@ export default function FormBuilderPage() {
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
+  
+  // Preview modal states
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewSaving, setPreviewSaving] = useState(false);
 
   // Auto-save debounce timer
   const [autoSaveTimer, setAutoSaveTimer] = useState(null);
@@ -201,6 +205,43 @@ export default function FormBuilderPage() {
     }
   };
 
+  const handleSaveAndPreview = async () => {
+    if (!form.formName.trim()) {
+      toast.error("Please enter a form title");
+      return;
+    }
+
+    if (!form.isAdminForm && !form.userType) {
+      toast.error("Please select a user type");
+      return;
+    }
+
+    try {
+      setPreviewSaving(true);
+
+      const formData = {
+        formName: form.formName,
+        isAdminForm: form.isAdminForm,
+        ...(form.isAdminForm ? {} : { userType: form.userType }),
+        pages: form.pages,
+        settings: form.settings,
+      };
+
+      const response = await apiPut(`/forms/${formId}`, formData);
+
+      if (response.status === 1) {
+        toast.success("Form saved successfully");
+        setShowPreviewModal(false);
+        router.push("preview");
+      }
+    } catch (error) {
+      console.error("Error saving form:", error);
+      toast.error("Failed to save form");
+    } finally {
+      setPreviewSaving(false);
+    }
+  };
+
   const handleGoBack = () => {
     // it should go back to the route where the user came from
     router.back();
@@ -272,7 +313,7 @@ export default function FormBuilderPage() {
               trigger={
               }
             /> */}
-            <Button variant="outline" onClick={() => router.push("preview")}>
+            <Button variant="outline" onClick={() => setShowPreviewModal(true)}>
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
@@ -358,6 +399,18 @@ export default function FormBuilderPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Preview Confirmation Modal */}
+      <PreviewConfirmationModal
+        isOpen={showPreviewModal}
+        onClose={() => setShowPreviewModal(false)}
+        onContinueWithoutSave={() => {
+          setShowPreviewModal(false);
+          router.push("preview");
+        }}
+        onContinueWithSave={handleSaveAndPreview}
+        isSaving={previewSaving}
+      />
     </div>
   );
 }
