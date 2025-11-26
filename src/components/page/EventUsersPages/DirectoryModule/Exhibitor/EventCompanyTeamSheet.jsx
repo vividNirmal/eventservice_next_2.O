@@ -376,7 +376,7 @@ const EventCompanyTeamSheet = ({
                 {previewUrl && 
                   <AvatarImage
                     src={previewUrl}
-                    alt={`${member.first_name} ${member.last_name}`}
+                    alt={`${member?.first_name} ${member?.last_name}`}
                     className={'object-cover'}
                     onError={(e) => {
                       // Fallback if image fails to load

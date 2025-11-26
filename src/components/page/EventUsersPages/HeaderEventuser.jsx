@@ -203,8 +203,8 @@ export default function HeaderEventuser() {
       {currentBanner && (
         <div className="max-w-full w-full rounded-b-2xl overflow-hidden z-10 fixed top-0 left-0">
           <SafeImage
-            src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSDbInhq87gcTFqoowmycMQtIEJ-KjNElcgpQ&s"}
-            mobileSrc={'/music-banner.webp'}
+            src={currentBanner}
+            mobileSrc={currentBanner}
             className="max-w-full w-full h-64 2xl:h-72 object-cover" 
             alt={`${selectedUserType?.typeName} Banner` || "Banner"} 
             placeholderSrc="/music-banner.webp"

@@ -307,16 +307,16 @@ const EventCompanyTeamList = () => {
                             {member.profilePictureUrl && (
                               <AvatarImage 
                                 src={member.profilePictureUrl} 
-                                alt={`${member.first_name} ${member.last_name}`}
+                                alt={`${member?.first_name} ${member?.last_name}`}
                                 onError={(e) => {
                                   // Fallback if image fails to load
                                   e.target.style.display = 'none';
                                 }}
                               />
                             )}
-                            <AvatarFallback className={'bg-blue-600 text-white text-xs 2xl:text-sm'}>{getInitials(member.first_name, member.last_name)}</AvatarFallback>
+                            <AvatarFallback className={'bg-blue-600 text-white text-xs 2xl:text-sm'}>{getInitials(member?.first_name, member?.last_name)}</AvatarFallback>
                           </Avatar>
-                          <div className="font-medium text-xs lg:text-sm">{member.first_name} {member.last_name}</div>
+                          <div className="font-medium text-xs lg:text-sm">{member?.first_name} {member?.last_name}</div>
                         </div>
                       </TableCell>
                       <TableCell>
