@@ -97,7 +97,7 @@ export default function ReasonSectionForm() {
         return;
       }
 
-      const response = await getRequest(`get-reason-section/${companyId}`);
+      const response = await getRequest(`get-reason-section-admin/${companyId}`);
 
       if (response.status === 1) {
         const section = response.data.reasonSection;

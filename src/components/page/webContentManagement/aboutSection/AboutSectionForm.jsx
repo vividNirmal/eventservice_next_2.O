@@ -128,7 +128,7 @@ export default function AboutSectionForm() {
         return;
       }
 
-      const response = await getRequest(`get-about-section/${companyId}`);
+      const response = await getRequest(`get-about-section-admin/${companyId}`);
 
       if (response.status === 1) {
         const sec = response.data.aboutSection;

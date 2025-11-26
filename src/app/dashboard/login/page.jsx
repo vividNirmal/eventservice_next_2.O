@@ -199,7 +199,7 @@ useEffect(() => {
                 >
                   Email
                 </Label>
-                <div className="relative pb-4">
+                <div className="relative pb-6">
                   <Input
                     type="email"
                     name="email"
@@ -226,7 +226,7 @@ useEffect(() => {
                 >
                   Password
                 </Label>
-                <div className="relative pb-4">
+                <div className="relative pb-6">
                   <Input
                     type="password"
                     name="password"

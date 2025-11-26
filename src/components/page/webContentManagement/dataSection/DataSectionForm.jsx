@@ -85,7 +85,7 @@ export default function DataSectionForm() {
         return;
       }
 
-      const response = await getRequest(`get-data-section/${companyId}`);
+      const response = await getRequest(`get-data-section-admin/${companyId}`);
 
       if (response.status === 1) {
         const section = response.data.dataSection;

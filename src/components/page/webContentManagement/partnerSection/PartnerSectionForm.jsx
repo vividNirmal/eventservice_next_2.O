@@ -81,7 +81,7 @@ export default function PartnerSectionForm() {
         return;
       }
 
-      const response = await getRequest(`get-partner-section/${companyId}`);
+      const response = await getRequest(`get-partner-section-admin/${companyId}`);
 
       if (response.status === 1) {
         const section = response.data.partnerSection;
