@@ -164,7 +164,9 @@ export function NavMain({ items, pathname }) {
                 >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      {MenuContent}
+                      <Link href={item.items[0].url}>
+                        {MenuContent}
+                      </Link>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>

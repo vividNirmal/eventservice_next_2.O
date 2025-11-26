@@ -230,7 +230,18 @@ const StaticNavigation = ({ eventId = null }) => {
     setIsOpen(!isOpen);
   };
 
-  const toggleSection = (sectionId) => {
+  const toggleSection = (sectionId, item) => {
+    // If sidebar is collapsed, navigate to first submenu item
+    if (!isOpen && item.subItems && item.subItems.length > 0) {
+      const firstSubItem = item.subItems[0];
+      setActiveSection(firstSubItem.id);
+      if (firstSubItem.url) {
+        router.replace(firstSubItem.url);
+      }
+      return;
+    }
+    
+    // Otherwise, toggle expansion normally
     setExpandedSections(prev => ({
       ...prev,
       [sectionId]: !prev[sectionId]
@@ -292,7 +303,7 @@ const StaticNavigation = ({ eventId = null }) => {
                   {item.isExpandable ? (
                     // Expandable section
                     <div>
-                      <button onClick={() => toggleSection(item.id)} className={cn("w-full flex items-center gap-3 px-3 py-1 rounded-lg transition-all duration-200 text-left hover:scale-105 text-gray-700 hover:bg-gray-50 hover:text-gray-900", !isOpen ? 'justify-center' : '')} title={!isOpen ? item.label : ''}>
+                      <button onClick={() => toggleSection(item.id, item)} className={cn("w-full flex items-center gap-3 px-3 py-1 rounded-lg transition-all duration-200 text-left hover:scale-105 text-gray-700 hover:bg-gray-50 hover:text-gray-900", !isOpen ? 'justify-center' : '')} title={!isOpen ? item.label : ''}>
                         <IconComponent className="h-4 w-4 flex-shrink-0 text-gray-500" />
                         {isOpen && (
                           <>
