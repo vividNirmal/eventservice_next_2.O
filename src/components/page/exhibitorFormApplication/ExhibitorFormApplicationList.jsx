@@ -16,7 +16,7 @@ import ExhibitorApplicationPreviewSheet from "./ExhibitorApplicationPreviewSheet
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
-export default function ExhibitorApplicationList({ eventId }) {
+export default function ExhibitorApplicationList({ eventId, exhibitorFormId }) {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -47,12 +47,11 @@ export default function ExhibitorApplicationList({ eventId }) {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: selectedLimit.toString(),
+        exhibitorFormId: exhibitorFormId,
         ...(searchTerm && { search: searchTerm }),
-        ...(eventId && { eventId: eventId }),
-        ...(companyId && { companyId: companyId }),
       });
 
-      const res = await getRequest(`exhibitor-applications?${params}`);
+      const res = await getRequest(`exhibitor-applications/?${params}`);
       if (res.status === 1) {
         setApplications(res.data.applications || []);
         setTotalPages(res.data.pagination?.totalPages || 1);
