@@ -132,7 +132,7 @@ const ExhibitorApplicationPreviewSheet = ({
                       : "bg-yellow-100 text-yellow-800 hover:bg-yellow-100"
                   }
                 >
-                  {application.approved ? "Approved" : "Disapproved"}
+                  {application.approved ? "Approved" : "Pending"}
                 </Badge>
               </div>
             </div>
