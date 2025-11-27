@@ -74,8 +74,8 @@ const FieldConstant = ({
                   ? "Creating..."
                   : "Updating..."
                 : mode === "add"
-                ? "Create User Type"
-                : "Update User Type"}
+                ? "Create Feild constant"
+                : "Update Feild constant"}
             </Button>
           </DialogFooter>
         </form>

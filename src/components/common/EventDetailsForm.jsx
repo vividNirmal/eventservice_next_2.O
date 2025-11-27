@@ -30,7 +30,12 @@ const validationSchema = Yup.object({
   organizer_email: Yup.string()
     .email("Invalid email")
     .required("Organizer Email is required"),
-  organizer_phone: Yup.string().required("Organizer Phone is required"),
+  organizer_phone: Yup.string()
+    .matches(/^[0-9]+$/, "Phone number must contain only digits")
+    .min(10, "Phone number must be at least 10 digits")
+    .max(15, "Phone number must not exceed 15 digits")
+    .required("Organizer Phone is required"),
+
   event_entry_exit_device: Yup.array().min(1, "Select at least one device"),
   instant_register: Yup.array().required("Instant Register option is required"),
 });

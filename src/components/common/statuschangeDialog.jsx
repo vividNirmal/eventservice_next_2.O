@@ -30,7 +30,7 @@ export function StatusConfirmationDialog({ isOpen, onClose, onConfirm, user, loa
         <AlertDialogHeader>
           <AlertDialogTitle>Change  Status</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to Approved ?
+            Are you sure you want to {newStatus  == 1 ? "Approve" : "Unapprove"} ?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
