@@ -99,12 +99,20 @@ const UserRegisterEvent = () => {
 
   function businessSetpsetup(data) {
     if (ticketData?.ticketAmount?.type == "businessSlab") {
+      setResolvedForm(data);
       setEventStep(3);
     } else {
       setResolvedForm(data);
       handleFormSuccess(data);
     }
   }
+
+  function handleBUnessDate  (data)  {
+    if (data) {
+      setBusinessFrom(data);
+      handleFormSuccess(resolvedForm);
+    }
+  };
 
   const handleFormSuccess = async (response) => {
     try {
@@ -167,6 +175,7 @@ const UserRegisterEvent = () => {
         );
       }
     } catch (err) {
+      setFormrgisterLoader(false);
       console.error("Registration error:", err);
       // Show specific error message from API
       const errorMessage = err.message || "Failed to submit registration";
@@ -175,12 +184,6 @@ const UserRegisterEvent = () => {
     }
   };
 
-  const handleBUnessDate = (data) => {
-    if (data) {
-      setBusinessFrom(data);
-      handleFormSuccess(resolvedForm);
-    }
-  };
 
   // Registration Status Error Component
   const RegistrationStatusError = () => {
