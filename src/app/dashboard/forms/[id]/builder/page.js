@@ -50,14 +50,16 @@ export default function FormBuilderPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
-  const [originalForm, setOriginalForm] = useState(null);
+  // const [originalForm, setOriginalForm] = useState(null);
+  const [initialFormJson, setInitialFormJson] = useState(null);
   const [openPageModal, setOpenPageModal] = useState(false);
   const [pageName, setPageName] = useState("");
   const [pageDescription, setPageDescription] = useState("");
   
-  // Preview modal states
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [previewSaving, setPreviewSaving] = useState(false);
+  // Confirmation modal states
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationMode, setConfirmationMode] = useState("preview"); // "preview" or "exit"
+  const [confirmationSaving, setConfirmationSaving] = useState(false);
 
   // Auto-save debounce timer
   const [autoSaveTimer, setAutoSaveTimer] = useState(null);
@@ -110,7 +112,8 @@ export default function FormBuilderPage() {
         };
 
         setForm(newFormState);
-        setOriginalForm(formData);
+        // setOriginalForm(formData);
+        setInitialFormJson(JSON.stringify(newFormState)); // Store initial JSON for comparison
       } else {
         console.log("❌ API Response error or no data:", response);
       }
@@ -120,6 +123,13 @@ export default function FormBuilderPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = () => {
+    if (!initialFormJson) return false;
+    const currentFormJson = JSON.stringify(form);
+    return currentFormJson !== initialFormJson;
   };
 
   const handleFormChange = (updatedForm) => {
@@ -192,10 +202,13 @@ export default function FormBuilderPage() {
 
       if (response.status === 1) {
         toast.success("Form saved successfully");
-        setForm((prev) => ({
-          ...prev,
+        const updatedForm = {
+          ...form,
           updatedAt: new Date().toISOString(),
-        }));
+        };
+        setForm(updatedForm);
+        // Update initial JSON after successful save
+        setInitialFormJson(JSON.stringify(updatedForm));
       }
     } catch (error) {
       console.error("Error saving form:", error);
@@ -205,7 +218,7 @@ export default function FormBuilderPage() {
     }
   };
 
-  const handleSaveAndPreview = async () => {
+  const handleSaveAndContinue = async (mode) => {
     if (!form.formName.trim()) {
       toast.error("Please enter a form title");
       return;
@@ -217,7 +230,7 @@ export default function FormBuilderPage() {
     }
 
     try {
-      setPreviewSaving(true);
+      setConfirmationSaving(true);
 
       const formData = {
         formName: form.formName,
@@ -231,20 +244,45 @@ export default function FormBuilderPage() {
 
       if (response.status === 1) {
         toast.success("Form saved successfully");
-        setShowPreviewModal(false);
-        router.push("preview");
+        const updatedForm = {
+          ...form,
+          updatedAt: new Date().toISOString(),
+        };
+        // Update initial JSON after successful save
+        setInitialFormJson(JSON.stringify(updatedForm));
+        setShowConfirmationModal(false);
+        
+        // Continue with the action
+        if (mode === "preview") {
+          router.push("preview");
+        } else if (mode === "exit") {
+          router.back();
+        }
       }
     } catch (error) {
       console.error("Error saving form:", error);
       toast.error("Failed to save form");
     } finally {
-      setPreviewSaving(false);
+      setConfirmationSaving(false);
+    }
+  };
+
+  const handlePreview = () => {
+    if (hasUnsavedChanges()) {
+      setConfirmationMode("preview");
+      setShowConfirmationModal(true);
+    } else {
+      router.push("preview");
     }
   };
 
   const handleGoBack = () => {
-    // it should go back to the route where the user came from
-    router.back();
+    if (hasUnsavedChanges()) {
+      setConfirmationMode("exit");
+      setShowConfirmationModal(true);
+    } else {
+      router.back();
+    }
   };
 
   const handleCreatePage = async () => {
@@ -298,7 +336,12 @@ export default function FormBuilderPage() {
             </Button>
             <div className="pl-3 border-l border-solid border-gray-300 text-sm text-gray-600 flex items-center gap-3">
               {/* <h1 className="text-base 2xl:text-lg font-semibold text-gray-900">Form Builder</h1> */}
-              <span>{form.formName || originalForm?.formName || "New Form"}</span>
+              <span>{form.formName || "New Form"}</span>
+              {hasUnsavedChanges() && (
+                <span className="text-orange-600 text-xs">
+                  • Unsaved changes
+                </span>
+              )}
               {/* {autoSaving && (
                 <span className="ml-2 text-blue-600 text-xs">
                   • Auto-saving...
@@ -313,7 +356,7 @@ export default function FormBuilderPage() {
               trigger={
               }
             /> */}
-            <Button variant="outline" onClick={() => setShowPreviewModal(true)}>
+            <Button variant="outline" onClick={handlePreview}>
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
@@ -400,16 +443,21 @@ export default function FormBuilderPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Preview Confirmation Modal */}
+      {/* Unified Confirmation Modal */}
       <PreviewConfirmationModal
-        isOpen={showPreviewModal}
-        onClose={() => setShowPreviewModal(false)}
+        isOpen={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
         onContinueWithoutSave={() => {
-          setShowPreviewModal(false);
-          router.push("preview");
+          setShowConfirmationModal(false);
+          if (confirmationMode === "preview") {
+            router.push("preview");
+          } else {
+            router.back();
+          }
         }}
-        onContinueWithSave={handleSaveAndPreview}
-        isSaving={previewSaving}
+        onContinueWithSave={() => handleSaveAndContinue(confirmationMode)}
+        isSaving={confirmationSaving}
+        mode={confirmationMode}
       />
     </div>
   );

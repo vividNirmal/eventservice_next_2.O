@@ -1,14 +1,15 @@
-// components/common/PreviewConfirmationModal.jsx
-"use client"
 
+"use client";
+
+import React, { useState, useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { X, Loader2, AlertTriangle, Save, Eye } from "lucide-react";
+} from "@/components/ui/alert-dialog";
+import { X, Loader2, AlertTriangle, Save, Eye, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function PreviewConfirmationModal({ 
@@ -17,7 +18,10 @@ export function PreviewConfirmationModal({
   onContinueWithoutSave,
   onContinueWithSave,
   isSaving = false,
+  mode = "preview" // "preview" or "exit"
 }) {
+  const isPreviewMode = mode === "preview";
+  
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent className="max-w-md">
@@ -34,21 +38,21 @@ export function PreviewConfirmationModal({
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
             <AlertDialogTitle className="text-lg">
-              Show Preview
+              {isPreviewMode ? "Show Preview" : "Exit Form Builder"}
             </AlertDialogTitle>
           </div>
         </AlertDialogHeader>
         
         <div className="text-left space-y-3 text-sm text-muted-foreground">
           <p>
-            If have unsaved changes in the form canvas and you continue to preview without saving:
+            You have unsaved changes in the form canvas. If you continue without saving:
           </p>
           <ul className="list-disc list-inside space-y-1 text-gray-600 ml-2">
-            <li>Your current changes will <strong>not</strong> be reflected in the preview</li>
-            <li>Changes may be <strong>lost</strong> when you return to the form builder</li>
+            <li>Your current changes will <strong>not</strong> be {isPreviewMode ? "reflected in the preview" : "saved"}</li>
+            <li>Changes may be <strong>lost</strong> when you {isPreviewMode ? "return to the form builder" : "leave this page"}</li>
           </ul>
           <p className="font-medium text-gray-700">
-            We recommend saving your changes before previewing.
+            We recommend saving your changes before {isPreviewMode ? "previewing" : "exiting"}.
           </p>
         </div>
         
@@ -59,8 +63,17 @@ export function PreviewConfirmationModal({
             disabled={isSaving}
             className="w-full sm:w-auto order-2 sm:order-1"
           >
-            <Eye className="w-4 h-4 mr-2" />
-            Preview Without Saving
+            {isPreviewMode ? (
+              <>
+                <Eye className="w-4 h-4 mr-2" />
+                Preview Without Saving
+              </>
+            ) : (
+              <>
+                <LogOut className="w-4 h-4 mr-2" />
+                Exit Without Saving
+              </>
+            )}
           </Button>
           <Button
             onClick={onContinueWithSave}
@@ -75,7 +88,7 @@ export function PreviewConfirmationModal({
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Save & Preview
+                Save & {isPreviewMode ? "Preview" : "Exit"}
               </>
             )}
           </Button>
