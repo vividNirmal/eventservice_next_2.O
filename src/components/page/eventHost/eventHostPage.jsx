@@ -387,7 +387,8 @@ const EventHostPage = () => {
       with_face_scanner: event.with_face_scanner || null,
       event_category : event?.event_category|| null,
       event_entry_exit_device : event?.event_entry_exit_device  || [],
-      instant_register :event?.instant_register|| []
+      instant_register :event?.instant_register|| [],
+      company_id: event.company_id || companyId || "",
     };
 
     
@@ -551,6 +552,8 @@ const EventHostPage = () => {
           editMode={modalMode === "edit"}
           initialData={editingEvent}
           onSuccess={handleEventSuccess}
+          userRole={userRole}
+          userCompanyId={companyId}
         />
       )}
 
@@ -558,7 +561,9 @@ const EventHostPage = () => {
          {categorymodalOpen && (
           <EventCategoryModal
             open={categorymodalOpen}
-            onOpenChange={setCategoryModalOpen}            
+            onOpenChange={setCategoryModalOpen}   
+            userRole={userRole}
+            userCompanyId={companyId}         
           />
         )}
     </div>

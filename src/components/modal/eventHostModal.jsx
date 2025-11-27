@@ -78,6 +78,8 @@ const EventModal = ({
   editMode = false,
   initialData = null,
   onSuccess,
+  userRole,
+  userCompanyId
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedEventType, setSelectedEventType] = useState(
@@ -100,7 +102,16 @@ const EventModal = ({
   const [selectedCategory, setSelectedCategory] = useState(
     editMode ? initialData?.event_category?._id || "" : ""
   );
-  const [companyId, setCompanyId] = useState("");
+
+  // NEW: Company states
+  const [companyList, setCompanyList] = useState([]);
+  const [selectedCompany, setSelectedCompany] = useState(
+    editMode ? (initialData?.company_id || userCompanyId) : userCompanyId
+  );
+  const [fetchCompanyLoading, setFetchCompanyLoading] = useState(false);
+
+  // Check if user is super admin (no company ID)
+  const isSuperAdmin = userRole === "superadmin" || !userCompanyId;
 
   // Event type options
   const eventTypes = [
@@ -138,8 +149,35 @@ const EventModal = ({
     "Other",
   ];
 
-  // NEW: Fetch categories function
-  async function fetchCategory() {
+  // NEW: Fetch companies for super admin
+  useEffect(() => {
+    if (isOpen && isSuperAdmin) {
+      fetchCompanyList();
+    }
+  }, [isOpen, isSuperAdmin]);
+
+  // NEW: Fetch company list function
+  async function fetchCompanyList() {
+    setFetchCompanyLoading(true);
+    try {
+      const response = await getRequest("get-company-list");
+      if (response?.data?.company) {
+        setCompanyList(response.data.company);
+      }
+    } catch (error) {
+      toast.error("Failed to load companies");
+    } finally {
+      setFetchCompanyLoading(false);
+    }
+  }
+
+ // NEW: Fetch categories function - only when company ID is available
+  async function fetchCategory(companyId) {
+    if (!companyId) {
+      setCategories([]);
+      return;
+    }
+
     setFetchLoading(true);
     try {
       const response = await getRequest(
@@ -149,8 +187,8 @@ const EventModal = ({
         setCategories(response.data.eventCategories);
       }
     } catch (error) {
-      toast.error("Category fetch error");
       console.error("Error fetching categories:", error);
+      toast.error("Failed to load categories");
     } finally {
       setFetchLoading(false);
     }
@@ -281,15 +319,20 @@ const EventModal = ({
     }
   }, [isOpen, editMode, initialData]);
 
-  // NEW: Fetch categories when modal opens or when reaching step 2
+  // FIXED: Fetch categories only when we have a valid company ID
   useEffect(() => {
-    const company_id = localStorage.getItem("companyId");
-
-    setCompanyId(company_id);
-    if (isOpen && currentStep === 2 && categories.length === 0) {
-      fetchCategory();
+    if (isOpen && currentStep === 2) {
+      const companyIdToUse = isSuperAdmin ? selectedCompany : userCompanyId;
+      
+      // Only fetch categories if we have a valid company ID
+      if (companyIdToUse && companyIdToUse !== "undefined") {
+        fetchCategory(companyIdToUse);
+      } else {
+        setCategories([]);
+        setSelectedCategory("");
+      }
     }
-  }, [isOpen, currentStep]);
+  }, [isOpen, currentStep, isSuperAdmin, selectedCompany, userCompanyId]);
 
   const handleEventTypeSelect = (type) => {
     setSelectedEventType(type);
@@ -314,7 +357,8 @@ const EventModal = ({
       currentStep === 2 &&
       selectedEventFormat &&
       selectedCategories.length > 0 &&
-      selectedCategory // NEW: Added validation for category
+      selectedCategory &&
+      (!isSuperAdmin || selectedCompany)
     ) {
       setCurrentStep(3);
     } else if (currentStep === 3) {
@@ -358,7 +402,13 @@ const EventModal = ({
     setError(null);
     try {
       const token = localStorage.getItem("token");
-      const companyId = localStorage.getItem("companyId");
+      
+      // Determine company ID to use
+      const companyIdToUse = isSuperAdmin ? selectedCompany : userCompanyId;
+      
+      if (!companyIdToUse || companyIdToUse === "undefined") {
+        throw new Error("Company ID is required");
+      }
 
       // Combine form data from all steps
       const formData = new FormData();
@@ -368,9 +418,8 @@ const EventModal = ({
         formData.append("event_id", eventDetailsForm.values.event_id);
       }
 
-      if (companyId != undefined) {
-        formData.append("company_id", companyId);
-      }
+      // Always append company_id
+      formData.append("company_id", companyIdToUse);
 
       formData.append("eventName", eventDetailsForm.values.eventName);
       formData.append("eventShortName", eventDetailsForm.values.eventShortName);
@@ -522,6 +571,14 @@ const EventModal = ({
     }
   };
 
+  // Get the appropriate placeholder for category dropdown
+  const getCategoryPlaceholder = () => {
+    if (fetchLoading) return "Loading categories...";
+    if (isSuperAdmin && !selectedCompany) return "Please select a company first";
+    if (categories.length === 0) return "No categories available";
+    return "Select shows";
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[96%] xl:!max-w-6xl sm:max-h-[70vh] h-full p-0">
@@ -631,6 +688,31 @@ const EventModal = ({
               {/* Step 2: Event Format and Category Selection */}
               {currentStep === 2 && (
                 <div className="space-y-6 min-h-90">
+                  {/* NEW: Company Selection for Super Admin */}
+                  {isSuperAdmin && (
+                    <div className="space-y-2">
+                      <Label className="pl-1 block text-sm font-semibold text-slate-700">
+                        Select Company *
+                      </Label>
+                      <CustomCombobox
+                        name="company_id"
+                        value={selectedCompany}
+                        onChange={(value) => setSelectedCompany(value)}
+                        valueKey="_id"
+                        labelKey="company_name"
+                        options={companyList}
+                        placeholder={
+                          fetchCompanyLoading ? "Loading companies..." : "Select company"
+                        }
+                        disabled={fetchCompanyLoading}
+                        search={companyList.length > 10}
+                      />
+                      {!selectedCompany && (
+                        <p className="text-red-500 text-xs mt-1">Company is required</p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-6">
                     {/* Event Format Selection */}
                     <div>
@@ -691,19 +773,18 @@ const EventModal = ({
                           valueKey="_id"
                           labelKey="title"
                           options={categories}
-                          placeholder={
-                            fetchLoading
-                              ? "Loading categories..."
-                              : "Select shows"
-                          }
+                          placeholder={getCategoryPlaceholder()}
                           className="ln-autocomplete"
-                          disabled={fetchLoading}
+                          disabled={fetchLoading || (isSuperAdmin && !selectedCompany)}
                           search={categories.length > 10 ? true : false}
                         />
 
                         {!selectedCategory && (
                           <p className="text-xs text-gray-500 mt-1">
-                            Please select a category
+                            {isSuperAdmin && !selectedCompany 
+                              ? "Please select a company first" 
+                              : "Please select a category"
+                            }
                           </p>
                         )}
                       </div>
@@ -1073,7 +1154,8 @@ const EventModal = ({
                     (currentStep === 2 &&
                       (!selectedEventFormat ||
                         selectedCategories.length === 0 ||
-                        !selectedCategory)) ||
+                        !selectedCategory ||
+                        (isSuperAdmin && !selectedCompany))) ||
                     (currentStep === 3 && !eventDetailsForm.isValid) ||
                     (currentStep === 4 && !locationForm.isValid)
                   }
