@@ -156,13 +156,13 @@ export default function HeroSectionForm() {
     setHeroes([...heroes, newHero]);
     setNewHero({ image: "", title: "", description: "", imagePreview: "" });
     setHeroErrors({});
-    toast.success("Hero section added");
+    // toast.success("Hero section added");
   };
 
   const handleRemoveHero = (index) => {
     const updatedHeroes = heroes.filter((_, i) => i !== index);
     setHeroes(updatedHeroes);
-    toast.success("Hero section removed");
+    // toast.success("Hero section removed");
   };
 
   const handleRemoveNewHeroImage = () => {

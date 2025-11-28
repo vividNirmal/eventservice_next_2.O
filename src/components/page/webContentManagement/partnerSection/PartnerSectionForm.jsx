@@ -163,14 +163,14 @@ export default function PartnerSectionForm() {
     setNewPartner({ image: "", name: "", imagePreview: "" });
     setPartnerErrors({});
     formik.setFieldTouched("title", true);
-    toast.success("Partner added");
+    // toast.success("Partner added");
   };
 
   const handleRemovePartner = (index) => {
     const updatedPartners = partners.filter((_, i) => i !== index);
     setPartners(updatedPartners);
     formik.setFieldTouched("title", true);
-    toast.success("Partner removed");
+    // toast.success("Partner removed");
   };
 
   const handleRemoveNewPartnerImage = () => {

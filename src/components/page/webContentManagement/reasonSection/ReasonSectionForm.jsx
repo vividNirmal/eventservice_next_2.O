@@ -228,14 +228,14 @@ export default function ReasonSectionForm() {
     setNewInfo({ info_image: "", info_description: "", imagePreview: "", imageFile: null });
     setInfoErrors({});
     formik.setFieldTouched("title", true);
-    toast.success("Info item added");
+    // toast.success("Info item added");
   };
 
   const handleRemoveInfo = (index) => {
     const updatedInfo = infoItems.filter((_, i) => i !== index);
     setInfoItems(updatedInfo);
     formik.setFieldTouched("title", true);
-    toast.success("Info item removed");
+    // toast.success("Info item removed");
   };
 
   const handleRemoveNewInfoImage = () => {

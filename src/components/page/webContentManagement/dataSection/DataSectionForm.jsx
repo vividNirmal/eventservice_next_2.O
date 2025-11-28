@@ -175,14 +175,14 @@ export default function DataSectionForm() {
     setNewBadge({ image: "", value: "", suffix: "", label: "", imagePreview: "" });
     setBadgeErrors({});
     formik.setFieldTouched("title", true);
-    toast.success("Badge added");
+    // toast.success("Badge added");
   };
 
   const handleRemoveBadge = (index) => {
     const updatedBadges = badges.filter((_, i) => i !== index);
     setBadges(updatedBadges);
     formik.setFieldTouched("title", true);
-    toast.success("Badge removed");
+    // toast.success("Badge removed");
   };
 
   const handleRemoveNewBadgeImage = () => {
