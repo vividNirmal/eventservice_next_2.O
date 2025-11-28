@@ -297,10 +297,10 @@ const EventHostPage = () => {
       
       // Check if user is admin and has companyId, then use company-specific API
       if (userRole === "admin" && companyId) {
-        response = await getEventsListByCompany(companyId, pageNum, 10, search);
+        response = await getEventsListByCompany(companyId, pageNum, 0, search);
       } else {
         // For superadmin or users without companyId, use the general API
-        response = await getEventsList(pageNum, 10, search);
+        response = await getEventsList(pageNum, 0, search);
       }
 
       if (response.status == 1) {
