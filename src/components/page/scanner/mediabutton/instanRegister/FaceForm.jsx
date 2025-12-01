@@ -5,12 +5,13 @@ import * as Yup from "yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { useCallback, useEffect, useState } from "react";
 import EntryCard from "./EntryCard";
-import { postRequest, userPostRequest } from "@/service/viewService";
+import { userPostRequest } from "@/service/viewService";
 import FaceScanner from "../faceScanner/FaceScanner";
 import { CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 
 const validationSchema = Yup.object().shape({
   name: Yup.string()
@@ -28,6 +29,7 @@ export function ContactForm({ eventData }) {
   const [stopScanner, setStopScanner] = useState(true);
   const [face, setFace] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
+
   useEffect(() => {
     setStepInner(1);
 
@@ -38,12 +40,13 @@ export function ContactForm({ eventData }) {
       setScannerData(scanner_data);
     }
   }, []);
-  // Face Scanner Functions
-  function onCameraError(Data) {
-    toast.error(Data);
-  }
 
-  const faceScannerData = async (event) => {
+  // Memoize callbacks to prevent FaceScanner remounting
+  const onCameraError = useCallback((Data) => {
+    toast.error(Data);
+  }, []);
+
+  const faceScannerData = useCallback(async (event) => {
     try {
       const image = event?.image;
       if (!image) {
@@ -53,7 +56,8 @@ export function ContactForm({ eventData }) {
     } catch (error) {
       console.error("Error processing image:", error);
     }
-  };
+  }, []);
+
   const handleScanFace = async (imageData = null) => {
     const imageToProcess = imageData;
 
@@ -121,18 +125,25 @@ export function ContactForm({ eventData }) {
     },
     validationSchema,
     onSubmit: async (values) => {
+      // Validate face is captured before submission
+      if (!face) {
+        toast.error("Please capture your face before submitting");
+        return;
+      }
+
       try {
         const formData = new FormData();
         formData.append("name", values.name);
         formData.append("contact_no", values.contact_no);
         formData.append("event_id", eventData?._id);
         formData.append("faceScan", face);
+
         const response = await userPostRequest("instant-register-form", formData);
         if (response.status === 1 && response.data) {
           setStepInner(2);
           setEntryData(response.data);
         } else {
-          toast.error(response.message || "Failed to submit the form. Please try again.");
+          toast.error(response?.message || response?.error || "Failed to submit the form. Please try again.");
         }           
       } catch (error) {                
         console.error("Error submitting form:", error);
@@ -163,7 +174,7 @@ export function ContactForm({ eventData }) {
                                 <Input
                                     id="name"
                                     name="name"
-                                    type="tel"
+                                    type="text"
                                     value={formik.values.name}
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
@@ -190,10 +201,13 @@ export function ContactForm({ eventData }) {
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">+91</span>
                                     <Input
                                         id="contact_no"
+                                        name= "contact_no"
                                         type="tel"
                                         placeholder="Enter your contact number"
                                         inputMode="numeric"
-                                        {...formik.getFieldProps("contact_no")}
+                                        maxLength={10}
+                                        value={formik.values.contact_no}
+                                        onChange={formik.handleChange}
                                         className={`text-base pl-12 2xl:pl-12 ${
                                         formik.touched.contact_no && formik.errors.contact_no
                                             ? "border-red-500 focus-visible:ring-red-500"
@@ -217,19 +231,36 @@ export function ContactForm({ eventData }) {
                                 <CheckCircle2 className="size-5" />
                                 Face captured successfully
                             </p>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                    setCapturedImage(null);
+                                    setFace(null);
+                                }}
+                                className="w-full mt-3"
+                            >
+                                Recapture Face
+                            </Button>
                         </div>
                     ):(
                         <FaceScanner
                             allowScan={stopScanner}
                             onCameraError={onCameraError}
                             onManualCapture={faceScannerData}
-                            captureMode={true}
+                            captureMode={false}
                             newCaptureMode={true}
                         />
                     )}
 
                     {/* Submit Button */}
-                    <Button type="submit" disabled={formik.isSubmitting} className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 !text-white rounded-lg transition-all duration-200 mt-2">{formik.isSubmitting ? "Submitting..." : scannerData && scannerData.type == 0 ? "Check In" : "Check Out"}</Button>
+                    <Button 
+                        type="submit" 
+                        disabled={formik.isSubmitting || !face} 
+                        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 !text-white rounded-lg transition-all duration-200 mt-2"
+                    >
+                        {formik.isSubmitting ? "Submitting..." : scannerData && scannerData.type == 0 ? "Check In" : "Check Out"}
+                    </Button>
                 </form>
             </CardContent>
           </Card>

@@ -108,7 +108,7 @@ const MobileWithLogin = ({ onCameraError }) => {
         setEventData(res.data[0]);
         setUserData(res.data[1]);
         setStep(3);
-        toast.success(res.data.message);
+        toast.success("Your ticket is fetched succesfully");
       } else {
         setForm({ number: "", otp: "" });
         setShowOtpField(false);
