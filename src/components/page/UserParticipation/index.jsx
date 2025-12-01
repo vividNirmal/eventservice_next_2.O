@@ -35,11 +35,17 @@ const UserRegisterEvent = () => {
   const [businessForm, setBusinessFrom] = useState(null);
   const [registerFormDataId, setRegisterFormDataId] = useState(null);
   const [formregisterLoader, setFormrgisterLoader] = useState(false);
+  const [savedFormData, setSavedFormData] = useState(null);
+  const [savedBusinessData, setSavedBusinessData] = useState(null); // Store business selection
+  
   const theme = ticketData?.theme || "theme1";
   const themeLayouts = {
     theme1: Layout1,
     theme2: Layout2,
   };
+
+  // Check if business slab step exists
+  const hasBusinessStep = ticketData?.ticketAmount?.type === "businessSlab";
 
   useEffect(() => {
     // Handle new slug URL pattern: /[eventSlug]/registration
@@ -98,7 +104,10 @@ const UserRegisterEvent = () => {
   };
 
   function businessSetpsetup(data) {
-    if (ticketData?.ticketAmount?.type == "businessSlab") {
+    // Save form data including face image
+    setSavedFormData(data);
+    
+    if (hasBusinessStep) {
       setResolvedForm(data);
       setEventStep(3);
     } else {
@@ -107,11 +116,17 @@ const UserRegisterEvent = () => {
     }
   }
 
-  function handleBUnessDate  (data)  {
+  function handleBUnessDate(data) {
     if (data) {
+      setSavedBusinessData(data);
       setBusinessFrom(data);
       handleFormSuccess(resolvedForm);
     }
+  };
+
+  // Function to go back from business step to form
+  function handleBusinessPrevious() {
+    setEventStep(2);
   };
 
   const handleFormSuccess = async (response) => {
@@ -167,12 +182,17 @@ const UserRegisterEvent = () => {
 
         setEventStep(4);
       } else {
-        // Throw error with API response message
-        throw new Error(
-          responce?.message ||
-            responce?.error ||
-            "Failed to submit registration"
-        );
+        // // Throw error with API response message
+        // throw new Error(
+        //   responce?.message ||
+        //     responce?.error ||
+        //     "Failed to submit registration"
+        // );
+
+        setFormrgisterLoader(false);
+        const errorMessage = responce?.message || responce?.error || "Failed to submit registration";
+        toast.error(errorMessage);
+        return; // Return instead of throwing
       }
     } catch (err) {
       setFormrgisterLoader(false);
@@ -180,15 +200,13 @@ const UserRegisterEvent = () => {
       // Show specific error message from API
       const errorMessage = err.message || "Failed to submit registration";
       toast.error(errorMessage);
-      throw err; // Re-throw to let form know submission failed
+      // throw err;   // Don't re-throw the error
     }
   };
 
-
   // Registration Status Error Component
   const RegistrationStatusError = () => {
-    if (!registrationStatus || registrationStatus.status !== "error")
-      return null;
+    if (!registrationStatus || registrationStatus.status !== "error") return null;
 
     const { message, data } = registrationStatus;
     const isNotStarted = message.includes("Registration not started yet");
@@ -300,39 +318,34 @@ const UserRegisterEvent = () => {
         />
       )}
 
-      {!registrationStatus?.status &&
-        eventStep === 2 &&
-        (formregisterLoader ? (
-          <div className="fixed inset-0 bg-black/25 flex items-center justify-center z-50   ">            
-              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mb-4"></div>                         
-          </div>
-        ) : (
-          <>
-            <LayoutComponent ticketData={ticketData} eventData={eventData}>
-              <NewDynamicParticipantForm
-                userEmail={userEmail}
-                eventData={eventData}
-                formData={formData}
-                faceScannerPermission={faceScanner}
-                eventHasFacePermission={eventHasFacePermission}
-                visitReason={visitReason}
-                companyVisit={companyVisit}
-                dynamicForm={dynamicForm}
-                formLoading={formregisterLoader}
-                onFormSuccess={businessSetpsetup}
-                ticketData={ticketData}
-                
-              />
-            </LayoutComponent>
-          </>
-        ))}
+      {!registrationStatus?.status && eventStep === 2 && (
+        <LayoutComponent ticketData={ticketData} eventData={eventData}>
+          <NewDynamicParticipantForm
+            userEmail={userEmail}
+            eventData={eventData}
+            formData={formData}
+            faceScannerPermission={faceScanner}
+            eventHasFacePermission={eventHasFacePermission}
+            visitReason={visitReason}
+            companyVisit={companyVisit}
+            dynamicForm={dynamicForm}
+            formLoading={formregisterLoader}
+            onFormSuccess={businessSetpsetup}
+            ticketData={ticketData}
+            previousFormData={savedFormData}
+            hasBusinessStep={hasBusinessStep}
+          />
+        </LayoutComponent>
+      )}
 
       {!registrationStatus?.status && eventStep === 3 && (
         <LayoutComponent ticketData={ticketData} eventData={eventData}>
           <TicketBooking
             businessData={ticketData}
             businessForm={handleBUnessDate}
+            onPrevious={handleBusinessPrevious}
             eventData={eventData}
+            previousBusinessData={savedBusinessData}
           />
         </LayoutComponent>
       )}

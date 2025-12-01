@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Ticket } from 'lucide-react';
+import { Calendar, Ticket, ChevronLeft, Check } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { SafeImage } from '@/components/common/SafeImage';
 
-const TicketBooking = ({businessData, businessForm, eventData}) => {
+const TicketBooking = ({ businessData, businessForm, onPrevious, eventData, previousBusinessData }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPricing, setCurrentPricing] = useState([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -37,6 +37,13 @@ const TicketBooking = ({businessData, businessForm, eventData}) => {
     setCurrentPricing(pricing);
   }, [currentDateTime]);
 
+  // Restore previous business selection
+  useEffect(() => {
+    if (previousBusinessData?.category) {
+      setSelectedCategory(previousBusinessData.category);
+    }
+  }, [previousBusinessData]);
+
   const handleSubmit = () => {
     if (!selectedCategory) {
       alert('Please select a category');
@@ -50,7 +57,6 @@ const TicketBooking = ({businessData, businessForm, eventData}) => {
       currency: ticketData.currency,      
     };
     businessForm(bookingData);
-
   };
 
   const formatCurrency = (amount) => {
@@ -106,8 +112,32 @@ const TicketBooking = ({businessData, businessForm, eventData}) => {
               </RadioGroup>
             </div>
 
-            {/* Submit Button */}
-            <Button onClick={handleSubmit} disabled={!selectedCategory} variant={'formBtn'} className="w-fit mx-auto">{selectedCategory ? 'Next' : 'Select a Category'}</Button>
+            {/* Navigation Buttons */}
+            <div className="flex items-center gap-4">
+              <Button 
+                onClick={onPrevious} 
+                variant={'outline'} 
+                className="w-fit"
+              >
+                <ChevronLeft className="size-4 mr-1" />
+                Previous
+              </Button>
+              <Button 
+                onClick={handleSubmit} 
+                disabled={!selectedCategory} 
+                variant={'formBtn'} 
+                className="w-fit"
+              >
+                {selectedCategory ? (
+                  <>
+                    <Check className="size-4 mr-1" />
+                    Submit Registration
+                  </>
+                ) : (
+                  'Select a Category'
+                )}
+              </Button>
+            </div>
           </div>
         )}
 

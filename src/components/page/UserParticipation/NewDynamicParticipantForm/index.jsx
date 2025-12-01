@@ -45,9 +45,11 @@ const NewDynamicParticipantForm = ({
   faceScannerPermission,
   eventHasFacePermission,
   dynamicForm,
-  formLoading ,
+  formLoading,
   onFormSuccess,
   ticketData,
+  previousFormData,
+  hasBusinessStep, // New prop to determine button text
 }) => {
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(null);
@@ -58,17 +60,12 @@ const NewDynamicParticipantForm = ({
   const [faceImage, setFaceImage] = useState(null);
   const [faceScannerPopup, setFaceScannerPopup] = useState(false);
   const [face, setFace] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (dynamicForm) {
       fetchForm();
     }
   }, [dynamicForm]);
-  useEffect(() => {
-    
-    setLoading(formLoading);
-  }, [formLoading]);
 
   const fetchForm = async () => {
     if (!dynamicForm) {
@@ -123,8 +120,10 @@ const NewDynamicParticipantForm = ({
       page.elements.forEach((element) => {
         const fieldName = element.fieldName;
 
-        // Set initial values
-        if (
+        // Set initial values - check if previousFormData exists
+        if (previousFormData && previousFormData[fieldName] !== undefined) {
+          values[fieldName] = previousFormData[fieldName];
+        } else if (
           element.fieldType === "checkbox" &&
           element.fieldOptions?.length > 1
         ) {
@@ -263,13 +262,31 @@ const NewDynamicParticipantForm = ({
       initialValues: values,
       validationSchema: Yup.object().shape(schemaFields),
     };
-  }, [form]);
+  }, [form, previousFormData]);
+
+  // Restore face image if coming back from business step
+  useEffect(() => {
+    if (previousFormData?.faceScan) {
+      setFace(previousFormData.faceScan);
+      
+      // Create preview URL for the face image
+      if (previousFormData.faceScan instanceof File) {
+        const url = URL.createObjectURL(previousFormData.faceScan);
+        setCapturedImage(url);
+        setFaceImage(previousFormData.faceScan);
+        
+        // Cleanup
+        return () => URL.revokeObjectURL(url);
+      }
+    }
+  }, [previousFormData]);
 
   const formik = useFormik({
     initialValues,
     validationSchema,
     validateOnChange: true,
     validateOnBlur: true,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       // Check if face scanner is required
       if (eventData?.with_face_scanner == 1 && !face) {
@@ -277,7 +294,6 @@ const NewDynamicParticipantForm = ({
         return;
       }
 
-      setSubmitting(true);
       try {
         // Include face data with form values
         const submissionData = { ...values };
@@ -287,15 +303,13 @@ const NewDynamicParticipantForm = ({
 
         await onFormSuccess(submissionData);
 
-        formik.resetForm();
-        setCapturedImage(null);
-        setFace(null);
-        setFaceImage(null);
+        // formik.resetForm();
+        // setCapturedImage(null);
+        // setFace(null);
+        // setFaceImage(null);
       } catch (error) {
         console.error("Submission error:", error);
         // toast.error("Failed to submit form");
-      } finally {
-        setSubmitting(false);
       }
     },
   });
@@ -312,8 +326,8 @@ const NewDynamicParticipantForm = ({
       "image/jpeg",
       "image/jpg",
       "image/webp",
-      "image/x-webp", // add this
-      "application/octet-stream", // optional fallback
+      "image/x-webp",
+      "application/octet-stream",
     ];
 
     if (inputElement.files && inputElement.files.length > 0) {
@@ -578,6 +592,11 @@ const NewDynamicParticipantForm = ({
                   {fileSize && `Max size: ${fileSize}`}
                 </p>
               )}
+              {value instanceof File && (
+                <p className="text-xs text-green-600 mt-1">
+                  Selected: {value?.name}
+                </p>
+              )}
             </div>
           );
         case "html":
@@ -764,6 +783,7 @@ const NewDynamicParticipantForm = ({
                     onClick={() => setFaceScannerPopup(true)}
                     className="flex items-center gap-2"
                     variant="outline"
+                    disabled={formLoading}
                   >
                     <Camera className="size-4" />
                     Capture Face
@@ -771,7 +791,10 @@ const NewDynamicParticipantForm = ({
 
                   <Label
                     htmlFor="face_image"
-                    className="cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors"
+                    className={cn(
+                      "cursor-pointer flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors",
+                      formLoading && "opacity-50 cursor-not-allowed"
+                    )}
                   >
                     <UploadIcon className="size-4" />
                     Upload Image
@@ -781,6 +804,7 @@ const NewDynamicParticipantForm = ({
                       className="hidden"
                       accept=".jpg, .jpeg, .png"
                       onChange={onEventImageSelected}
+                      disabled={formLoading}
                     />
                   </Label>
                 </div>
@@ -799,19 +823,28 @@ const NewDynamicParticipantForm = ({
           <Button
             type="button"
             onClick={formik.handleSubmit}
-            disabled={submitting}
+            disabled={formLoading}
             variant="formBtn"
             className="w-full rounded-full max-w-fit"
           >
-            {submitting ? (
+            {formLoading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Submitting...
               </>
             ) : (
               <>
-                <Check className="size-4" />
-                Submit Registration
+                {hasBusinessStep ? (
+                  <>
+                    <ChevronRight className="size-4" />
+                    Next
+                  </>
+                ) : (
+                  <>
+                    <Check className="size-4" />
+                    Submit Registration
+                  </>
+                )}
               </>
             )}
           </Button>
