@@ -346,6 +346,7 @@ const UserRegisterEvent = () => {
             onPrevious={handleBusinessPrevious}
             eventData={eventData}
             previousBusinessData={savedBusinessData}
+            isSubmitting={formregisterLoader}
           />
         </LayoutComponent>
       )}

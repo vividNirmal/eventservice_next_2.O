@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Ticket, ChevronLeft, Check } from 'lucide-react';
+import { Calendar, Ticket, ChevronLeft, Check, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { SafeImage } from '@/components/common/SafeImage';
 
-const TicketBooking = ({ businessData, businessForm, onPrevious, eventData, previousBusinessData }) => {
+const TicketBooking = ({ businessData, businessForm, onPrevious, eventData, previousBusinessData, isSubmitting }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [currentPricing, setCurrentPricing] = useState([]);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
@@ -118,17 +118,23 @@ const TicketBooking = ({ businessData, businessForm, onPrevious, eventData, prev
                 onClick={onPrevious} 
                 variant={'outline'} 
                 className="w-fit"
+                disabled={isSubmitting}
               >
                 <ChevronLeft className="size-4 mr-1" />
                 Previous
               </Button>
               <Button 
                 onClick={handleSubmit} 
-                disabled={!selectedCategory} 
+                disabled={!selectedCategory || isSubmitting} 
                 variant={'formBtn'} 
                 className="w-fit"
               >
-                {selectedCategory ? (
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : selectedCategory ? (
                   <>
                     <Check className="size-4 mr-1" />
                     Submit Registration
