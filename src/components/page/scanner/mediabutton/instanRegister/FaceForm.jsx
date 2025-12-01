@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
     .min(2, "Name must be at least 2 characters"),
   contact_no: Yup.string()
     .required("Contact number is required")
-    .matches(/^[0-9]{10,}$/, "Contact number must be at least 10 digits"),
+    .matches(/^[0-9]{10,}$/, "Please enter valid contact number"),
 });
 
 export function ContactForm({ eventData }) {
@@ -208,6 +208,7 @@ export function ContactForm({ eventData }) {
                                         maxLength={10}
                                         value={formik.values.contact_no}
                                         onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                         className={`text-base pl-12 2xl:pl-12 ${
                                         formik.touched.contact_no && formik.errors.contact_no
                                             ? "border-red-500 focus-visible:ring-red-500"

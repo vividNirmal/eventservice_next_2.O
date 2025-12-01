@@ -341,7 +341,7 @@ const FaceScanner = ({
           </div>
         ) : (
           <>
-            <Button variant="ghost" onClick={toggleCamera} className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden">
+            <Button type="button" variant="ghost" onClick={toggleCamera} className="mb-2 px-4 py-2 bg-white/10 size-10 text-white rounded-full border-none mt-2 relative z-30 md:hidden">stash 100
               <SwitchCameraIcon />
             </Button>
             <div className={cn("absolute top-2 right-2 w-3 h-3 rounded-full z-20", faceDetected ? "bg-green-500" : "bg-red-500")}></div>
@@ -363,7 +363,7 @@ const FaceScanner = ({
 
       {/* Button - Shows in capture mode */}
       {hasCamera && videoReady && (captureMode || newCaptureMode) && (
-        <Button onClick={handleManualCapture} disabled={!allowScan} className={cn("font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg", allowScan ? "bg-white text-black hover:shadow-xl hover:bg-gray-100" : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-60")}>{newCaptureMode ? "Capture Face" : `Check ${scannerType == 0 ? "In" : "Out"}`}</Button>
+        <Button type="button" onClick={handleManualCapture} disabled={!allowScan} className={cn("font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg", allowScan ? "bg-white text-black hover:shadow-xl hover:bg-gray-100" : "bg-gray-400 text-gray-600 cursor-not-allowed opacity-60")}>{newCaptureMode ? "Capture Face" : `Check ${scannerType == 0 ? "In" : "Out"}`}</Button>
       )}
     </div>
   );
