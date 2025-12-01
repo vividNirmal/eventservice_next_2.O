@@ -3,6 +3,7 @@
 import React from "react";
 import { Badge, ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SafeImage } from "@/components/common/SafeImage";
 
 const defaultAboutData = {
   title: "India's Most Prestigious Cleaning Industry Platform",
@@ -32,7 +33,14 @@ export default function AboutPart({ aboutData = defaultAboutData }) {
 
           <div className="relative">
             <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-              <img src={data.imageUrl || data.image} alt="Exhibition" className="w-full h-full object-cover" />
+              <SafeImage
+                src={data?.imageUrl || data?.image} 
+                alt={"Exhibition"} 
+                className="w-full h-full object-cover"
+                placeholderSrc="https://images.pexels.com/photos/5029859/pexels-photo-5029859.jpeg"
+                width={64}
+                height={64}
+              />
             </div>
             <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 rounded-xl p-4 shadow-xl max-w-[200px] sm:max-w-xs bg-white">
               <div className="flex items-start gap-3 sm:gap-4">

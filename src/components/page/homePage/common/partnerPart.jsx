@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { Handshake } from "lucide-react";
+import { SafeImage } from "@/components/common/SafeImage";
 
 const defaultPartnerData = {
   title: "Our Partners",
@@ -107,7 +108,15 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
                   <div key={`${partner?._id || index}-${index}`} className="inline-block flex-shrink-0">
                     <div className="group cursor-pointer">
                       <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 w-52 h-36 flex items-center justify-center border border-gray-100 group-hover:border-blue-200">
-                        <img src={partner?.imageUrl || partner?.image} alt={partner?.name} className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 group-hover:scale-105" loading="lazy" />
+                        <SafeImage
+                          src={partner?.imageUrl || partner?.image}
+                          alt={partner?.name}
+                          placeholderSrc="/event-icon.png"
+                          className="max-w-full max-h-full object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300 group-hover:scale-105"
+                          loading="lazy"
+                          width={64}
+                          height={64}
+                        />
                       </div>
                       <p className="text-center mt-3 text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">{partner?.name}</p>
                     </div>
@@ -129,7 +138,15 @@ export default function PartnerPart({ partnerData = defaultPartnerData }) {
               {partners?.map((partner, index) => (
                 <div key={`${partner?._id || index}`} className="group cursor-pointer">
                   <div className="h-36 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 ease-linear">
-                    <img src={partner?.imageUrl || partner?.image} alt={partner?.name} className="max-w-full max-h-full size-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-300 group-hover:scale-105" loading="lazy" />
+                    <SafeImage
+                      src={partner?.imageUrl || partner?.image}
+                      alt={partner?.name}
+                      placeholderSrc="/event-icon.png"
+                      className="max-w-full max-h-full size-full object-cover filter grayscale group-hover:grayscale-0 transition-all duration-300 group-hover:scale-105"
+                      loading="lazy"
+                      width={64}
+                      height={64}
+                    />
                   </div>
                   <p className="text-lg text-center mt-3 font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">{partner?.name || ""}</p>
                 </div>

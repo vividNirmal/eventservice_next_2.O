@@ -1,5 +1,7 @@
 "use client";
 
+import { SafeImage } from "@/components/common/SafeImage";
+
 const defaultReasonData = {
   title: "KEY REASONS TO VISIT the 21st EDITION",
   description: "Every Smart Cleaning Solution you have been looking for is at our platform!",
@@ -52,14 +54,28 @@ export default function KeyReasons({ reasonData = defaultReasonData }) {
         <div className="grid lg:grid-cols-2 gap-10">
           {/* Left Image */}
           <div className="flex items-center justify-center">
-            <img src={data?.imageUrl || data?.image} alt={data?.title || "KEY REASONS"} className="max-w-full h-full rounded-lg shadow-lg object-cover" />
+            <SafeImage
+              src={data?.imageUrl || data?.image} 
+              alt={data?.title || "KEY REASONS"} 
+              className="max-w-full w-full h-full rounded-lg shadow-lg object-cover"
+              placeholderSrc="https://images.pexels.com/photos/11213210/pexels-photo-11213210.jpeg"
+              width={64}
+              height={64}
+            />
           </div>
 
           {/* Right Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:py-12 lg:py-16 2xl:py-20 px-4 lg:pr-24">
             {infoItems?.map((item, index) => (
               <div key={item._id || index} className="flex flex-col gap-3">
-                <img src={item?.imageUrl || "/handshake.png"} className="max-w-full h-auto w-24 block" alt="icon" />
+                <SafeImage 
+                  src={item?.imageUrl || "/handshake.png"} 
+                  alt="icon"
+                  className="max-w-full h-auto w-20 block"
+                  placeholderSrc="/handshake.png"
+                  width={64}
+                  height={64}
+                />
                 <h3 className="text-sm sm:text-base xl:text-lg text-left text-zinc-800">{item?.info_description}</h3>
               </div>
             ))}

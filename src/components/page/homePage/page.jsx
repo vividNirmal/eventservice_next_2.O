@@ -12,6 +12,7 @@ import PartnerPart from "./common/partnerPart";
 import OurSuccess from "./common/ourSuccess/ourSuccess";
 import { LogIn } from "lucide-react";
 import KeyReasons from "./common/KeyReasons";
+import { SafeImage } from "@/components/common/SafeImage";
 
 
 
@@ -138,10 +139,13 @@ export default function Homepage() {
           <div className="flex flex-wrap justify-between items-center">
             <div className="w-fit">
               <Link href={'/'} className="block w-fit">
-                <img 
-                  src={companyData?.logo || "/clean-show.png"} 
-                  className="max-w-3xs block w-full max-h-12 object-contain" 
-                  alt="logo" 
+                <SafeImage 
+                  src={companyData?.logo} 
+                  alt="logo"
+                  className="max-w-3xs block w-full max-h-12 object-contain"
+                  placeholderSrc="/clean-show.png"
+                  width={64}
+                  height={64}
                 />
               </Link>
             </div>

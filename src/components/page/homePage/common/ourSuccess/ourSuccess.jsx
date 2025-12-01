@@ -1,5 +1,6 @@
 "use client";
 
+import { SafeImage } from "@/components/common/SafeImage";
 import Counter from "./Counter/Counter";
 
 const defaultDataData = {
@@ -9,43 +10,43 @@ const defaultDataData = {
       value: 170,
       suffix: "+",
       label: "Exhibitors",
-      image: "/placeholder-icon.png",
-      imageUrl: "/placeholder-icon.png"
+      image: "/event-icon.png",
+      imageUrl: "/event-icon.png"
     },
     {
       value: 600,
       suffix: "+",
       label: "Brands",
-      image: "/placeholder-icon.png",
-      imageUrl: "/placeholder-icon.png"
+      image: "/event-icon.png",
+      imageUrl: "/event-icon.png"
     },
     {
       value: 60,
       suffix: "%",
       label: "Trade Visitors",
-      image: "/placeholder-icon.png",
-      imageUrl: "/placeholder-icon.png"
+      image: "/event-icon.png",
+      imageUrl: "/event-icon.png"
     },
     {
       value: 90,
       suffix: "+",
       label: "New Launches",
-      image: "/placeholder-icon.png",
-      imageUrl: "/placeholder-icon.png"
+      image: "/event-icon.png",
+      imageUrl: "/event-icon.png"
     },
     {
       value: 100,
       suffix: "+",
       label: "Eminent Speakers",
-      image: "/placeholder-icon.png",
-      imageUrl: "/placeholder-icon.png"
+      image: "/event-icon.png",
+      imageUrl: "/event-icon.png"
     },
     {
       value: 500,
       suffix: "%",
       label: "Delegates",
-      image: "/placeholder-icon.png",
-      imageUrl: "/placeholder-icon.png"
+      image: "/event-icon.png",
+      imageUrl: "/event-icon.png"
     }
   ]
 };
@@ -72,7 +73,14 @@ export default function OurSuccess({ dataData = defaultDataData }) {
                   {/* Badge Image Circle */}
                   <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full bg-gradient-to-r from-[#1f75ff] to-[#61daff] p-0.5 mb-2">
                     <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
-                      <img src={badge?.imageUrl || badge?.image || "/placeholder-icon.png"} alt={badge?.label} className="w-8 h-8 lg:w-10 lg:h-10 object-contain" />
+                      <SafeImage
+                        src={badge?.imageUrl || badge?.image} 
+                        alt={badge?.label || "Exhibition"} 
+                        className="w-8 h-8 lg:w-10 lg:h-10 object-contain"
+                        placeholderSrc="/event-icon.png"
+                        width={64}
+                        height={64}
+                      />
                     </div>
                   </div>
                   

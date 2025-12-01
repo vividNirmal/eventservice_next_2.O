@@ -15,7 +15,7 @@ export const SafeImage = ({
   const [imgSrc, setImgSrc] = useState(null);
   const [mobileImgSrc, setMobileImgSrc] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  // const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     // If src is undefined/null, we're still waiting for data
@@ -36,9 +36,15 @@ export const SafeImage = ({
     setImgSrc(src);
     setMobileImgSrc(mobileSrc || src);
     setIsLoading(true);
-    setHasError(false);
+    // setHasError(false);
   }, [src, mobileSrc, placeholderSrc]);
 
+  const handleError = () => {
+    // Set both to placeholder when any error occurs
+    setImgSrc(placeholderSrc);
+    setMobileImgSrc(placeholderSrc);
+    setIsLoading(false);
+  };
 
   // // Show loader while waiting for src or image to load
   if (isLoading && !imgSrc) {
@@ -57,7 +63,17 @@ export const SafeImage = ({
     <picture>
       <source srcSet={mobileImgSrc} media="(min-width: 1025px)" />
       <source srcSet={imgSrc} media="(min-width: 769px)" />
-      <img {...props} src={imgSrc} alt={alt} width={width} height={height} className={className} onError={() => setImgSrc(placeholderSrc)} loading="lazy" />
+      <img
+        {...props}
+        src={imgSrc}
+        alt={alt}
+        width={width}
+        height={height}
+        className={className}
+        onLoad={() => setIsLoading(false)}
+        onError={handleError}
+        loading="lazy"
+      />
     </picture>
   );
 };

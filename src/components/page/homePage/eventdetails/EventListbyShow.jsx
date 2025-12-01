@@ -7,8 +7,9 @@ import { useEffect, useState } from "react"
 
 export default function EventListByshow({ evenId }) {
   const route = useRouter();
-  const [events, setEvents] = useState([])
-  const [eventShows, setEventShows] = useState(null)
+  const [events, setEvents] = useState([]);
+  const [eventShows, setEventShows] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchEvent()
@@ -16,15 +17,21 @@ export default function EventListByshow({ evenId }) {
 
   async function fetchEvent() {
     try {
+      setLoading(true)
       const responce = await userGetRequest(`event-get-by-category/${evenId}`)
       if (responce?.status === 1 && responce?.data) {
         setEvents(responce.data.event)
         if (responce.data.event[0]?.event_category) {
           setEventShows(responce.data.event[0]?.event_category)
         }
+      } else {
+        setEvents([])
       }
     } catch (error) {
       console.error("Error fetching company details:", error)
+      setEvents([])
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -73,11 +80,18 @@ export default function EventListByshow({ evenId }) {
 
       {/* Events Grid Section */}
       <section className="py-20 relative">
-        {events.length === 0 ? (
+        { loading ? (
           <div className="h-[60vh] flex items-center justify-center">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mx-auto mb-6"></div>
-              <p className="text-xl text-gray-600 font-medium">Loading amazing events...</p>
+              <p className="text-xl text-gray-600 font-medium">Loading events...</p>
+            </div>
+          </div>
+        ) : events?.length === 0 ? (
+          <div className="h-[50vh] flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-2xl font-semibold text-gray-700">No events available right now</p>
+              <p className="text-gray-500 mt-2">Please check again later.</p>
             </div>
           </div>
         ) : (

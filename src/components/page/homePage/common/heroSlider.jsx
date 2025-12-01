@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { SafeImage } from "@/components/common/SafeImage";
 import React, { useEffect, useState } from "react";
 
 const defaultHeroData = [
@@ -9,7 +10,7 @@ const defaultHeroData = [
     title: "One Platform, Endless Business Opportunities",
     description: "India's most prestigious cleaning industry exhibition showcasing 600+ exhibitors, 10,000+ visitors, and cutting-edge innovations across 8 specialized sectors."
   },
-    {
+  {
     image: "https://images.pexels.com/photos/11213210/pexels-photo-11213210.jpeg",
     title: "One Platform, Endless Business Opportunities",
     description: "India's most prestigious cleaning industry exhibition showcasing 600+ exhibitors, 10,000+ visitors, and cutting-edge innovations across 8 specialized sectors."
@@ -40,13 +41,24 @@ export default function HeroSlider({ heroData = defaultHeroData }) {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black/50 z-10"></div>
 
-        <div className="hero-slider">
-          {safeHeroData.map((hero, index) => (
-            <div key={index} className={cn("absolute inset-0 transition-opacity duration-1000", index === currentSlide ? "opacity-100" : "opacity-0")} style={{backgroundImage: `url('${hero.imageUrl || hero.image}')`, backgroundSize: "cover", backgroundPosition: "center",}}></div>
-          ))}
-        </div>
+        {safeHeroData.map((hero, index) => (
+          <div
+            key={index}
+            className={cn(
+              "absolute inset-0 transition-opacity duration-1000 hero-slider",
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            )}
+          >
+            <SafeImage
+              src={hero.imageUrl || hero.image}
+              alt={hero.title || "Hero image"}
+              className="w-full h-full object-cover absolute inset-0"
+              placeholderSrc="assets/images/login-img.webp"
+            />
+          </div>
+        ))}
 
-        {/* Slider Indicators - Only show if multiple slides */}
+        {/* Indicators */}
         {safeHeroData.length > 1 && (
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-3">
             {safeHeroData.map((_, index) => (
