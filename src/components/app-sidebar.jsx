@@ -62,12 +62,12 @@ export function AppSidebar({ ...props }) {
         url: "/dashboard",
         show: true,
       },
-      {
-        title: "Registered Event List",
-        icon: TicketsIcon,
-        url: "/dashboard/events-list",
-        show: true,
-      },
+      // {
+      //   title: "Registered Event List",
+      //   icon: TicketsIcon,
+      //   url: "/dashboard/events-list",
+      //   show: true,
+      // }, // #IGNORE_IN_SUPER_ADMIN
       {
         title: "User List",
         icon: Users,
@@ -92,12 +92,12 @@ export function AppSidebar({ ...props }) {
         url: "/dashboard/blog-list",
         show: true,
       },
-      {
-        title: "Participant User",
-        icon: SquareTerminal,
-        url: "/dashboard/participant-list",
-        show: true,
-      },
+      // {
+      //   title: "Participant User",
+      //   icon: SquareTerminal,
+      //   url: "/dashboard/participant-list",
+      //   show: true,
+      // }, // #IGNORE_IN_SUPER_ADMIN
       {
         title: "Directory",
         icon: FileText,

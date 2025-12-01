@@ -74,7 +74,7 @@ export default function RootLayout({ children }) {
     }
     
     // Check for exact /dashboard/event-host path (event list page)
-    if (pathname === "/dashboard/event-host" && user.role !== 'admin') {
+    if (pathname === "/dashboard/event-host" && user?.role !== 'admin') {
       return (
         <div className="flex flex-col h-screen bg-gray-50">
           <SimpleHeaderBar />
