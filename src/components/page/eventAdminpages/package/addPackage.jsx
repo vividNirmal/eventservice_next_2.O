@@ -180,8 +180,8 @@ export function PackageFormDrawer({
         const transformedEventPackage = editPackage.event_package.map((bundle) => ({
           event_category: bundle.event_category?._id || bundle.event_category || "",
           event_Id: bundle.event_Id?._id || bundle.event_Id || "",
-          ticket_category: bundle.ticket_category || "",
-          total_slots: bundle.total_slots || "",
+          ticket_category: bundle.ticketType || "",
+          total_slots: bundle.ticketSlot || "",
           event_price: bundle.event_price || "",
           unit_price: bundle.unit_price || "",
         }));
