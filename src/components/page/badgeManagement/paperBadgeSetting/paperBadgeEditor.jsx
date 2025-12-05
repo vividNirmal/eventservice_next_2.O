@@ -57,9 +57,9 @@ const defaultStyleSettings = {
 const paperSizes = [
   { id: "a4", name: "A4", width: "210mm", height: "297mm" },
   { id: "a5", name: "A5", width: "148mm", height: "210mm" },
+  { id: "a6", name: "A6", width: "105mm", height: "148mm" },
   { id: "letter", name: "Letter", width: "215.9mm", height: "279.4mm" },
   { id: "legal", name: "Legal", width: "215.9mm", height: "355.6mm" },
-  { id: "normal", name: "Normal", width: "93.5mm", height: "122mm" },
 ];
 
 // Render field helper function (outside component like in e-badge)
@@ -272,6 +272,7 @@ const PaperBadgeEditor = ({ params }) => {
   };
 
   // ─── Print Handler (using iframe in same tab) ───────────────────────────────
+// ─── Updated Print Handler (Frontend) ───────────────────────────────
   const handlePrint = () => {
     setIsPrinting(true);
     
@@ -292,6 +293,9 @@ const PaperBadgeEditor = ({ params }) => {
 
     const printDocument = printFrame.contentDocument || printFrame.contentWindow.document;
     
+    // Remove ONLY the preview border (border: 1px solid #ccc), keep all other styles intact
+    const cleanedHtml = renderHtml.replace(/border:\s*1px\s*solid\s*#ccc;?/gi, '');
+    
     // Write content to iframe
     printDocument.open();
     printDocument.write(`
@@ -300,6 +304,7 @@ const PaperBadgeEditor = ({ params }) => {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
           <title>Print Badge - ${paperDimensions.width} x ${paperDimensions.height}</title>
           <style>
             @page {
@@ -382,26 +387,28 @@ const PaperBadgeEditor = ({ params }) => {
         </head>
         <body>
           <div class="print-container">
-            ${renderHtml.replace(/border:\s*1px\s*solid\s*#ccc;?/gi, '')}
+            ${cleanedHtml}
           </div>
         </body>
       </html>
     `);
     printDocument.close();
 
-    // Wait for images to load before printing
+    // Wait for images and fonts to load before printing
     const images = printDocument.getElementsByTagName('img');
     const imagePromises = Array.from(images).map(img => {
       if (img.complete) return Promise.resolve();
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         img.onload = resolve;
         img.onerror = resolve; // Continue even if image fails
-        // Timeout after 5 seconds
-        setTimeout(resolve, 5000);
+        setTimeout(resolve, 5000); // Timeout after 5 seconds
       });
     });
 
-    Promise.all(imagePromises).then(() => {
+    Promise.all([
+      ...imagePromises,
+      printDocument.fonts.ready // Wait for fonts to load
+    ]).then(() => {
       setTimeout(() => {
         try {
           printFrame.contentWindow.focus();
@@ -674,15 +681,12 @@ const PaperBadgeEditor = ({ params }) => {
       if (designType === "withoutDesign") {
         htmlContent = `
           <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
-            <div id="badgeContent" style="position: relative; width: 100%; height: 100%; padding: 5mm;"></div>
+            <div id="badgeContent" style="position: relative; width: 100%; height: 100%; padding: 5mm; box-sizing: border-box; margin: 0;"></div>
           </div>`;
       } else if (designType === "withDesign" && activeTemplate) {
         htmlContent = `
         <div style="width: ${paperDimensions.width}; height: ${paperDimensions.height}; margin: 0 auto; background: white; position: relative; overflow: hidden; border: 1px solid #ccc;">
-          <!-- Template content positioned in left corner -->
-          <div>
-            ${activeTemplate.htmlContent}
-          </div>
+          ${activeTemplate.htmlContent}
         </div>`;
       } else {
         htmlContent = `
@@ -700,22 +704,49 @@ const PaperBadgeEditor = ({ params }) => {
         return;
       }
 
-      // Ensure container is visible and properly positioned
-      container.style.visibility = "visible";
-      container.style.position = "relative";
-      container.style.width = "100%";
-      container.style.height = "100%";
-
-      // Apply category colors to the entire badge
-      if (selectedCategory) {
-        container.style.backgroundColor = selectedCategory.backgroundColor;
-        container.style.color = selectedCategory.textColor;
-      } else {
-        // Reset to default if no category selected
-        container.style.backgroundColor = "";
-        container.style.color = "";
+      // Parse existing styles from badgeContent
+      const existingStyle = container.getAttribute('style') || '';
+      const styleMap = new Map();
+      
+      if (existingStyle) {
+        existingStyle.split(';').forEach(style => {
+          const colonIndex = style.indexOf(':');
+          if (colonIndex === -1) return;
+          
+          const key = style.substring(0, colonIndex).trim();
+          const value = style.substring(colonIndex + 1).trim();
+          
+          if (key && value) {
+            styleMap.set(key, value);
+          }
+        });
       }
 
+      // Add/override ONLY necessary positioning styles
+      styleMap.set('visibility', 'visible');
+      styleMap.set('position', 'relative');
+      styleMap.set('width', '100%');
+      styleMap.set('box-sizing', 'border-box');
+      styleMap.set('padding', '0');
+      styleMap.set('margin', '0');
+
+      // Only set height if not already present
+      if (!styleMap.has('height')) {
+        styleMap.set('height', '100%');
+      }
+
+      // Apply category colors if selected (override template colors)
+      if (selectedCategory) {
+        styleMap.set('background-color', selectedCategory.backgroundColor);
+        styleMap.set('color', selectedCategory.textColor);
+      }
+
+      // Build merged style string
+      const mergedStyles = Array.from(styleMap.entries())
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('; ');
+
+      container.setAttribute('style', mergedStyles);
       container.innerHTML = "";
 
       // Render fields sequentially to handle async QR code generation
