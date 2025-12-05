@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
         <meta name="theme-color" content="#000000" />
         <link rel="apple-touch-icon" href="/icon.webp" />
       </head>
-      <body className={`${interSans.variable} antialiased`}>
+      <body className={`${interSans.variable} antialiased`} suppressHydrationWarning>
         <StoreProvider>
           <DynamicTitle />
           {children}

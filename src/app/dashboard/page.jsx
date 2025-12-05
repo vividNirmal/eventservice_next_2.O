@@ -13,8 +13,10 @@ import StaticNavigation from "@/components/page/eventHost/StaticNavigation";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ThemedWrapper from "@/components/ThemedWrapper";
 import HeaderBar from "@/components/header-bar";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -25,8 +27,13 @@ export default function Page() {
       if (userData) {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
+        router.replace("/dashboard/event-host");
+        setIsLoading(false);
+      }else{
+        router.replace("/dashboard/login");
+        
       }
-      setIsLoading(false);
+      
     }
   }, []);
 
@@ -62,7 +69,7 @@ export default function Page() {
                 <HeaderBar />
                 <div className="flex flex-1 flex-col space-y-4 p-4 2xl:p-5 bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)]">
                   <Breadcrumbs />
-                  <DashboardPage />
+                  {/* <DashboardPage /> */}
                 </div>
               </SidebarInset>
             </SidebarProvider>
@@ -75,7 +82,7 @@ export default function Page() {
                 <div className="flex-1 overflow-auto p-4 xl:p-6">
                   <div className="bg-white rounded-2xl border border-solid border-gray-200 shadow-[0_0px_6px_0_rgba(0,0,0,0.07)] p-4 xl:p-6 h-full themed-content">
                     <Breadcrumbs />
-                    <DashboardPage />
+                    {/* <DashboardPage /> */}
                   </div>
                 </div>
               </div>

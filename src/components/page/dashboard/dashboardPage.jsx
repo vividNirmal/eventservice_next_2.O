@@ -1,8 +1,18 @@
 "use client";
 
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 
-const DashboardPage = () => {
+const DashboardPage = () => {   
+  const router = useRouter();
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    if(token){
+      router.replace("/dashboard/event-host");
+    }else{
+      router.replace("/dashboard/login");
+    }
+  },[])
   return (
     <section className="w-full flex flex-wrap items-start gap-6 p-4 h-full max-h-full">
       <div className="flex flex-wrap gap-3.5 2xl:gap-6 w-3/4 flex-grow">
