@@ -16,7 +16,7 @@ import { SafeImage } from "@/components/common/SafeImage";
 
 const ParticipanLogin = ({
   eventData,
-  loader = true,
+  loading,
   onRegisterEmail,
   ticketData,
 }) => {
@@ -140,8 +140,15 @@ const ParticipanLogin = ({
   return (
     <>
       <section className="min-h-svh flex flex-col xl:flex-row lg:items-center gap-5 xl:gap-10 bg-[#f7f9fc] overflow-auto lg:overflow-hidden">
-        <div className="shrink-0 w-full xl:w-2/4 xl:grow relative flex flex-col justify-center bg-white [&>picture]:size-full">
-          <SafeImage src={ticketData?.loginBannerImageUrl} mobileSrc={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="block object-fill w-full h-96 xl:h-dvh" />        
+        <div className="shrink-0 w-full xl:w-2/4 xl:grow relative flex flex-col justify-center [&>picture]:size-full min-h-96 lg:min-h-svh bg-white/20">
+          {!loading ? (
+            <SafeImage src={ticketData?.loginBannerImageUrl} mobileSrc={ticketData?.loginBannerImageUrl} placeholderSrc="/assets/images/login-img.webp" alt="Plastics Recycling Show" width={1200} height={600} className="block object-fill w-full h-96 xl:h-dvh" fade={true} outerload={true} />
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+            <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+              <p className="text-sm text-gray-500">Loading...</p>
+            </div>
+          )}
         </div>
 
         {/* Form Right Side */}

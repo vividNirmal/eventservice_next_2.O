@@ -57,6 +57,7 @@ const UserRegisterEvent = () => {
 
   async function fetchEventDetails() {
     try {
+      setLoading(true);
       const userTypeSlug = userSlug.split("-")[1];
       const formData = new FormData();
       formData.append("eventSlug", eventSlug);
@@ -71,6 +72,7 @@ const UserRegisterEvent = () => {
       }
     } catch (error) {
       console.error("❌ Error resolving short URL:", error);
+    } finally {
       setLoading(false);
     }
   }

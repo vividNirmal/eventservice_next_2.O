@@ -25,6 +25,7 @@ import { CustomPagination } from "@/components/common/pagination";
 import RegistrationPreviewSheet from "./commponent/RegistrationPreviewSheet";
 import RegistrationEditSheet from "./commponent/RegistrationEditSheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useDebounce } from "@/utils/debounce";
 
 const RegistrationList = ({ eventId, userTypeId }) => {
   const [registrations, setRegistrations] = useState([]);
@@ -47,6 +48,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
   const [selectedRegistration, setSelectedRegistration] = useState(null);
   const [formFields, setFormFields] = useState([]);
   const [printLoading, setPrintLoading] = useState(false);
+  const debouncedSearch = useDebounce(search, 500);
 
   const limits = [10, 20, 30, 50];
 
@@ -63,7 +65,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
   }, [
     eventId,
     userTypeId,
-    search,
+    debouncedSearch,
     currentPage,
     limit,
     selectedTicket,

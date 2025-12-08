@@ -17,6 +17,7 @@ import { SafeImage } from "@/components/common/SafeImage";
 export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [subdomain, setSubdomain] = useState("");
+  const [companyDataLoading, setCompanyDataLoading] = useState(true);
   const [domainConfig, setDomainConfig] = useState({
     brandName: "",
     appName: "Event Services",
@@ -77,6 +78,7 @@ useEffect(() => {
 
     const fetchCompanyData = async () => {
       try {
+        setCompanyDataLoading(true);
         // Fetch company details by subdomain
         const companyResponse = await userGetRequest(`get-company-login-banner/${subdomain}`);
         if (companyResponse?.status === 1 && companyResponse?.data?.images) {
@@ -84,6 +86,8 @@ useEffect(() => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setCompanyDataLoading(false);
       }
     };
 
@@ -198,8 +202,15 @@ useEffect(() => {
       <section className="max-h-screen h-screen overflow-auto bg-white">
         <div className="flex flex-wrap gap-3 lg:gap-4 h-[inherit]">
           <div className="w-full block lg:w-2/5 lg:grow lg:h-svh content-center">
-            <div className="h-full flex justify-center items-center bg-white/20 [&>picture]:size-full">
-              <SafeImage src={companyData?.company_login_banner} placeholderSrc="/login-side-banner.svg" alt="login" className="block object-fill w-full h-full" width={600} height={600} />
+            <div className="h-full flex justify-center items-center bg-white/20 [&>picture]:size-full min-h-96 lg:min-h-svh">
+            {!companyDataLoading ? (
+              <SafeImage src={companyData?.company_login_banner || ""} placeholderSrc="/login-side-banner.svg" alt="login" className="block object-fill w-full h-full" width={600} height={600} fade={true} outerload={true} />
+            ) : (
+             <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+                <p className="text-sm text-gray-500">Loading...</p>
+              </div>
+            )}
             </div>
           </div>
 

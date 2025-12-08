@@ -10,12 +10,13 @@ export const SafeImage = ({
   width = 800,
   height = 400,
   className = "",
+  fade = false, // to control fade-in effect
+  outerload = false, // to control outer loading state
   ...props
 }) => {
   const [imgSrc, setImgSrc] = useState(null);
   const [mobileImgSrc, setMobileImgSrc] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  // const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     // // If src is undefined/null, we're still waiting for data
@@ -47,7 +48,7 @@ export const SafeImage = ({
   };
 
   // // Show loader while waiting for src or image to load
-  if (isLoading && !imgSrc) {
+  if (isLoading && !imgSrc && !outerload) {
     return (
      <>
         {/* Spinner Loader */}
@@ -69,7 +70,7 @@ export const SafeImage = ({
         alt={alt}
         width={width}
         height={height}
-        className={className}
+        className={`${className} ${isLoading && fade ? 'opacity-0' : 'opacity-100'} transition-opacity duration-400`}
         onLoad={() => setIsLoading(false)}
         onError={handleError}
         loading="lazy"
