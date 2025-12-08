@@ -22,6 +22,7 @@ export default function AdminLogin() {
     appName: "Event Services",
   });
   const [companyData, setCompanyData] = useState(null);
+  const [apiError, setApiError] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -160,10 +161,12 @@ useEffect(() => {
           router.push('/dashboard/eventuser');
         }
       } else {
-        toast.error(res?.message);
+        // toast.error(res?.message);
+        setApiError(res?.message || "Login failed");
       }
     } catch (error) {
-      setErrors({ email: error.message || "Something went wrong" });
+      // setErrors({ email: error.message || "Something went wrong" });
+      setApiError(error.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -182,6 +185,8 @@ useEffect(() => {
         [name]: "",
       }));
     }
+     
+    if (apiError) setApiError(""); // Clear overall API error when typing
   };
 
   // const loginImg =
@@ -253,6 +258,12 @@ useEffect(() => {
               >
                 {loading ? "Logging in..." : "Login"}
               </button>
+
+              {apiError && (
+                <p className="text-red-600 text-sm mt-2 text-center font-medium">
+                  {apiError}
+                </p>
+              )}
             </form>
           </div>
         </div>
