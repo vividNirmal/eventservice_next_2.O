@@ -27,8 +27,7 @@ function CleanAttendeeContent() {
         
         if (response.status === "success" || response.status == 1) {
           const { key, event_slug } = response.data;
-          
-          // Store in localStorage for the Attendence component to use
+                    
           localStorage.setItem("tempAttendanceKey", key);
           localStorage.setItem("tempAttendanceEventSlug", event_slug);
           
