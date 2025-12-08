@@ -25,7 +25,7 @@ const validationSchema = Yup.object({
   company_name: Yup.string().required("Company Name is required"),
   event_slug: Yup.string().required("Event Slug is required"),
   event_description: Yup.string().required("Event Description is required"),
-  google_map_url: Yup.string().url("Must be a valid URL"),
+  google_map_url: Yup.string().url("Must be a valid URL").required("Google Map URL is required"),
   organizer_name: Yup.string().required("Organizer Name is required"),
   organizer_email: Yup.string()
     .email("Invalid email")
@@ -304,7 +304,7 @@ export default function EventDetailsForm({
           </div>
 
           <div>
-            <Label htmlFor="google_map_url">Google Map URL</Label>
+            <Label htmlFor="google_map_url">Google Map URL *</Label>
             <Input
               id="google_map_url"
               name="google_map_url"

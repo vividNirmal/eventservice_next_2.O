@@ -581,7 +581,11 @@ const EventModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[96%] xl:!max-w-6xl sm:max-h-[70vh] h-full p-0">
+      <DialogContent
+        className="sm:max-w-[96%] xl:!max-w-6xl sm:max-h-[70vh] h-full p-0"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <DialogHeader className="relative hidden">
           <DialogTitle className="text-2xl font-bold text-center"></DialogTitle>
         </DialogHeader>
