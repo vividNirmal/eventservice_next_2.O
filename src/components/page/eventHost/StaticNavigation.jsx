@@ -137,10 +137,10 @@ const StaticNavigation = ({ eventId = null }) => {
     },
     {
       id: 'ManageRegistrations',
-      label: "Manage Registrations",
+      label: "Manage Devices",
       icon: FileText,
       show: true,
-      description: 'Manage registrations',
+      description: 'Manage Devices',
       isExpandable: true,
       isExpanded: expandedSections.ManageRegistrations,
       subItems: [

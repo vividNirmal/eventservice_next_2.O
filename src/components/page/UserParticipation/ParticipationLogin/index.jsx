@@ -10,9 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { userGetRequest, userPostRequest } from "@/service/viewService";
 import { useFormik } from "formik";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import * as Yup from "yup";
 import { SafeImage } from "@/components/common/SafeImage";
+import { Calendar, Check, Info, Mail } from "lucide-react";
 
 const ParticipanLogin = ({
   eventData,
@@ -23,6 +24,44 @@ const ParticipanLogin = ({
   const [errorMessage, setErrorMessage] = useState("");
   const [errorTitle, setErrorTitle] = useState("");
   const [showErrorDialog, setShowErrorDialog] = useState(false);
+
+  // Check if event has ended
+  const eventStatus = useMemo(() => {
+    if (!eventData?.endDate || !eventData?.endTime) {
+      return { hasEnded: false, endDateTime: null };
+    }
+
+    try {
+      // Parse end date and time
+      const [year, month, day] = eventData.endDate.split("-").map(Number);
+      const [hours, minutes] = eventData.endTime.split(":").map(Number);
+
+      // Create end date object
+      const endDateTime = new Date(year, month - 1, day, hours, minutes);
+      const now = new Date();
+
+      return {
+        hasEnded: now > endDateTime,
+        endDateTime: endDateTime,
+      };
+    } catch (error) {
+      console.error("Error parsing event date:", error);
+      return { hasEnded: false, endDateTime: null };
+    }
+  }, [eventData?.endDate, eventData?.endTime]);
+
+  // Format date for display
+  const formatEventDate = (date) => {
+    if (!date) return "";
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -137,6 +176,73 @@ const ParticipanLogin = ({
     );
   };
 
+  // Event Ended Component
+  const EventEndedMessage = () => (
+    <div className="border border-solid bg-white rounded-3xl shadow-[0px_0px_0px_4px_rgba(0,81,83,0.14)] border-[#F3F3F3] p-6 md:p-8 lg:py-10 lg:px-8">
+      <div className="flex flex-col items-center text-center">
+        {/* Icon */}
+        <div className="w-20 h-20 bg-gradient-to-br from-[#005153] to-[#007a7c] rounded-full flex items-center justify-center mb-6 shadow-lg">
+          <Check className="text-white" />
+        </div>
+
+        {/* Title */}
+        <h3 className="text-2xl md:text-3xl font-bold text-[#1E3238] mb-3">
+          Event Closed
+        </h3>
+
+        {/* Message */}
+        <p className="text-gray-600 text-base md:text-lg mb-6 max-w-md">
+          Thank you for your interest! This event has already concluded.
+        </p>
+
+        {/* Event Details Card */}
+        <div className="w-full bg-gradient-to-r from-[#f0f9f9] to-[#e8f4f4] rounded-2xl p-5 mb-6">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Calendar className="w-5 h-5 text-[#005153]" />
+            <span className="font-semibold text-[#005153]">Event Details</span>
+          </div>
+
+          <h4 className="font-semibold text-[#1E3238] text-lg mb-2">
+            {eventData?.eventName}
+          </h4>
+
+          <div className="text-sm text-gray-600 space-y-1">
+            <p>
+              <span className="font-medium">Ended on:</span>{" "}
+              {formatEventDate(eventStatus.endDateTime)}
+            </p>
+            {eventData?.location && (
+              <p>
+                <span className="font-medium">Location:</span>{" "}
+                {eventData.location}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="w-full border-t border-gray-200 my-4"></div>
+
+        {/* Footer Message */}
+        <div className="flex gap-2 text-gray-500 text-sm">
+          <Info className="w-4 h-4 mt-0.5" />
+          <span className="text-left">Stay tuned for our upcoming events!</span>
+        </div>
+
+        {/* Optional: Contact or Learn More Button */}
+        {eventData?.organizer_email && (
+          <a
+            href={`mailto:${eventData.organizer_email}`}
+            className="mt-6 inline-flex items-center gap-2 py-3 px-6 text-sm font-medium rounded-3xl bg-[#005153] text-white border border-solid border-[#005153] hover:bg-white hover:text-[#005153] transition-all duration-300 ease-linear"
+          >
+            <Mail className="w-4 h-4" />
+            Contact Organizer
+          </a>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <>
       <section className="min-h-svh flex flex-col xl:flex-row lg:items-center gap-5 xl:gap-10 bg-[#f7f9fc] overflow-auto lg:overflow-hidden">
@@ -153,39 +259,44 @@ const ParticipanLogin = ({
 
         {/* Form Right Side */}
         <div className="grow xk:grow-0 shrink-0 lg:w-md 2xl:w-xl px-6 lg:pl-0 xl:pr-10 py-5 mx-4 lg:mx-0 bg-no-repeat bg-right-top ln-plasticsRe-bg flex flex-col">
-          <h2 className="mb-4 md:mb-6 font-semibold text-[18px] md:text-3xl 2xl:text-[40px] text-[#1E3238] capitalize">Login</h2>
+          {/* Conditional Rendering based on event status */}
+          {eventStatus.hasEnded ? (
+            <>
+              <EventEndedMessage />
+            </>
+          ) : (
+            <>
+              <h2 className="mb-4 md:mb-6 font-semibold text-[18px] md:text-3xl 2xl:text-[40px] text-[#1E3238] capitalize">
+                Login
+              </h2>
 
-          {/* <div className="bg-[#F8F8F8] shadow-[0px_4px_6px_0px_#0000000D] mb-4 md:mb-8 lg:mb-12 py-4 md:py-6 px-2 md:px-6 2xl:px-8 lg:rounded-r-3xl relative lg:before:absolute before:top-2/4 before:-translate-y-2/4 before:left-0 before:w-1.5 before:h-[calc(100%_-_48px)] before:block before:bg-[#005153] before:rounded-r-3xl">
-            <p className="text-[#1E3238] font-normal text-sm lg:text-base capitalize">
-              {eventData?.eventName || eventData?.event_title}
-            </p>
-          </div> */}
+              {/* Email Form */}
+              <div className="border border-solid bg-white rounded-3xl shadow-[0px_0px_0px_4px_rgba(0,81,83,0.14)] border-[#F3F3F3] p-5 md:p-6 lg:py-8 lg:px-6">
+                <form onSubmit={formik.handleSubmit}>
+                  <div>
+                    <Input
+                      type="text"
+                      name="email"
+                      className="mb-0 w-full bg-[#E7E5E0]"
+                      placeholder="Enter your email"
+                      value={formik.values.email}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      error={formik.touched.email && formik.errors.email}
+                      label={"Email"}
+                    />
+                  </div>
 
-          {/* Email Form */}
-          <div className="border border-solid bg-white rounded-3xl shadow-[0px_0px_0px_4px_rgba(0,81,83,0.14)] border-[#F3F3F3] p-5 md:p-6 lg:py-8 lg:px-6">
-            <form onSubmit={formik.handleSubmit}>
-              <div>
-                <Input
-                  type="text"
-                  name="email"
-                  className="mb-0 w-full bg-[#E7E5E0]"
-                  placeholder="Enter your email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  error={formik.touched.email && formik.errors.email}
-                  label={"Email"}
-                />
+                  <button
+                    type="submit"
+                    className="cursor-pointer w-full md:w-auto py-3 px-4 md:px-12 mt-6 text-sm lg:text-base font-medium rounded-3xl bg-[#005153] text-white border border-solid border-[#005153] hover:bg-white hover:text-[#005153] transition-all duration-300 ease-linear"
+                  >
+                    Continue
+                  </button>
+                </form>
               </div>
-
-              <button
-                type="submit"
-                className="cursor-pointer w-full md:w-auto py-3 px-4 md:px-12 mt-6 text-sm lg:text-base font-medium rounded-3xl bg-[#005153] text-white border border-solid border-[#005153] hover:bg-white hover:text-[#005153] transition-all duration-300 ease-linear"
-              >
-                Continue
-              </button>
-            </form>
-          </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -198,7 +309,7 @@ const ParticipanLogin = ({
           extraInfo={
             <>
               <strong>Event ended on:</strong>{" "}
-              {new Date("2025-10-11T18:00:00").toLocaleString()}
+              {formatEventDate(eventStatus.endDateTime)}
             </>
           }
         />

@@ -249,7 +249,7 @@ const QRScannerDetails = ({ qrData, onRedirect }) => {
               width={400}
               height={200}
               src={imageLoadError ? "/assets/images/user-img.jpg" : userImg}
-              className={`w-full h-full object-cover transition-opacity duration-300 ${
+              className={`w-full h-full object-contain transition-opacity duration-300 ${
                 imageLoading ? "opacity-0" : "opacity-100"
               } ${isParticipantBlocked() ? "grayscale" : ""}`}
               alt="User Profile"

@@ -512,7 +512,7 @@ const NewDynamicParticipantForm = ({
           );
         case "checkbox":
           return (
-            <div className={"flex flex-wrap"}>
+            <div className={"flex flex-wrap gap-4"}>
               {fieldOptions?.map((option, idx) => {
                 let parsedOption = option;
                 if (typeof option === "string") {
@@ -536,7 +536,7 @@ const NewDynamicParticipantForm = ({
                   : value === optionValue;
 
                 return (
-                  <div key={idx} className="inline-flex items-center gap-4">
+                  <div key={idx} className="inline-flex items-center gap-1">
                     <Checkbox
                       className={
                         "data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"

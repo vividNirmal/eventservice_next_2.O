@@ -184,7 +184,7 @@ const QrPage = ({
   };
 
   return (
-    <section className="h-screen  px-4 py-5 md:py-10 lg:py-20 overflow-auto">
+    <section className="lg:px-4 py-5 md:py-10 lg:py-20 overflow-auto">
       <Card className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl overflow-hidden border-0 mx-auto relative">
         {/* Header */}
         <div className="bg-zinc-100 px-6 py-4 relative rounded-t-xl">
