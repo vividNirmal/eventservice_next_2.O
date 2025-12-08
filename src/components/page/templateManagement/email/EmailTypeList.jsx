@@ -36,6 +36,7 @@ import {
 } from "@/service/viewService";
 import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
+import { useDebounce } from "@/utils/debounce";
 
 const EmailTypeList = () => {
   const router = useRouter();
@@ -55,10 +56,11 @@ const EmailTypeList = () => {
   const [templateToEdit, setTemplateToEdit] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchTemplateTypes();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchTemplateTypes = async () => {
     setLoading(true);

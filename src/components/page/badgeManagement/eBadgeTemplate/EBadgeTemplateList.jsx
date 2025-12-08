@@ -36,6 +36,7 @@ import {
 import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { EBadgeTemplateFormSheet } from "./EBadgeTemplateFormSheet";
+import { useDebounce } from "@/utils/debounce";
 
 const EBadgeTemplateList = ({ eventId }) => {
   const router = useRouter();
@@ -54,10 +55,11 @@ const EBadgeTemplateList = ({ eventId }) => {
   const [editingTemplate, setEditingTemplate] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchTemplates();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
 
   const fetchTemplates = async () => {

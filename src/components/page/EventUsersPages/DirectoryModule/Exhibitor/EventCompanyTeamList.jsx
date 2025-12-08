@@ -52,6 +52,7 @@ import { toast } from "sonner";
 import { getRequest, deleteRequest } from "@/service/viewService";
 import { CustomPagination } from "@/components/common/pagination";
 import EventCompanyTeamSheet from "./EventCompanyTeamSheet";
+import { useDebounce } from "@/utils/debounce";
 
 const EventCompanyTeamList = () => {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -73,6 +74,7 @@ const EventCompanyTeamList = () => {
   const [memberToDelete, setMemberToDelete] = useState(null);
 
   const limits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(search);
   
   // Get exhibitor ID from localStorage
   const getExhibitorId = () => {
@@ -88,7 +90,7 @@ const EventCompanyTeamList = () => {
 
   useEffect(() => {
     fetchTeamMembers();
-  }, [search, currentPage, limit, ownershipFilter]);
+  }, [debouncedSearch, currentPage, limit, ownershipFilter]);
 
   const fetchTeamMembers = async () => {
     const exhibitorId = getExhibitorId();

@@ -15,6 +15,7 @@ import { getRequest, updateRequest } from "@/service/viewService";
 import ExhibitorApplicationPreviewSheet from "./ExhibitorApplicationPreviewSheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useDebounce } from "@/utils/debounce";
 
 export default function ExhibitorApplicationList({ eventId, exhibitorFormId }) {
   const [applications, setApplications] = useState([]);
@@ -30,6 +31,7 @@ export default function ExhibitorApplicationList({ eventId, exhibitorFormId }) {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const companyId = localStorage.getItem('companyId');
 
@@ -37,7 +39,7 @@ export default function ExhibitorApplicationList({ eventId, exhibitorFormId }) {
     if (eventId) {
       fetchApplications();
     }
-  }, [currentPage, selectedLimit, searchTerm, eventId]);
+  }, [currentPage, selectedLimit, debouncedSearch, eventId]);
 
   const fetchApplications = async () => {
     if (!eventId) return;

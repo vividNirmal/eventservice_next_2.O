@@ -17,6 +17,7 @@ import ExhibitorFormParticularSheet from "./ExhibitorFormParticularSheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ActionConfirmationDialog } from "@/components/common/ActionConfirmationDialog";
+import { useDebounce } from "@/utils/debounce";
 
 export default function ExhibitorFormParticularList({eventId, exhibitorFormId}){
 
@@ -42,6 +43,7 @@ export default function ExhibitorFormParticularList({eventId, exhibitorFormId}){
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const companyId = localStorage.getItem('companyId');
 
@@ -50,7 +52,7 @@ export default function ExhibitorFormParticularList({eventId, exhibitorFormId}){
       fetchParticulars();
       fetchEventZones();
     }
-  }, [currentPage, selectedLimit, searchTerm, exhibitorFormId]);
+  }, [currentPage, selectedLimit, debouncedSearch, exhibitorFormId]);
 
   const fetchParticulars = async () => {
     if (!exhibitorFormId) return;

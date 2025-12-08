@@ -35,6 +35,7 @@ import {
   deleteRequest
 } from "@/service/viewService";
 import { toast } from "sonner";
+import { useDebounce } from "@/utils/debounce";
 
 const WhatsappTemplateList = () => {
   const [templates, setTemplates] = useState([]);
@@ -54,11 +55,12 @@ const WhatsappTemplateList = () => {
   const [templateToEdit, setTemplateToEdit] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchTemplates();
     fetchTemplateTypes();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchTemplates = async () => {
     setLoading(true);

@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import { getRequest, deleteRequest } from "@/service/viewService";
 import { CustomPagination } from "@/components/common/pagination";
 import moment from "moment";
+import { useDebounce } from "@/utils/debounce";
 
 export default function PaymentHistory() {
   const [teamMembers, setTeamMembers] = useState([]);
@@ -47,6 +48,7 @@ export default function PaymentHistory() {
   const [memberToDelete, setMemberToDelete] = useState(null);
 
   const limits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(search);
 
   // Get exhibitor ID from localStorage
   const getExhibitorId = () => {
@@ -94,7 +96,7 @@ export default function PaymentHistory() {
 
   useEffect(() => {
     fetchTeamMembers();
-  }, [search, currentPage, limit, ownershipFilter]);
+  }, [debouncedSearch, currentPage, limit, ownershipFilter]);
 
   const fetchTeamMembers = async () => {
     const exhibitorId = getExhibitorId();

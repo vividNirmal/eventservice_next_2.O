@@ -36,6 +36,7 @@ import dynamic from 'next/dynamic';
 import ExhibitorFormWizard from './ExhibitorFormWizard';
 import { ExhibitorFormConfigurationModal } from './components/ExhibitorFormConfigurationModal';
 import { useRouter } from "next/navigation";
+import { useDebounce } from '@/utils/debounce';
 
 const ExhibitorFormList = ({ eventId }) => {
   const router = useRouter();
@@ -55,6 +56,7 @@ const ExhibitorFormList = ({ eventId }) => {
   const [selectedConfiguration, setSelectedConfiguration] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const companyId = localStorage.getItem('companyId');
 
@@ -85,7 +87,7 @@ const ExhibitorFormList = ({ eventId }) => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, selectedLimit, searchTerm, selectedStatus, eventId, companyId]);
+  }, [currentPage, selectedLimit, debouncedSearch, selectedStatus, eventId, companyId]);
 
   useEffect(() => {
     fetchForms();

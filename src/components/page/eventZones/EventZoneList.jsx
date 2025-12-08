@@ -34,6 +34,7 @@ import {
   deleteRequest,
 } from "@/service/viewService";
 import { EventZoneFormSheet } from "./EventZoneFormSheet";
+import { useDebounce } from "@/utils/debounce";
 
 export const EventZoneList = ({ eventId }) => {
   const [zones, setZones] = useState([]);
@@ -52,10 +53,11 @@ export const EventZoneList = ({ eventId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchZones();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchZones = async () => {
     setLoading(true);

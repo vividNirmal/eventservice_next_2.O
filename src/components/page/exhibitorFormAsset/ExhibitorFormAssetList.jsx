@@ -32,6 +32,7 @@ import {
   postRequest,
 } from "@/service/viewService";
 import { ExhibitorFormAssetSheet } from "./ExhibitorFormAssetSheet";
+import { useDebounce } from "@/utils/debounce";
 
 export const ExhibitorFormAssetList = ({ eventId }) => {
   const [assets, setAssets] = useState([]);
@@ -48,11 +49,12 @@ export const ExhibitorFormAssetList = ({ eventId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchAssets();
     fetchEventZones();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchAssets = async () => {
     setLoading(true);

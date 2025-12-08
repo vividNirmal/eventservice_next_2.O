@@ -35,6 +35,7 @@ import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, deleteRequest, postRequest } from "@/service/viewService";
 import { UserCampaignSheet } from "./UserCampaignSheet";
+import { useDebounce } from "@/utils/debounce";
 
 export const UserCampaignList = ({ eventId }) => {
   const [campaigns, setCampaigns] = useState([]);
@@ -51,10 +52,11 @@ export const UserCampaignList = ({ eventId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchCampaigns();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchCampaigns = async () => {
     setLoading(true);

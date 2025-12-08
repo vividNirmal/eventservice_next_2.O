@@ -36,6 +36,7 @@ import {
   deleteRequest,
 } from "@/service/viewService";
 import { BadgeCategoryFormSheet } from "./BadgeCategoryFormSheet";
+import { useDebounce } from "@/utils/debounce";
 
 export const BadgeCategoryList = ({ eventId }) => {
   const [categories, setCategories] = useState([]);
@@ -54,10 +55,11 @@ export const BadgeCategoryList = ({ eventId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   useEffect(() => {
     fetchCategories();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchCategories = async () => {
     setLoading(true);

@@ -34,6 +34,7 @@ import {
   deleteRequest,
 } from "@/service/viewService";
 import { EventImageFormSheet } from "./EventImageFormSheet";
+import { useDebounce } from "@/utils/debounce";
 
 export const EventImageList = ({ eventId }) => {
   const [images, setImages] = useState([]);
@@ -52,10 +53,11 @@ export const EventImageList = ({ eventId }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchImages();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchImages = async () => {
     setLoading(true);

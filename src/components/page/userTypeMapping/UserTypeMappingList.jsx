@@ -43,6 +43,7 @@ import { toast } from "sonner";
 import { CustomPagination } from "@/components/common/pagination";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import UserTypeMapModal from "./common/UserTypeMapModal";
+import { useDebounce } from "@/utils/debounce";
 
 // Validation Schema
 const userTypeMapValidationSchema = Yup.object({
@@ -69,6 +70,7 @@ const UserTypeMapList = ({ eventId }) => {
   const [userTypeMapToDelete, setUserTypeMapToDelete] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   // Fetch all user types for dropdown
   useEffect(() => {
@@ -89,7 +91,7 @@ const UserTypeMapList = ({ eventId }) => {
   // Fetch UserTypeMaps with pagination & search
   useEffect(() => {
     fetchUserTypeMaps();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchUserTypeMaps = async () => {
     setLoading(true);

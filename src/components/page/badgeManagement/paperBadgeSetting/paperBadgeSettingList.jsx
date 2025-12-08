@@ -38,6 +38,7 @@ import {
 import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { PaperBadgeSettingFormSheet } from "./paperBadgeSettingFormSheet";
+import { useDebounce } from "@/utils/debounce";
 
 const PaperBadgeSettingList = ({ eventId }) => {
   const router = useRouter();
@@ -62,10 +63,11 @@ const PaperBadgeSettingList = ({ eventId }) => {
   const [printLoading, setPrintLoading] = useState(false);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchSettings();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchSettings = async () => {
     setLoading(true);

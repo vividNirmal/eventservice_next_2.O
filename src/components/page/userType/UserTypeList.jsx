@@ -47,6 +47,7 @@ import {
 } from "@/service/viewService";
 import { toast } from "sonner";
 import UserTypeModal from "./common/UserTypeModal";
+import { useDebounce } from "@/utils/debounce";
 
 // Validation Schema using Yup
 const userTypeValidationSchema = Yup.object({
@@ -78,6 +79,7 @@ const UserTypeList = () => {
   const [userTypeToEdit, setUserTypeToEdit] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   // Formik for Add User Type
   const addFormik = useFormik({
@@ -106,7 +108,7 @@ const UserTypeList = () => {
 
   useEffect(() => {
     fetchUserTypes();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchUserTypes = async () => {
     setLoading(true);

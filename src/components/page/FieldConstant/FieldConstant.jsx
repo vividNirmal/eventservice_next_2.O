@@ -46,6 +46,7 @@ import {
 } from "@/service/viewService";
 import { toast } from "sonner";
 import FieldConstant from "./common/FieldConstantModal";
+import { useDebounce } from "@/utils/debounce";
 
 // Validation Schema using Yup
 const paramNameValidationSchema = Yup.object({
@@ -72,6 +73,7 @@ const FieldConstantList = () => {
   const [userTypeToEdit, setUserTypeToEdit] = useState(null);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   // Formik for Add Field constant
   const addFormik = useFormik({
@@ -98,7 +100,7 @@ const FieldConstantList = () => {
 
   useEffect(() => {
     fetchFieldConstant();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchFieldConstant = async () => {
     setLoading(true);

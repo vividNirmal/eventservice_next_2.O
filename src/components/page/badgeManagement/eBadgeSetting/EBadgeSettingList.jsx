@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { EBadgeSettingFormSheet } from "./EBadgeSettingFormSheet";
 import { EBadgeEditor } from "./eBadgeEditor";
+import { useDebounce } from "@/utils/debounce";
 
 
 const EBadgeSettingList = ({ eventId }) => {
@@ -60,13 +61,14 @@ const EBadgeSettingList = ({ eventId }) => {
   const [templates, setTemplates] = useState([])
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState(null);
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   const dataLimits = [10, 20, 30, 50];
 
   useEffect(() => {
     fetchSettings();
     fetchTemplates();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchSettings = async () => {
     setLoading(true);

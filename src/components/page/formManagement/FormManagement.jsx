@@ -44,6 +44,7 @@ import { CustomPagination } from '@/components/common/pagination';
 import { Plus, Search, Edit, Trash2, Copy, FileText, Settings } from 'lucide-react';
 import { getRequest, postRequest, updateRequest, deleteRequest } from '@/service/viewService';
 import { toast } from 'sonner';
+import { useDebounce } from '@/utils/debounce';
 
 const FormManagement = ({ eventId, isAdminForm = false }) => {
   const router = useRouter();
@@ -72,13 +73,14 @@ const FormManagement = ({ eventId, isAdminForm = false }) => {
   const [userTypes, setUserTypes] = useState([]);
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   useEffect(() => {
     if (!isAdminForm) {
       fetchUserTypes();
     }
     fetchForms();
-  }, [currentPage, selectedLimit, searchTerm, isAdminForm]);
+  }, [currentPage, selectedLimit, debouncedSearch, isAdminForm]);
 
   const fetchUserTypes = async () => {
     try {

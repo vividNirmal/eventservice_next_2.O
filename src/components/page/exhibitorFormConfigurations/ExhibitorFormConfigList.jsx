@@ -14,6 +14,7 @@ import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, postRequest, updateRequest, deleteRequest } from "@/service/viewService";
 import ExhibitorFormConfigSheet from "./ExhibitorFormConfigSheet";
+import { useDebounce } from "@/utils/debounce";
 
 const ExhibitorFormConfigList = () => {
   const [configs, setConfigs] = useState([]);
@@ -32,10 +33,11 @@ const ExhibitorFormConfigList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchConfigs();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const fetchConfigs = async () => {
     setLoading(true);

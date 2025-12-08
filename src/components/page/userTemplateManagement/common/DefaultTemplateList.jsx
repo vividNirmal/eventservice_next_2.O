@@ -37,6 +37,7 @@ import { cn } from "@/lib/utils"
 import { useFormik } from "formik";
 import dynamic from "next/dynamic";
 import { textEditormodule } from "@/lib/constant";
+import { useDebounce } from "@/utils/debounce";
 
 // Dynamically import ReactQuill
 const ReactQuill = dynamic(() => import("react-quill-new"), {
@@ -57,10 +58,11 @@ const DefaultTemplateList = ({ eventId, templateType }) => {
   const [template,setTemplate] = useState(null)
 
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearchTerm = useDebounce(searchTerm);
 
   useEffect(() => {
     fetchDefaultTemplates();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearchTerm]);
 
   const fetchDefaultTemplates = async () => {
     setLoading(true);
