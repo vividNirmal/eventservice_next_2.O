@@ -18,9 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Edit2, Calendar, Mail, Phone, EllipsisVertical, Tickets, Key, CircleQuestionMark, FileBadge } from "lucide-react";
+import { Search, Edit2, Calendar, Mail, Phone, EllipsisVertical, Tickets, Key, CircleQuestionMark, FileBadge, Printer } from "lucide-react";
 import { toast } from "sonner";
-import { getRequest, updateRequest } from "@/service/viewService";
+import { getRequest, pdfgenrateRequest, updateRequest } from "@/service/viewService";
 import { CustomPagination } from "@/components/common/pagination";
 import RegistrationPreviewSheet from "./commponent/RegistrationPreviewSheet";
 import RegistrationEditSheet from "./commponent/RegistrationEditSheet";
@@ -46,6 +46,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
   const [editSheetOpen, setEditSheetOpen] = useState(false);
   const [selectedRegistration, setSelectedRegistration] = useState(null);
   const [formFields, setFormFields] = useState([]);
+  const [printLoading, setPrintLoading] = useState(false);
 
   const limits = [10, 20, 30, 50];
 
@@ -68,6 +69,16 @@ const RegistrationList = ({ eventId, userTypeId }) => {
     selectedTicket,
     dateRange,
   ]);
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const fetchTickets = async () => {
     try {
@@ -247,6 +258,29 @@ const RegistrationList = ({ eventId, userTypeId }) => {
     setEditSheetOpen(false);
   };
 
+  const handlePrint = async (formData) => {
+    if (!formData?._id) return;
+    try {
+      setPrintLoading(true);
+      const Adddata = new FormData();
+      Adddata.append("formRegistrationId", formData?._id);
+      const blob = await pdfgenrateRequest("generate-paper-pdf-scanner", Adddata);
+      const url = URL.createObjectURL(blob);
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = url;
+      document.body.appendChild(iframe);
+      iframe.onload = () => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setPrintLoading(false);
+      };
+    } catch (e) {
+      console.error(e);
+      setPrintLoading(false);
+    }
+  };
+
   const hasActiveFilters = search || selectedTicket || dateRange;
 
   return (
@@ -350,19 +384,20 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                   <TableHead>Status</TableHead>
                   <TableHead>Registered On</TableHead>
                   <TableHead>Change Status</TableHead>
+                  <TableHead>View Badge</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6">
+                    <TableCell colSpan={9} className="text-center py-6">
                       Loading...
                     </TableCell>
                   </TableRow>
                 ) : registrations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-6">
+                    <TableCell colSpan={9} className="text-center py-6">
                       No registrations found
                     </TableCell>
                   </TableRow>
@@ -403,11 +438,7 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        {new Date(reg.createdAt).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {formatDate(reg.createdAt)}
                       </TableCell>
                       <TableCell className="">
                         <div>
@@ -431,6 +462,18 @@ const RegistrationList = ({ eventId, userTypeId }) => {
                             </Button>
                           )}
                         </div>
+                      </TableCell>
+
+                      <TableCell className="">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePrint(reg)}
+                            title="Print Preview"
+                            disabled={printLoading}
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
                       </TableCell>
 
                       <TableCell className="text-right">

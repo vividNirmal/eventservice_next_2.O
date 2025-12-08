@@ -176,6 +176,16 @@ const ParticipantUserListPage = ({ id, eventId }) => {
       : {};
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   // Fetch participants with event filtering
   const fetchRegistrations = async () => {
     const dateParams = getDateRangeParams();
@@ -351,19 +361,21 @@ const ParticipantUserListPage = ({ id, eventId }) => {
                   <TableHead>Status</TableHead>
                   <TableHead>Registered On</TableHead>
                   <TableHead>Change Status</TableHead>
+                  <TableHead>CheckIn Time</TableHead>
+                  <TableHead>CheckOut Time</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-6">
+                    <TableCell colSpan={11} className="text-center py-6">
                       Loading...
                     </TableCell>
                   </TableRow>
                 ) : registrations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-6">
+                    <TableCell colSpan={11} className="text-center py-6">
                       No Attendees found
                     </TableCell>
                   </TableRow>
@@ -422,11 +434,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
 
                         {/* Registered On */}
                         <TableCell>
-                          {new Date(reg.createdAt).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
+                          {formatDate(reg.createdAt)}
                         </TableCell>
 
                         {/* Change Status */}
@@ -452,6 +460,16 @@ const ParticipantUserListPage = ({ id, eventId }) => {
                               </Button>
                             )}
                           </div>
+                        </TableCell>
+
+                        {/* CheckIn Time */}
+                        <TableCell>
+                          {reg?.checkin_time ? formatDate(reg.checkin_time) : "N/A"}
+                        </TableCell>
+
+                        {/* CheckOut Time */}
+                        <TableCell>
+                          {reg?.checkout_time ? formatDate(reg.checkout_time) : "N/A"}
                         </TableCell>
 
                         {/* Actions */}

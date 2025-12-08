@@ -17,6 +17,7 @@ export const CompanyImageProvider = ({ children }) => {
     logo: null,
     exhibitor_dashboard_banner: null,
     attandess_dashboard_banner: null,
+    company_login_banner: null,
     company_name: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -98,6 +99,7 @@ export const CompanyImageProvider = ({ children }) => {
     logo: companyImages.logo,
     exhibitorBanner: companyImages.exhibitor_dashboard_banner,
     attendeeBanner: companyImages.attandess_dashboard_banner,
+    loginBanner: companyImages.company_login_banner,
     companyName: companyImages.company_name
   };
 

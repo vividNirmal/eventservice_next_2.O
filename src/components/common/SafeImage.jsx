@@ -18,14 +18,14 @@ export const SafeImage = ({
   // const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // If src is undefined/null, we're still waiting for data
-    if (src === undefined || src === null) {
-      setIsLoading(true);
-      return;
-    }
+    // // If src is undefined/null, we're still waiting for data
+    // if (src === undefined || src === null) {
+    //   setIsLoading(true);
+    //   return;
+    // }
 
     // If src is empty string, use placeholder immediately
-    if (src === "") {
+    if (src === "" || !src) {
       setImgSrc(placeholderSrc);
       setMobileImgSrc(placeholderSrc);
       setIsLoading(false);

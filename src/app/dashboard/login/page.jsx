@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { loginRequest, postRequest } from "@/service/viewService"; // Import specific functions
+import { loginRequest, postRequest, userGetRequest } from "@/service/viewService"; // Import specific functions
 import DynamicTitle from "@/components/DynamicTitle";
 import { getDomainConfig } from "@/utils/domainBranding";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ export default function AdminLogin() {
     brandName: "",
     appName: "Event Services",
   });
+  const [companyData, setCompanyData] = useState(null);
   const router = useRouter();
   const dispatch = useDispatch();
   useEffect(() => {
@@ -68,6 +69,25 @@ useEffect(() => {
   setSubdomain(detectedSubdomain);
   setDomainConfig(getDomainConfig(detectedSubdomain));
 }, []);
+
+  // Fetch all data when subdomain is available
+  useEffect(() => {
+    if (!subdomain) return;
+
+    const fetchCompanyData = async () => {
+      try {
+        // Fetch company details by subdomain
+        const companyResponse = await userGetRequest(`get-company-login-banner/${subdomain}`);
+        if (companyResponse?.status === 1 && companyResponse?.data?.images) {
+          setCompanyData(companyResponse.data.images);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchCompanyData();
+  }, [subdomain]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -164,8 +184,8 @@ useEffect(() => {
     }
   };
 
-  const loginImg =
-    "/login-side-banner.svg?height=300&width=300&text=Login+Image";
+  // const loginImg =
+  //   "/login-side-banner.svg?height=300&width=300&text=Login+Image";
 
   return (
     <>
@@ -174,7 +194,7 @@ useEffect(() => {
         <div className="flex flex-wrap gap-3 lg:gap-4 h-[inherit]">
           <div className="w-full block lg:w-2/5 lg:grow lg:h-svh content-center">
             <div className="h-full flex justify-center items-center bg-white/20 [&>picture]:size-full">
-              <SafeImage src={loginImg} placeholderSrc="/login-side-banner.svg" alt="login" className="block object-fill w-full h-full" width={600} height={600} />
+              <SafeImage src={companyData?.company_login_banner} placeholderSrc="/login-side-banner.svg" alt="login" className="block object-fill w-full h-full" width={600} height={600} />
             </div>
           </div>
 

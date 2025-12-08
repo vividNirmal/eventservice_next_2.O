@@ -10,7 +10,8 @@ export default function ImageUploadPage() {
   const [images, setImages] = useState({
     logo: null,
     exhibitor_dashboard_banner: null,
-    attandess_dashboard_banner: null
+    attandess_dashboard_banner: null,
+    company_login_banner: null
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +41,8 @@ export default function ImageUploadPage() {
         const updatedImages = {
           logo: null,
           exhibitor_dashboard_banner: null,
-          attandess_dashboard_banner: null
+          attandess_dashboard_banner: null,
+          company_login_banner: null
         };
 
         // Map the API response to our state
@@ -65,6 +67,14 @@ export default function ImageUploadPage() {
             file: null,
             preview: companyImages.attandess_dashboard_banner,
             name: `Current attendee banner`,
+            isExisting: true
+          };
+        }
+        if (companyImages.company_login_banner) {
+          updatedImages.company_login_banner = {
+            file: null,
+            preview: companyImages.company_login_banner,
+            name: `Current login banner`,
             isExisting: true
           };
         }
@@ -269,10 +279,11 @@ export default function ImageUploadPage() {
 
         {/* Upload Grid */}
         <div className="flex flex-col mb-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <ImageUploadBox imageKey="logo" title={'Company Logo'} />
             <ImageUploadBox imageKey="exhibitor_dashboard_banner" title={'Exhibitor Banner'} />
             <ImageUploadBox imageKey="attandess_dashboard_banner" title={'Attendee Banner'} />
+            <ImageUploadBox imageKey="company_login_banner" title={'Company Login Banner'} />
           </div>
         </div>
 

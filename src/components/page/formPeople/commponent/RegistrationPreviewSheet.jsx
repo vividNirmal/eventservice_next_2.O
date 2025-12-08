@@ -119,9 +119,9 @@ const RegistrationPreviewSheet = ({
           {/* Header Info */}
           <div className="bg-muted mx-4 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold">
+              {/* <h2 className="text-lg font-semibold">
                 {registration.name || "Unnamed"}
-              </h2>
+              </h2> */}
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 {registration.email || "N/A"}
