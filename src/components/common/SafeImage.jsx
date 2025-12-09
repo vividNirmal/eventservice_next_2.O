@@ -62,11 +62,11 @@ export const SafeImage = ({
 
   return (
     <picture>
-      <source srcSet={mobileImgSrc} media="(min-width: 1025px)" />
-      <source srcSet={imgSrc} media="(min-width: 769px)" />
+      <source srcSet={imgSrc} media="(min-width: 1025px)" />
+      {/* <source srcSet={imgSrc} media="(min-width: 768px)" /> */}
       <img
         {...props}
-        src={imgSrc}
+        src={mobileImgSrc}
         alt={alt}
         width={width}
         height={height}
