@@ -42,6 +42,7 @@ import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog
 import { getRequest, postRequest } from "@/service/viewService";
 import { PackageFormDrawer } from "./addPackage";
 import moment from "moment";
+import { useDebounce } from "@/utils/debounce";
 
 export default function PackageManagement() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,6 +57,7 @@ export default function PackageManagement() {
   const [editUser, setEditUser] = useState(null);
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });  
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -79,7 +81,7 @@ export default function PackageManagement() {
   };
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

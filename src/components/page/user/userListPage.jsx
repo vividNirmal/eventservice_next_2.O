@@ -43,6 +43,7 @@ import { Switch } from "@/components/ui/switch";
 import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog";
 import { getRequest, postRequest } from "@/service/viewService";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
+import { useDebounce } from "@/utils/debounce";
 
 function UserList() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -62,6 +63,7 @@ function UserList() {
     user: null,
   });
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -85,7 +87,7 @@ function UserList() {
   };
   useEffect(() => {
     fetchUsers();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

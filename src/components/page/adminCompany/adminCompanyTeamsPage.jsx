@@ -25,6 +25,7 @@ import { CustomPagination } from "@/components/common/pagination";
 import { getRequest } from "@/service/viewService";
 import { toast } from "sonner";
 import moment from "moment";
+import { useDebounce } from "@/utils/debounce";
 
 function AdminCompanyTeamsPage({ id }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,6 +36,7 @@ function AdminCompanyTeamsPage({ id }) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchCompanyMembers = async () => {
     setLoading(true);
@@ -69,7 +71,7 @@ function AdminCompanyTeamsPage({ id }) {
     if (id) {
       fetchCompanyMembers();
     }
-  }, [currentPage, selectedLimit, searchTerm, id]);
+  }, [currentPage, selectedLimit, debouncedSearch, id]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

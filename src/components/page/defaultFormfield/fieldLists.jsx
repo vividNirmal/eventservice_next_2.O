@@ -42,6 +42,7 @@ import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog
 import { getRequest, postRequest } from "@/service/viewService";
 import { FormFieldAddDrawer } from "./addField";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDebounce } from "@/utils/debounce";
 
 export default function FieldLists() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,6 +60,7 @@ export default function FieldLists() {
   const [activeTab, setActiveTab] = useState("user"); // "user" or "admin"
   
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchFields = async () => {
     setLoading(true);
@@ -88,7 +90,7 @@ export default function FieldLists() {
 
   useEffect(() => {
     fetchFields();
-  }, [currentPage, selectedLimit, searchTerm, activeTab]);
+  }, [currentPage, selectedLimit, debouncedSearch, activeTab]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

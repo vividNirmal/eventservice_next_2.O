@@ -41,6 +41,7 @@ import { Switch } from "@/components/ui/switch";
 import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog";
 import { getRequest, postRequest } from "@/service/viewService";
 import { useRouter } from "next/navigation";
+import { useDebounce } from "@/utils/debounce";
 
 function BlogListPage() {
     const router = useRouter();
@@ -55,6 +56,7 @@ function BlogListPage() {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });
   const [statusDialog, setStatusDialog] = useState({ open: false, user: null });
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchBlogs = async () => {
     setLoading(true);
@@ -78,7 +80,7 @@ function BlogListPage() {
   };
   useEffect(() => {
     fetchBlogs();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

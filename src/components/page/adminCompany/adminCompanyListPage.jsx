@@ -40,6 +40,7 @@ import { toast } from "sonner";
 import { getRequest, postRequest } from "@/service/viewService";
 import Addcompany from "./Addcompany";
 import { useRouter } from "next/navigation";
+import { useDebounce } from "@/utils/debounce";
 
 function AdminCompanyListPage() {
   const router = useRouter();
@@ -56,6 +57,7 @@ function AdminCompanyListPage() {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });
   const [statusDialog, setStatusDialog] = useState({ open: false, user: null });
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchCompany = async () => {
     setLoading(true);
@@ -79,7 +81,7 @@ function AdminCompanyListPage() {
   };
   useEffect(() => {
     fetchCompany();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

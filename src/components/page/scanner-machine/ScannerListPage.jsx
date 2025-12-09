@@ -44,6 +44,7 @@ import { StatusConfirmationDialog } from "@/components/common/statuschangeDialog
 import { getRequest, postRequest } from "@/service/viewService";
 import moment from "moment";
 import AddScanner from "./AddScanner";
+import { useDebounce } from "@/utils/debounce";
 
 function ScannerListPage() {
   const [scannerList, setScannerList] = useState([]);
@@ -60,6 +61,7 @@ function ScannerListPage() {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });
   const [assginDialog, setAssginDialog] = useState({ open: false, user: null });  
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchScanner = async () => {
     setLoading(true);
@@ -84,7 +86,7 @@ function ScannerListPage() {
 
   useEffect(() => {
     fetchScanner();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

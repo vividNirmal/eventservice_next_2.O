@@ -31,6 +31,7 @@ import { CustomPagination } from "@/components/common/pagination";
 import { getRequest, postRequest, updateRequest } from "@/service/viewService";
 import { toast } from "sonner";
 import RegistrationEditSheet from "../formPeople/commponent/RegistrationEditSheet";
+import { useDebounce } from "@/utils/debounce";
 
 const ParticipantUserListPage = ({ id, eventId }) => {
   const router = useRouter();
@@ -52,6 +53,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
   const [formFields, setFormFields] = useState([]);
   const [dateRange, setDateRange] = useState("all");
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   // ✅ Utility function to get mapped field values
   const getMappedFieldValue = (registration, mapKey, fallbackValue = null) => {
@@ -248,7 +250,7 @@ const ParticipantUserListPage = ({ id, eventId }) => {
 
   useEffect(() => {
     fetchRegistrations();
-  }, [currentPage, selectedLimit, searchTerm, selectedEvent, dateRange]);
+  }, [currentPage, selectedLimit, debouncedSearch, selectedEvent, dateRange]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

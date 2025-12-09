@@ -46,6 +46,7 @@ import { getRequest, postRequest } from "@/service/viewService";
 import moment from "moment";
 import { Switch } from "@/components/ui/switch";
 import AddCompany from "./addCompany";
+import { useDebounce } from "@/utils/debounce";
 // import AddScanner from "./AddScanner";
 // import AssignScanner from "./AssignScanner";
 
@@ -64,6 +65,7 @@ export default function EventCompany() {
   const [statusLoading, setStatusLoading] = useState(false);
   const [statusDialog, setStatusDialog] = useState({ open: false, company: null });
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchCompanies = async () => {
     setLoading(true);
@@ -88,7 +90,7 @@ export default function EventCompany() {
 
   useEffect(() => {
     fetchCompanies();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);

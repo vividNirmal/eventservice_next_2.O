@@ -38,6 +38,7 @@ import { DeleteConfirmationDialog } from "@/components/common/deleteDialog";
 import AddCompanyMember from "./AddTeamsfomstep/AddTeams";
 import { getRequest, postRequest } from "@/service/viewService";
 import { toast } from "sonner";
+import { useDebounce } from "@/utils/debounce";
 
 function AdminTeams() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,6 +54,7 @@ function AdminTeams() {
   const [deleteDialog, setDeleteDialog] = useState({ open: false, users: [] });
   const [deleteLoading, setDeleteLoading] = useState(false);
   const dataLimits = [10, 20, 30, 50];
+  const debouncedSearch = useDebounce(searchTerm);
 
   const fetchCompanyMembers = async () => {
     setLoading(true);
@@ -90,7 +92,7 @@ function AdminTeams() {
 
   useEffect(() => {
     fetchCompanyMembers();
-  }, [currentPage, selectedLimit, searchTerm]);
+  }, [currentPage, selectedLimit, debouncedSearch]);
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
